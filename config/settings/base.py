@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # ------------------------------------------------
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-*dummy-key-for-dev*')
 DEBUG = False
-ALLOWED_HOSTS = ['brymax-2.onrender.com', 'www.brymax-2.onrender.com']
+ALLOWED_HOSTS = ['brymax_2.onrender.com', 'brymax_2.onrender.com', 'www.brymax_2.onrender.com']
 
 # ------------------------------------------------
 # 📦 Installed Applications
