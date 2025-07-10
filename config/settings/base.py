@@ -92,11 +92,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # 🗄️ Dynamic Database Switching
 # ----------------------------------------
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        ssl_require=not DEBUG
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'online': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'brymax_db_y2uq',
+        'USER': 'brymax_db_y2uq_user',
+        'PASSWORD': 'sq1fXECNONWPTs9bv7WosydrmfJUx5y0',
+        'HOST': 'dpg-d1nu1gre5dus73bbqos0-a.frankfurt-postgres.render.com',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require'
+        }
+    }
 }
 
 # ----------------------------------------
