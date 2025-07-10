@@ -5,7 +5,7 @@ Development specific settings for GoodMan Safari Pro
 from .base import *
 
 # Debug mode
-DEBUG = True
+DEBUG = False
 
 # Allowed hosts
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']

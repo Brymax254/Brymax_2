@@ -7,11 +7,15 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Sum, Avg
+from django.http import HttpResponse
+from django.core.management import call_command
+from django.contrib.admin.views.decorators import staff_member_required
+from urllib.parse import quote
+
 from .forms import RideRequestForm, CustomUserCreationForm, RideRatingForm
 from .models import RideRequest, CabType
 from .utils import match_driver_to_ride
-from urllib.parse import quote
-from django.utils.http import urlencode
+
 
 # -------------------- Home Page --------------------
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -20,7 +24,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['featured_tours'] = []  # Add actual tours if available
+        context['featured_tours'] = []  # Replace with actual tour data
         context['current_ride'] = RideRequest.objects.filter(user=user, status='REQUESTED').last()
         context['past_rides'] = RideRequest.objects.filter(user=user).exclude(status='REQUESTED')[:5]
         context['group_names'] = list(user.groups.values_list('name', flat=True))
@@ -35,7 +39,7 @@ def request_ride(request):
         if form.is_valid():
             ride = form.save(commit=False)
             ride.user = request.user
-            ride.distance_km = 5.0  # You may calculate dynamically later
+            ride.distance_km = 5.0  # Placeholder
             ride.save()
             match_driver_to_ride(ride)
             messages.success(request, "Your ride request has been submitted successfully!")
@@ -68,7 +72,7 @@ def about(request):
 
 def contact(request):
     if request.method == 'POST':
-        pass  # Add contact form handling logic
+        pass  # Add contact form logic
     return render(request, 'core/contact.html')
 
 def terms(request):
@@ -90,6 +94,8 @@ def trip_history(request):
         'average_rating': trips.aggregate(Avg('rating'))['rating__avg'] or 0,
     }
     return render(request, 'core/ride_detail.html', context)
+
+
 # -------------------- Register --------------------
 def register(request):
     if request.method == 'POST':
@@ -109,18 +115,7 @@ def profile_view(request):
     return render(request, 'core/profile.html', {'user': request.user})
 
 
-# -------------------- Fare Calculation --------------------
-
-# -------------------- Custom Login View --------------------
-class CustomLoginView(LoginView):
-    template_name = 'registration/login.html'
-
-    def get_success_url(self):
-        if self.request.user.is_staff:
-            return '/admin/'  # Redirect admin users to Django admin panel
-        return reverse('core:home')  # Regular users to homepage
-
-# --------------------  RATE RIDE --------------------
+# -------------------- Rate Ride --------------------
 @login_required
 def rate_ride(request, ride_id):
     ride = get_object_or_404(RideRequest, id=ride_id, user=request.user)
@@ -129,18 +124,24 @@ def rate_ride(request, ride_id):
         form = RideRatingForm(request.POST, instance=ride)
         if form.is_valid():
             form.save()
-            return redirect('trip_history')  # redirect to ride history or anywhere
+            return redirect('core:trip_history')
     else:
         form = RideRatingForm(instance=ride)
 
     return render(request, 'core/rate_ride.html', {'form': form, 'ride': ride})
 
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.http import urlencode  # For safe URL encoding
-from .models import RideRequest
+# -------------------- Custom Login View --------------------
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
 
+    def get_success_url(self):
+        if self.request.user.is_staff:
+            return reverse('admin:index')  # Admin panel
+        return reverse('core:home')  # Normal users
+
+
+# -------------------- Confirm Ride --------------------
 @login_required
 def confirm_ride(request):
     if request.method == 'POST':
@@ -151,7 +152,7 @@ def confirm_ride(request):
         notes = request.POST.get('notes', '')
 
         user = request.user
-        phone = user.profile.phone_number if hasattr(user, 'profile') else "Not Provided"
+        phone = getattr(user.profile, 'phone_number', 'Not Provided')
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
 
         ride = RideRequest.objects.create(
@@ -178,16 +179,14 @@ def confirm_ride(request):
         )
 
         whatsapp_url = f"https://api.whatsapp.com/send?phone=254759234580&text={quote(message)}"
-
-        # Save the URL temporarily via session or pass it back
         request.session['whatsapp_url'] = whatsapp_url
         return redirect('core:ride_detail', ride_id=ride.id)
 
     return redirect('core:home')
 
-from django.http import HttpResponse
-from django.core.management import call_command
 
+# -------------------- Run Migrations from View --------------------
+@staff_member_required
 def run_migrations(request):
     call_command('migrate')
     return HttpResponse("Migrations ran successfully.")
