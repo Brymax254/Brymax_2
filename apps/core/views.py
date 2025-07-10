@@ -160,7 +160,7 @@ def confirm_ride(request):
         notes = request.POST.get('notes', '')
 
         user = request.user
-        phone = getattr(user.profile, 'phone_number', 'Not Provided')
+
         full_name = f"{user.first_name} {user.last_name}".strip() or user.username
 
         ride = RideRequest.objects.create(
