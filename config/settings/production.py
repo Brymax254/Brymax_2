@@ -17,7 +17,11 @@ ALLOWED_HOSTS = ['brymax-2.onrender.com', 'www.brymax-2.onrender.com']
 
 # Database (uses DATABASE_URL environment variable)
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    'default': dj_database_url.parse(
+        "postgresql://brymax_db_y2uq_user:sq1fXECNONWPTs9bv7WosydrmfJUx5y0@dpg-d1nu1gre5dus73bbqos0-a.frankfurt-postgres.render.com/brymax_db_y2uq",
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 # Static files (CSS, JavaScript, Images)
