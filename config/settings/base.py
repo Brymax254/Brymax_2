@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Security
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-*dummy-key-for-dev*')
 DEBUG = False
-ALLOWED_HOSTS = ['*']  # You can restrict this later to your Render domain
+ALLOWED_HOSTS = ['brymax-2.onrender.com', 'www.brymax-2.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
