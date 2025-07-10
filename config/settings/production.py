@@ -11,6 +11,8 @@ import os
 # ----------------------------------------
 DEBUG = False
 ALLOWED_HOSTS = [
+'brymax.xyz',
+    'www.brymax.xyz',
     'brymax-2.onrender.com',
     'www.brymax-2.onrender.com'
 ]
