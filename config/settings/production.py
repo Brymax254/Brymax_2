@@ -26,5 +26,5 @@ ALLOWED_HOSTS = ['brymax-2.onrender.com', 'www.brymax-2.onrender.com']
 # }
 
 # Static files in production
-STATIC_ROOT = '/var/www/goodman-safari/static'
-MEDIA_ROOT = '/var/www/goodman-safari/media'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
