@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: goodman-safari
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: goodman-safari.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: goodman-db
+          property: connectionString
+
+databases:
+  - name: goodman-db
+    databaseName: goodmandb
+    user: goodmanuser
