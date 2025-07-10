@@ -17,17 +17,25 @@ from .models import RideRequest, CabType
 from .utils import match_driver_to_ride
 
 
-# -------------------- Home Page --------------------
-class HomeView(LoginRequiredMixin, TemplateView):
+# -------------------- Home Page --------------------#
+class HomeView(TemplateView):
     template_name = 'core/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
+
+        # Only load user-specific data if the user is authenticated
+        if self.request.user.is_authenticated:
+            user = self.request.user
+            context['current_ride'] = RideRequest.objects.filter(user=user, status='REQUESTED').last()
+            context['past_rides'] = RideRequest.objects.filter(user=user).exclude(status='REQUESTED')[:5]
+            context['group_names'] = list(user.groups.values_list('name', flat=True))
+        else:
+            context['current_ride'] = None
+            context['past_rides'] = []
+            context['group_names'] = []
+
         context['featured_tours'] = []  # Replace with actual tour data
-        context['current_ride'] = RideRequest.objects.filter(user=user, status='REQUESTED').last()
-        context['past_rides'] = RideRequest.objects.filter(user=user).exclude(status='REQUESTED')[:5]
-        context['group_names'] = list(user.groups.values_list('name', flat=True))
         return context
 
 
