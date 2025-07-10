@@ -176,7 +176,6 @@ def confirm_ride(request):
         message = (
             f"🚗 NEW RIDE BOOKING\n"
             f"👤 Name: {full_name}\n"
-            f"📞 Phone: {phone}\n"
             f"📍 Pickup: {pickup}\n"
             f"📍 Drop-off: {dropoff}\n"
             f"📅 Date/Time: {date}\n"
