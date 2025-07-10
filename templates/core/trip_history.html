@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-50 antialiased">
+<head>
+  <style>
+    /* Fade-in keyframes */
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Utility classes */
+    .animate-fadeIn {
+      animation-name: fadeInSlide;
+      animation-duration: 0.5s;
+      animation-fill-mode: both;
+      animation-timing-function: ease;
+    }
+    .ride-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .ride-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(67, 97, 238, 0.15);
+    }
+  </style>
+  </head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ride History</title>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <nav class="fixed top-0 w-full bg-white/30 backdrop-blur-md shadow z-20">
+    <div
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
+    >
+      <div class="flex space-x-4">
+        <a
+          href="{% url 'core:home' %}"
+          class="flex items-center text-gray-700 hover:text-indigo-600 transition"
+        >
+          <i class="fas fa-home mr-1"></i> Home
+        </a>
+        <a
+          href="{% url 'core:profile' %}"
+          class="flex items-center text-gray-700 hover:text-indigo-600 transition"
+        >
+          <i class="fas fa-user mr-1"></i> Profile
+        </a>
+        <a
+          href="{% url 'logout' %}"
+          class="flex items-center text-gray-700 hover:text-red-500 transition"
+        >
+          <i class="fas fa-sign-out-alt mr-1"></i> Logout
+        </a>
+      </div>
+      <div class="flex items-center text-gray-600 text-sm">
+        <i class="far fa-clock mr-1"></i>
+        <span id="currentDateTime"></span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 pt-20 px-4 sm:px-6 lg:px-8 pb-10">
+    <!-- Header -->
+    <header class="text-center mb-8">
+      <h1 class="text-3xl font-extrabold text-gray-900">My Ride History</h1>
+      <p class="mt-1 text-gray-500">
+        Track status, driver details, and payment info—all in one place.
+      </p>
+
+      {% if request.session.whatsapp_url %}
+      <button
+        id="whatsappBtn"
+        class="mt-6 inline-flex items-center bg-green-500 text-white px-6 py-2 rounded-full shadow-lg hover:bg-green-600 transition"
+      >
+        <i class="fab fa-whatsapp mr-2"></i>Confirm on WhatsApp
+      </button>
+      {% endif %}
+    </header>
+
+    <!-- Filters -->
+    <form
+      method="get"
+      class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10"
+    >
+      <div>
+        <label for="date-range" class="block text-sm font-medium text-gray-700"
+          >Date Range</label
+        >
+        <select
+          id="date-range"
+          name="date_range"
+          class="mt-1 block w-full bg-white border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option>Last 7 days</option>
+          <option selected>Last 30 days</option>
+          <option>Last 90 days</option>
+          <option>All time</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="status-filter" class="block text-sm font-medium text-gray-700"
+          >Status</label
+        >
+        <select
+          id="status-filter"
+          name="status"
+          class="mt-1 block w-full bg-white border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option>All Statuses</option>
+          <option>Completed</option>
+          <option>In Progress</option>
+          <option>Cancelled</option>
+          <option>Pending</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2">
+        <label for="search" class="block text-sm font-medium text-gray-700"
+          >Search</label
+        >
+        <input
+          type="text"
+          id="search"
+          name="search"
+          placeholder="Location or driver..."
+          class="mt-1 block w-full bg-white border rounded-md shadow-sm px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+    </form>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+      <div
+        class="bg-white/60 backdrop-blur-md rounded-lg p-5 flex items-center space-x-4 shadow hover:shadow-lg transition"
+      >
+        <i class="fas fa-car text-indigo-500 text-2xl"></i>
+        <div>
+          <div class="text-2xl font-bold text-gray-900">{{ total_rides }}</div>
+          <div class="text-sm text-gray-600">Total Rides</div>
+        </div>
+      </div>
+      <div
+        class="bg-white/60 backdrop-blur-md rounded-lg p-5 flex items-center space-x-4 shadow hover:shadow-lg transition"
+      >
+        <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+        <div>
+          <div class="text-2xl font-bold text-gray-900">
+            {{ completed_rides }}
+          </div>
+          <div class="text-sm text-gray-600">Completed</div>
+        </div>
+      </div>
+      <div
+        class="bg-white/60 backdrop-blur-md rounded-lg p-5 flex items-center space-x-4 shadow hover:shadow-lg transition"
+      >
+        <i class="fas fa-money-bill-wave text-yellow-500 text-2xl"></i>
+        <div>
+          <div class="text-2xl font-bold text-gray-900">
+            ${{ total_spent|floatformat:2 }}
+          </div>
+          <div class="text-sm text-gray-600">Total Spent</div>
+        </div>
+      </div>
+      <div
+        class="bg-white/60 backdrop-blur-md rounded-lg p-5 flex items-center space-x-4 shadow hover:shadow-lg transition"
+      >
+        <i class="fas fa-star text-yellow-400 text-2xl"></i>
+        <div>
+          <div class="text-2xl font-bold text-gray-900">
+            {{ average_rating|floatformat:1 }}
+          </div>
+          <div class="text-sm text-gray-600">Average Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ride Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% if trips %}
+        {% for ride in trips %}
+        <div
+          class="group relative bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-md transform transition hover:scale-105 hover:shadow-xl animate-fadeIn"
+         style="animation-delay: {{ forloop.counter0 }}00ms;"
+        >
+          <header class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Ride #{{ forloop.counter }}</h3>
+            <time
+              class="text-sm text-gray-500"
+            >{{ ride.created_at|date:"M d, Y - h:i A" }}</time>
+          </header>
+
+          <div class="space-y-4">
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-map-marker-alt text-indigo-500"></i>
+              <div>
+                <div class="text-xs text-gray-500">From</div>
+                <div class="text-sm font-medium text-gray-700">{{ ride.pickup_location }}</div>
+              </div>
+            </div>
+            <div class="flex items-start space-x-3">
+              <i class="fas fa-flag-checkered text-green-500"></i>
+              <div>
+                <div class="text-xs text-gray-500">To</div>
+                <div class="text-sm font-medium text-gray-700">{{ ride.dropoff_location }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-4">
+            <div>
+              <div class="text-xs text-gray-500">Status</div>
+              <span
+                class="inline-block px-2 py-1 text-xs font-semibold rounded
+                {% if ride.status == 'Completed' %}bg-green-100 text-green-800
+                {% elif ride.status == 'In Progress' %}bg-blue-100 text-blue-800
+                {% elif ride.status == 'Cancelled' %}bg-red-100 text-red-800
+                {% else %}bg-yellow-100 text-yellow-800{% endif %}"
+              >
+                {{ ride.status }}
+              </span>
+            </div>
+            <div>
+              <div class="text-xs text-gray-500">Fare</div>
+              <div class="text-sm font-medium text-gray-700">
+                {% if ride.estimated_fare %}${{ ride.estimated_fare|floatformat:2 }}{% else %}-{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 flex items-center border-t pt-4">
+            {% if ride.assigned_driver %}
+            <div class="h-10 w-10 flex items-center justify-center bg-indigo-500 text-white rounded-full">
+              {{ ride.assigned_driver.name|slice:":1"|upper }}
+            </div>
+            <div class="ml-3">
+              <div class="text-sm font-semibold text-gray-800">{{ ride.assigned_driver.name }}</div>
+              <div class="text-xs text-gray-500">Driver</div>
+            </div>
+            {% else %}
+            <div class="h-10 w-10 flex items-center justify-center bg-yellow-300 text-white rounded-full">
+              <i class="fas fa-exclamation"></i>
+            </div>
+            <div class="ml-3">
+              <div class="text-sm font-semibold text-gray-800">No driver assigned</div>
+              <div class="text-xs text-gray-500">Waiting</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-span-full text-center py-20 text-gray-500">
+          <i class="fas fa-car text-4xl mb-4"></i>
+          <h3 class="text-xl font-semibold">No Rides Yet</h3>
+          <p class="mt-2">Book your first ride to get started!</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <script>
+    // Live clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('currentDateTime').textContent = now.toLocaleString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // WhatsApp button
+    {% if request.session.whatsapp_url %}
+    document.getElementById('whatsappBtn').addEventListener('click', () => {
+      window.open("{{ request.session.whatsapp_url|safe }}", "_blank");
+    });
+    {% endif %}
+  </script>
+</body>
+</html>

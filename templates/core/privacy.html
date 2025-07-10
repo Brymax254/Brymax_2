@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+  <div class="text-center mb-12">
+    <h1 class="text-3xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
+    <p class="text-gray-600">Effective from: {% now "F j, Y" %}</p>
+  </div>
+
+  <div class="prose prose-lg max-w-none">
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">1. Information We Collect</h2>
+      <p class="mb-4">
+        We collect personal information when you make a booking, including name, contact details, 
+        passport information, and payment details.
+      </p>
+      <p>
+        We also collect non-personal information about website usage through cookies.
+      </p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">2. How We Use Your Information</h2>
+      <ul class="list-disc pl-5 space-y-2">
+        <li>To process your bookings and payments</li>
+        <li>To communicate with you about your safari</li>
+        <li>To improve our services</li>
+        <li>For legal and regulatory compliance</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">3. Data Security</h2>
+      <p class="mb-4">
+        We implement appropriate security measures to protect your personal information.
+      </p>
+      <p>
+        Payment transactions are encrypted using SSL technology.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-semibold mb-4">4. Your Rights</h2>
+      <p class="mb-4">
+        You have the right to access, correct, or delete your personal information.
+      </p>
+      <p>
+        To exercise these rights, please contact us at privacy@goodmansafari.com.
+      </p>
+    </section>
+  </div>
+</div>
+{% endblock %}
