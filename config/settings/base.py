@@ -9,20 +9,25 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# Security
+# ------------------------------------------------
+# 🔐 Security Settings
+# ------------------------------------------------
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-*dummy-key-for-dev*')
 DEBUG = False
 ALLOWED_HOSTS = ['brymax-2.onrender.com', 'www.brymax-2.onrender.com']
 
-# Application definition
+# ------------------------------------------------
+# 📦 Installed Applications
+# ------------------------------------------------
 INSTALLED_APPS = [
-    'whitenoise.runserver_nostatic',  # 🧊 WhiteNoise for local + production static serving
+    'whitenoise.runserver_nostatic',  # Serve static files efficiently
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     # Local apps
     'apps.core',
     'apps.client',
@@ -32,9 +37,12 @@ INSTALLED_APPS = [
     'apps.adminpanel',
 ]
 
+# ------------------------------------------------
+# ⚙️ Middleware Configuration
+# ------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 🧊 WhiteNoise middleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -43,8 +51,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# ------------------------------------------------
+# 🔗 URL Configuration
+# ------------------------------------------------
 ROOT_URLCONF = 'config.urls'
 
+# ------------------------------------------------
+# 🧠 Templates
+# ------------------------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -61,9 +75,14 @@ TEMPLATES = [
     },
 ]
 
+# ------------------------------------------------
+# 🔌 WSGI Application
+# ------------------------------------------------
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database (SQLite for dev; update to PostgreSQL for Render later)
+# ------------------------------------------------
+# 🗄️ Database
+# ------------------------------------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -71,24 +90,34 @@ DATABASES = {
     }
 }
 
-# Internationalization
+# ------------------------------------------------
+# 🌍 Internationalization
+# ------------------------------------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# ------------------------------------------------
+# 🗂 Static Files
+# ------------------------------------------------
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files
+# ------------------------------------------------
+# 📁 Media Files
+# ------------------------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Authentication
+# ------------------------------------------------
+# 🔑 Authentication
+# ------------------------------------------------
 LOGIN_URL = '/login/'
+
+# ------------------------------------------------
+# 🆔 Primary Key Field Type
+# ------------------------------------------------
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
