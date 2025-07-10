@@ -11,7 +11,7 @@ SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
 
 # Allowed hosts (update with production domain)
-ALLOWED_HOSTS = ['your-production-domain.com']
+ALLOWED_HOSTS = ['brymax-2.onrender.com', 'www.brymax-2.onrender.com']
 
 # Database (configure your production DB)
 # DATABASES = {
