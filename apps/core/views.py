@@ -185,3 +185,9 @@ def confirm_ride(request):
 
     return redirect('core:home')
 
+from django.http import HttpResponse
+from django.core.management import call_command
+
+def run_migrations(request):
+    call_command('migrate')
+    return HttpResponse("Migrations ran successfully.")

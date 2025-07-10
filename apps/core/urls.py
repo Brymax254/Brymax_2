@@ -34,3 +34,9 @@ urlpatterns = [
     path('ride/<int:ride_id>/cancel/', cancel_ride, name='cancel_ride'),
     path('confirm-ride/', views.confirm_ride, name='confirm_ride'),
 ]
+from django.urls import path
+from apps.core.views import run_migrations
+
+urlpatterns += [
+    path('run-migrations/', run_migrations),
+]
