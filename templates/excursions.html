@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="excursions-container">
+    <!-- Header -->
+    <div class="header-section">
+        <h1>Discover Kenya's Wonders</h1>
+        <p class="subtitle">Book unforgettable excursions with expert guides and premium comfort</p>
+    </div>
+
+    <!-- Excursions Listing -->
+    <div class="excursions-listing">
+        <h2>Popular Excursions</h2>
+        <div class="excursion-cards">
+            <div class="excursion-card">
+                <h3>Nairobi National Park</h3>
+                <p>Witness wildlife just outside the city. Perfect for family trips and photography enthusiasts.</p>
+            </div>
+            <div class="excursion-card">
+                <h3>Giraffe Centre</h3>
+                <p>Feed the endangered Rothschild giraffes and learn about conservation efforts.</p>
+            </div>
+            <div class="excursion-card">
+                <h3>David Sheldrick Elephant Orphanage</h3>
+                <p>Meet orphaned elephants and support their rehabilitation.</p>
+            </div>
+            <div class="excursion-card">
+                <h3>Karen Blixen Museum</h3>
+                <p>Explore the colonial home of the famous author and its beautiful gardens.</p>
+            </div>
+            <div class="excursion-card">
+                <h3>Nairobi City Tour</h3>
+                <p>Discover Nairobi’s highlights including markets, landmarks, and cultural hotspots.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Book Form -->
+    <div class="quick-book-section">
+        <h2>Quick Book an Excursion</h2>
+        <form method="POST" class="booking-form">
+            {% csrf_token %}
+            <input type="hidden" name="service" value="Excursion">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Time</label>
+                    <input type="time" name="time" required>
+                </div>
+                <div class="form-group">
+                    <label>Participants</label>
+                    <input type="number" name="passengers" min="1" value="2" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Pickup Location</label>
+                    <input type="text" name="from_location" placeholder="Hotel / Address">
+                </div>
+                <div class="form-group">
+                    <label>Excursion / Destination</label>
+                    <input type="text" name="to_location" placeholder="e.g., Nairobi National Park">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" name="name" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" name="note" placeholder="Special requests">
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Book via WhatsApp</button>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Full-screen container */
+.excursions-container {
+    min-height: 100vh;
+    width: 100%;
+    padding: 40px 5%;
+    background: linear-gradient(to bottom right, #f4f9f4, #e8f5e9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Header */
+.header-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.header-section h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #2c5e1a;
+    font-weight: 700;
+}
+.subtitle {
+    color: #555;
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+/* Excursion Cards */
+.excursions-listing {
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 50px;
+}
+.excursions-listing h2 {
+    font-size: 2rem;
+    color: #2c5e1a;
+    border-bottom: 3px solid #e6b325;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.excursion-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+.excursion-card {
+    background: white;
+    flex: 1 1 calc(30% - 20px);
+    min-width: 250px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.excursion-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+.excursion-card h3 {
+    color: #2c5e1a;
+    margin-bottom: 10px;
+}
+
+/* Quick Book Form */
+.quick-book-section {
+    width: 100%;
+    max-width: 1200px;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+.quick-book-section h2 {
+    color: #2c5e1a;
+    border-bottom: 3px solid #e6b325;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+.form-group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+    color: #444;
+}
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+/* Button */
+.submit-btn {
+    background: #2c5e1a;
+    color: white;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    align-self: flex-start;
+}
+.submit-btn:hover {
+    background: #3a7a23;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .excursion-card { flex: 1 1 calc(45% - 20px); }
+}
+@media (max-width: 768px) {
+    .excursion-card { flex: 1 1 100%; }
+    .form-row { flex-direction: column; }
+    .submit-btn { align-self: stretch; text-align: center; }
+}
+</style>
+{% endblock %}

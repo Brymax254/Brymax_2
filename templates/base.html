@@ -1,20 +1,158 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodMan Safari Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="Premium Airport Transfers, Tours & Destinations from Nairobi. Book online for reliable and professional travel services.">
+  <meta name="keywords" content="Nairobi Airport Transfers, Kenya Tours, Safaris, Excursions, Premium Travel Services">
+  <meta name="author" content="Mantra Booking Agencies">
+  <title>{% block title %}Airport & Destinations | Premium Travel Services{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+  <!-- Styles -->
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --error: #ef4444;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --rounded: 0.5rem;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; line-height: 1.6; background: var(--light); color: var(--dark); }
+
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+
+    /* Header */
+    .header { background: white; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; padding: 1rem 0; }
+    .header .container { display: flex; justify-content: space-between; align-items: center; }
+    .brand a { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--primary); text-decoration: none; display: flex; align-items: center; transition: var(--transition); }
+    .brand a:hover { color: var(--primary-dark); }
+    .brand i { font-size: 1.75rem; margin-right: 0.5rem; }
+
+    .nav { display: flex; gap: 1.5rem; align-items: center; transition: var(--transition); }
+    .nav a { color: var(--dark); text-decoration: none; font-weight: 500; position: relative; padding: 0.5rem 0; }
+    .nav a:hover { color: var(--primary); }
+    .nav a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--primary); transition: width 0.3s ease; }
+    .nav a:hover::after { width: 100%; }
+
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: var(--transition); }
+
+    /* Footer */
+    .footer { background: var(--dark); color: white; padding: 2rem 0; text-align: center; }
+    .social-links { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; }
+    .social-link { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); color: white; transition: var(--transition); }
+    .social-link:hover { background: var(--primary); transform: translateY(-2px); }
+
+    /* Mobile menu */
+    @media (max-width: 768px) {
+      .nav {
+        position: fixed;
+        top: 75px;
+        left: 0;
+        width: 100%;
+        background: white;
+        flex-direction: column;
+        gap: 0;
+        padding: 1rem 0;
+        box-shadow: var(--shadow);
+        transform: translateY(-150%);
+        transition: var(--transition);
+        z-index: 99;
+      }
+      .nav.active { transform: translateY(0); }
+      .nav a { width: 100%; padding: 1rem; border-top: 1px solid var(--light-gray); }
+      .nav a:hover { background: var(--light-gray); }
+      .mobile-menu-btn { display: block; }
+    }
+
+    /* Smooth hover effects */
+    a, button { transition: var(--transition); }
+  </style>
+
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
 </head>
-<body class="bg-gray-100">
-    {% include 'components/navigation.html' %}
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="brand">
+        <a href="/" aria-label="Home">
+          <i class="fas fa-plane-departure"></i>
+          Airport & Destinations
+        </a>
+      </div>
+      <nav class="nav" id="mainNav" aria-label="Main Navigation">
+        <a href="/">Home</a>
+        <a href="/book-online/">Book Online</a>
+        <a href="/nairobi-airport-transfers-and-taxis/">Airport Transfers</a>
+        <a href="/book/excursions/">Excursions</a>
+        <a href="/tours-and-safaris/">Tours & Safaris</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+      <button class="mobile-menu-btn" id="menuToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainNav">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
 
-    <main class="container mx-auto mt-8 px-4">
-        {% block content %}{% endblock %}
-    </main>
+  <!-- Main -->
+  <main class="container py-12">
+    {% block content %}{% endblock %}
+  </main>
 
-    <footer class="mt-12 py-6 bg-gray-800 text-white text-center">
-        <p>&copy; {% now "Y" %} GoodMan Safari Pro. All rights reserved.</p>
-    </footer>
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© {% now "Y" %} Mantra Booking Agencies • Nairobi, Kenya</p>
+    <div class="social-links">
+      <a href="https://facebook.com" class="social-link" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://twitter.com" class="social-link" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="https://instagram.com" class="social-link" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="https://wa.me/254759234580" class="social-link" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuToggle = document.getElementById('menuToggle');
+      const mainNav = document.getElementById('mainNav');
+
+      menuToggle.addEventListener('click', () => {
+        const isOpen = mainNav.classList.toggle('active');
+        menuToggle.setAttribute('aria-expanded', isOpen);
+        menuToggle.querySelector('i').classList.toggle('fa-bars');
+        menuToggle.querySelector('i').classList.toggle('fa-times');
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mainNav.contains(e.target) && !menuToggle.contains(e.target)) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+          menuToggle.querySelector('i').classList.add('fa-bars');
+          menuToggle.querySelector('i').classList.remove('fa-times');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

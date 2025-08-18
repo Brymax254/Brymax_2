@@ -1,0 +1,1000 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver Dashboard | Safari Adventures Kenya</title>
+<!-- Alpine.js -->
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Tailwind CSS (latest stable v3) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Safari palette */
+    --safari-green:   #1a6d4c;
+    --safari-sky:     #0ea5e9;
+    --safari-sun:     #f59e0b;
+    --safari-sunset:  #e74c3c;
+    --safari-sand:    #fdf3e7;
+    --safari-earth:   #8B4513;
+
+    /* Accent gradients */
+    --grad-sky:    linear-gradient(135deg, #0ea5e9, #38bdf8);
+    --grad-sunset: linear-gradient(135deg, #e67e22, #e74c3c);
+    --grad-forest: linear-gradient(135deg, #1a6d4c, #16a34a);
+
+    /* Glassmorphism */
+    --glass-bg:     rgba(255, 255, 255, 0.22);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 12px 35px rgba(0,0,0,0.15);
+
+    /* Radii & transitions */
+    --radius-sm: .5rem;
+    --radius-lg: 1rem;
+    --transition-fast: .25s ease;
+
+    /* Typography */
+    --font-family: 'Poppins', 'Inter', sans-serif;
+    --text-default: #333;
+  }
+
+  /* Dark-mode override */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --glass-bg:     rgba(30,30,30,0.55);
+      --glass-border: rgba(255,255,255,0.08);
+      --text-default: #e5e7eb;
+    }
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+    }
+  }
+
+  body {
+    font-family: var(--font-family);
+    background: linear-gradient(135deg, #f9fafb, #e3f2f9);
+    color: var(--text-default);
+    min-height: 100vh;
+  }
+
+  /* Glass cards */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    transition: var(--transition-fast);
+  }
+
+  .glass:hover {
+    transform: translateY(-.35rem) scale(1.02);
+    box-shadow: 0 20px 55px rgba(0,0,0,0.25);
+  }
+
+  /* Stat Cards */
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 1.75rem;
+    text-align: center;
+    color: #fff;
+  }
+  .stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+    filter: brightness(0.75);
+  }
+  .stat-card .overlay {
+    position: relative;
+    z-index: 1;
+  }
+  .stat-value {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+  }
+  .stat-label {
+    font-size: 1rem;
+    opacity: .9;
+  }
+
+  /* Trip Cards */
+  .trip-card {
+    composes: glass;
+    padding: 1.5rem;
+    background: var(--grad-sunset);
+    color: #fff;
+  }
+  .trip-card:hover {
+    box-shadow: 0 12px 40px rgba(231, 76, 60, 0.45);
+  }
+
+  /* Vehicle Cards */
+  .vehicle-card {
+    composes: glass;
+    overflow: hidden;
+    background: var(--grad-sky);
+    color: #fff;
+  }
+  .vehicle-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    border-bottom: 2px solid rgba(255,255,255,0.25);
+  }
+  .vehicle-info {
+    padding: 1.25rem;
+  }
+
+  /* Buttons */
+  .safari-btn {
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding: .75rem 1.5rem;
+    cursor: pointer;
+    border: none;
+    background: linear-gradient(to right, var(--safari-sky), var(--safari-sunset));
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(14,165,233,0.4);
+    transition: var(--transition-fast);
+  }
+  .safari-btn:hover {
+    transform: translateY(-.25rem);
+    box-shadow: 0 10px 25px rgba(231,76,60,0.45);
+  }
+  .safari-btn-outline {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+  }
+  .safari-btn-outline:hover {
+    background: rgba(255,255,255,0.1);
+  }
+</style>
+</head>
+<body
+    x-data="{
+        darkMode: false,
+        driver: {
+            name: '{{ driver.name|escapejs }}',
+            profilePicture: '{% if driver.profile_picture %}{{ driver.profile_picture.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}',
+            available: {{ driver.available|yesno:"true,false" }}
+        }
+    }"
+    :class="{ 'dark': darkMode }"
+    class="min-h-screen text-gray-800 dark:text-gray-100 transition-colors"
+>
+
+<!-- ================= HEADER ================= -->
+<header class="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 py-4 shadow-md
+    bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+
+    <!-- Logo + Title -->
+    <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-r from-cyan-500 to-emerald-500 p-2 rounded-xl shadow-md">
+            <i class="fas fa-car text-white text-xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-cyan-800 dark:text-cyan-200">Safari Driver Dashboard</h2>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-6">
+
+        <!-- Dark Mode Toggle -->
+        <button
+            @click="darkMode = !darkMode"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg glass hover:scale-105 transition"
+        >
+            <template x-if="!darkMode">
+                <i class="fas fa-moon text-amber-500"></i>
+            </template>
+            <template x-if="darkMode">
+                <i class="fas fa-sun text-yellow-400"></i>
+            </template>
+            <span x-show="!darkMode">Dark</span>
+            <span x-show="darkMode">Light</span>
+        </button>
+
+        <!-- Driver Info -->
+        <div class="flex items-center gap-3">
+            <div class="text-right">
+                <p class="font-semibold">{{ driver.name }}</p>
+                {% if driver.available %}
+                    <span class="status-badge available">Available</span>
+                {% else %}
+                    <span class="status-badge unavailable">Unavailable</span>
+                {% endif %}
+            </div>
+            <div class="relative">
+                <img src="{% if driver.profile_picture %}{{ driver.profile_picture.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}"
+                     class="w-11 h-11 rounded-full border-2 border-cyan-500 shadow-lg object-cover"
+                     alt="Driver avatar">
+                <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border border-white
+                    {% if driver.available %} bg-green-500 {% else %} bg-red-500 {% endif %}">
+                </span>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- ================= SAFARI GLASS SIDEBAR ================= -->
+<aside class="sidebar w-64 h-screen fixed left-0 top-0 pt-20 glass text-white border-r border-[var(--glass-border)]">
+
+  <nav class="p-6 space-y-5">
+
+    <!-- Main Navigation -->
+    <h3 class="uppercase text-xs tracking-widest text-[var(--safari-sand)]/70 mb-3">Main</h3>
+    <a href="#profile" class="nav-link">
+      <i class="fas fa-user-circle"></i><span>Profile</span>
+    </a>
+    <a href="#trip-history" class="nav-link">
+      <i class="fas fa-route"></i><span>Trip History</span>
+    </a>
+    <a href="#earnings-summary" class="nav-link">
+      <i class="fas fa-chart-line"></i><span>Earnings</span>
+    </a>
+    <a href="#customer-management" class="nav-link">
+      <i class="fas fa-users"></i><span>Customers</span>
+    </a>
+
+    <!-- Tours -->
+    <h3 class="uppercase text-xs tracking-widest text-[var(--safari-sand)]/70 mt-8 mb-3">Tours</h3>
+    <a href="#tours" class="nav-link active">
+      <i class="fas fa-mountain"></i><span>Tours & Safaris</span>
+    </a>
+    <a href="{% url 'add_trip' %}" class="nav-link">
+      <i class="fas fa-plus-circle"></i><span>Add Trip</span>
+    </a>
+
+    <!-- Insights -->
+    <h3 class="uppercase text-xs tracking-widest text-[var(--safari-sand)]/70 mt-8 mb-3">Insights</h3>
+    <a href="#analytics" class="nav-link">
+      <i class="fas fa-chart-pie"></i><span>Analytics</span>
+    </a>
+    <a href="#help" class="nav-link">
+      <i class="fas fa-question-circle"></i><span>Help</span>
+    </a>
+
+    <!-- Driver Rating Card -->
+    <div class="mt-12 glass p-6 rounded-2xl shadow-xl text-[var(--text-default)]">
+      <h3 class="font-semibold mb-3 flex items-center gap-3 text-lg">
+        <i class="fas fa-trophy text-[var(--safari-sun)]"></i><span>Driver Rating</span>
+      </h3>
+      <div class="flex items-center gap-3">
+        <div class="text-[var(--safari-sun)] text-xl space-x-1">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star-half-alt"></i>
+        </div>
+        <span class="ml-2 font-bold text-xl">4.7</span>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<!-- Sidebar/Nav Styles -->
+<style>
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .75rem 1rem;
+    border-radius: var(--radius-lg);
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-fast);
+  }
+
+  .nav-link i {
+    font-size: 1.25rem;
+    min-width: 1.5rem;
+    color: var(--safari-sky);
+  }
+
+  /* Hover glow */
+  .nav-link::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--grad-sky);
+    opacity: 0;
+    transition: var(--transition-fast);
+    border-radius: inherit;
+    z-index: 0;
+  }
+  .nav-link:hover::before {
+    opacity: 0.25;
+    filter: blur(14px);
+  }
+  .nav-link:hover {
+    color: var(--safari-sky);
+    transform: translateX(6px);
+  }
+
+  .nav-link span, .nav-link i {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Active state */
+  .nav-link.active {
+    background: var(--grad-forest);
+    color: #fff;
+    box-shadow: var(--glass-shadow);
+  }
+</style>
+
+<!-- Main -->
+<main class="ml-64 p-6 min-h-screen pt-28">
+
+<!-- Dashboard Stats with Glassmorphism + Image Backgrounds -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <!-- Total Earnings -->
+    <div class="relative rounded-2xl overflow-hidden shadow-lg">
+        <img src="https://images.unsplash.com/photo-1561414927-6d86591d0c4f?auto=format&fit=crop&w=800&q=80"
+             alt="Earnings background"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative backdrop-blur-md bg-black/30 text-white p-6 h-full flex flex-col justify-between rounded-2xl">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="opacity-80">Total Earnings</p>
+                    <p class="text-2xl font-bold mt-2">KES {{ total_earnings|default:"0.00" }}</p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-full">
+                    <i class="fas fa-wallet text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-green-400">
+                <i class="fas fa-arrow-up mr-1"></i>12.5% from last month
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Trips -->
+    <div class="relative rounded-2xl overflow-hidden shadow-lg">
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+             alt="Trips background"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative backdrop-blur-md bg-black/30 text-white p-6 h-full flex flex-col justify-between rounded-2xl">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="opacity-80">Completed Trips</p>
+                    <p class="text-2xl font-bold mt-2">{{ trips|length }}</p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-full">
+                    <i class="fas fa-check-circle text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-blue-400">
+                <i class="fas fa-arrow-up mr-1"></i>8.3% from last month
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Payments -->
+    <div class="relative rounded-2xl overflow-hidden shadow-lg">
+        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=800&q=80"
+             alt="Payments background"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative backdrop-blur-md bg-black/30 text-white p-6 h-full flex flex-col justify-between rounded-2xl">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="opacity-80">Pending Payments</p>
+                    <p class="text-2xl font-bold mt-2">KES {{ pending_payments|default:"0.00" }}</p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-full">
+                    <i class="fas fa-clock text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-amber-400">
+                <i class="fas fa-arrow-down mr-1"></i>3.2% from last month
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Rating -->
+    <div class="relative rounded-2xl overflow-hidden shadow-lg">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80"
+             alt="Customer rating background"
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative backdrop-blur-md bg-black/30 text-white p-6 h-full flex flex-col justify-between rounded-2xl">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="opacity-80">Customer Rating</p>
+                    <p class="text-2xl font-bold mt-2">4.7/5</p>
+                </div>
+                <div class="p-3 bg-white/20 rounded-full">
+                    <i class="fas fa-star text-white text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-purple-400">
+                <i class="fas fa-arrow-up mr-1"></i>0.2 from last month
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Profile + Trips + Tours container -->
+<div
+    x-data="{ showTripForm: false, showAddTour: false, editTourId: null }"
+    class="space-y-6"
+>
+
+    <!-- ================== PROFILE ================== -->
+<section id="profile" class="relative rounded-2xl overflow-hidden shadow-xl">
+    <!-- Background image with overlay -->
+    <img src="https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=80"
+         alt="Safari background"
+         class="absolute inset-0 w-full h-full object-cover">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <!-- Content -->
+    <div class="relative p-8">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-2xl font-semibold flex items-center gap-3 text-white drop-shadow">
+                <i class="fas fa-user-circle"></i><span>My Profile</span>
+            </h3>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="edit_profile" value="1">
+
+            <!-- Profile picture + basic info -->
+            <div class="flex flex-col md:flex-row gap-6 items-center glass p-6 rounded-xl">
+                <div class="flex flex-col items-center">
+                    {% if driver.profile_picture %}
+                        <img src="{{ driver.profile_picture.url }}"
+                             class="w-28 h-28 rounded-full object-cover border-4 border-cyan-400 shadow-lg"
+                             alt="{{ driver.name }}">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}"
+                             class="w-28 h-28 rounded-full object-cover border-4 border-cyan-400 shadow-lg"
+                             alt="Default profile">
+                    {% endif %}
+
+                    <!-- Upload -->
+                    <label class="mt-3 px-3 py-1 bg-white/20 rounded-md text-sm text-white cursor-pointer hover:bg-white/30 transition">
+                        <i class="fas fa-camera mr-1"></i> Change Photo
+                        <input type="file" name="profile_picture" class="hidden">
+                    </label>
+                </div>
+
+                <div class="flex flex-col gap-3 w-full">
+                    <input type="text" name="name" value="{{ driver.name }}"
+                           class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                           placeholder="Full Name">
+                    <input type="text" name="license_number" value="{{ driver.license_number }}"
+                           class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                           placeholder="License Number">
+                </div>
+            </div>
+
+            <!-- Extra info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass p-4 rounded-lg">
+                    <p class="text-gray-300 text-sm mb-1">Phone</p>
+                    <input type="text" name="phone_number" value="{{ driver.phone_number }}"
+                           class="w-full p-2 rounded bg-white/20 text-white focus:ring-2 focus:ring-cyan-400">
+                </div>
+
+                <div class="glass p-4 rounded-lg">
+                    <p class="text-gray-300 text-sm mb-1">Email</p>
+                    {% if driver.user %}
+                        <p class="text-white font-medium">{{ driver.user.email }}</p>
+                    {% else %}
+                        <p class="text-white font-medium">john.driver@safari.com</p>
+                    {% endif %}
+                </div>
+
+                <div class="glass p-4 rounded-lg">
+                    <p class="text-gray-300 text-sm mb-1">Experience</p>
+                    <input type="text" name="experience_years"
+                           value="{{ driver.experience_years|default:'5 years' }}"
+                           class="w-full p-2 rounded bg-white/20 text-white focus:ring-2 focus:ring-cyan-400">
+                </div>
+
+                <div class="glass p-4 rounded-lg">
+                    <p class="text-gray-300 text-sm mb-1">Vehicle</p>
+                    <input type="text" name="vehicle"
+                           value="{{ driver.vehicle|default:'Toyota Land Cruiser' }}"
+                           class="w-full p-2 rounded bg-white/20 text-white focus:ring-2 focus:ring-cyan-400">
+                </div>
+            </div>
+
+            <!-- Save button -->
+            <button type="submit"
+                    class="mt-4 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transform transition">
+                <i class="fas fa-save mr-2"></i> Save Profile
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- ================== TRIP HISTORY ================== -->
+<section id="trip-history"
+         class="relative rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800">
+
+    <!-- Background image + glass overlay -->
+    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80"
+         alt="Trip Background"
+         class="absolute inset-0 w-full h-full object-cover opacity-20">
+    <div class="absolute inset-0 backdrop-blur-sm bg-white/30 dark:bg-black/40"></div>
+
+    <!-- Content -->
+    <div class="relative p-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-semibold flex items-center gap-3 bg-clip-text text-transparent
+                       bg-gradient-to-r from-green-600 to-emerald-500">
+                <i class="fas fa-route"></i><span>Trip History</span>
+            </h3>
+
+            <button @click="showTripForm = true"
+                    class="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-lg shadow hover:scale-105 transition transform">
+                <i class="fas fa-plus mr-2"></i>New Trip
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto glass rounded-xl shadow-lg">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="text-left bg-white/30 dark:bg-gray-800/40">
+                        <th class="px-4 py-3 text-sm font-semibold">Destination</th>
+                        <th class="px-4 py-3 text-sm font-semibold">Date</th>
+                        <th class="px-4 py-3 text-sm font-semibold">Earnings</th>
+                        <th class="px-4 py-3 text-sm font-semibold">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200/40 dark:divide-gray-700/40">
+                    {% if trips %}
+                        {% for trip in trips %}
+                        <tr class="hover:bg-white/40 dark:hover:bg-gray-800/50 transition">
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{{ trip.destination }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ trip.date }}</td>
+                            <td class="px-4 py-3 font-bold text-green-600 dark:text-green-400">KES {{ trip.earnings }}</td>
+                            <td class="px-4 py-3">
+                                {% if trip.status == 'Completed' %}
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium shadow bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">{{ trip.status }}</span>
+                                {% elif trip.status == 'In Progress' %}
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium shadow bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">{{ trip.status }}</span>
+                                {% else %}
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium shadow bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{ trip.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-gray-500 py-6 italic">No trips yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ================== TOURS MANAGEMENT ================== -->
+<section id="tours"
+         class="relative rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 mt-8">
+
+    <!-- Background image -->
+    <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1600&q=80"
+         alt="Tours Background"
+         class="absolute inset-0 w-full h-full object-cover opacity-20">
+    <div class="absolute inset-0 backdrop-blur-sm bg-white/30 dark:bg-black/40"></div>
+
+    <!-- Content -->
+    <div class="relative p-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-semibold flex items-center gap-3 bg-clip-text text-transparent
+                       bg-gradient-to-r from-blue-600 to-indigo-500">
+                <i class="fas fa-suitcase-rolling"></i><span>Tours Management</span>
+            </h3>
+            <button @click="showAddTour = true"
+                    class="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium rounded-lg shadow hover:scale-105 transition">
+                <i class="fas fa-plus mr-2"></i>New Tour
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto glass rounded-xl shadow-lg">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="text-left bg-white/30 dark:bg-gray-800/40">
+                        <th class="px-4 py-3 text-sm font-semibold">Title</th>
+                        <th class="px-4 py-3 text-sm font-semibold">Duration</th>
+                        <th class="px-4 py-3 text-sm font-semibold">Price</th>
+                        <th class="px-4 py-3 text-sm font-semibold">Image</th>
+                        <th class="px-4 py-3 text-sm font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200/40 dark:divide-gray-700/40">
+                    {% if tours %}
+                        {% for tour in tours %}
+                        <tr class="hover:bg-white/40 dark:hover:bg-gray-800/50 transition">
+                            <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{{ tour.title }}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ tour.duration_days }} day{% if tour.duration_days > 1 %}s{% endif %}</td>
+                            <td class="px-4 py-3 font-bold text-blue-600 dark:text-blue-400">KES {{ tour.price_per_person }}</td>
+                            <td class="px-4 py-3">
+                                {% if tour.image %}
+                                    <img src="{{ tour.image.url }}" class="h-14 w-24 rounded-xl object-cover shadow-md border border-white/40">
+                                {% elif tour.image_url %}
+                                    <img src="{{ tour.image_url }}" class="h-14 w-24 rounded-xl object-cover shadow-md border border-white/40">
+                                {% else %}
+                                    <span class="text-gray-400 text-sm italic">No image</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 flex gap-2">
+                                <form method="POST" action="{% url 'delete_tour' tour.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-3 py-1 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 shadow">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                <button
+                                    @click="
+                                        editTourId = {{ tour.id }};
+                                        $nextTick(() => {
+                                            document.getElementById('editTitle').value = '{{ tour.title }}';
+                                            document.getElementById('editPrice').value = '{{ tour.price_per_person }}';
+                                            document.getElementById('editDescription').value = '{{ tour.description }}';
+                                            document.getElementById('editDuration').value = '{{ tour.duration_days }}';
+                                            document.getElementById('editImageUrl').value = '{{ tour.image_url }}';
+                                        })
+                                    "
+                                    class="px-3 py-1 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600 shadow">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-gray-500 py-6 italic">No tours yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+    <!-- ================== MODALS ================== -->
+
+   <!-- New Trip Modal -->
+<div x-show="showTripForm" x-cloak class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div class="relative bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 w-full max-w-lg">
+        <h3 class="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-500">
+            Add New Trip
+        </h3>
+        <form method="POST" action="{% url 'add_trip' %}">
+            {% csrf_token %}
+            <div class="grid md:grid-cols-2 gap-4">
+                <input type="text" name="destination" placeholder="Destination" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <input type="date" name="date" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <input type="number" name="earnings" step="0.01" placeholder="Earnings (KES)" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <select name="status" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                    <option value="Completed">Completed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg shadow hover:scale-105">Add Trip</button>
+                <button type="button" @click="showTripForm = false" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Tour Modal -->
+<div x-show="showAddTour" x-cloak class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div class="relative bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 w-full max-w-2xl">
+        <h3 class="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-500">
+            Add New Tour
+        </h3>
+        <form method="POST" enctype="multipart/form-data" action="{% url 'add_tour' %}">
+            {% csrf_token %}
+            <input type="hidden" name="add_tour" value="1">
+            <div class="grid md:grid-cols-2 gap-4">
+                <input type="text" name="title" placeholder="Tour title" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <input type="number" step="0.01" name="price_per_person" placeholder="Price per person" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <textarea name="description" placeholder="Short description" class="px-3 py-2 border rounded-lg w-full bg-white/50" rows="3"></textarea>
+                <input type="text" name="duration_days" placeholder="Duration (days)" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <input type="text" name="image_url" placeholder="Image URL (optional)" class="px-3 py-2 border rounded-lg w-full bg-white/50">
+                <input type="file" name="image" accept="image/*" class="px-3 py-2 border rounded-lg w-full bg-white/50">
+                <input type="file" name="video" accept="video/*" class="px-3 py-2 border rounded-lg w-full bg-white/50">
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow hover:scale-105">Publish Tour</button>
+                <button type="button" @click="showAddTour = false" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Tour Modal -->
+<div x-show="editTourId" x-cloak class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div class="relative bg-white/70 dark:bg-gray-900/80 backdrop-blur-lg rounded-2xl shadow-2xl p-6 w-full max-w-2xl">
+        <h3 class="text-xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-yellow-600">
+            Edit Tour
+        </h3>
+        <form method="POST" enctype="multipart/form-data" :action="`/tours/update/${editTourId}/`">
+            {% csrf_token %}
+            <div class="grid md:grid-cols-2 gap-4">
+                <input type="text" name="title" id="editTitle" placeholder="Tour title" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <input type="number" step="0.01" name="price_per_person" id="editPrice" placeholder="Price per person" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <textarea name="description" id="editDescription" placeholder="Short description" class="px-3 py-2 border rounded-lg w-full bg-white/50" rows="3"></textarea>
+                <input type="text" name="duration_days" id="editDuration" placeholder="Duration (days)" class="px-3 py-2 border rounded-lg w-full bg-white/50" required>
+                <input type="text" name="image_url" id="editImageUrl" placeholder="Image URL (optional)" class="px-3 py-2 border rounded-lg w-full bg-white/50">
+                <input type="file" name="image" accept="image/*" class="px-3 py-2 border rounded-lg w-full bg-white/50">
+                <input type="file" name="video" accept="video/*" class="px-3 py-2 border rounded-lg w-full bg-white/50">
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-lg shadow hover:scale-105">Update Tour</button>
+                <button type="button" @click="editTourId = null" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ================== CUSTOMER MANAGEMENT ================== -->
+<section id="customer-management" class="card p-6 mt-8">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-semibold flex items-center gap-3 text-amber-600">
+            <i class="fas fa-users"></i><span>Customer Management</span>
+        </h3>
+        <!-- Search Input -->
+        <div class="relative w-64">
+            <input type="text" placeholder="Search customers..."
+                class="pl-10 pr-4 py-2 rounded-lg border bg-white dark:bg-gray-800 w-full focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+        </div>
+    </div>
+
+    <!-- Customer Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <th class="px-4 py-3 text-left">Customer</th>
+                    <th class="px-4 py-3 text-left">Contact</th>
+                    <th class="px-4 py-3 text-left">Last Trip</th>
+                    <th class="px-4 py-3 text-left">Rating</th>
+                    <th class="px-4 py-3 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                    <!-- Customer Info -->
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <img src="{% static 'images/default_profile.png' %}" class="w-10 h-10 rounded-full border shadow-sm" alt="avatar">
+                            <div>
+                                <p class="font-medium">{{ b.customer__first_name }} {{ b.customer__last_name }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Booking #{{ b.id }}</p>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Contact -->
+                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ b.customer__first_name }}@example.com</td>
+
+                    <!-- Last Trip -->
+                    <td class="px-4 py-3">{{ b.travel_date }}</td>
+
+                    <!-- Rating -->
+                    <td class="px-4 py-3">
+                        <span class="text-yellow-400">⭐⭐⭐⭐</span><span class="text-gray-400">☆</span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-4 py-3 flex gap-3">
+                        <button class="p-2 rounded-full hover:bg-blue-100 text-blue-600 transition">
+                            <i class="fas fa-comment-alt"></i>
+                        </button>
+                        <button class="p-2 rounded-full hover:bg-green-100 text-green-600 transition">
+                            <i class="fas fa-user-plus"></i>
+                        </button>
+                        <button class="p-2 rounded-full hover:bg-red-100 text-red-600 transition">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-gray-500">No customers yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ================== HELP & SUPPORT ================== -->
+<section id="help" class="card p-6 mt-8">
+    <h3 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-red-500">
+        <i class="fas fa-question-circle"></i><span>Help & Support</span>
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Support -->
+        <div class="glass p-6 rounded-xl hover:shadow-lg transition">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-headset text-red-600 text-xl"></i>
+            </div>
+            <h4 class="text-lg font-bold mb-2">24/7 Support</h4>
+            <p class="text-gray-600 mb-4">Our support team is always available to assist you.</p>
+            <a href="mailto:info@safariadventures.com" class="text-red-600 font-medium flex items-center gap-2 hover:underline">
+                Contact Support <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Knowledge Base -->
+        <div class="glass p-6 rounded-xl hover:shadow-lg transition">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-book text-blue-600 text-xl"></i>
+            </div>
+            <h4 class="text-lg font-bold mb-2">Knowledge Base</h4>
+            <p class="text-gray-600 mb-4">Find answers to common questions and guides.</p>
+            <button class="text-blue-600 font-medium flex items-center gap-2 hover:underline">
+                Browse Articles <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Video Tutorials -->
+        <div class="glass p-6 rounded-xl hover:shadow-lg transition">
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-video text-green-600 text-xl"></i>
+            </div>
+            <h4 class="text-lg font-bold mb-2">Video Tutorials</h4>
+            <p class="text-gray-600 mb-4">Learn step-by-step with video tutorials.</p>
+            <button class="text-green-600 font-medium flex items-center gap-2 hover:underline">
+                Watch Videos <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+</main>
+<script type="module">
+  import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js';
+  Chart.register(...registerables);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById("earningsChart");
+    if (!canvas) return;
+
+    let { labels, values } = JSON.parse(canvas.dataset.earnings || "{}");
+    if (!labels || !values) {
+      fetch("/api/earnings/")
+        .then(res => res.json())
+        .then(data => initChart(canvas, data.labels, data.values))
+        .catch(console.error);
+    } else {
+      initChart(canvas, labels, values);
+    }
+  });
+
+  function initChart(canvas, labels, values) {
+    const darkMode = document.documentElement.classList.contains("dark");
+    const chart = new Chart(canvas, getConfig(canvas, labels, values, darkMode));
+
+    // Lazy-render only when visible
+    const observer = new IntersectionObserver((entries, obs) => {
+      if (entries[0].isIntersecting) {
+        chart.update();
+        obs.disconnect();
+      }
+    }, { threshold: 0.15 });
+    observer.observe(canvas);
+
+    // Live dark mode swap
+    new MutationObserver(() => {
+      const isDark = document.documentElement.classList.contains("dark");
+      applyTheme(chart, isDark);
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  function getConfig(canvas, labels, data, dark) {
+    const safariGreen = "#1a6d4c";
+    const safariSky   = "#0ea5e9";
+    const safariSun   = "#f59e0b";
+
+    return {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "Earnings (KES)",
+          data,
+          fill: true,
+          tension: 0.45,
+          borderColor: safariSky,
+          borderWidth: 3,
+          pointBackgroundColor: safariSun,
+          pointBorderColor: "#fff",
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          backgroundColor: (ctx) => {
+            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height);
+            gradient.addColorStop(0, "rgba(14,165,233,0.25)"); // top glow
+            gradient.addColorStop(1, "rgba(255,255,255,0)");   // transparent fade
+            return gradient;
+          }
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "nearest", axis: "x", intersect: false },
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              color: dark ? "#f3f4f6" : "#1f2937",
+              font: { size: 14, weight: "600" }
+            }
+          },
+          tooltip: {
+            backgroundColor: dark ? "#0f172a" : "#111827",
+            titleColor: "#f9fafb",
+            bodyColor: "#f9fafb",
+            padding: 12,
+            borderColor: safariGreen,
+            borderWidth: 1.5,
+            cornerRadius: 8
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: dark ? "#d1d5db" : "#374151" },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: v => `KES ${v.toLocaleString()}`,
+              color: dark ? "#d1d5db" : "#374151"
+            },
+            grid: { color: "rgba(209,213,219,0.2)" }
+          }
+        }
+      }
+    };
+  }
+
+  function applyTheme(chart, dark) {
+    chart.options.plugins.legend.labels.color = dark ? "#f3f4f6" : "#1f2937";
+    chart.options.plugins.tooltip.backgroundColor = dark ? "#0f172a" : "#111827";
+    chart.update();
+  }
+</script>
+
+</body>
+</html>

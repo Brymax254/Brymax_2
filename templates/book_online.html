@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Book Online | Airport & Destinations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.1/aos.css" />
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --error: #ef4444;
+      --rounded: 0.5rem;
+      --transition: all 0.3s ease;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #fff;
+      padding: 1rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: background 0.3s;
+    }
+
+    .header.scrolled {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .header .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .nav a {
+      color: var(--dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav a:hover {
+      color: var(--primary);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    main {
+      flex: 1;
+      padding: 1rem;
+    }
+
+    .booking-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .booking-illustration {
+      background: #fff;
+      padding: 2rem;
+      border-radius: var(--rounded);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .booking-illustration:hover {
+      transform: translateY(-5px);
+    }
+
+    .booking-illustration i {
+      font-size: 3rem;
+      color: var(--primary);
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: var(--rounded);
+      box-shadow: var(--shadow);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--rounded);
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--rounded);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .form-note {
+      margin-top: 1rem;
+      background: var(--light-gray);
+      padding: 1rem;
+      border-radius: var(--rounded);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .footer {
+      background: var(--dark);
+      color: #fff;
+      padding: 2rem 1rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .booking-container {
+        grid-template-columns: 1fr;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="container">
+      <div class="brand">
+        <a href="/">
+          <i class="fas fa-plane-departure"></i>
+          Airport & Destinations
+        </a>
+      </div>
+      <nav class="nav" id="mainNav">
+        <a href="/">Home</a>
+        <a href="/book-online/">Book Online</a>
+        <a href="/nairobi-airport-transfers-and-taxis/">Airport Transfers</a>
+        <a href="/book/excursions/">Excursions</a>
+        <a href="/tours-and-safaris/">Tours & Safaris</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+      <button class="mobile-menu-btn" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <div class="booking-container" data-aos="fade-up">
+      <div class="booking-illustration">
+        <i class="fab fa-whatsapp"></i>
+        <h2>Instant WhatsApp Booking</h2>
+        <p>Submit your booking details and we'll contact you immediately via WhatsApp to confirm your reservation.</p>
+      </div>
+
+      <div class="form-container">
+        <h2><i class="fas fa-calendar-check"></i> Book Your Service</h2>
+        <form>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Service</label>
+              <select class="form-control" required>
+                <option value="">Select a service</option>
+                <option>Airport Transfer</option>
+                <option>Excursion</option>
+                <option>Tour / Safari</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Passengers</label>
+              <input type="number" class="form-control" min="1" value="1" required>
+            </div>
+            <div class="form-group">
+              <label>From (Pickup)</label>
+              <input type="text" class="form-control" placeholder="JKIA T1A, Hotel, etc." required>
+            </div>
+            <div class="form-group">
+              <label>To (Dropoff)</label>
+              <input type="text" class="form-control" placeholder="Westlands, CBD, etc." required>
+            </div>
+            <div class="form-group">
+              <label>Your Name</label>
+              <input type="text" class="form-control" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <textarea class="form-control" placeholder="Flight number, special requests..."></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn">
+            <i class="fab fa-whatsapp"></i> Book via WhatsApp
+          </button>
+          <div class="form-note">
+            <i class="fas fa-info-circle"></i>
+            <p><strong>Note:</strong> No payment required on this website. We'll contact you via WhatsApp to confirm your booking and discuss payment options.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2023 Mantra Booking Agencies • Nairobi, Kenya</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.1/aos.js"></script>
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.getElementById('mainNav');
+    const header = document.getElementById('header');
+
+    menuToggle.addEventListener('click', () => {
+      mainNav.style.display = mainNav.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    AOS.init();
+  </script>
+</body>
+</html>

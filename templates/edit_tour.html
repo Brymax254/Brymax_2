@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Tour | Safari Adventures Kenya{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <h2 class="text-3xl font-bold mb-6">✏️ Edit Tour</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        <div>
+            <label class="block text-gray-700">Tour Title</label>
+            <input type="text" name="title" value="{{ tour.title }}" class="w-full border px-4 py-2 rounded-lg">
+        </div>
+        <div>
+            <label class="block text-gray-700">Description</label>
+            <textarea name="description" rows="4" class="w-full border px-4 py-2 rounded-lg">{{ tour.description }}</textarea>
+        </div>
+        <div>
+            <label class="block text-gray-700">Itinerary</label>
+            <textarea name="itinerary" rows="3" class="w-full border px-4 py-2 rounded-lg">{{ tour.itinerary }}</textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <label class="block text-gray-700">Price per Person (KES)</label>
+                <input type="number" step="0.01" name="price_per_person" value="{{ tour.price_per_person }}" class="w-full border px-4 py-2 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-gray-700">Duration (Days)</label>
+                <input type="number" name="duration_days" value="{{ tour.duration_days }}" class="w-full border px-4 py-2 rounded-lg">
+            </div>
+        </div>
+        <div>
+            <label class="block text-gray-700">Upload New Image</label>
+            <input type="file" name="image" accept="image/*">
+            {% if tour.image %}
+                <p class="text-sm text-gray-500 mt-2">Current: <img src="{{ tour.image.url }}" class="h-20 rounded"></p>
+            {% endif %}
+        </div>
+        <div>
+            <label class="block text-gray-700">Upload New Video</label>
+            <input type="file" name="video" accept="video/*">
+            {% if tour.video %}
+                <p class="text-sm text-gray-500 mt-2">Current: <video src="{{ tour.video.url }}" controls class="h-20"></video></p>
+            {% endif %}
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+            💾 Save Changes
+        </button>
+    </form>
+</div>
+{% endblock %}
