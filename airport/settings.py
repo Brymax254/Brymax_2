@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import dj_database_url  # 👈 make sure this is installed: pip install dj-database-url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -52,7 +53,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'airport.wsgi.application'
 
-# 🔒 FORCE SQLITE FOREVER (ignores DATABASE_URL from hosts like Heroku)
+# ==============================
+# DATABASE CONFIGURATION
+# ==============================
+
+# Default: SQLite (for local development)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -60,15 +65,32 @@ DATABASES = {
     }
 }
 
-# Localization
+# Use Render PostgreSQL if available
+DATABASE_INTERNAL_URL = os.getenv("DATABASE_INTERNAL_URL")
+DATABASE_EXTERNAL_URL = os.getenv("DATABASE_EXTERNAL_URL")
+DATABASE_URL = DATABASE_INTERNAL_URL or DATABASE_EXTERNAL_URL
+
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,   # persistent connections
+        ssl_require=True    # Render PostgreSQL requires SSL
+    )
+
+
+# ==============================
+# LOCALIZATION
+# ==============================
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Africa/Nairobi'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# ==============================
+# STATIC FILES
+# ==============================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'   # ⚡ for production collectstatic
+STATIC_ROOT = BASE_DIR / 'staticfiles'   # for production collectstatic
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

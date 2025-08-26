@@ -26,7 +26,7 @@ def _wa_redirect_from_form(request: HttpRequest):
     note = request.POST.get("note", "")
 
     msg = (
-        f"Hello Mantra Booking Agencies,%0a"
+        f"2025 Airport & Destinations ,%0a"
         f"I would like to book: {service}%0a"
         f"Date: {date}%0aTime: {time}%0a"
         f"From: {from_loc}%0aTo: {to_loc}%0a"

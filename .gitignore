@@ -1,23 +1,36 @@
-# Python/Django
+# ======================
+# Python / Django
+# ======================
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Local database (never push)
 *.sqlite3
 db.sqlite3
+
+# Media & static (generated files)
 media/
 staticfiles/
 
+# ======================
 # Environments
+# ======================
 .env
+.venv/
 venv/
 ENV/
 env/
 
-# IDEs
+# ======================
+# IDE / Editor settings
+# ======================
 .vscode/
 .idea/
 
-# OS files
+# ======================
+# OS generated files
+# ======================
 .DS_Store
 Thumbs.db

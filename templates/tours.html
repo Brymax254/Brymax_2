@@ -75,7 +75,7 @@
     }
 
     .driver-login-btn {
-        @apply bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center;
+        @apply bg-gradient-to-r from-green-600 to-green-700 hover:from-blue-700 hover:to-green-800 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center;
         box-shadow: 0 4px 12px rgba(26, 109, 63, 0.2);
     }
 
@@ -95,13 +95,13 @@
 
     /* Hero Section */
     .hero-section {
-        background: linear-gradient(135deg, rgba(26,45,39,0.9) 0%, rgba(26,45,39,0.95) 100%),
+        background:
                     url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1771&q=80');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
         padding: 14rem 1rem 10rem;
-        color: white;
+        color: blue;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -164,7 +164,7 @@
     .section-title::after {
         content: '';
         width: 100px;
-        height: 6px;
+        height: 1px;
         background: linear-gradient(90deg, var(--safari-gold), var(--safari-green));
         display: block;
         margin: 1rem auto 0;
@@ -308,7 +308,7 @@
         box-shadow: var(--shadow-lg);
         font-size: 1.1rem;
         transition: var(--transition-base);
-        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231a6d3f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='M21 21l-4.35-4.35'%3E%3C/path%3E%3C/svg%3E") no-repeat 1.5rem center;
+        background: red url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231a6d3f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='M21 21l-4.35-4.35'%3E%3C/path%3E%3C/svg%3E") no-repeat 1.5rem center;
         background-size: 1.5rem;
     }
 
