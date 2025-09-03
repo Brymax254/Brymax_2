@@ -690,7 +690,7 @@ function launchConfetti(tourId){
         colors: ['#1a6d3f', '#e9b949', '#ffffff']
     });
     setTimeout(() => {
-        window.location.href = "{% url 'book_tour' 0 %}".replace("/0/", "/" + tourId + "/");
+        window.location.href = "{% url 'tour_payment' 0 %}".replace("/0/", "/" + tourId + "/");
     }, 1000);
 }
 

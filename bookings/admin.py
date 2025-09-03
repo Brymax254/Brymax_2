@@ -47,10 +47,17 @@ class BookingAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("booking", "amount_paid", "method", "transaction_id", "paid_on", "is_successful")
-    list_filter = ("method", "is_successful", "paid_on")
-    search_fields = ("transaction_id", "booking__customer__first_name", "booking__customer__last_name")
-    ordering = ("-paid_on",)
+    list_display = ("booking", "tour", "amount_paid", "method", "transaction_id", "paid_on", "is_successful")
+    list_filter = ("provider", "status", "created_at")
+    search_fields = (
+        "transaction_id",
+        "reference",
+        "pesapal_reference",
+        "booking__customer__first_name",
+        "booking__customer__last_name",
+        "tour__title",
+    )
+    ordering = ("-created_at",)
 
 
 @admin.register(ContactMessage)

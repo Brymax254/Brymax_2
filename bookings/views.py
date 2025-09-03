@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest
-from urllib.parse import quote
+from django.http import HttpRequest, JsonResponse, HttpResponse
+from django.urls import reverse
 from decimal import Decimal, InvalidOperation
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from .models import Tour, Destination, Video, Booking, Payment, ContactMessage, Trip
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+import json
 
-WHATSAPP_NUMBER = "254759234580"
+from .models import Tour, Destination, Video, Booking, Payment, ContactMessage, Trip
+from .services import PesaPalService, MpesaSTKPush   # ✅ make sure you have services.py
 
 
 # ---------------- FRONTEND PAGES ------------------
@@ -15,44 +17,15 @@ def home(request: HttpRequest):
     return render(request, "home.html")
 
 
-def _wa_redirect_from_form(request: HttpRequest):
-    service = request.POST.get("service", "Service")
-    date = request.POST.get("date", "")
-    time = request.POST.get("time", "")
-    from_loc = request.POST.get("from_location", "")
-    to_loc = request.POST.get("to_location", "")
-    passengers = request.POST.get("passengers", "1")
-    name = request.POST.get("name", "")
-    note = request.POST.get("note", "")
-
-    msg = (
-        f"2025 Airport & Destinations ,%0a"
-        f"I would like to book: {service}%0a"
-        f"Date: {date}%0aTime: {time}%0a"
-        f"From: {from_loc}%0aTo: {to_loc}%0a"
-        f"Passengers: {passengers}%0a"
-        f"Name: {name}%0a"
-        f"Notes: {note}"
-    )
-    wa_url = f"https://wa.me/{WHATSAPP_NUMBER}?text={quote(msg, safe='')}"
-    return redirect(wa_url)
-
-
 def book_online(request: HttpRequest):
-    if request.method == "POST":
-        return _wa_redirect_from_form(request)
     return render(request, "book_online.html")
 
 
 def nairobi_transfers(request: HttpRequest):
-    if request.method == "POST":
-        return _wa_redirect_from_form(request)
     return render(request, "nairobi_transfers.html")
 
 
 def excursions(request: HttpRequest):
-    if request.method == "POST":
-        return _wa_redirect_from_form(request)
     return render(request, "excursions.html")
 
 
@@ -63,15 +36,199 @@ def tours(request: HttpRequest):
     videos_qs = Video.objects.all().order_by("-created_at")
     destinations_qs = Destination.objects.all().order_by("-created_at")
 
-    if request.method == "POST":
-        return _wa_redirect_from_form(request)
-
     return render(request, "tours.html", {
         "tours": tours_qs,
         "trips": trips_qs,
         "videos": videos_qs,
         "destinations": destinations_qs,
     })
+
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+# ---------------- MODERNIZED PAYMENT FLOW ------------------
+
+
+def book_tour(request, tour_id):
+    """Redirect authenticated user to the payment page."""
+    tour = get_object_or_404(Tour, id=tour_id)
+    return redirect("tour_payment", tour_id=tour.id)
+
+
+# In your views.py
+def tour_payment(request: HttpRequest, tour_id):
+    """Modernized payment page"""
+    tour = get_object_or_404(Tour, id=tour_id)
+
+    context = {
+        "tour": tour,
+        "pesapal_iframe_url": None,
+        "error": None
+    }
+
+    try:
+        service = PesaPalService()
+        callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
+
+        pesapal_response = service.initiate_payment(
+            amount=str(tour.price_per_person),
+            description=f"Payment for Tour {tour.title}",
+            callback_url=callback_url,
+            email=request.user.email if request.user.is_authenticated else None,
+            first_name=request.user.first_name if request.user.is_authenticated else None,
+            last_name=request.user.last_name if request.user.is_authenticated else None
+        )
+
+        if pesapal_response and pesapal_response.get("iframe_url"):
+            # Save pending Pesapal payment
+            Payment.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                tour=tour,
+                amount=tour.price_per_person,
+                reference=pesapal_response.get("order_tracking_id", ""),
+                provider="PESAPAL",
+                status="PENDING"
+            )
+            context["pesapal_iframe_url"] = pesapal_response.get("iframe_url")
+        else:
+            context["error"] = "Payment service is temporarily unavailable."
+
+    except Exception as e:
+        context["error"] = "An error occurred while initializing payment."
+        # Log the error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Payment initiation error: {str(e)}")
+
+    return render(request, "payments/tour_payment.html", context)
+@require_http_methods(["POST"])
+@csrf_protect
+def mpesa_payment(request, tour_id):
+    """Modernized Mpesa STK Push with better validation and error handling"""
+    try:
+        data = json.loads(request.body)
+        phone_number = data.get("phone_number")
+
+        if not phone_number:
+            return JsonResponse(
+                {"success": False, "message": "Phone number is required"},
+                status=400
+            )
+
+        # Validate phone number format
+        if not validate_phone_number(phone_number):
+            return JsonResponse(
+                {"success": False, "message": "Invalid phone number format"},
+                status=400
+            )
+
+        tour = get_object_or_404(Tour, id=tour_id)
+
+        mpesa = MpesaSTKPush()
+        response = mpesa.stk_push(
+            phone_number=phone_number,
+            amount=tour.price_per_person,
+            account_reference=f"Tour-{tour.id}",
+            transaction_desc=f"Payment for Tour {tour.title}"
+        )
+
+        if response and response.get("CheckoutRequestID"):
+            Payment.objects.create(
+                user=request.user,
+                tour=tour,
+                amount=tour.price_per_person,
+                reference=response.get("CheckoutRequestID", ""),
+                provider="MPESA",
+                status="PENDING"
+            )
+
+            return JsonResponse({
+                "success": True,
+                "message": "STK Push sent. Check your phone to complete payment.",
+                "response": response
+            })
+        else:
+            logger.error("Mpesa STK push failed for tour %s: %s", tour_id, response)
+            return JsonResponse({
+                "success": False,
+                "message": "Failed to initiate Mpesa payment. Please try again."
+            }, status=500)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "message": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        logger.exception("Error processing Mpesa payment for tour %s: %s", tour_id, str(e))
+        return JsonResponse({
+            "success": False,
+            "message": "An unexpected error occurred. Please try again later."
+        }, status=500)
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def pesapal_callback(request):
+    """Modernized Pesapal callback with better validation"""
+    try:
+        # Verify the request is from Pesapal (implement based on Pesapal docs)
+        if not verify_pesapal_ip(request.META.get('REMOTE_ADDR')):
+            logger.warning("Pesapal callback from unauthorized IP: %s", request.META.get('REMOTE_ADDR'))
+            return JsonResponse({"success": False, "message": "Unauthorized"}, status=403)
+
+        data = json.loads(request.body.decode("utf-8"))
+        tracking_id = data.get("order_tracking_id")
+        status = data.get("status")
+
+        if not tracking_id or not status:
+            return JsonResponse({"success": False, "message": "Missing parameters"}, status=400)
+
+        try:
+            payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
+            payment.status = status.upper()
+            payment.updated_at = timezone.now()
+            payment.save()
+
+            # Additional actions based on payment status
+            if status.upper() == "COMPLETED":
+                # Send confirmation email, update booking status, etc.
+                send_payment_confirmation_email(payment)
+
+            return JsonResponse({"success": True, "message": "Payment updated"})
+
+        except Payment.DoesNotExist:
+            logger.error("Pesapal callback for non-existent payment: %s", tracking_id)
+            return JsonResponse({"success": False, "message": "Payment not found"}, status=404)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
+    except Exception as e:
+        logger.exception("Error processing Pesapal callback: %s", str(e))
+        return JsonResponse({"success": False, "message": "Server error"}, status=500)
+
+
+# Helper functions (add to your utils.py)
+def validate_phone_number(phone_number):
+    """Validate phone number format (customize for your region)"""
+    # Simple validation - extend based on your requirements
+    return phone_number and len(phone_number) >= 9 and phone_number.startswith('+')
+
+
+def verify_pesapal_ip(ip_address):
+    """Verify that the callback is from Pesapal's servers"""
+    # Implement based on Pesapal's documented IP ranges
+    pesapal_ips = ["52.15.185.146", "52.15.178.181"]  # Example IPs - check Pesapal docs
+    return ip_address in pesapal_ips
+
+
+def send_payment_confirmation_email(payment):
+    """Send payment confirmation email"""
+    # Implement your email sending logic here
+    pass
 
 
 # ---------------- DRIVER DASHBOARD ------------------
@@ -105,7 +262,6 @@ def driver_dashboard(request: HttpRequest):
             video_file = request.FILES.get("video")
             image_url = request.POST.get("image_url", "").strip()
 
-            # safe parsing
             try:
                 duration_days = int(duration_raw)
                 if duration_days <= 0:
@@ -126,7 +282,7 @@ def driver_dashboard(request: HttpRequest):
                 price_per_person=price_per_person,
                 available=True,
                 created_by=request.user,
-                is_approved=True,  # auto-approve driver tours
+                is_approved=True,
             )
 
             if image_file:
@@ -141,7 +297,6 @@ def driver_dashboard(request: HttpRequest):
             messages.success(request, f'Tour "{tour.title}" added successfully.')
             return redirect("driver_dashboard")
 
-    # ---------- GET DATA ----------
     trip_qs = Trip.objects.filter(driver=driver).order_by("-date")
     tours_qs = Tour.objects.filter(created_by=request.user).order_by("-created_at")
     bookings_qs = Booking.objects.filter(driver=driver).select_related("customer", "destination")
@@ -159,9 +314,9 @@ def driver_dashboard(request: HttpRequest):
     }
     return render(request, "driver_dashboard.html", context)
 
+
 # ---------------- DRIVER ACTIONS ------------------
 def add_trip(request: HttpRequest):
-    """Dedicated endpoint (optional) for AJAX or external forms."""
     driver = getattr(request.user, "driver", None)
     if request.method == "POST" and driver:
         Trip.objects.create(
@@ -176,10 +331,6 @@ def add_trip(request: HttpRequest):
 
 
 def add_tour(request: HttpRequest):
-    """
-    Add tour endpoint for drivers.
-    Drivers' tours are automatically approved.
-    """
     driver = getattr(request.user, "driver", None)
     if request.method == "POST" and driver:
         title = request.POST.get("title", "").strip()
@@ -191,7 +342,6 @@ def add_tour(request: HttpRequest):
         video_file = request.FILES.get("video")
         image_url = request.POST.get("image_url", "").strip()
 
-        # ---- Safe parsing ----
         try:
             duration_days = int(duration_raw)
             if duration_days <= 0:
@@ -204,7 +354,6 @@ def add_tour(request: HttpRequest):
         except (InvalidOperation, TypeError):
             price_per_person = Decimal("0.00")
 
-        # ---- Create tour (auto-approve for drivers) ----
         tour = Tour.objects.create(
             title=title or "Untitled Tour",
             description=description,
@@ -212,8 +361,8 @@ def add_tour(request: HttpRequest):
             duration_days=duration_days,
             price_per_person=price_per_person,
             available=True,
-            created_by=request.user,   # ✅ track who made it
-            is_approved=True,          # ✅ auto-approved for drivers
+            created_by=request.user,
+            is_approved=True,
         )
 
         if image_file:
@@ -253,15 +402,16 @@ def edit_tour(request, tour_id):
         tour.title = request.POST.get("title", tour.title)
         tour.description = request.POST.get("description", tour.description)
         tour.itinerary = request.POST.get("itinerary", tour.itinerary)
+
         try:
             tour.duration_days = int(request.POST.get("duration_days", tour.duration_days))
         except (ValueError, TypeError):
-            tour.duration_days = tour.duration_days
+            pass
 
         try:
             tour.price_per_person = Decimal(request.POST.get("price_per_person", tour.price_per_person))
         except (InvalidOperation, TypeError):
-            tour.price_per_person = tour.price_per_person
+            pass
 
         if "image" in request.FILES:
             tour.image = request.FILES["image"]
@@ -282,27 +432,6 @@ def delete_tour(request, tour_id):
     return redirect("driver_dashboard")
 
 
-def book_tour(request, tour_id):
-    tour = get_object_or_404(Tour, id=tour_id)
-
-    # Generate unique booking reference
-    now = timezone.now()
-    ref_number = f"AIRTOURS{tour.id:04d}/{now.year}"  # e.g., AIRTOURS0008/2025
-
-    msg = (
-        f"Hello Safari Adventures Team,%0a"
-        f"I would like to book this tour:%0a"
-        f"Tour: {tour.title}%0a"
-        f"Duration: {tour.duration_days} day(s)%0a"
-        f"Price per person: USD {tour.price_per_person}%0a"
-        f"Booking Ref: {ref_number}%0a"
-        f"Please confirm availability. 🚀"
-    )
-
-    wa_url = f"https://wa.me/{WHATSAPP_NUMBER}?text={quote(msg, safe='')}"
-    return redirect(wa_url)
-
-
 # ---------------- DRIVER LOGIN ------------------
 def driver_login(request):
     if request.method == "POST":
@@ -320,5 +449,3 @@ def driver_login(request):
             messages.error(request, "Invalid username or password.")
 
     return render(request, "driver_login.html")
-
-

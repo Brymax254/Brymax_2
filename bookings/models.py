@@ -1,8 +1,14 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.conf import settings
 from decimal import Decimal
+import uuid
 
+
+# ===============================
+# Core Models
+# ===============================
 
 class Destination(models.Model):
     """Represents airport destinations, safari parks, excursions, or tour locations."""
@@ -51,7 +57,7 @@ class Driver(models.Model):
     license_number = models.CharField(max_length=50, unique=True)
     available = models.BooleanField(default=True)
 
-    # Added fields for richer profile (editable inline from dashboard)
+    # Rich profile
     profile_picture = models.ImageField(upload_to="drivers/", blank=True, null=True)
     experience_years = models.PositiveIntegerField(default=0)
     vehicle = models.CharField(max_length=150, blank=True, null=True)
@@ -102,28 +108,121 @@ class Booking(models.Model):
         return Decimal('0.00')
 
 
-class Payment(models.Model):
-    """Payments for bookings."""
-    PAYMENT_METHODS = [
-        ('MPESA', 'M-Pesa'),
-        ('CARD', 'Credit/Debit Card'),
-        ('CASH', 'Cash'),
-        ('BANK', 'Bank Transfer'),
-    ]
+# ===============================
+# Unified Payment Models
+# ===============================
 
-    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name="payment")
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+class PaymentProvider(models.TextChoices):
+    MPESA = "MPESA", "M-PESA"
+    PESAPAL = "PESAPAL", "Pesapal"
+    PAYPAL = "PAYPAL", "PayPal"
+    CARD = "CARD", "Card Payment"
+    AIRTEL = "AIRTEL", "Airtel Money"
+    CASH = "CASH", "Cash"
+    BANK = "BANK", "Bank Transfer"
+    OTHER = "OTHER", "Other"
+
+
+class PaymentStatus(models.TextChoices):
+    PENDING = "PENDING", "Pending"
+    SUCCESS = "SUCCESS", "Success"
+    FAILED = "FAILED", "Failed"
+    CANCELLED = "CANCELLED", "Cancelled"
+    REFUNDED = "REFUNDED", "Refunded"
+
+
+class Payment(models.Model):
+    """Unified payment model that works for both Bookings and Tours."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Who made the payment
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="payments"
+    )
+
+    # Can link to either Booking or Tour
+    booking = models.OneToOneField(
+        Booking, on_delete=models.CASCADE, related_name="payment", null=True, blank=True
+    )
+    tour = models.ForeignKey(
+        "Tour", on_delete=models.CASCADE, related_name="payments", null=True, blank=True
+    )
+
+    # Payment details
+    provider = models.CharField(
+        max_length=20, choices=PaymentProvider.choices, default=PaymentProvider.PESAPAL
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    currency = models.CharField(max_length=10, default="KES")
+    phone_number = models.CharField(
+        max_length=20, blank=True, null=True,
+        help_text="Phone number used for M-PESA/Airtel transactions"
+    )
+    status = models.CharField(
+        max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
+    )
+
+    # Transaction references
+    reference = models.CharField(
+        max_length=100, blank=True, null=True, db_index=True,
+        help_text="Unique reference from provider or generated internally"
+    )
+    pesapal_reference = models.CharField(
+        max_length=255, blank=True, null=True, help_text="Pesapal transaction reference"
+    )
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
-    paid_on = models.DateTimeField(default=timezone.now)
-    is_successful = models.BooleanField(default=True)
+
+    # Extra
+    description = models.TextField(blank=True, null=True)
+    raw_response = models.JSONField(blank=True, null=True)
+
+    # Tracking
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-paid_on']
+        ordering = ["-created_at"]
 
     def __str__(self):
-        return f"Payment {self.amount_paid} for {self.booking}"
+        if self.booking:
+            return f"Booking {self.booking.id} - {self.amount} {self.currency} ({self.status})"
+        elif self.tour:
+            return f"Tour {self.tour.title} - {self.amount} {self.currency} ({self.status})"
+        return f"{self.user} - {self.amount} {self.currency} ({self.status})"
 
+    # --- Admin-friendly aliases ---
+    @property
+    def amount_paid(self):
+        return self.amount
+
+    @property
+    def method(self):
+        return self.provider
+
+    @property
+    def paid_on(self):
+        return self.created_at
+
+    @property
+    def is_successful(self):
+        return self.status == PaymentStatus.SUCCESS
+
+    @property
+    def is_pending(self):
+        return self.status == PaymentStatus.PENDING
+
+    @property
+    def is_failed(self):
+        return self.status == PaymentStatus.FAILED
+
+# ===============================
+# Other Models
+# ===============================
 
 class ContactMessage(models.Model):
     """Messages from the contact page."""
@@ -154,12 +253,10 @@ class Tour(models.Model):
     image_url = models.URLField(blank=True, null=True)
     video = models.FileField(upload_to="tours/videos/", blank=True, null=True)
 
-    # Track creator (admin or driver)
+    # Track creator
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_tours")
 
-    # ✅ NEW FIELD
     is_approved = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -167,7 +264,6 @@ class Tour(models.Model):
 
     def __str__(self):
         return self.title
-
 
     def get_image_src(self):
         """Return appropriate image src (file URL preferred, then image_url)."""

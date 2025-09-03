@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safari Adventures - Complete Your Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #2F855A;
+            --primary-dark: #276749;
+            --secondary: #38A169;
+            --accent: #D69E2E;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f7faf7 0%, #edf2e8 100%);
+            min-height: 100vh;
+        }
+
+        .payment-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .payment-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-card.active {
+            border-left-color: var(--primary);
+            background-color: #f0fff4;
+        }
+
+        .pesapal-method {
+            transition: all 0.2s ease;
+        }
+
+        .pesapal-method:hover {
+            transform: scale(1.05);
+            background-color: #f8faf9;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary);
+            width: 50%;
+            animation: progressAnimation 1.5s ease-in-out infinite;
+        }
+
+        @keyframes progressAnimation {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+
+        .mpesa-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(72, 187, 120, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+        }
+
+        .security-badge {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%);
+        }
+
+        .tour-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .tour-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+        }
+
+        .badge-hot {
+            background-color: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .badge-popular {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .card-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .btn-book {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-book:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #1F2937;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg py-3 px-6 sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap items-center justify-between">
+            <!-- Logo/Brand -->
+            <div class="flex items-center">
+                <a href="/" class="flex items-center text-xl font-bold text-green-800">
+                    <i class="fas fa-leaf text-green-600 mr-2"></i>
+                    <span>Safari Adventures</span>
+                </a>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex md:items-center md:space-x-1">
+                <div class="flex flex-wrap items-center gap-1">
+                    <a href="/" class="text-gray-600 hover:text-green-800 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-1"></i> Home
+                    </a>
+                    <a href="/tours-and-safaris/" class="bg-green-100 text-green-800 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-binoculars mr-1"></i> Tours & Safaris
+                    </a>
+                    <a href="/about/" class="text-gray-600 hover:text-green-800 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-info-circle mr-1"></i> About
+                    </a>
+                    <a href="/contact/" class="text-gray-600 hover:text-green-800 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-envelope mr-1"></i> Contact
+                    </a>
+                </div>
+
+                <div class="ml-4 flex items-center gap-3">
+                    <a href="#" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-id-card mr-1"></i> Driver Login
+                    </a>
+                    <button class="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Payment Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-800">Complete Your Booking</h2>
+                <a href="/tours-and-safaris/" class="text-green-600 hover:text-green-800 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Tours
+                </a>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mt-6 mb-8">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-green-600">Tour Selection</span>
+                    <span class="text-sm font-medium text-green-600">Payment</span>
+                    <span class="text-sm font-medium text-gray-500">Confirmation</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column - Payment Methods -->
+                <div class="lg:col-span-2">
+                    <!-- PesaPal Options -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                            <span>Pay with PesaPal</span>
+                            <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Secure</span>
+                        </h3>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                            <!-- Credit Card -->
+                            <div class="pesapal-method payment-card active p-4 border border-gray-200 rounded-lg cursor-pointer text-center">
+                                <div class="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                                    <i class="fas fa-credit-card text-blue-600 text-xl"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Credit Card</span>
+                            </div>
+
+                            <!-- Debit Card -->
+                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center">
+                                <div class="w-12 h-12 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-2">
+                                    <i class="fas fa-credit-card text-purple-600 text-xl"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Debit Card</span>
+                            </div>
+
+                            <!-- M-Pesa -->
+                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center">
+                                <div class="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-2">
+                                    <i class="fas fa-mobile-alt text-green-600 text-xl"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">M-Pesa</span>
+                            </div>
+
+                            <!-- Bank Transfer -->
+                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center">
+                                <div class="w-12 h-12 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-2">
+                                    <i class="fas fa-university text-indigo-600 text-xl"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700">Bank Transfer</span>
+                            </div>
+                        </div>
+
+                        <!-- PesaPal Iframe -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-medium text-gray-700">Credit/Debit Card</h4>
+                                <div class="flex space-x-2">
+                                    <div class="w-8 h-5 bg-gray-200 rounded-sm flex items-center justify-center">
+                                        <i class="fab fa-cc-visa text-blue-800"></i>
+                                    </div>
+                                    <div class="w-8 h-5 bg-gray-200 rounded-sm flex items-center justify-center">
+                                        <i class="fab fa-cc-mastercard text-red-600"></i>
+                                    </div>
+                                    <div class="w-8 h-5 bg-gray-200 rounded-sm flex items-center justify-center">
+                                        <i class="fab fa-cc-amex text-blue-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <iframe src="https://www.pesapal.com/demo/demo4.htm" class="w-full h-72 border border-gray-300 rounded-lg" title="PesaPal Payment"></iframe>
+
+                            <div class="mt-4 flex items-center text-sm text-gray-500">
+                                <i class="fas fa-lock mr-2 text-green-500"></i>
+                                <span>Your payment details are encrypted and secure</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- M-Pesa Option -->
+                    <div class="border-t border-gray-200 pt-8">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                            <span>Pay with M-Pesa</span>
+                            <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Popular</span>
+                        </h3>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <form id="mpesa-form" class="space-y-4">
+                                <div>
+                                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">M-Pesa Phone Number</label>
+                                    <div class="mt-1 relative rounded-md shadow-sm">
+                                        <div class="absolute inset-y-0 left-0 flex items-center">
+                                            <label for="country" class="sr-only">Country</label>
+                                            <select id="country" name="country" class="h-full py-0 pl-3 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md">
+                                                <option>+254</option>
+                                                <option>+255</option>
+                                                <option>+256</option>
+                                            </select>
+                                        </div>
+                                        <input type="tel" name="phone" id="phone" class="focus:ring-green-500 focus:border-green-500 block w-full pl-16 sm:text-sm border-gray-300 rounded-md py-3" placeholder="712 345 678" required>
+                                    </div>
+                                </div>
+
+                                <div class="mpesa-pulse bg-green-50 border border-green-200 rounded-md p-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-mobile-alt text-green-600 text-xl"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h4 class="text-sm font-medium text-green-800">STK Push Payment</h4>
+                                            <p class="mt-1 text-sm text-green-700">You will receive a prompt on your phone to complete payment</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Request M-Pesa Payment
+                                </button>
+                            </form>
+                            <div id="mpesa-feedback" class="mt-4 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden h-fit sticky top-6">
+                        <!-- Header -->
+                        <div class="px-6 py-5 border-b border-gray-200">
+                            <h2 class="text-xl font-bold text-gray-800">Order Summary</h2>
+                        </div>
+
+                        <!-- Tour Details -->
+                        <div class="px-6 py-5 border-b border-gray-200">
+                            <div class="flex">
+                                <div class="flex-shrink-0 h-16 w-16 rounded-lg overflow-hidden">
+                                    <img id="tour-image" src="https://images.unsplash.com/photo-1596726895344-9473bb3b9274?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Tour Image" class="h-full w-full object-cover">
+                                </div>
+                                <div class="ml-4">
+                                    <h3 id="tour-title" class="text-lg font-medium text-gray-800">Maasai Mara Safari</h3>
+                                    <p id="tour-duration" class="text-sm text-gray-500 mt-1">5 days</p>
+                                    <div class="mt-2 flex items-center">
+                                        <i class="fas fa-calendar-alt text-gray-400 text-sm"></i>
+                                        <span class="ml-2 text-sm text-gray-600" id="tour-date">15 Aug - 19 Aug 2023</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Details -->
+                        <div class="px-6 py-5 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-800 mb-4">Pricing Details</h3>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600"><span id="passenger-count">1</span> Adult x <span id="tour-price">USD 1,250</span></span>
+                                    <span class="text-gray-800 font-medium" id="subtotal">USD 1,250</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Service Fee</span>
+                                    <span class="text-gray-800 font-medium">USD 25</span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Tax</span>
+                                    <span class="text-gray-800 font-medium" id="tax-amount">USD 127.50</span>
+                                </div>
+
+                                <div class="flex justify-between pt-3 border-t border-gray-200">
+                                    <span class="text-lg font-bold text-gray-800">Total</span>
+                                    <span class="text-lg font-bold text-green-600" id="total-amount">USD 1,402.50</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Support -->
+                        <div class="px-6 py-5">
+                            <h3 class="text-lg font-medium text-gray-800 mb-4">Need Help?</h3>
+                            <div class="flex items-center text-sm text-gray-600 mb-2">
+                                <i class="fas fa-phone-alt w-5 text-green-500"></i>
+                                <span class="ml-2">+254 700 123456</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-envelope w-5 text-green-500"></i>
+                                <span class="ml-2">support@safariadventures.com</span>
+                            </div>
+
+                            <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-green-500"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h4 class="text-sm font-medium text-green-800">Free Cancellation</h4>
+                                        <p class="mt-1 text-sm text-green-700">Cancel up to 24 hours before your tour for a full refund</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Badges -->
+        <div class="mt-12 flex flex-wrap justify-center gap-6">
+            <div class="flex items-center">
+                <i class="fas fa-lock text-gray-600 text-xl"></i>
+                <span class="ml-2 text-sm text-gray-700">256-bit SSL Encryption</span>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-shield-alt text-gray-600 text-xl"></i>
+                <span class="ml-2 text-sm text-gray-700">PCI DSS Compliant</span>
+            </div>
+            <div class="flex items-center">
+                <i class="fas fa-user-shield text-gray-600 text-xl"></i>
+                <span class="ml-2 text-sm text-gray-700">Privacy Protected</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-green-900 text-white py-12 mt-16">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-2xl font-bold mb-6">Safari Adventures Kenya</h3>
+            <p class="text-green-200 max-w-2xl mx-auto">Experience the wild heart of Africa with our expertly guided safaris and unforgettable adventures. Let us take you on a journey of a lifetime.</p>
+            <div class="mt-8 flex justify-center gap-6">
+                <a href="#" class="text-white hover:text-green-300 text-xl"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-white hover:text-green-300 text-xl"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white hover:text-green-300 text-xl"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white hover:text-green-300 text-xl"><i class="fab fa-tripadvisor"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Function to get URL parameters
+        function getUrlParams() {
+            const params = {};
+            // In a real application, you would get these from the URL
+            // For demo purposes, we'll use sample data
+            return {
+                tour_id: 1,
+                tour_title: "Maasai Mara Safari",
+                tour_price: 1250,
+                tour_image: "https://images.unsplash.com/photo-1596726895344-9473bb3b9274?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
+                tour_duration: "5 days",
+                tour_description: "Experience the great migration and witness the Big Five in their natural habitat with our expert guides."
+            };
+        }
+
+        // Function to load tour data based on URL parameters
+        function loadTourData() {
+            const params = getUrlParams();
+
+            // Update the page with tour data
+            document.getElementById('tour-image').src = params.tour_image;
+            document.getElementById('tour-title').textContent = params.tour_title;
+            document.getElementById('tour-duration').textContent = params.tour_duration;
+            document.getElementById('tour-price').textContent = `USD ${params.tour_price}`;
+
+            // Calculate pricing
+            const subtotal = params.tour_price;
+            const tax = subtotal * 0.16; // 16% tax
+            const serviceFee = 25;
+            const total = subtotal + tax + serviceFee;
+
+            document.getElementById('subtotal').textContent = `USD ${subtotal}`;
+            document.getElementById('tax-amount').textContent = `USD ${tax.toFixed(2)}`;
+            document.getElementById('total-amount').textContent = `USD ${total.toFixed(2)}`;
+        }
+
+        // Load tour data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTourData();
+
+            // Payment method selection
+            const paymentMethods = document.querySelectorAll('.pesapal-method');
+
+            paymentMethods.forEach(method => {
+                method.addEventListener('click', function() {
+                    // Remove active class from all methods
+                    paymentMethods.forEach(m => m.classList.remove('active'));
+
+                    // Add active class to clicked method
+                    this.classList.add('active');
+                });
+            });
+
+            // M-Pesa form submission
+            const form = document.getElementById('mpesa-form');
+            const feedback = document.getElementById('mpesa-feedback');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const phone = document.getElementById('phone').value;
+                const submitBtn = form.querySelector('button[type="submit"]');
+
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+                feedback.classList.add('hidden');
+
+                // Get tour data
+                const params = getUrlParams();
+
+                // Simulate API call
+                try {
+                    // In a real application, you would make a fetch request to your backend
+                    // For demonstration, we'll simulate a delay
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    // Simulate success response
+                    showFeedback('success', 'STK Push sent successfully! Please check your phone to complete the payment.');
+
+                    // Reset form
+                    form.reset();
+                } catch (error) {
+                    showFeedback('error', 'Failed to process payment. Please try again.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Request M-Pesa Payment';
+                }
+            });
+
+            function showFeedback(type, message) {
+                feedback.className = type === 'success'
+                    ? 'p-4 rounded-md bg-green-50 text-green-700 border border-green-200'
+                    : 'p-4 rounded-md bg-red-50 text-red-700 border border-red-200';
+
+                feedback.innerHTML = message;
+                feedback.classList.remove('hidden');
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    feedback.classList.add('hidden');
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
