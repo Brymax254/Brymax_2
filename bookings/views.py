@@ -107,6 +107,15 @@ def tour_payment(request: HttpRequest, tour_id):
         logger.error(f"Payment initiation error: {str(e)}")
 
     return render(request, "payments/tour_payment.html", context)
+
+def pesapal_callback(request):
+    # Called after payment completion
+    return HttpResponse("Payment completed. Thank you!")
+
+def pesapal_ipn(request):
+    # Pesapal posts status updates here
+    return HttpResponse("IPN received")
+
 @require_http_methods(["POST"])
 @csrf_protect
 def mpesa_payment(request, tour_id):

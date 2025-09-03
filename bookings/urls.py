@@ -31,4 +31,7 @@ urlpatterns = [
     path('payments/tour/<int:tour_id>/pay/', views.tour_payment, name='tour_payment_page'),
     path('payments/tour/<int:tour_id>/mpesa/', views.mpesa_payment, name='mpesa_payment'),
     path('payments/callback/', views.pesapal_callback, name='pesapal_callback'),
+
+path("pesapal/callback/", views.pesapal_callback, name="pesapal_callback"),
+    path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
 ]
