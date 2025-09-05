@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center py-5">
+    <h2 class="text-danger">❌ Payment Failed</h2>
+    <p>Unfortunately, your payment could not be completed. Please try again.</p>
+    <a href="{% url 'tours' %}" class="btn btn-secondary mt-3">Back to Tours</a>
+</div>
+{% endblock %}

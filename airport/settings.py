@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import dj_database_url  # pip install dj-database-url
 from dotenv import load_dotenv  # pip install python-dotenv
+from decouple import config
 
 # ==============================
 # BASE DIRECTORY & ENV LOADING
@@ -112,17 +113,28 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ==============================
 # PAYMENT CONFIGURATION
 # ==============================
-# PesaPal
-PESAPAL_CONSUMER_KEY = os.getenv("PESAPAL_CONSUMER_KEY", "RHz/TtTm7+4Z6nWjldFb5RwUT4rSD5QL")
-PESAPAL_CONSUMER_SECRET = os.getenv("PESAPAL_CONSUMER_SECRET", "lRRpdgumXxNRb58GhIvK8z9KTWA=")
-PESAPAL_DEMO = os.getenv("PESAPAL_DEMO", "True") == "True"
+# ==============================
+# PESAPAL PAYMENT CONFIGURATION
+# ==============================
+PESAPAL_CONSUMER_KEY = config("PESAPAL_CONSUMER_KEY")
+PESAPAL_CONSUMER_SECRET = config("PESAPAL_CONSUMER_SECRET")
+PESAPAL_DEMO = config("PESAPAL_DEMO", cast=bool, default=True)
+PESAPAL_IPN_URL = config("PESAPAL_IPN_URL")
+PESAPAL_NOTIFICATION_ID = config("PESAPAL_NOTIFICATION_ID")
 
-# Your callback endpoint
-PESAPAL_CALLBACK_URL = "https://www.brymax.xyz/payments/callback/"
+# Use correct base URL depending on environment
+if PESAPAL_DEMO:
+    PESAPAL_BASE_URL = "https://cybqa.pesapal.com/pesapalv3"
+else:
+    PESAPAL_BASE_URL = "https://pay.pesapal.com/v3"
 
-# The Notification ID from Pesapal dashboard (UUID, NOT a URL)
-PESAPAL_NOTIFICATION_ID = os.getenv("PESAPAL_NOTIFICATION_ID", "123e4567-e89b-12d3-a456-426614174000")
-
+# Your callback + IPN endpoints
+SITE_URL = config("SITE_URL", default="https://brymax.xyz")
+PESAPAL_CALLBACK_URL = f"{SITE_URL}/payments/callback/"
+PESAPAL_NOTIFICATION_ID = config(
+    "PESAPAL_NOTIFICATION_ID",
+    default="123e4567-e89b-12d3-a456-426614174000"
+)
 
 # M-Pesa
 MPESA_ENV = os.getenv("MPESA_ENV", "sandbox")  # sandbox or production

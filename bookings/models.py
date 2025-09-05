@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from decimal import Decimal
 import uuid
-
+from .utils.pesapal import PesapalAPI
 
 # ===============================
 # Core Models
@@ -187,6 +187,44 @@ class Payment(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+    def create_pesapal_order(self, callback_url):
+        """
+        Register this payment with Pesapal.
+        """
+        order_data = {
+            "id": str(self.id),  # unique merchant reference
+            "currency": self.currency,
+            "amount": float(self.amount),
+            "description": self.description or f"Payment for {self}",
+            "callback_url": callback_url,
+            "notification_id": settings.PESAPAL_NOTIFICATION_ID,
+            "branch": "Main Branch",
+            "billing_address": {
+                "email_address": self.user.email if self.user else "guest@example.com",
+                "phone_number": self.phone_number or "",
+                "first_name": self.user.first_name if self.user else "Guest",
+                "last_name": self.user.last_name if self.user else "User",
+                "line_1": "Nairobi",
+                "line_2": "",
+                "city": "Nairobi",
+                "state": "Nairobi",
+                "postal_code": "00100",
+                "zip_code": "",
+                "country_code": "KE"
+            }
+        }
+
+        response = PesapalAPI.submit_order(order_data)
+
+        # Save Pesapal response
+        self.raw_response = response
+        if response.get("order_tracking_id"):
+            self.pesapal_reference = response["order_tracking_id"]
+            self.reference = response["merchant_reference"]
+        self.save()
+
+        return response
 
     def __str__(self):
         if self.booking:

@@ -12,7 +12,7 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('terms/', views.terms, name='terms'),
 
-    # Tour booking → now goes to inside-site payment page
+    # Tour booking → Payment page
     path('book-tour/<int:tour_id>/', views.tour_payment, name='tour_payment'),
 
     # Driver dashboard routes
@@ -21,17 +21,20 @@ urlpatterns = [
 
     # Actions from the driver dashboard
     path('driver/add-trip/', views.add_trip, name='add_trip'),
-    path('driver/add-tour/', views.add_tour, name='add_tour'),  # allow drivers to add tours
+    path('driver/add-tour/', views.add_tour, name='add_tour'),
 
-    # Tour management (edit/delete)
+    # Tour management
     path('driver/tour/<int:tour_id>/edit/', views.edit_tour, name='edit_tour'),
     path('driver/tour/<int:tour_id>/delete/', views.delete_tour, name='delete_tour'),
 
-    # Payment-specific routes (inside-site Pesapal / Mpesa)
+    # Payment routes
     path('payments/tour/<int:tour_id>/pay/', views.tour_payment, name='tour_payment_page'),
     path('payments/tour/<int:tour_id>/mpesa/', views.mpesa_payment, name='mpesa_payment'),
-    path('payments/callback/', views.pesapal_callback, name='pesapal_callback'),
+    path('payments/success/', views.payment_success, name='payment_success'),
+    path('payments/failed/', views.payment_failed, name='payment_failed'),
 
-path("pesapal/callback/", views.pesapal_callback, name="pesapal_callback"),
+    # Pesapal integration
+    path("pesapal/callback/", views.pesapal_callback, name="pesapal_callback"),
     path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
+    path("pesapal/test-auth/", views.test_pesapal_auth, name="test_pesapal_auth"),
 ]
