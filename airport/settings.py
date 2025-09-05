@@ -15,9 +15,9 @@ load_dotenv(BASE_DIR / ".env")
 # ==============================
 # SECURITY
 # ==============================
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-insecure-replace-me")
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
+SECRET_KEY = config("DJANGO_SECRET_KEY", default="dev-insecure-replace-me")
+DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
+ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS", default="*").split(",")
 
 # ==============================
 # APPLICATIONS
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 # ==============================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # 👈 add this
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -52,6 +52,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "airport.urls"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # ==============================
 # TEMPLATES
 # ==============================
@@ -83,7 +84,7 @@ DATABASES = {
     }
 }
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = config("DATABASE_URL", default=None)
 if DATABASE_URL:
     DATABASES["default"] = dj_database_url.config(
         default=DATABASE_URL,
@@ -112,16 +113,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ==============================
-# PAYMENT CONFIGURATION
-# ==============================
-# ==============================
 # PESAPAL PAYMENT CONFIGURATION
 # ==============================
-PESAPAL_CONSUMER_KEY = config("PESAPAL_CONSUMER_KEY")
-PESAPAL_CONSUMER_SECRET = config("PESAPAL_CONSUMER_SECRET")
-PESAPAL_DEMO = config("PESAPAL_DEMO", cast=bool, default=True)
-PESAPAL_IPN_URL = config("PESAPAL_IPN_URL")
-PESAPAL_NOTIFICATION_ID = config("PESAPAL_NOTIFICATION_ID")
+PESAPAL_CONSUMER_KEY = config("PESAPAL_CONSUMER_KEY", default="")
+PESAPAL_CONSUMER_SECRET = config("PESAPAL_CONSUMER_SECRET", default="")
+PESAPAL_DEMO = config("PESAPAL_DEMO", default=True, cast=bool)
+PESAPAL_IPN_URL = config("PESAPAL_IPN_URL", default="")
 
 # Use correct base URL depending on environment
 if PESAPAL_DEMO:
@@ -137,12 +134,11 @@ PESAPAL_NOTIFICATION_ID = config(
     default="123e4567-e89b-12d3-a456-426614174000"
 )
 
-# M-Pesa
-MPESA_ENV = os.getenv("MPESA_ENV", "sandbox")  # sandbox or production
-MPESA_CONSUMER_KEY = os.getenv("MPESA_CONSUMER_KEY", "your_consumer_key")
-MPESA_CONSUMER_SECRET = os.getenv("MPESA_CONSUMER_SECRET", "your_consumer_secret")
-MPESA_PASSKEY = os.getenv("MPESA_PASSKEY", "your_lipa_na_mpesa_online_passkey")
-MPESA_SHORTCODE = os.getenv("MPESA_SHORTCODE", "174379")  # test shortcode
-
-# Site URL for callbacks
-SITE_URL = os.getenv("SITE_URL", "https://yourdomain.com")
+# ==============================
+# M-PESA CONFIGURATION
+# ==============================
+MPESA_ENV = config("MPESA_ENV", default="sandbox")  # sandbox or production
+MPESA_CONSUMER_KEY = config("MPESA_CONSUMER_KEY", default="your_consumer_key")
+MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET", default="your_consumer_secret")
+MPESA_PASSKEY = config("MPESA_PASSKEY", default="your_lipa_na_mpesa_online_passkey")
+MPESA_SHORTCODE = config("MPESA_SHORTCODE", default="174379")  # test shortcode
