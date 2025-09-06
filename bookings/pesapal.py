@@ -30,4 +30,7 @@ def initiate_payment(order_id, amount, description, email, phone):
         }
     }
     response = requests.post(url, json=payload, headers=headers)
-    return response.json()
+    data = response.json()
+
+    # Important: Extract iframe URL
+    return data.get("redirect_url")

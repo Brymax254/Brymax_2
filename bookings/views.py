@@ -4,6 +4,7 @@
 import json
 import logging
 from decimal import Decimal, InvalidOperation
+from .pesapal import initiate_payment
 
 from django.conf import settings
 from django.contrib import messages
@@ -418,3 +419,14 @@ def send_payment_confirmation_email(payment):
     """Send email confirmation after payment success."""
     # TODO: implement your email logic
     pass
+
+def payment_view(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    redirect_url = initiate_payment(
+        order_id=str(booking.id),
+        amount=booking.total_price,
+        description=f"Payment for {booking.tour.name}",
+        email=booking.customer_email,
+        phone=booking.customer_phone
+    )
+    return render(request, "payment.html", {"iframe_src": redirect_url})
