@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Guest Checkout</h2>
+
+<div id="guest-form">
+  <label>Email:</label>
+  <input type="email" id="guest-email" required />
+  <label>Phone:</label>
+  <input type="text" id="guest-phone" required />
+  <button id="submit-guest">Proceed to Payment</button>
+</div>
+
+<div id="pesapal-container" style="margin-top: 20px;">
+  <iframe id="pesapal-iframe" width="100%" height="600px" style="display:none;"></iframe>
+</div>
+
+<script>
+document.getElementById("submit-guest").addEventListener("click", async () => {
+    const email = document.getElementById("guest-email").value;
+    const phone = document.getElementById("guest-phone").value;
+
+    if (!email || !phone) { alert("Please enter both email and phone."); return; }
+
+    // Store guest info
+    const infoRes = await fetch("{% url 'process_guest_info' %}", {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/x-www-form-urlencoded" },
+        body: `email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
+    });
+    const infoData = await infoRes.json();
+    if (!infoData.success) { alert(infoData.message); return; }
+
+    // Create guest Pesapal order
+    const orderRes = await fetch("{% url 'create_guest_pesapal_order' %}", {
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
+        body: JSON.stringify({
+            amount: "{{ tour.price_per_person|default:'1000' }}",
+            description: "Payment for tour {{ tour.title|default:'Booking' }}"
+        })
+    });
+    const orderData = await orderRes.json();
+    if (orderData.success) {
+        const iframe = document.getElementById("pesapal-iframe");
+        iframe.src = orderData.redirect_url;
+        iframe.style.display = "block";
+        document.getElementById("guest-form").style.display = "none";
+    } else {
+        alert(orderData.message);
+    }
+});
+</script>
+{% endblock %}

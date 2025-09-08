@@ -21,7 +21,7 @@ urlpatterns = [
     # ===============================
     # Tour Payments
     path('book-tour/<int:tour_id>/', views.tour_payment, name='tour_payment'),
-    path('payments/tour/<int:tour_id>/pay/', views.tour_payment, name='tour_payment_page'),  # same view, alias
+    path('payments/tour/<int:tour_id>/pay/', views.tour_payment, name='tour_payment_page'),  # alias
     path('payments/tour/<int:tour_id>/mpesa/', views.mpesa_payment, name='mpesa_payment'),
 
     # Payment Status Pages
@@ -44,4 +44,14 @@ urlpatterns = [
     path('driver/add-tour/', views.add_tour, name='add_tour'),
     path('driver/tour/<int:tour_id>/edit/', views.edit_tour, name='edit_tour'),
     path('driver/tour/<int:tour_id>/delete/', views.delete_tour, name='delete_tour'),
+
+    # ===============================
+    # 👤 Guest Checkout
+    # ===============================
+    path("guest/checkout/<int:tour_id>/", views.guest_checkout_page, name="guest_checkout"),
+    path("guest/process-info/", views.process_guest_info, name="process_guest_info"),
+    path("guest/create-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
+    path("guest/callback/", views.guest_pesapal_callback, name="guest_pesapal_callback"),
+    path("guest/success/", views.guest_payment_success, name="guest_payment_success"),
+    path("guest/failed/", views.guest_payment_failed, name="guest_payment_failed"),
 ]
