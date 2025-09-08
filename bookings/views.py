@@ -78,13 +78,13 @@ def about(request):
 # ==========================================================
 # PAYMENT FLOW (Pesapal + Mpesa)
 # ==========================================================
-@login_required
+
 def book_tour(request, tour_id):
     """Redirect authenticated user to payment page."""
     tour = get_object_or_404(Tour, id=tour_id)
     return redirect("tour_payment", tour_id=tour.id)
 
-@login_required
+
 def tour_payment(request, tour_id):
     """Show Pesapal iframe for tour payment."""
     tour = get_object_or_404(Tour, id=tour_id)
