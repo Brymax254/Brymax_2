@@ -4,7 +4,7 @@
 import json
 import logging
 from decimal import Decimal, InvalidOperation
-from .pesapal import initiate_payment
+from bookings.pesapal import get_iframe_src
 
 from django.conf import settings
 from django.contrib import messages
@@ -90,38 +90,39 @@ def book_tour(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
     return redirect("tour_payment", tour_id=tour.id)
 
-
 def tour_payment(request: HttpRequest, tour_id):
-    """Show Pesapal iframe for tour payment."""
+    """Show Pesapal iframe for tour payment (clean, Pesapal only)."""
     tour = get_object_or_404(Tour, id=tour_id)
 
     context = {"tour": tour, "pesapal_iframe_url": None, "error": None}
 
     try:
-        service = PesaPalService()
+        # Build callback URL (where Pesapal will notify us)
         callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
 
-        pesapal_response = service.initiate_payment(
-            amount=str(tour.price_per_person),
+        # Get iframe URL securely from Pesapal
+        iframe_url = get_iframe_src(
+            order_id=tour.id,
+            amount=tour.price_per_person,
             description=f"Payment for Tour {tour.title}",
-            callback_url=callback_url,
-            email=request.user.email if request.user.is_authenticated else None,
-            first_name=request.user.first_name if request.user.is_authenticated else None,
-            last_name=request.user.last_name if request.user.is_authenticated else None,
+            email=request.user.email if request.user.is_authenticated else "guest@example.com",
+            phone="0700000000",  # ✅ Pesapal requires a phone field
         )
 
-        if pesapal_response and pesapal_response.get("iframe_url"):
+        if iframe_url:
+            # Save payment record
             Payment.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 tour=tour,
                 amount=tour.price_per_person,
-                reference=pesapal_response.get("order_tracking_id", ""),
+                reference=str(tour.id),  # use tour.id as reference (Pesapal Reference)
                 provider="PESAPAL",
                 status="PENDING",
             )
-            context["pesapal_iframe_url"] = pesapal_response["iframe_url"]
+            context["pesapal_iframe_url"] = iframe_url
         else:
             context["error"] = "Payment service is temporarily unavailable."
+
     except Exception as e:
         logger.error(f"Payment initiation error: {str(e)}")
         context["error"] = "An error occurred while initializing payment."
@@ -422,11 +423,25 @@ def send_payment_confirmation_email(payment):
 
 def payment_view(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
-    redirect_url = initiate_payment(
-        order_id=str(booking.id),
-        amount=booking.total_price,
-        description=f"Payment for {booking.tour.name}",
+    service = PesaPalService()
+    callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
+
+    pesapal_response = service.initiate_payment(
+        amount=str(booking.total_price),
+        description=f"Payment for {booking.tour.title}",
+        callback_url=callback_url,
         email=booking.customer_email,
-        phone=booking.customer_phone
+        phone=booking.customer_phone,
     )
-    return render(request, "payment.html", {"iframe_src": redirect_url})
+
+    if pesapal_response and pesapal_response.get("iframe_url"):
+        Payment.objects.create(
+            booking=booking,
+            amount=booking.total_price,
+            reference=pesapal_response.get("order_tracking_id", ""),
+            provider="PESAPAL",
+            status="PENDING",
+        )
+        return render(request, "payment.html", {"iframe_src": pesapal_response["iframe_url"]})
+    else:
+        return render(request, "payment.html", {"error": "Unable to initialize payment"})

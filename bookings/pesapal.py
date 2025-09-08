@@ -1,36 +1,37 @@
 import requests
+from requests_oauthlib import OAuth1
 from django.conf import settings
 
-BASE_URL = "https://pay.pesapal.com/v3/api"   # Sandbox: https://cybqa.pesapal.com/v3/api
+# Choose sandbox or live
+BASE_URL = settings.PESAPAL_BASE_URL
 
-def get_access_token():
-    url = f"{BASE_URL}/Auth/RequestToken"
-    data = {
-        "consumer_key": settings.PESAPAL_CONSUMER_KEY,
-        "consumer_secret": settings.PESAPAL_CONSUMER_SECRET
-    }
-    response = requests.post(url, json=data)
-    return response.json()["token"]
+def get_iframe_src(order_id, amount, description, email, phone):
+    """
+    Create a Pesapal order request and return iframe URL
+    """
 
-def initiate_payment(order_id, amount, description, email, phone):
-    token = get_access_token()
-    url = f"{BASE_URL}/Transactions/SubmitOrderRequest"
-    headers = {"Authorization": f"Bearer {token}"}
+    url = f"{BASE_URL}/api/PostPesapalDirectOrderV4"
+
+    # OAuth1 signing
+    auth = OAuth1(
+        settings.PESAPAL_CONSUMER_KEY,
+        settings.PESAPAL_CONSUMER_SECRET,
+        signature_method='HMAC-SHA1'
+    )
+
+    # Payload as required by Pesapal
     payload = {
-        "id": order_id,
-        "currency": "KES",
-        "amount": float(amount),
-        "description": description,
-        "callback_url": settings.PESAPAL_CALLBACK_URL,
-        "billing_address": {
-            "email_address": email,
-            "phone_number": phone,
-            "first_name": "Customer",
-            "last_name": "Test"
-        }
+        "Amount": str(amount),
+        "Description": description,
+        "Type": "MERCHANT",
+        "Reference": str(order_id),
+        "Currency": "KES",
+        "Email": email,
+        "PhoneNumber": phone,
+        "CallbackUrl": settings.PESAPAL_CALLBACK_URL,
     }
-    response = requests.post(url, json=payload, headers=headers)
-    data = response.json()
 
-    # Important: Extract iframe URL
-    return data.get("redirect_url")
+    response = requests.post(url, data=payload, auth=auth)
+    response.raise_for_status()
+
+    return response.text  # This will be the iframe URL
