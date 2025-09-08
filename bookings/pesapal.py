@@ -1,3 +1,4 @@
+import uuid
 import requests
 from django.conf import settings
 
@@ -18,11 +19,15 @@ def get_iframe_src(order_id, amount, description, email, phone):
     token_res.raise_for_status()
     access_token = token_res.json().get("token")
 
-    # 2. Submit order
+    # 2. Generate automatic unique request ID
+    unique_code = f"{order_id}-{uuid.uuid4().hex[:8]}"
+    # e.g. "5-3fa85f64" → always unique
+
+    # 3. Submit order
     order_url = f"{BASE_URL}/api/Transactions/SubmitOrderRequest"
     headers = {"Authorization": f"Bearer {access_token}"}
     order_payload = {
-        "id": str(order_id),
+        "id": unique_code,  # ✅ unique for each payment attempt
         "currency": "KES",
         "amount": str(amount),
         "description": description,
@@ -33,6 +38,7 @@ def get_iframe_src(order_id, amount, description, email, phone):
             "phone_number": phone,
         },
     }
+
     order_res = requests.post(order_url, json=order_payload, headers=headers, timeout=15)
     order_res.raise_for_status()
     order_data = order_res.json()
@@ -43,5 +49,3 @@ def get_iframe_src(order_id, amount, description, email, phone):
         raise ValueError(f"Pesapal response missing redirect_url: {order_data}")
 
     return redirect_url
-
-
