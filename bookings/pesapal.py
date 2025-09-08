@@ -35,7 +35,13 @@ def get_iframe_src(order_id, amount, description, email, phone):
     }
     order_res = requests.post(order_url, json=order_payload, headers=headers, timeout=15)
     order_res.raise_for_status()
-    order_tracking_id = order_res.json().get("order_tracking_id")
+    order_data = order_res.json()
 
-    # 3. Construct iframe URL
-    return f"{BASE_URL}/api/Transactions/SubmitOrderRequest?orderTrackingId={order_tracking_id}"
+    # Pesapal responds with { "redirect_url": "...", "order_tracking_id": "..." }
+    redirect_url = order_data.get("redirect_url")
+    if not redirect_url:
+        raise ValueError(f"Pesapal response missing redirect_url: {order_data}")
+
+    return redirect_url
+
+

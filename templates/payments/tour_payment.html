@@ -203,82 +203,95 @@
                         </div>
                     </div>
 
-                    <!-- PesaPal Options -->
-                    <div class="mb-8">
-                        <div class="flex items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-800 mr-3">Pay with</h3>
-                            <span class="pesapal-logo text-2xl font-bold">PesaPal</span>
-                            <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Secure & Verified</span>
-                        </div>
+                  <!-- PesaPal Payment Options -->
+<div class="mb-8">
+    <div class="flex items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-800 mr-3">Pay with</h3>
+        <span class="pesapal-logo text-2xl font-bold">PesaPal</span>
+        <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+            Secure & Verified
+        </span>
+    </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                            <!-- Credit Card -->
-                            <div class="pesapal-method payment-card active p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="credit_card">
-                                <div class="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-credit-card text-blue-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">Credit Card</span>
-                            </div>
+    <!-- Main Options -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <!-- Credit Card -->
+        <div class="pesapal-method payment-card active p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="credit_card">
+            <div class="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-credit-card text-blue-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Credit Card</span>
+        </div>
 
-                            <!-- Debit Card -->
-                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="debit_card">
-                                <div class="w-12 h-12 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-credit-card text-purple-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">Debit Card</span>
-                            </div>
+        <!-- Debit Card -->
+        <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="debit_card">
+            <div class="w-12 h-12 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-credit-card text-purple-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Debit Card</span>
+        </div>
 
-                            <!-- M-Pesa -->
-                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="mpesa">
-                                <div class="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-mobile-alt text-green-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">M-Pesa</span>
-                            </div>
+        <!-- M-Pesa -->
+        <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="mpesa">
+            <div class="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-mobile-alt text-green-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">M-Pesa</span>
+        </div>
 
-                            <!-- Bank Transfer -->
-                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="bank">
-                                <div class="w-12 h-12 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-university text-indigo-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">Bank Transfer</span>
-                            </div>
-                        </div>
+        <!-- Bank Transfer -->
+        <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="bank">
+            <div class="w-12 h-12 mx-auto bg-indigo-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-university text-indigo-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Bank Transfer</span>
+        </div>
+    </div>
 
-                        <!-- Additional PesaPal Payment Methods -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                            <!-- Airtel Money -->
-                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="airtel">
-                                <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-mobile-alt text-red-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">Airtel Money</span>
-                            </div>
+    <!-- Additional Methods -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Airtel Money -->
+        <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="airtel">
+            <div class="w-12 h-12 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-mobile-alt text-red-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Airtel Money</span>
+        </div>
 
-                            <!-- T-Kash -->
-                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="tkash">
-                                <div class="w-12 h-12 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-mobile-alt text-yellow-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">T-Kash</span>
-                            </div>
+        <!-- T-Kash -->
+        <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="tkash">
+            <div class="w-12 h-12 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-mobile-alt text-yellow-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">T-Kash</span>
+        </div>
 
-                            <!-- Equitel -->
-                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="equitel">
-                                <div class="w-12 h-12 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-mobile-alt text-pink-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">Equitel</span>
-                            </div>
+        <!-- Equitel -->
+        <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="equitel">
+            <div class="w-12 h-12 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-mobile-alt text-pink-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Equitel</span>
+        </div>
 
-                            <!-- MKopo Loan -->
-                            <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center" data-method="mkopo">
-                                <div class="w-12 h-12 mx-auto bg-teal-100 rounded-full flex items-center justify-center mb-2">
-                                    <i class="fas fa-hand-holding-usd text-teal-600 text-xl"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700">Mkopo Loan</span>
-                            </div>
-                        </div>
+        <!-- Mkopo Loan -->
+        <div class="pesapal-method payment-card p-4 border border-gray-200 rounded-lg cursor-pointer text-center"
+             data-method="mkopo">
+            <div class="w-12 h-12 mx-auto bg-teal-100 rounded-full flex items-center justify-center mb-2">
+                <i class="fas fa-hand-holding-usd text-teal-600 text-xl"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700">Mkopo Loan</span>
+        </div>
+    </div>
+</div>
+
 
                         <!-- Payment Status Messages -->
                         <div id="payment-status" class="payment-status">
@@ -526,113 +539,130 @@
         </div>
     </div>
 
-    <script>
-        // Payment method selection
-        const paymentMethods = document.querySelectorAll('.pesapal-method');
-        const iframeContainer = document.getElementById('pesapal-iframe-container');
-        const mpesaSection = document.getElementById('mpesa-section');
-        const selectedMethodTitle = document.getElementById('selected-method-title');
+   <script>
+    // Payment method selection
+    const paymentMethods = document.querySelectorAll('.pesapal-method');
+    const mpesaSection = document.getElementById('mpesa-section');
+    const selectedMethodTitle = document.getElementById('selected-method-title');
 
-        paymentMethods.forEach(method => {
-            method.addEventListener('click', function() {
-                // Remove active class from all methods
-                paymentMethods.forEach(m => m.classList.remove('active'));
+    paymentMethods.forEach(method => {
+        method.addEventListener('click', function () {
+            // Remove active from all
+            paymentMethods.forEach(m => m.classList.remove('active'));
+            this.classList.add('active');
 
-                // Add active class to clicked method
-                this.classList.add('active');
+            const selectedMethod = this.dataset.method;
 
-                // Get the selected method
-                const selectedMethod = this.getAttribute('data-method');
-
-                // Update UI based on selected method
-                if (selectedMethod === 'mpesa') {
-                    if (iframeContainer) iframeContainer.style.display = 'none';
-                    if (mpesaSection) mpesaSection.style.display = 'block';
-                    if (selectedMethodTitle) selectedMethodTitle.textContent = 'M-Pesa';
-                } else {
-                    if (iframeContainer) iframeContainer.style.display = 'block';
-                    if (mpesaSection) mpesaSection.style.display = 'none';
-
-                    // Update title based on selected method
-                    if (selectedMethodTitle) {
-                        switch(selectedMethod) {
-                            case 'credit_card':
-                                selectedMethodTitle.textContent = 'Credit Card';
-                                break;
-                            case 'debit_card':
-                                selectedMethodTitle.textContent = 'Debit Card';
-                                break;
-                            case 'bank':
-                                selectedMethodTitle.textContent = 'Bank Transfer';
-                                break;
-                            case 'airtel':
-                                selectedMethodTitle.textContent = 'Airtel Money';
-                                break;
-                            case 'tkash':
-                                selectedMethodTitle.textContent = 'T-Kash';
-                                break;
-                            case 'equitel':
-                                selectedMethodTitle.textContent = 'Equitel';
-                                break;
-                            case 'mkopo':
-                                selectedMethodTitle.textContent = 'Mkopo Loan';
-                                break;
-                        }
-                    }
+            if (selectedMethod === 'mpesa') {
+                if (mpesaSection) mpesaSection.style.display = 'block';
+                if (selectedMethodTitle) selectedMethodTitle.textContent = 'M-Pesa';
+            } else {
+                if (mpesaSection) mpesaSection.style.display = 'none';
+                if (selectedMethodTitle) {
+                    const methodNames = {
+                        credit_card: 'Credit Card',
+                        debit_card: 'Debit Card',
+                        bank: 'Bank Transfer',
+                        airtel: 'Airtel Money',
+                        tkash: 'T-Kash',
+                        equitel: 'Equitel',
+                        mkopo: 'Mkopo Loan'
+                    };
+                    selectedMethodTitle.textContent = methodNames[selectedMethod] || 'Payment';
                 }
-            });
+
+                // 🚀 Start Pesapal payment redirect
+                startPesapalPayment(selectedMethod);
+            }
         });
+    });
 
-        // M-Pesa form submission
-        const form = document.getElementById('mpesa-form');
-        const feedback = document.getElementById('mpesa-feedback');
-
-        if (form) {
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                const phone = document.getElementById('phone').value;
-                const submitBtn = form.querySelector('button[type="submit"]');
-
-                // Show loading state
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
-                if (feedback) feedback.classList.add('hidden');
-
-                // Simulate API call
-                try {
-                    // In a real application, you would make a fetch request to your backend
-                    // For demonstration, we'll simulate a delay
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-
-                    // Simulate success response
-                    if (feedback) showFeedback('success', 'STK Push sent successfully! Please check your phone to complete the payment.');
-
-                    // Reset form
-                    form.reset();
-                } catch (error) {
-                    if (feedback) showFeedback('error', 'Failed to process payment. Please try again.');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Request M-Pesa Payment';
-                }
+    // Kick off Pesapal payment
+    async function startPesapalPayment(method) {
+        try {
+            const response = await fetch("{% url 'create_pesapal_order' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    amount: "{{ booking.total_amount }}",
+                    description: "Booking #{{ booking.id }}",
+                    method: method
+                })
             });
+
+            const data = await response.json();
+
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url; // ✅ redirect to Pesapal
+            } else {
+                alert("Failed to initialize payment. Try again.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Payment service unavailable.");
         }
+    }
 
-        function showFeedback(type, message) {
-            feedback.className = type === 'success'
-                ? 'p-4 rounded-md bg-green-50 text-green-700 border border-green-200'
-                : 'p-4 rounded-md bg-red-50 text-red-700 border border-red-200';
+    // M-Pesa STK Push (local form simulation)
+    const form = document.getElementById('mpesa-form');
+    const feedback = document.getElementById('mpesa-feedback');
 
-            feedback.innerHTML = message;
-            feedback.classList.remove('hidden');
+    if (form) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                feedback.classList.add('hidden');
-            }, 5000);
-        }
-    </script>
+            const phone = document.getElementById('phone').value;
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            if (feedback) feedback.classList.add('hidden');
+
+            try {
+                // Call backend to trigger STK Push
+                const res = await fetch("", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ phone, amount: "{{ booking.total_amount }}" })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showFeedback('success', 'STK Push sent! Please check your phone to complete payment.');
+                    form.reset();
+                } else {
+                    showFeedback('error', data.message || 'Failed to process payment.');
+                }
+            } catch (error) {
+                showFeedback('error', 'Payment request failed. Try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Request M-Pesa Payment';
+            }
+        });
+    }
+
+    function showFeedback(type, message) {
+        feedback.className = type === 'success'
+            ? 'p-4 rounded-md bg-green-50 text-green-700 border border-green-200'
+            : 'p-4 rounded-md bg-red-50 text-red-700 border border-red-200';
+
+        feedback.innerHTML = message;
+        feedback.classList.remove('hidden');
+
+        setTimeout(() => {
+            feedback.classList.add('hidden');
+        }, 5000);
+    }
+</script>
+
 </body>
 </html>
 {% endblock %}

@@ -34,5 +34,6 @@ urlpatterns = [
     # Pesapal Payment Integration
     path('pesapal/callback/', views.pesapal_callback, name='pesapal_callback'),
     path('pesapal/ipn/', views.pesapal_ipn, name='pesapal_ipn'),
+path("create-pesapal-order/", views.create_pesapal_order_view, name="create_pesapal_order"),
     path('pesapal/test-auth/', views.test_pesapal_auth, name='test_pesapal_auth'),
 ]

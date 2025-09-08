@@ -445,3 +445,29 @@ def payment_view(request, booking_id):
         return render(request, "payment.html", {"iframe_src": pesapal_response["iframe_url"]})
     else:
         return render(request, "payment.html", {"error": "Unable to initialize payment"})
+
+
+
+@csrf_exempt
+def create_pesapal_order_view(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            amount = data.get("amount")
+            description = data.get("description")
+            email = request.user.email if request.user.is_authenticated else "test@example.com"
+            phone = data.get("phone", "254700000000")
+
+            redirect_url = get_iframe_src(
+                order_id=data.get("method") + "_" + str(data.get("description")),  # unique per order
+                amount=amount,
+                description=description,
+                email=email,
+                phone=phone,
+            )
+
+            return JsonResponse({"redirect_url": redirect_url})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
