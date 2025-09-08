@@ -1,14 +1,24 @@
+# bookings/pesapal.py
 import uuid
 import requests
 from django.conf import settings
 
-BASE_URL = settings.PESAPAL_BASE_URL  # e.g. https://pay.pesapal.com/v3
+BASE_URL = settings.PESAPAL_BASE_URL
 
 
-def get_iframe_src(order_id, amount, description, email, phone):
+def create_pesapal_order(
+    order_id,
+    amount,
+    description,
+    email,
+    phone,
+    first_name="John",
+    last_name="Doe",
+):
     """
-    Pesapal v3: Create order and return iframe URL
+    Pesapal v3: Create order and return (redirect_url, unique_code, order_tracking_id)
     """
+
     # 1. Get access token
     auth_url = f"{BASE_URL}/api/Auth/RequestToken"
     auth_payload = {
@@ -17,17 +27,20 @@ def get_iframe_src(order_id, amount, description, email, phone):
     }
     token_res = requests.post(auth_url, json=auth_payload, timeout=15)
     token_res.raise_for_status()
-    access_token = token_res.json().get("token")
+    token_json = token_res.json()
 
-    # 2. Generate automatic unique request ID
+    access_token = token_json.get("token") or token_json.get("access_token")
+    if not access_token:
+        raise ValueError(f"Invalid token response: {token_json}")
+
+    # 2. Generate unique request ID
     unique_code = f"{order_id}-{uuid.uuid4().hex[:8]}"
-    # e.g. "5-3fa85f64" → always unique
 
     # 3. Submit order
     order_url = f"{BASE_URL}/api/Transactions/SubmitOrderRequest"
     headers = {"Authorization": f"Bearer {access_token}"}
     order_payload = {
-        "id": unique_code,  # ✅ unique for each payment attempt
+        "id": unique_code,
         "currency": "KES",
         "amount": str(amount),
         "description": description,
@@ -36,16 +49,22 @@ def get_iframe_src(order_id, amount, description, email, phone):
         "billing_address": {
             "email_address": email,
             "phone_number": phone,
+            "first_name": first_name,
+            "last_name": last_name,
+            "country_code": "KE",
         },
     }
 
-    order_res = requests.post(order_url, json=order_payload, headers=headers, timeout=15)
+    order_res = requests.post(
+        order_url, json=order_payload, headers=headers, timeout=15
+    )
     order_res.raise_for_status()
     order_data = order_res.json()
 
-    # Pesapal responds with { "redirect_url": "...", "order_tracking_id": "..." }
     redirect_url = order_data.get("redirect_url")
-    if not redirect_url:
-        raise ValueError(f"Pesapal response missing redirect_url: {order_data}")
+    order_tracking_id = order_data.get("order_tracking_id")
 
-    return redirect_url
+    if not redirect_url or not order_tracking_id:
+        raise ValueError(f"Pesapal response invalid: {order_data}")
+
+    return redirect_url, unique_code, order_tracking_id

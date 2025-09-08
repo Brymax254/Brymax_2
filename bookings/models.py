@@ -6,12 +6,14 @@ from decimal import Decimal
 import uuid
 from .utils.pesapal import PesapalAPI
 
-# ===============================
-# Core Models
-# ===============================
+
+# =====================================================
+# CORE DOMAIN MODELS
+# =====================================================
 
 class Destination(models.Model):
     """Represents airport destinations, safari parks, excursions, or tour locations."""
+
     DESTINATION_TYPES = [
         ('TRANSFER', 'Airport Transfer'),
         ('EXCURSION', 'Excursion'),
@@ -23,8 +25,11 @@ class Destination(models.Model):
     location = models.CharField(max_length=200, blank=True, null=True)
     price_per_person = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     destination_type = models.CharField(max_length=20, choices=DESTINATION_TYPES, default='TOUR')
+
+    # Media
     image = models.ImageField(upload_to="destinations/", blank=True, null=True)
     video = models.FileField(upload_to="destinations/videos/", blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -36,10 +41,12 @@ class Destination(models.Model):
 
 class Customer(models.Model):
     """Customer making a booking."""
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=20)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -51,13 +58,14 @@ class Customer(models.Model):
 
 class Driver(models.Model):
     """Drivers assigned to bookings."""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="driver", null=True, blank=True)
     name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=20)
     license_number = models.CharField(max_length=50, unique=True)
     available = models.BooleanField(default=True)
 
-    # Rich profile
+    # Extended profile
     profile_picture = models.ImageField(upload_to="drivers/", blank=True, null=True)
     experience_years = models.PositiveIntegerField(default=0)
     vehicle = models.CharField(max_length=150, blank=True, null=True)
@@ -74,6 +82,7 @@ class Driver(models.Model):
 
 class Booking(models.Model):
     """Bookings for transfers, excursions, or tours."""
+
     BOOKING_TYPE_CHOICES = [
         ('TRANSFER', 'Airport Transfer'),
         ('EXCURSION', 'Excursion'),
@@ -83,15 +92,21 @@ class Booking(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="bookings")
     destination = models.ForeignKey(Destination, on_delete=models.SET_NULL, null=True, related_name="bookings")
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPE_CHOICES)
+
     num_passengers = models.PositiveIntegerField(default=1)
     pickup_location = models.CharField(max_length=200, blank=True, null=True)
     dropoff_location = models.CharField(max_length=200, blank=True, null=True)
     travel_date = models.DateField()
+
+    pesapal_reference = models.CharField(max_length=100, blank=True, null=True, unique=True)
+
     special_requests = models.TextField(blank=True, null=True)
     booking_date = models.DateTimeField(default=timezone.now)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+
     is_confirmed = models.BooleanField(default=False)
     is_cancelled = models.BooleanField(default=False)
+
     driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
 
     class Meta:
@@ -108,9 +123,9 @@ class Booking(models.Model):
         return Decimal('0.00')
 
 
-# ===============================
-# Unified Payment Models
-# ===============================
+# =====================================================
+# PAYMENT MODELS
+# =====================================================
 
 class PaymentProvider(models.TextChoices):
     MPESA = "MPESA", "M-PESA"
@@ -137,44 +152,25 @@ class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Who made the payment
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="payments"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="payments")
 
-    # Can link to either Booking or Tour
-    booking = models.OneToOneField(
-        Booking, on_delete=models.CASCADE, related_name="payment", null=True, blank=True
-    )
-    tour = models.ForeignKey(
-        "Tour", on_delete=models.CASCADE, related_name="payments", null=True, blank=True
-    )
+    # Payment can belong to either a Booking or a Tour
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name="payment", null=True, blank=True)
+    tour = models.ForeignKey("Tour", on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
 
     # Payment details
-    provider = models.CharField(
-        max_length=20, choices=PaymentProvider.choices, default=PaymentProvider.PESAPAL
-    )
+    provider = models.CharField(max_length=20, choices=PaymentProvider.choices, default=PaymentProvider.PESAPAL)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    method = models.CharField(max_length=20, choices=PaymentProvider.choices, default=PaymentProvider.MPESA)
     currency = models.CharField(max_length=10, default="KES")
-    phone_number = models.CharField(
-        max_length=20, blank=True, null=True,
-        help_text="Phone number used for M-PESA/Airtel transactions"
-    )
-    status = models.CharField(
-        max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
-    )
+    phone_number = models.CharField(max_length=20, blank=True, null=True, help_text="Phone number used for mobile payments")
+
+    status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
 
     # Transaction references
-    reference = models.CharField(
-        max_length=100, blank=True, null=True, db_index=True,
-        help_text="Unique reference from provider or generated internally"
-    )
-    pesapal_reference = models.CharField(
-        max_length=255, blank=True, null=True, help_text="Pesapal transaction reference"
-    )
+    reference = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    pesapal_reference = models.CharField(max_length=255, blank=True, null=True)
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
 
     # Extra
@@ -182,18 +178,25 @@ class Payment(models.Model):
     raw_response = models.JSONField(blank=True, null=True)
 
     # Tracking
+    paid_on = models.DateTimeField(blank=True, null=True)   # new
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self):
+        if self.booking:
+            return f"Booking {self.booking.id} - {self.amount} {self.currency} ({self.status})"
+        elif self.tour:
+            return f"Tour {self.tour.title} - {self.amount} {self.currency} ({self.status})"
+        return f"{self.user} - {self.amount} {self.currency} ({self.status})"
+
+    # --- Helper methods ---
     def create_pesapal_order(self, callback_url):
-        """
-        Register this payment with Pesapal.
-        """
+        """Register this payment with Pesapal."""
         order_data = {
-            "id": str(self.id),  # unique merchant reference
+            "id": str(self.id),
             "currency": self.currency,
             "amount": float(self.amount),
             "description": self.description or f"Payment for {self}",
@@ -210,41 +213,26 @@ class Payment(models.Model):
                 "city": "Nairobi",
                 "state": "Nairobi",
                 "postal_code": "00100",
-                "zip_code": "",
                 "country_code": "KE"
             }
         }
-
         response = PesapalAPI.submit_order(order_data)
 
-        # Save Pesapal response
         self.raw_response = response
         if response.get("order_tracking_id"):
             self.pesapal_reference = response["order_tracking_id"]
-            self.reference = response["merchant_reference"]
+            self.reference = response.get("merchant_reference")
         self.save()
-
         return response
 
-    def __str__(self):
-        if self.booking:
-            return f"Booking {self.booking.id} - {self.amount} {self.currency} ({self.status})"
-        elif self.tour:
-            return f"Tour {self.tour.title} - {self.amount} {self.currency} ({self.status})"
-        return f"{self.user} - {self.amount} {self.currency} ({self.status})"
-
-    # --- Admin-friendly aliases ---
-    @property
-    def amount_paid(self):
-        return self.amount
-
-    @property
-    def method(self):
-        return self.provider
-
-    @property
-    def paid_on(self):
-        return self.created_at
+    def save(self, *args, **kwargs):
+        """Auto-fill amount_paid and paid_on when payment is successful."""
+        if self.status == PaymentStatus.SUCCESS:
+            if not self.amount_paid:
+                self.amount_paid = self.amount
+            if not self.paid_on:
+                self.paid_on = timezone.now()
+        super().save(*args, **kwargs)
 
     @property
     def is_successful(self):
@@ -258,16 +246,19 @@ class Payment(models.Model):
     def is_failed(self):
         return self.status == PaymentStatus.FAILED
 
-# ===============================
-# Other Models
-# ===============================
+
+# =====================================================
+# CONTENT & MISC MODELS
+# =====================================================
 
 class ContactMessage(models.Model):
     """Messages from the contact page."""
+
     name = models.CharField(max_length=150)
     email = models.EmailField()
     subject = models.CharField(max_length=200)
     message = models.TextField()
+
     sent_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -279,6 +270,7 @@ class ContactMessage(models.Model):
 
 class Tour(models.Model):
     """Extended model for multi-day safari/tours."""
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     itinerary = models.TextField(blank=True, null=True)
@@ -291,9 +283,8 @@ class Tour(models.Model):
     image_url = models.URLField(blank=True, null=True)
     video = models.FileField(upload_to="tours/videos/", blank=True, null=True)
 
-    # Track creator
+    # Meta
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_tours")
-
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -314,10 +305,12 @@ class Tour(models.Model):
 
 class Video(models.Model):
     """Standalone videos (optional paid content)."""
+
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     file = models.FileField(upload_to="videos/")
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -329,6 +322,7 @@ class Video(models.Model):
 
 class Trip(models.Model):
     """Represents a trip completed by a driver."""
+
     STATUS_CHOICES = [
         ('Completed', 'Completed'),
         ('In Progress', 'In Progress'),
@@ -340,6 +334,7 @@ class Trip(models.Model):
     date = models.DateField()
     earnings = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Scheduled')
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

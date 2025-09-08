@@ -1,131 +1,130 @@
-# =======================
+# ==========================================================
 # DJANGO IMPORTS
-# =======================
+# ==========================================================
 import json
 import logging
 from decimal import Decimal, InvalidOperation
-from bookings.pesapal import get_iframe_src
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core.exceptions import PermissionDenied
-from django.http import (
-    HttpRequest,
-    JsonResponse,
-    HttpResponse,
-)
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_http_methods
+from django.core.mail import send_mail
 
-# =======================
+# ==========================================================
 # PROJECT IMPORTS
-# =======================
+# ==========================================================
 from .models import (
-    Tour, Destination, Video, Booking, Payment, ContactMessage, Trip
+    Tour, Destination, Video, Booking,
+    Payment, ContactMessage, Trip
 )
 from .services import PesaPalService, MpesaSTKPush
 from .utils.pesapal_auth import PesapalAuth
+from .pesapal import create_pesapal_order
 
-# Setup logger
+# Logger setup
 logger = logging.getLogger(__name__)
 
 
 # ==========================================================
-#  FRONTEND PAGES
+# FRONTEND PAGES
 # ==========================================================
-def home(request: HttpRequest):
+def home(request):
     return render(request, "home.html")
 
 
-def book_online(request: HttpRequest):
+def book_online(request):
     return render(request, "book_online.html")
 
 
-def nairobi_transfers(request: HttpRequest):
+def nairobi_transfers(request):
     return render(request, "nairobi_transfers.html")
 
 
-def excursions(request: HttpRequest):
+def excursions(request):
     return render(request, "excursions.html")
 
 
-def tours(request: HttpRequest):
-    """Public tours page (shows tours + trips + videos + destinations)."""
-    tours_qs = Tour.objects.filter(is_approved=True, available=True).order_by("-created_at")
-    trips_qs = Trip.objects.all().order_by("-created_at")
-    videos_qs = Video.objects.all().order_by("-created_at")
-    destinations_qs = Destination.objects.all().order_by("-created_at")
-
-    return render(request, "tours.html", {
-        "tours": tours_qs,
-        "trips": trips_qs,
-        "videos": videos_qs,
-        "destinations": destinations_qs,
-    })
+def tours(request):
+    """Public tours page (tours + trips + videos + destinations)."""
+    context = {
+        "tours": Tour.objects.filter(is_approved=True, available=True).order_by("-created_at"),
+        "trips": Trip.objects.all().order_by("-created_at"),
+        "videos": Video.objects.all().order_by("-created_at"),
+        "destinations": Destination.objects.all().order_by("-created_at"),
+    }
+    return render(request, "tours.html", context)
 
 
-def contact(request: HttpRequest):
+def contact(request):
     return render(request, "contact.html")
 
 
-def terms(request: HttpRequest):
+def terms(request):
     return render(request, "terms.html")
 
 
-def about(request: HttpRequest):
+def about(request):
     return render(request, "about.html")
 
 
 # ==========================================================
-#  PAYMENT FLOW (Pesapal + Mpesa)
+# PAYMENT FLOW (Pesapal + Mpesa)
 # ==========================================================
+@login_required
 def book_tour(request, tour_id):
-    """Redirect authenticated user to the payment page."""
+    """Redirect authenticated user to payment page."""
     tour = get_object_or_404(Tour, id=tour_id)
     return redirect("tour_payment", tour_id=tour.id)
 
-def tour_payment(request: HttpRequest, tour_id):
-    """Show Pesapal iframe for tour payment (clean, Pesapal only)."""
+@login_required
+def tour_payment(request, tour_id):
+    """Show Pesapal iframe for tour payment."""
     tour = get_object_or_404(Tour, id=tour_id)
-
     context = {"tour": tour, "pesapal_iframe_url": None, "error": None}
 
     try:
-        # Build callback URL (where Pesapal will notify us)
+        # Build callback URL
         callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
 
-        # Get iframe URL securely from Pesapal
-        iframe_url = get_iframe_src(
+        # Create Pesapal order
+        redirect_url, order_reference, tracking_id = create_pesapal_order(
             order_id=tour.id,
             amount=tour.price_per_person,
             description=f"Payment for Tour {tour.title}",
-            email=request.user.email if request.user.is_authenticated else "guest@example.com",
-            phone="0700000000",  # ✅ Pesapal requires a phone field
+            email=request.user.email,
+            phone=normalize_phone_number(getattr(request.user, "phone", "0700000000")),
         )
 
-        if iframe_url:
-            # Save payment record
-            Payment.objects.create(
-                user=request.user if request.user.is_authenticated else None,
+        if redirect_url:
+            # Create local Payment record (without callback_url)
+            payment = Payment.objects.create(
+                user=request.user,
                 tour=tour,
                 amount=tour.price_per_person,
-                reference=str(tour.id),  # use tour.id as reference (Pesapal Reference)
+                reference=tracking_id,   # 🔑 Save tracking_id
                 provider="PESAPAL",
                 status="PENDING",
+                description=f"Payment for Tour {tour.title}"
             )
-            context["pesapal_iframe_url"] = iframe_url
+
+            # Register order with Pesapal (updates payment with pesapal_reference)
+            payment.create_pesapal_order(callback_url)
+
+            context["pesapal_iframe_url"] = redirect_url
         else:
-            context["error"] = "Payment service is temporarily unavailable."
+            context["error"] = "Payment service unavailable."
 
     except Exception as e:
         logger.error(f"Payment initiation error: {str(e)}")
-        context["error"] = "An error occurred while initializing payment."
+        context["error"] = "Error initializing payment."
 
     return render(request, "payments/tour_payment.html", context)
 
@@ -153,19 +152,20 @@ def pesapal_callback(request):
 
             return JsonResponse({"success": True, "message": "Payment updated"})
         except Payment.DoesNotExist:
-            logger.error("Pesapal callback for non-existent payment: %s", tracking_id)
+            logger.error("Callback for non-existent payment: %s", tracking_id)
             return JsonResponse({"success": False, "message": "Payment not found"}, status=404)
+
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
     except Exception as e:
-        logger.exception("Error processing Pesapal callback: %s", str(e))
+        logger.exception("Pesapal callback error: %s", str(e))
         return JsonResponse({"success": False, "message": "Server error"}, status=500)
 
 
 @require_http_methods(["POST"])
 @csrf_exempt
 def pesapal_ipn(request):
-    """Pesapal IPN endpoint (server-to-server notification)."""
+    """Pesapal IPN (server-to-server notification)."""
     try:
         data = json.loads(request.body.decode("utf-8"))
         reference = data.get("order_reference")
@@ -179,6 +179,7 @@ def pesapal_ipn(request):
             updated_at=timezone.now(),
         )
         return JsonResponse({"success": True, "message": "IPN processed"})
+
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
     except Exception as e:
@@ -188,16 +189,15 @@ def pesapal_ipn(request):
 
 @require_http_methods(["POST"])
 @csrf_protect
+@login_required
 def mpesa_payment(request, tour_id):
     """Mpesa STK Push with validation and error handling."""
     try:
         data = json.loads(request.body)
-        phone_number = data.get("phone_number")
+        phone_number = normalize_phone_number(data.get("phone_number"))
 
         if not phone_number:
-            return JsonResponse({"success": False, "message": "Phone number is required"}, status=400)
-        if not validate_phone_number(phone_number):
-            return JsonResponse({"success": False, "message": "Invalid phone number format"}, status=400)
+            return JsonResponse({"success": False, "message": "Invalid phone number"}, status=400)
 
         tour = get_object_or_404(Tour, id=tour_id)
         mpesa = MpesaSTKPush()
@@ -219,16 +219,17 @@ def mpesa_payment(request, tour_id):
             )
             return JsonResponse({
                 "success": True,
-                "message": "STK Push sent. Check your phone to complete payment.",
+                "message": "STK Push sent. Check your phone.",
                 "response": response,
             })
         else:
-            logger.error("Mpesa STK push failed for tour %s: %s", tour_id, response)
+            logger.error("Mpesa STK push failed: %s", response)
             return JsonResponse({"success": False, "message": "Failed to initiate Mpesa payment."}, status=500)
+
     except json.JSONDecodeError:
-        return JsonResponse({"success": False, "message": "Invalid JSON data"}, status=400)
+        return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
     except Exception as e:
-        logger.exception("Error processing Mpesa payment for tour %s: %s", tour_id, str(e))
+        logger.exception("Mpesa payment error: %s", str(e))
         return JsonResponse({"success": False, "message": "Unexpected error"}, status=500)
 
 
@@ -242,16 +243,17 @@ def payment_failed(request):
 
 
 # ==========================================================
-#  DRIVER DASHBOARD + ACTIONS
+# DRIVER DASHBOARD + ACTIONS
 # ==========================================================
-def driver_dashboard(request: HttpRequest):
-    driver = getattr(request.user, "driver", None)
-    if not driver:
-        messages.error(request, "You must be logged in as a driver.")
+@login_required
+def driver_dashboard(request):
+    if not hasattr(request.user, "driver"):
+        messages.error(request, "You must log in as a driver.")
         return redirect("driver_login")
 
+    driver = request.user.driver
+
     if request.method == "POST":
-        # Add new trip
         if "new_trip" in request.POST:
             Trip.objects.create(
                 driver=driver,
@@ -263,7 +265,6 @@ def driver_dashboard(request: HttpRequest):
             messages.success(request, "Trip added successfully.")
             return redirect("driver_dashboard")
 
-        # Add new tour
         if "new_tour" in request.POST:
             return add_tour(request)
 
@@ -273,29 +274,18 @@ def driver_dashboard(request: HttpRequest):
         "tours": Tour.objects.filter(created_by=request.user).order_by("-created_at"),
         "bookings": Booking.objects.filter(driver=driver).select_related("customer", "destination"),
         "payments": Payment.objects.filter(booking__driver=driver).select_related("booking", "booking__customer"),
-        "messages": ContactMessage.objects.all(),
+        "messages": ContactMessage.objects.none() if not request.user.is_staff else ContactMessage.objects.all(),
     }
     return render(request, "driver_dashboard.html", context)
 
 
-def add_trip(request: HttpRequest):
-    driver = getattr(request.user, "driver", None)
-    if request.method == "POST" and driver:
-        Trip.objects.create(
-            driver=driver,
-            destination=request.POST.get("destination"),
-            date=request.POST.get("date"),
-            earnings=request.POST.get("earnings") or 0,
-            status=request.POST.get("status") or "Scheduled",
-        )
-        messages.success(request, "Trip added.")
-    return redirect("driver_dashboard")
+@login_required
+def add_tour(request):
+    if not hasattr(request.user, "driver"):
+        messages.error(request, "You must log in as a driver.")
+        return redirect("driver_login")
 
-
-def add_tour(request: HttpRequest):
-    driver = getattr(request.user, "driver", None)
-    if request.method == "POST" and driver:
-        # --- parsing & defaults ---
+    if request.method == "POST":
         title = request.POST.get("title", "").strip() or "Untitled Tour"
         description = request.POST.get("description", "").strip()
         itinerary = request.POST.get("itinerary", "").strip()
@@ -333,8 +323,14 @@ def add_tour(request: HttpRequest):
     return redirect("driver_dashboard")
 
 
+@login_required
 def edit_tour(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
+
+    if tour.created_by != request.user and not request.user.is_staff:
+        messages.error(request, "Permission denied.")
+        return redirect("driver_dashboard")
+
     if request.method == "POST":
         tour.title = request.POST.get("title", tour.title)
         tour.description = request.POST.get("description", tour.description)
@@ -358,18 +354,25 @@ def edit_tour(request, tour_id):
         tour.save()
         messages.success(request, f'Tour "{tour.title}" updated.')
         return redirect("driver_dashboard")
+
     return render(request, "edit_tour.html", {"tour": tour})
 
 
+@login_required
 def delete_tour(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
+
+    if tour.created_by != request.user and not request.user.is_staff:
+        messages.error(request, "Permission denied.")
+        return redirect("driver_dashboard")
+
     tour.delete()
     messages.success(request, "Tour deleted.")
     return redirect("driver_dashboard")
 
 
 # ==========================================================
-#  DRIVER LOGIN
+# DRIVER LOGIN
 # ==========================================================
 def driver_login(request):
     if request.method == "POST":
@@ -389,7 +392,7 @@ def driver_login(request):
 
 
 # ==========================================================
-#  STAFF / DEBUG UTILITIES
+# STAFF / DEBUG UTILITIES
 # ==========================================================
 @staff_member_required
 def test_pesapal_auth(request):
@@ -403,71 +406,30 @@ def test_pesapal_auth(request):
 
 
 # ==========================================================
-#  HELPERS
+# HELPERS
 # ==========================================================
-def validate_phone_number(phone_number):
-    """Validate phone number format (basic check)."""
-    return phone_number and len(phone_number) >= 9 and phone_number.startswith("+")
+def normalize_phone_number(phone):
+    """Convert to E.164 (+254...) format."""
+    if not phone:
+        return None
+    phone = str(phone).strip()
+    if phone.startswith("0"):
+        return "+254" + phone[1:]
+    elif phone.startswith("+"):
+        return phone
+    return None
 
 
 def verify_pesapal_ip(ip_address):
-    """Verify Pesapal IP ranges (customize with real docs)."""
-    pesapal_ips = ["52.15.185.146", "52.15.178.181"]  # Example
+    """Verify Pesapal IP ranges (example)."""
+    pesapal_ips = ["52.15.185.146", "52.15.178.181"]
     return ip_address in pesapal_ips
 
 
 def send_payment_confirmation_email(payment):
     """Send email confirmation after payment success."""
-    # TODO: implement your email logic
-    pass
-
-def payment_view(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id)
-    service = PesaPalService()
-    callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
-
-    pesapal_response = service.initiate_payment(
-        amount=str(booking.total_price),
-        description=f"Payment for {booking.tour.title}",
-        callback_url=callback_url,
-        email=booking.customer_email,
-        phone=booking.customer_phone,
-    )
-
-    if pesapal_response and pesapal_response.get("iframe_url"):
-        Payment.objects.create(
-            booking=booking,
-            amount=booking.total_price,
-            reference=pesapal_response.get("order_tracking_id", ""),
-            provider="PESAPAL",
-            status="PENDING",
-        )
-        return render(request, "payment.html", {"iframe_src": pesapal_response["iframe_url"]})
-    else:
-        return render(request, "payment.html", {"error": "Unable to initialize payment"})
-
-
-
-@csrf_exempt
-def create_pesapal_order_view(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body.decode("utf-8"))
-            amount = data.get("amount")
-            description = data.get("description")
-            email = request.user.email if request.user.is_authenticated else "test@example.com"
-            phone = data.get("phone", "254700000000")
-
-            redirect_url = get_iframe_src(
-                order_id=data.get("method") + "_" + str(data.get("description")),  # unique per order
-                amount=amount,
-                description=description,
-                email=email,
-                phone=phone,
-            )
-
-            return JsonResponse({"redirect_url": redirect_url})
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
-    return JsonResponse({"error": "Invalid request"}, status=400)
+    subject = f"Payment Confirmation - {payment.tour.title}"
+    message = f"Dear {payment.user.get_full_name()},\n\n" \
+              f"We have received your payment of KES {payment.amount} for {payment.tour.title}.\n" \
+              f"Thank you for booking with us!"
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [payment.user.email])
