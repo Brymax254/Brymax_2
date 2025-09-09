@@ -122,9 +122,10 @@ PESAPAL_IPN_URL = config("PESAPAL_IPN_URL", default="")
 
 # Use correct base URL depending on environment
 if PESAPAL_DEMO:
-    PESAPAL_BASE_URL = "https://cybqa.pesapal.com/pesapalv3"
+    PESAPAL_BASE_URL = "https://cybqa.pesapal.com/v3"
 else:
     PESAPAL_BASE_URL = "https://pay.pesapal.com/v3"
+
 
 # Your callback + IPN endpoints
 SITE_URL = config("SITE_URL", default="https://brymax.xyz")
