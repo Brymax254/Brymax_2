@@ -100,15 +100,23 @@ def send_payment_confirmation_email(payment):
 # ==========================================================
 # PAYMENT FLOW
 # ==========================================================
-@login_required
 def tour_payment(request, tour_id):
-    """Render Pesapal payment iframe for a tour."""
+    """
+    Render payment page for logged-in users or redirect guests to guest checkout.
+    Handles Pesapal payments.
+    """
     tour = get_object_or_404(Tour, id=tour_id)
+
+    # Redirect unauthenticated users to guest checkout
+    if not request.user.is_authenticated:
+        return redirect("guest_checkout", tour_id=tour.id)
+
     context = {"tour": tour, "pesapal_iframe_url": None, "error": None}
 
     try:
         callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
 
+        # 🔹 Call pesapal.py helper
         redirect_url, order_reference, tracking_id = create_pesapal_order(
             order_id=tour.id,
             amount=tour.price_per_person,
@@ -118,16 +126,16 @@ def tour_payment(request, tour_id):
         )
 
         if redirect_url:
-            payment = Payment.objects.create(
+            # 🔹 Save payment in DB
+            Payment.objects.create(
                 user=request.user,
                 tour=tour,
                 amount=tour.price_per_person,
-                reference=tracking_id,
+                reference=tracking_id,   # store Pesapal order_tracking_id
                 provider="PESAPAL",
                 status="PENDING",
                 description=f"Payment for Tour {tour.title}",
             )
-            payment.create_pesapal_order(callback_url)
             context["pesapal_iframe_url"] = redirect_url
         else:
             context["error"] = "Payment service unavailable."
