@@ -146,56 +146,63 @@ def tour_payment(request, tour_id):
 
     return render(request, "payments/tour_payment.html", context)
 
+# ===============================
+# 🌍 Browser Redirect Callback (GET)
+# ===============================
+@csrf_exempt
+def pesapal_callback(request):
+    """Pesapal browser callback after payment (user is redirected here)."""
+    if request.method == "GET":
+        tracking_id = request.GET.get("OrderTrackingId")
+        merchant_ref = request.GET.get("OrderMerchantReference")
 
+        if not tracking_id:
+            return HttpResponse("❌ Missing OrderTrackingId", status=400)
+
+        try:
+            payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
+            # You might redirect to success/failure pages instead of plain text
+            if payment.status.upper() == "COMPLETED":
+                return HttpResponse("✅ Payment successful! Thank you.")
+            else:
+                return HttpResponse(f"ℹ️ Payment status: {payment.status}")
+        except Payment.DoesNotExist:
+            return HttpResponse("❌ Payment not found.", status=404)
+
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+# ===============================
+# 🔔 Server-to-Server IPN (POST JSON)
+# ===============================
 @csrf_exempt
 @require_http_methods(["POST"])
-def pesapal_callback(request):
-    """Pesapal browser callback after payment."""
+def pesapal_ipn(request):
+    """Pesapal server-to-server notification (IPN)."""
     try:
         data = json.loads(request.body.decode("utf-8"))
-        tracking_id = data.get("order_tracking_id")
+        tracking_id = data.get("order_tracking_id") or data.get("order_reference")
         status = data.get("status")
 
         if not tracking_id or not status:
             return JsonResponse({"success": False, "message": "Missing parameters"}, status=400)
 
-        payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
-        payment.status = status.upper()
-        payment.updated_at = timezone.now()
-        payment.save()
+        try:
+            payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
+            payment.status = status.upper()
+            payment.updated_at = timezone.now()
+            payment.save()
 
-        if status.upper() == "COMPLETED":
-            send_payment_confirmation_email(payment)
+            if status.upper() == "COMPLETED":
+                send_payment_confirmation_email(payment)
 
-        return JsonResponse({"success": True, "message": "Payment updated"})
+            return JsonResponse({"success": True, "message": "IPN processed"})
 
-    except Payment.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Payment not found"}, status=404)
+        except Payment.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Payment not found"}, status=404)
+
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
-    except Exception as e:
-        logger.exception("Pesapal callback error: %s", e)
-        return JsonResponse({"success": False, "message": "Server error"}, status=500)
-
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def pesapal_ipn(request):
-    """Pesapal server-to-server notification."""
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-        reference = data.get("order_reference")
-        status = data.get("status")
-
-        if not reference or not status:
-            return JsonResponse({"success": False, "message": "Missing parameters"}, status=400)
-
-        Payment.objects.filter(reference=reference, provider="PESAPAL").update(
-            status=status.upper(),
-            updated_at=timezone.now(),
-        )
-        return JsonResponse({"success": True, "message": "IPN processed"})
-
     except Exception as e:
         logger.exception("Pesapal IPN error: %s", e)
         return JsonResponse({"success": False, "message": "Server error"}, status=500)
