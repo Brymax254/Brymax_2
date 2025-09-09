@@ -54,4 +54,5 @@ urlpatterns = [
     path("guest/callback/", views.guest_pesapal_callback, name="guest_pesapal_callback"),
     path("guest/success/", views.guest_payment_success, name="guest_payment_success"),
     path("guest/failed/", views.guest_payment_failed, name="guest_payment_failed"),
+    path("payments/callback/", views.pesapal_callback, name="pesapal_callback"),
 ]
