@@ -488,6 +488,8 @@ def create_guest_pesapal_order(request):
                 description=description,
                 email=email,
                 phone=normalize_phone_number(phone),
+                first_name="Guest",
+                last_name="User",
             )
 
             # Store guest payment in session
