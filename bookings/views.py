@@ -151,27 +151,41 @@ def tour_payment(request, tour_id):
 # ===============================
 @csrf_exempt
 def pesapal_callback(request):
-    """Pesapal browser callback after payment (user is redirected here)."""
-    if request.method == "GET":
-        tracking_id = request.GET.get("OrderTrackingId")
-        merchant_ref = request.GET.get("OrderMerchantReference")
+    """
+    Handle Pesapal browser callback after payment.
+    This view renders the appropriate template based on payment status.
+    """
+    if request.method != "GET":
+        return HttpResponse("Method not allowed", status=405)
 
-        if not tracking_id:
-            return HttpResponse("❌ Missing OrderTrackingId", status=400)
+    tracking_id = request.GET.get("OrderTrackingId")
+    merchant_ref = request.GET.get("OrderMerchantReference")
 
-        try:
-            payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
-            # You might redirect to success/failure pages instead of plain text
-            if payment.status.upper() == "COMPLETED":
-                return HttpResponse("✅ Payment successful! Thank you.")
+    if not tracking_id or not merchant_ref:
+        return HttpResponse("❌ Missing required payment parameters.", status=400)
+
+    try:
+        payment = Payment.objects.get(reference=merchant_ref, provider="PESAPAL")
+        status = payment.status.upper()
+
+        # Render templates based on payment status
+        if status == "COMPLETED":
+            # If it's a guest, you can render guest_receipt.html
+            if merchant_ref.startswith("GUEST-"):
+                return render(request, "payments/guest_receipt.html", {"payment": payment})
             else:
-                return HttpResponse(f"ℹ️ Payment status: {payment.status}")
-        except Payment.DoesNotExist:
-            return HttpResponse("❌ Payment not found.", status=404)
+                return render(request, "payments/receipt.html", {"payment": payment})
+        elif status == "FAILED":
+            if merchant_ref.startswith("GUEST-"):
+                return render(request, "payments/guest_failed.html", {"payment": payment})
+            else:
+                return render(request, "payments/failed.html", {"payment": payment})
+        else:
+            # Optional: Pending page
+            return HttpResponse(f"Payment status: {status}", status=200)
 
-    return JsonResponse({"error": "Method not allowed"}, status=405)
-
-
+    except Payment.DoesNotExist:
+        return HttpResponse("❌ Payment not found.", status=404)
 # ===============================
 # 🔔 Server-to-Server IPN (POST JSON)
 # ===============================
