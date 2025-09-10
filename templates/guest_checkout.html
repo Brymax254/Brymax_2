@@ -366,111 +366,136 @@
         </div>
     </footer>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const guestForm = document.getElementById('guest-form');
-        const submitButton = document.getElementById('submit-guest');
-        const emailInput = document.getElementById('guest-email');
-        const phoneInput = document.getElementById('guest-phone');
-        const emailError = document.getElementById('email-error');
-        const phoneError = document.getElementById('phone-error');
-        const pesapalContainer = document.getElementById('pesapal-container');
-        const pesapalIframe = document.getElementById('pesapal-iframe');
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const guestForm = document.getElementById('guest-form');
+    const submitButton = document.getElementById('submit-guest');
+    const emailInput = document.getElementById('guest-email');
+    const phoneInput = document.getElementById('guest-phone');
+    const emailError = document.getElementById('email-error');
+    const phoneError = document.getElementById('phone-error');
+    const pesapalContainer = document.getElementById('pesapal-container');
+    const pesapalIframe = document.getElementById('pesapal-iframe');
 
-        // Validate email format
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+    // ✅ Validate email format
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    // ✅ Validate phone format (international-friendly)
+    function validatePhone(phone) {
+        const re = /^\+?[0-9]{7,15}$/;  // allows + or digits, 7–15 long
+        return re.test(phone.replace(/\s/g, ''));
+    }
+
+    submitButton.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        const phone = phoneInput.value.trim();
+
+        let isValid = true;
+
+        // Email validation
+        if (!validateEmail(email)) {
+            if (emailError) emailError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            if (emailError) emailError.classList.add('hidden');
         }
 
-        // Validate phone format (East African numbers)
-        function validatePhone(phone) {
-            const re = /^[0-9]{9}$/;
-            return re.test(phone.replace(/\s/g, ''));
+        // Phone validation
+        if (!validatePhone(phone)) {
+            if (phoneError) phoneError.classList.remove('hidden');
+            isValid = false;
+        } else {
+            if (phoneError) phoneError.classList.add('hidden');
         }
 
-        submitButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const phone = phoneInput.value;
-            const countryCode = document.getElementById('country-code').value;
-            const fullPhone = countryCode + phone.replace(/\s/g, '');
+        if (!isValid) {
+            alert("Please enter a valid email and phone number.");
+            return;
+        }
 
-            let isValid = true;
+        try {
+            // Loading state
+            submitButton.innerHTML = 'Processing... <i class="fas fa-spinner fa-spin ml-2"></i>';
+            submitButton.disabled = true;
 
-            // Validate email
-            if (!validateEmail(email)) {
-                emailError.classList.remove('hidden');
-                isValid = false;
-            } else {
-                emailError.classList.add('hidden');
-            }
-
-            // Validate phone
-            if (!validatePhone(phone)) {
-                phoneError.classList.remove('hidden');
-                isValid = false;
-            } else {
-                phoneError.classList.add('hidden');
-            }
-
-            if (!isValid) {
-                alert("Please enter both valid email and phone.");
+            // ✅ 1. Store guest info
+            const infoRes = await fetch("{% url 'process_guest_info' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
+            });
+            const infoData = await infoRes.json();
+            if (!infoData.success) {
+                alert(infoData.message);
+                submitButton.innerHTML = 'Proceed to Payment <i class="fas fa-arrow-right ml-2"></i>';
+                submitButton.disabled = false;
                 return;
             }
 
-            // Simulate storing guest info (in a real app, this would be an API call)
-            try {
-                // Show loading state
-                submitButton.innerHTML = 'Processing... <i class="fas fa-spinner fa-spin ml-2"></i>';
-                submitButton.disabled = true;
+            // ✅ 2. Create PesaPal order
+            const orderRes = await fetch("{% url 'create_guest_pesapal_order' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    amount: "{{ tour.price_per_person|default:'1000' }}",
+                    description: "Payment for tour {{ tour.title|default:'Booking' }}"
+                })
+            });
+            const orderData = await orderRes.json();
 
-                // Simulate API call delay
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                // Simulate creating PesaPal order
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                // Show the iframe container
+            if (orderData.success) {
+                // Hide form, show iframe
                 guestForm.style.display = 'none';
                 pesapalContainer.style.display = 'block';
+                pesapalIframe.src = orderData.redirect_url;
 
-                // Simulate iframe loading (in a real app, this would be the actual PesaPal URL)
-                pesapalIframe.src = "https://demo.pesapal.com/pesapal-demo/iframe.php";
+                // ✅ Start 15 min countdown
+                const fifteenMinutes = 60 * 15;
+                const display = document.querySelector('#countdown-timer');
+                if (display) startTimer(fifteenMinutes, display);
 
-            } catch (error) {
-                alert("An error occurred. Please try again.");
-                console.error(error);
-
-                // Reset button state
-                submitButton.innerHTML = 'Proceed to Payment <i class="fas fa-arrow-right ml-2"></i>';
-                submitButton.disabled = false;
+            } else {
+                alert(orderData.message);
             }
-        });
 
-        // Countdown timer
-        function startTimer(duration, display) {
-            let timer = duration, minutes, seconds;
-            setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
-
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-
-                display.textContent = minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    timer = duration;
-                }
-            }, 1000);
-        }
-
-        const fifteenMinutes = 60 * 15;
-        const display = document.querySelector('#countdown-timer');
-        if (display) {
-            startTimer(fifteenMinutes, display);
+        } catch (error) {
+            alert("An error occurred. Please try again.");
+            console.error(error);
+        } finally {
+            // Reset button state
+            submitButton.innerHTML = 'Proceed to Payment <i class="fas fa-arrow-right ml-2"></i>';
+            submitButton.disabled = false;
         }
     });
-    </script>
+
+    // ✅ Countdown timer
+    function startTimer(duration, display) {
+        let timer = duration, minutes, seconds;
+        setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.textContent = minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                display.textContent = "Expired";
+            }
+        }, 1000);
+    }
+});
+</script>
+
 </body>
 </html>
