@@ -90,7 +90,6 @@ def send_payment_confirmation_email(payment):
 # ==========================================================
 # PAYMENT FLOW (Pesapal + Mpesa)
 # ==========================================================
-@login_required
 def tour_payment(request, tour_id):
     """Render payment page for logged-in users (Pesapal)."""
     tour = get_object_or_404(Tour, id=tour_id)
