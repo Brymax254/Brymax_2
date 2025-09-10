@@ -8,12 +8,13 @@ from .utils.pesapal import PesapalAPI
 
 
 # =====================================================
-# CORE DOMAIN MODELS
+# DESTINATIONS & CUSTOMERS
 # =====================================================
 
 class Destination(models.Model):
-    """Represents airport destinations, safari parks, excursions, or tour locations."""
-
+    """
+    Represents airport destinations, safari parks, excursions, or tour locations.
+    """
     DESTINATION_TYPES = [
         ('TRANSFER', 'Airport Transfer'),
         ('EXCURSION', 'Excursion'),
@@ -40,8 +41,9 @@ class Destination(models.Model):
 
 
 class Customer(models.Model):
-    """Customer making a booking."""
-
+    """
+    Customer making a booking (used for registered customers).
+    """
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -56,9 +58,14 @@ class Customer(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
-class Driver(models.Model):
-    """Drivers assigned to bookings."""
+# =====================================================
+# DRIVERS & BOOKINGS
+# =====================================================
 
+class Driver(models.Model):
+    """
+    Drivers assigned to bookings.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="driver", null=True, blank=True)
     name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=20)
@@ -81,8 +88,9 @@ class Driver(models.Model):
 
 
 class Booking(models.Model):
-    """Bookings for transfers, excursions, or tours."""
-
+    """
+    Bookings for transfers, excursions, or tours.
+    """
     BOOKING_TYPE_CHOICES = [
         ('TRANSFER', 'Airport Transfer'),
         ('EXCURSION', 'Excursion'),
@@ -124,7 +132,7 @@ class Booking(models.Model):
 
 
 # =====================================================
-# PAYMENT MODELS
+# PAYMENTS
 # =====================================================
 
 class PaymentProvider(models.TextChoices):
@@ -147,12 +155,16 @@ class PaymentStatus(models.TextChoices):
 
 
 class Payment(models.Model):
-    """Unified payment model that works for both Bookings and Tours."""
+    """
+    Unified payment model that works for both registered users and guest checkouts.
+    """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    # Who made the payment
+    # Who made the payment (either user or guest)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="payments")
+    guest_email = models.EmailField(blank=True, null=True, help_text="Email provided by guest user")
+    guest_phone = models.CharField(max_length=20, blank=True, null=True, help_text="Phone provided by guest user")
 
     # Payment can belong to either a Booking or a Tour
     booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name="payment", null=True, blank=True)
@@ -178,7 +190,7 @@ class Payment(models.Model):
     raw_response = models.JSONField(blank=True, null=True)
 
     # Tracking
-    paid_on = models.DateTimeField(blank=True, null=True)   # new
+    paid_on = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -190,11 +202,13 @@ class Payment(models.Model):
             return f"Booking {self.booking.id} - {self.amount} {self.currency} ({self.status})"
         elif self.tour:
             return f"Tour {self.tour.title} - {self.amount} {self.currency} ({self.status})"
-        return f"{self.user} - {self.amount} {self.currency} ({self.status})"
+        return f"{self.user or self.guest_email} - {self.amount} {self.currency} ({self.status})"
 
     # --- Helper methods ---
     def create_pesapal_order(self, callback_url):
-        """Register this payment with Pesapal."""
+        """
+        Register this payment with Pesapal.
+        """
         order_data = {
             "id": str(self.id),
             "currency": self.currency,
@@ -204,8 +218,8 @@ class Payment(models.Model):
             "notification_id": settings.PESAPAL_NOTIFICATION_ID,
             "branch": "Main Branch",
             "billing_address": {
-                "email_address": self.user.email if self.user else "guest@example.com",
-                "phone_number": self.phone_number or "",
+                "email_address": self.user.email if self.user else self.guest_email or "guest@example.com",
+                "phone_number": self.phone_number or self.guest_phone or "",
                 "first_name": self.user.first_name if self.user else "Guest",
                 "last_name": self.user.last_name if self.user else "User",
                 "line_1": "Nairobi",
@@ -226,7 +240,9 @@ class Payment(models.Model):
         return response
 
     def save(self, *args, **kwargs):
-        """Auto-fill amount_paid and paid_on when payment is successful."""
+        """
+        Auto-fill amount_paid and paid_on when payment is successful.
+        """
         if self.status == PaymentStatus.SUCCESS:
             if not self.amount_paid:
                 self.amount_paid = self.amount
@@ -234,6 +250,7 @@ class Payment(models.Model):
                 self.paid_on = timezone.now()
         super().save(*args, **kwargs)
 
+    # --- Utility properties ---
     @property
     def is_successful(self):
         return self.status == PaymentStatus.SUCCESS
@@ -248,12 +265,13 @@ class Payment(models.Model):
 
 
 # =====================================================
-# CONTENT & MISC MODELS
+# CONTENT & MISC
 # =====================================================
 
 class ContactMessage(models.Model):
-    """Messages from the contact page."""
-
+    """
+    Messages from the contact page.
+    """
     name = models.CharField(max_length=150)
     email = models.EmailField()
     subject = models.CharField(max_length=200)
@@ -269,8 +287,9 @@ class ContactMessage(models.Model):
 
 
 class Tour(models.Model):
-    """Extended model for multi-day safari/tours."""
-
+    """
+    Extended model for multi-day safaris/tours.
+    """
     title = models.CharField(max_length=200)
     description = models.TextField()
     itinerary = models.TextField(blank=True, null=True)
@@ -304,8 +323,9 @@ class Tour(models.Model):
 
 
 class Video(models.Model):
-    """Standalone videos (optional paid content)."""
-
+    """
+    Standalone videos (optional paid content).
+    """
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     file = models.FileField(upload_to="videos/")
@@ -321,8 +341,9 @@ class Video(models.Model):
 
 
 class Trip(models.Model):
-    """Represents a trip completed by a driver."""
-
+    """
+    Represents a trip completed by a driver.
+    """
     STATUS_CHOICES = [
         ('Completed', 'Completed'),
         ('In Progress', 'In Progress'),

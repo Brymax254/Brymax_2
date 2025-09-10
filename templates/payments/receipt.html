@@ -1,0 +1,56 @@
+<!-- templates/payments/receipt.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Payment Receipt</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 24px; background:#f6f8fb; color:#111; }
+    .card { background:white; max-width:800px; margin:24px auto; padding:24px; border-radius:12px; box-shadow:0 6px 22px rgba(10,20,40,0.08); }
+    h1 { margin:0 0 8px; font-size:1.4rem; }
+    .muted { color:#666; font-size:0.95rem; }
+    .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed #eee; }
+    .total { font-weight:700; font-size:1.1rem; }
+    .btn { display:inline-block; margin-top:18px; padding:10px 14px; border-radius:8px; text-decoration:none; background:#0b69ff; color:white; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Payment Receipt</h1>
+    <p class="muted">Thank you for your payment. Below are the payment details.</p>
+
+    <div style="margin-top:18px;">
+      <div class="row"><div>Transaction reference</div><div>{{ payment.reference }}</div></div>
+      <div class="row"><div>Payment provider</div><div>{{ payment.provider }}</div></div>
+      <div class="row"><div>Status</div><div>{{ payment.status }}</div></div>
+      <div class="row"><div>Amount</div><div class="total">KES {{ payment.amount }}</div></div>
+
+      {% if payment.tour %}
+        <div class="row"><div>Tour</div><div>{{ payment.tour.title }}</div></div>
+      {% elif payment.booking %}
+        <div class="row"><div>Booking</div><div>Booking #{{ payment.booking.id }}</div></div>
+      {% else %}
+        <div class="row"><div>Description</div><div>{{ payment.description }}</div></div>
+      {% endif %}
+
+      <div class="row"><div>Paid on</div><div>{{ payment.created_at|date:"F j, Y, g:i a" }}</div></div>
+
+      <!-- Always display payer info from context -->
+      <div class="row">
+        <div>Payer</div>
+        <div>
+          {{ payer_name }}
+          {% if payer_email %} &middot; {{ payer_email }}{% endif %}
+          {% if payer_phone %} &middot; {{ payer_phone }}{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <a class="btn" href="{% url 'tours' %}">Back to Tours</a>
+      <a class="btn" style="background:#e0e7ff; color:#111; margin-left:10px;" href="{% url 'contact' %}">Contact support</a>
+    </div>
+  </div>
+</body>
+</html>

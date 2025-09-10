@@ -1,8 +1,15 @@
 # bookings/pesapal.py
+"""
+Pesapal Payment Integration (v3 API)
+Handles creating Pesapal orders and returning the redirect URL + tracking details.
+"""
+
 import uuid
 import requests
 from django.conf import settings
 
+
+# Base URL for Pesapal environment (sandbox/live)
 BASE_URL = settings.PESAPAL_BASE_URL
 
 
@@ -12,19 +19,32 @@ def create_pesapal_order(
     description,
     email,
     phone,
-    first_name="John",
-    last_name="Doe",
+    first_name,
+    last_name,
 ):
     """
-    Pesapal v3: Create order and return (redirect_url, unique_code, order_tracking_id)
+    Create a Pesapal order and return redirect URL, unique code, and order tracking ID.
+
+    Parameters:
+        order_id (str): Your internal order/ticket ID
+        amount (Decimal/str): Payment amount
+        description (str): Short description of the order
+        email (str): User/guest email
+        phone (str): User/guest phone
+        first_name (str): First name of the payer
+        last_name (str): Last name of the payer
+
+    Returns:
+        (redirect_url, unique_code, order_tracking_id)
     """
 
-    # 1. Get access token
+    # 1. Request authentication token
     auth_url = f"{BASE_URL}/api/Auth/RequestToken"
     auth_payload = {
         "consumer_key": settings.PESAPAL_CONSUMER_KEY,
         "consumer_secret": settings.PESAPAL_CONSUMER_SECRET,
     }
+
     token_res = requests.post(auth_url, json=auth_payload, timeout=15)
     token_res.raise_for_status()
     token_json = token_res.json()
@@ -36,7 +56,7 @@ def create_pesapal_order(
     # 2. Generate unique request ID
     unique_code = f"{order_id}-{uuid.uuid4().hex[:8]}"
 
-    # 3. Submit order
+    # 3. Build order payload
     order_url = f"{BASE_URL}/api/Transactions/SubmitOrderRequest"
     headers = {"Authorization": f"Bearer {access_token}"}
     order_payload = {
@@ -49,12 +69,13 @@ def create_pesapal_order(
         "billing_address": {
             "email_address": email,
             "phone_number": phone,
-            "first_name": first_name,
-            "last_name": last_name,
+            "first_name": first_name or "Guest",
+            "last_name": last_name or "User",
             "country_code": "KE",
         },
     }
 
+    # 4. Submit order
     order_res = requests.post(
         order_url, json=order_payload, headers=headers, timeout=15
     )
