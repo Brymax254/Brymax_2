@@ -153,7 +153,7 @@ def tour_payment(request, tour_id):
 def pesapal_callback(request):
     """
     Handle Pesapal browser callback after payment.
-    This view renders the appropriate template based on payment status.
+    Renders appropriate template based on payment status.
     """
     if request.method != "GET":
         return HttpResponse("Method not allowed", status=405)
@@ -165,27 +165,24 @@ def pesapal_callback(request):
         return HttpResponse("❌ Missing required payment parameters.", status=400)
 
     try:
-        payment = Payment.objects.get(reference=merchant_ref, provider="PESAPAL")
+        payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
         status = payment.status.upper()
+        is_guest = merchant_ref.startswith("GUEST-")
 
-        # Render templates based on payment status
+        # Map status to template
         if status == "COMPLETED":
-            # If it's a guest, you can render guest_receipt.html
-            if merchant_ref.startswith("GUEST-"):
-                return render(request, "payments/guest_receipt.html", {"payment": payment})
-            else:
-                return render(request, "payments/receipt.html", {"payment": payment})
+            template = "payments/guest_receipt.html" if is_guest else "payments/receipt.html"
         elif status == "FAILED":
-            if merchant_ref.startswith("GUEST-"):
-                return render(request, "payments/guest_failed.html", {"payment": payment})
-            else:
-                return render(request, "payments/failed.html", {"payment": payment})
+            template = "payments/guest_failed.html" if is_guest else "payments/failed.html"
         else:
-            # Optional: Pending page
-            return HttpResponse(f"Payment status: {status}", status=200)
+            return HttpResponse(f"ℹ️ Payment status: {status}", status=200)
+
+        return render(request, template, {"payment": payment})
 
     except Payment.DoesNotExist:
-        return HttpResponse("❌ Payment not found.", status=404)
+        template = "payments/guest_failed.html" if merchant_ref.startswith("GUEST-") else "payments/failed.html"
+        return render(request, template, {"error": "Payment not found"})
+
 # ===============================
 # 🔔 Server-to-Server IPN (POST JSON)
 # ===============================
