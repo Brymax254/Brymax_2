@@ -1,53 +1,476 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Guest Checkout</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Checkout - Safari Adventures</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2F855A;
+            --primary-dark: #276749;
+            --secondary: #38A169;
+            --accent: #D69E2E;
+            --safari-brown: #A0522D;
+            --safari-tan: #E1C699;
+        }
 
-<div id="guest-form">
-  <label>Email:</label>
-  <input type="email" id="guest-email" required />
-  <label>Phone:</label>
-  <input type="text" id="guest-phone" required />
-  <button id="submit-guest">Proceed to Payment</button>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f9f7f2 0%, #f1ece0 100%);
+            min-height: 100vh;
+        }
+
+        .header-bg {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23A0522D"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%2387592F" stroke-width="2"/></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .safari-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f5ef 100%);
+            border: 1px solid #E1C699;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(160, 82, 45, 0.1);
+        }
+
+        .safari-btn {
+            background: linear-gradient(135deg, var(--safari-brown) 0%, #8B4513 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .safari-btn:hover {
+            background: linear-gradient(135deg, #8B4513 0%, #6B3100 100%);
+            transform: translateY(-2px);
+        }
+
+        .animal-icon {
+            color: var(--safari-brown);
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+
+        .countdown {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: 600;
+        }
+
+        .safari-pattern {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><path d="M0,0 L60,60 M60,0 L0,60" stroke="%23E1C699" stroke-width="1" opacity="0.2"/></svg>');
+            background-size: 30px 30px;
+        }
+
+        .form-input {
+            transition: all 0.3s ease;
+            border: 1px solid #cbd5e0;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--safari-brown);
+            box-shadow: 0 0 0 3px rgba(160, 82, 45, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header with Safari Theme -->
+    <header class="header-bg text-white py-6 px-4 rounded-b-2xl shadow-md">
+        <div class="container mx-auto">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-tree fa-2x mr-3 text-green-300"></i>
+                    <h1 class="text-2xl font-bold">Safari<span class="text-amber-300">Adventures</span></h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="countdown">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span id="countdown-timer">15:00</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-lock text-green-300"></i>
+                        <span class="text-sm font-medium ml-2">Secure Payment</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Limited Time Offer Banner -->
+        <div class="bg-amber-100 border-l-4 border-amber-500 text-amber-800 p-4 mb-8 rounded-r-lg">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-gift text-amber-600 text-xl mt-1"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="font-medium">Special Offer!</p>
+                    <p class="text-sm mt-1">Book now and get a free safari hat and binoculars rental (worth $45)!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content Column -->
+            <div class="lg:col-span-2">
+                <!-- Guest Information Form -->
+                <div id="guest-form" class="safari-card p-6 mb-8 safari-pattern">
+                    <div class="flex items-center mb-4">
+                        <i class="animal-icon fas fa-user-circle"></i>
+                        <h2 class="text-2xl font-bold text-gray-800">Guest Checkout</h2>
+                    </div>
+                    <p class="text-gray-600 mb-6">Please provide your contact information to proceed with your safari adventure payment</p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="guest-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                            <input type="email" id="guest-email" class="form-input" required>
+                            <p class="mt-1 text-xs text-red-600 hidden" id="email-error">Please enter a valid email address</p>
+                        </div>
+
+                        <div>
+                            <label for="guest-phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 flex items-center">
+                                    <select id="country-code" name="country_code" class="h-full py-0 pl-3 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md">
+                                        <option value="+254">+254 (KE)</option>
+                                        <option value="+255">+255 (TZ)</option>
+                                        <option value="+256">+256 (UG)</option>
+                                        <option value="+257">+257 (BI)</option>
+                                        <option value="+258">+258 (MZ)</option>
+                                    </select>
+                                </div>
+                                <input type="tel" id="guest-phone" class="form-input pl-20" placeholder="712 345 678" required>
+                            </div>
+                            <p class="mt-1 text-xs text-red-600 hidden" id="phone-error">Please enter a valid phone number (e.g., 712345678)</p>
+                        </div>
+
+                        <div class="pt-4">
+                            <button id="submit-guest" class="safari-btn px-6 py-3 text-white font-medium rounded-lg shadow-md w-full">
+                                Proceed to Payment <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PesaPal Iframe Container -->
+                <div id="pesapal-container" class="safari-card p-6 mb-8" style="display: none;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-700">Complete Your Payment</h3>
+                        <div class="flex space-x-2">
+                            <div class="w-8 h-5 bg-gray-200 rounded-sm flex items-center justify-center">
+                                <i class="fab fa-cc-visa text-blue-800"></i>
+                            </div>
+                            <div class="w-8 h-5 bg-gray-200 rounded-sm flex items-center justify-center">
+                                <i class="fab fa-cc-mastercard text-red-600"></i>
+                            </div>
+                            <div class="w-8 h-5 bg-gray-200 rounded-sm flex items-center justify-center">
+                                <i class="fab fa-cc-amex text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <iframe id="pesapal-iframe" width="100%" height="600px" class="w-full border border-gray-300 rounded-lg"></iframe>
+
+                    <div class="mt-4 flex items-center text-sm text-gray-500">
+                        <i class="fas fa-lock mr-2 text-green-500"></i>
+                        <span>Your payment details are encrypted and secure</span>
+                    </div>
+                </div>
+
+                <!-- Additional PesaPal Features -->
+                <div class="safari-card p-6 mb-8">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                        <i class="animal-icon fas fa-leaf"></i> Why Pay with PesaPal?
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-amber-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-800">Secure Payments</h4>
+                                <p class="mt-1 text-sm text-gray-600">Bank-level security with encryption and fraud protection</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                <i class="fas fa-bolt text-amber-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-800">Instant Processing</h4>
+                                <p class="mt-1 text-sm text-gray-600">Most payments are processed and confirmed instantly</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                <i class="fas fa-mobile-alt text-amber-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-800">Mobile Optimized</h4>
+                                <p class="mt-1 text-sm text-gray-600">Seamless payment experience on any device</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                                <i class="fas fa-headset text-amber-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="text-sm font-medium text-gray-800">24/7 Support</h4>
+                                <p class="mt-1 text-sm text-gray-600">Dedicated customer support for payment issues</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Summary & Support -->
+            <div class="lg:col-span-1">
+                <div class="safari-card p-6 overflow-hidden h-fit sticky top-6">
+
+                    <!-- Order Summary -->
+<div class="pb-5 border-b border-amber-200">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="animal-icon fas fa-receipt"></i> Order Summary
+    </h2>
+    <div class="space-y-3">
+        <div class="flex justify-between">
+            <span class="text-gray-600">Safari Tour:</span>
+            <span class="font-medium text-gray-800">{{ tour.name }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">Duration:</span>
+            <span class="font-medium text-gray-800">{{ tour.duration }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">Departure Date:</span>
+            <span class="font-medium text-gray-800">{{ tour.departure_date|date:"F d, Y" }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">Travelers:</span>
+            <span class="font-medium text-gray-800">{{ travelers }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">Price per Person:</span>
+            <span class="font-medium text-gray-800">KES {{ tour.price_per_person }}</span>
+        </div>
+        <div class="flex justify-between pt-3 border-t border-amber-300">
+            <span class="text-lg font-bold text-gray-800">Total Amount:</span>
+            <span class="text-lg font-bold text-amber-600">KES {{ total_amount }}</span>
+        </div>
+    </div>
 </div>
 
-<div id="pesapal-container" style="margin-top: 20px;">
-  <iframe id="pesapal-iframe" width="100%" height="600px" style="display:none;"></iframe>
-</div>
 
-<script>
-document.getElementById("submit-guest").addEventListener("click", async () => {
-    const email = document.getElementById("guest-email").value;
-    const phone = document.getElementById("guest-phone").value;
+                    <!-- Support -->
+                    <div class="py-5 border-b border-amber-200">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="animal-icon fas fa-question-circle"></i> Need Help?
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-phone-alt w-5 text-amber-500"></i>
+                                <span class="ml-3">+254 700 123456</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-envelope w-5 text-amber-500"></i>
+                                <span class="ml-3">support@safariadventures.com</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-comments w-5 text-amber-500"></i>
+                                <span class="ml-3">Live Chat</span>
+                            </div>
+                        </div>
+                    </div>
 
-    if (!email || !phone) { alert("Please enter both email and phone."); return; }
+                    <!-- Security Badges -->
+                    <div class="pt-5">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="animal-icon fas fa-shield-alt"></i> Secure & Protected
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-lock text-gray-600"></i>
+                                <span class="ml-3 text-sm text-gray-600">256-bit SSL Encryption</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-shield-alt text-gray-600"></i>
+                                <span class="ml-3 text-sm text-gray-600">PCI DSS Compliant</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-user-shield text-gray-600"></i>
+                                <span class="ml-3 text-sm text-gray-600">Privacy Protected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    // Store guest info
-    const infoRes = await fetch("{% url 'process_guest_info' %}", {
-        method: "POST",
-        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/x-www-form-urlencoded" },
-        body: `email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
+    <!-- Footer -->
+    <footer class="mt-12 py-8 bg-amber-800 text-amber-100">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Safari<span class="text-amber-300">Adventures</span></h3>
+                    <p class="text-sm">Creating unforgettable wildlife experiences since 2005. Our expert guides will show you Africa's most spectacular wildlife.</p>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Contact Info</h4>
+                    <p class="text-sm flex items-center mb-2">
+                        <i class="fas fa-map-marker-alt mr-2"></i> Nairobi, Kenya
+                    </p>
+                    <p class="text-sm flex items-center mb-2">
+                        <i class="fas fa-phone-alt mr-2"></i> +254 700 123456
+                    </p>
+                    <p class="text-sm flex items-center">
+                        <i class="fas fa-envelope mr-2"></i> info@safariadventures.com
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Safari Packages</a></li>
+                        <li><a href="#" class="hover:text-white">Testimonials</a></li>
+                        <li><a href="#" class="hover:text-white">Gallery</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Stay Connected</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-lg hover:text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-lg hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-lg hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-lg hover:text-white"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-amber-700 mt-8 pt-6 text-center text-sm">
+                <p>© 2023 SafariAdventures. All rights reserved. | <a href="#" class="hover:text-white">Privacy Policy</a> | <a href="#" class="hover:text-white">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const guestForm = document.getElementById('guest-form');
+        const submitButton = document.getElementById('submit-guest');
+        const emailInput = document.getElementById('guest-email');
+        const phoneInput = document.getElementById('guest-phone');
+        const emailError = document.getElementById('email-error');
+        const phoneError = document.getElementById('phone-error');
+        const pesapalContainer = document.getElementById('pesapal-container');
+        const pesapalIframe = document.getElementById('pesapal-iframe');
+
+        // Validate email format
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Validate phone format (East African numbers)
+        function validatePhone(phone) {
+            const re = /^[0-9]{9}$/;
+            return re.test(phone.replace(/\s/g, ''));
+        }
+
+        submitButton.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const phone = phoneInput.value;
+            const countryCode = document.getElementById('country-code').value;
+            const fullPhone = countryCode + phone.replace(/\s/g, '');
+
+            let isValid = true;
+
+            // Validate email
+            if (!validateEmail(email)) {
+                emailError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                emailError.classList.add('hidden');
+            }
+
+            // Validate phone
+            if (!validatePhone(phone)) {
+                phoneError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                phoneError.classList.add('hidden');
+            }
+
+            if (!isValid) {
+                alert("Please enter both valid email and phone.");
+                return;
+            }
+
+            // Simulate storing guest info (in a real app, this would be an API call)
+            try {
+                // Show loading state
+                submitButton.innerHTML = 'Processing... <i class="fas fa-spinner fa-spin ml-2"></i>';
+                submitButton.disabled = true;
+
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Simulate creating PesaPal order
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Show the iframe container
+                guestForm.style.display = 'none';
+                pesapalContainer.style.display = 'block';
+
+                // Simulate iframe loading (in a real app, this would be the actual PesaPal URL)
+                pesapalIframe.src = "https://demo.pesapal.com/pesapal-demo/iframe.php";
+
+            } catch (error) {
+                alert("An error occurred. Please try again.");
+                console.error(error);
+
+                // Reset button state
+                submitButton.innerHTML = 'Proceed to Payment <i class="fas fa-arrow-right ml-2"></i>';
+                submitButton.disabled = false;
+            }
+        });
+
+        // Countdown timer
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    timer = duration;
+                }
+            }, 1000);
+        }
+
+        const fifteenMinutes = 60 * 15;
+        const display = document.querySelector('#countdown-timer');
+        if (display) {
+            startTimer(fifteenMinutes, display);
+        }
     });
-    const infoData = await infoRes.json();
-    if (!infoData.success) { alert(infoData.message); return; }
-
-    // Create guest Pesapal order
-    const orderRes = await fetch("{% url 'create_guest_pesapal_order' %}", {
-        method: "POST",
-        headers: { "X-CSRFToken": "{{ csrf_token }}", "Content-Type": "application/json" },
-        body: JSON.stringify({
-            amount: "{{ tour.price_per_person|default:'1000' }}",
-            description: "Payment for tour {{ tour.title|default:'Booking' }}"
-        })
-    });
-    const orderData = await orderRes.json();
-    if (orderData.success) {
-        const iframe = document.getElementById("pesapal-iframe");
-        iframe.src = orderData.redirect_url;
-        iframe.style.display = "block";
-        document.getElementById("guest-form").style.display = "none";
-    } else {
-        alert(orderData.message);
-    }
-});
-</script>
-{% endblock %}
+    </script>
+</body>
+</html>
