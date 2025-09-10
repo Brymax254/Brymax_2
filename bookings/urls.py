@@ -37,7 +37,11 @@ urlpatterns = [
     # 🔗 Pesapal Integration
     # ===============================
     path("pesapal/create-order/", views.create_pesapal_order, name="create_pesapal_order"),
+
+    # Unified callback handler (accepts both /pesapal/callback/ and /payments/callback/)
     path("pesapal/callback/", views.pesapal_callback, name="pesapal_callback"),
+    path("payments/callback/", views.pesapal_callback, name="payments_callback"),
+
     path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
     path("pesapal/test-auth/", views.test_pesapal_auth, name="test_pesapal_auth"),
 
