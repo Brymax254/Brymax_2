@@ -18,9 +18,11 @@
 
             <!-- Actions -->
             <div class="mt-4">
-                <a href="{% url 'guest_checkout_page' %}" class="btn btn-outline-primary rounded-pill px-4">
+                <!-- Retry checkout with the same tour -->
+                <a href="{% url 'guest_checkout' tour_id %}" class="btn btn-outline-primary rounded-pill px-4">
                     <i class="fas fa-redo"></i> Try Again
                 </a>
+                <!-- Back to Tours page -->
                 <a href="{% url 'tours' %}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">
                     <i class="fas fa-home"></i> Back to Tours
                 </a>
