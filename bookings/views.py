@@ -149,13 +149,13 @@ def tour_payment(request, tour_id):
     return render(request, "payments/tour_payment.html", context)
 
 # ===============================
-# 🌍 Browser Redirect Callback (GET)
+# 🌍 Browser Redirect Callback (GET) - Live Status Query
 # ===============================
 @csrf_exempt
 def pesapal_callback(request):
     """
     Handle Pesapal browser callback after payment.
-    Renders appropriate template based on payment status.
+    Queries Pesapal API for live payment status so user sees COMPLETED immediately.
     """
     if request.method != "GET":
         return HttpResponse("Method not allowed", status=405)
@@ -168,10 +168,42 @@ def pesapal_callback(request):
 
     try:
         payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
-        status = payment.status.upper()
         is_guest = merchant_ref.startswith("GUEST-")
 
-        # Map status to template
+        # 🔹 Query Pesapal for live status
+        from .utils.pesapal_auth import PesapalAuth
+        import requests
+
+        try:
+            access_token = PesapalAuth.get_token()
+            pesapal_url = f"https://www.pesapal.com/API/QueryPaymentStatus?tracking_id={tracking_id}"
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json",
+            }
+
+            response = requests.get(pesapal_url, headers=headers, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            live_status = data.get("status", "").upper()
+
+            # Update DB if status has changed
+            if live_status and live_status != payment.status.upper():
+                payment.status = live_status
+                payment.updated_at = timezone.now()
+                payment.save()
+
+                if live_status == "COMPLETED":
+                    send_payment_confirmation_email(payment)
+
+            status = payment.status.upper()
+
+        except Exception as e:
+            # If API fails, fallback to DB status
+            logger.exception("Pesapal live status query failed: %s", e)
+            status = payment.status.upper()
+
+        # 🔹 Map status to template
         if status == "COMPLETED":
             template = "payments/guest_receipt.html" if is_guest else "payments/receipt.html"
         elif status == "FAILED":
