@@ -179,10 +179,21 @@ def pesapal_callback(request):
                 "Authorization": f"Bearer {access_token}",
                 "Content-Type": "application/json",
             }
+
             response = requests.get(pesapal_url, headers=headers, timeout=10)
             response.raise_for_status()
-            data = response.json()
-            live_status = data.get("status", "").upper()
+
+            # Safe JSON parsing
+            if response.text.strip():  # only parse if response is not empty
+                try:
+                    data = response.json()
+                    live_status = data.get("status", "").upper()
+                except ValueError as ve:
+                    logger.warning("Pesapal returned invalid JSON: %s", ve)
+                    live_status = None
+            else:
+                logger.warning("Pesapal returned empty response for tracking_id=%s", tracking_id)
+                live_status = None
 
             if live_status and live_status != status:
                 payment.status = live_status
@@ -201,7 +212,7 @@ def pesapal_callback(request):
         # 🔹 Redirect to user-friendly progress page
         return render(
             request,
-            "payments/payment_progress.html",  # page shows a spinner/progress bar
+            "payments/payment_progress.html",
             {
                 "payment": payment,
                 "status": status,
