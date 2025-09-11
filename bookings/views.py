@@ -123,6 +123,8 @@ def tour_payment(request, tour_id):
             description=f"Payment for Tour {tour.title}",
             email=request.user.email,
             phone=normalize_phone_number(getattr(request.user, "phone", "0700000000")),
+            first_name=getattr(request.user, "first_name", "Guest"),
+            last_name=getattr(request.user, "last_name", "User"),
         )
 
         if redirect_url:
