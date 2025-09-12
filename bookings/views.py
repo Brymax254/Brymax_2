@@ -128,12 +128,13 @@ def tour_payment(request, tour_id):
         )
 
         if redirect_url:
-            # 🔹 Save payment in DB
+            # 🔹 Save both merchant_ref and tracking_id
             Payment.objects.create(
                 user=request.user,
                 tour=tour,
                 amount=tour.price_per_person,
-                reference=tracking_id,   # store Pesapal order_tracking_id
+                reference=order_reference,  # ✅ match Pesapal’s OrderMerchantReference
+                tracking_id=tracking_id,  # ✅ store Pesapal’s OrderTrackingId
                 provider="PESAPAL",
                 status="PENDING",
                 description=f"Payment for Tour {tour.title}",
