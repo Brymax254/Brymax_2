@@ -153,10 +153,6 @@ def tour_payment(request, tour_id):
 # ===============================
 @csrf_exempt
 def pesapal_callback(request):
-    """
-    Handle Pesapal browser callback after payment.
-    Queries Pesapal API for live payment status and redirects to user-friendly page.
-    """
     if request.method != "GET":
         return HttpResponse("Method not allowed", status=405)
 
@@ -167,33 +163,27 @@ def pesapal_callback(request):
         return HttpResponse("❌ Missing required payment parameters.", status=400)
 
     try:
-        payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
+        payment = Payment.objects.get(reference=merchant_ref, provider="PESAPAL")
         is_guest = merchant_ref.startswith("GUEST-")
 
-        # 🔹 Query Pesapal live
         status = payment.status.upper()  # fallback
+
         try:
+            # 🔹 Fetch Pesapal live transaction status (v3 API)
             access_token = PesapalAuth.get_token()
-            pesapal_url = f"https://www.pesapal.com/API/QueryPaymentStatus?tracking_id={tracking_id}"
+            pesapal_url = "https://pay.pesapal.com/v3/api/Transactions/GetTransactionStatus"
+
+            payload = {"orderTrackingId": tracking_id}
             headers = {
                 "Authorization": f"Bearer {access_token}",
                 "Content-Type": "application/json",
             }
 
-            response = requests.get(pesapal_url, headers=headers, timeout=10)
+            response = requests.post(pesapal_url, json=payload, headers=headers, timeout=10)
             response.raise_for_status()
 
-            # Safe JSON parsing
-            if response.text.strip():  # only parse if response is not empty
-                try:
-                    data = response.json()
-                    live_status = data.get("status", "").upper()
-                except ValueError as ve:
-                    logger.warning("Pesapal returned invalid JSON: %s", ve)
-                    live_status = None
-            else:
-                logger.warning("Pesapal returned empty response for tracking_id=%s", tracking_id)
-                live_status = None
+            data = response.json()
+            live_status = data.get("status", "").upper()
 
             if live_status and live_status != status:
                 payment.status = live_status
@@ -207,9 +197,8 @@ def pesapal_callback(request):
 
         except Exception as e:
             logger.exception("Pesapal live status query failed: %s", e)
-            # fallback to DB status
 
-        # 🔹 Redirect to user-friendly progress page
+        # 🔹 Redirect to user-friendly page
         return render(
             request,
             "payments/payment_progress.html",
@@ -223,6 +212,7 @@ def pesapal_callback(request):
     except Payment.DoesNotExist:
         template = "payments/guest_failed.html" if merchant_ref.startswith("GUEST-") else "payments/failed.html"
         return render(request, template, {"error": "Payment not found"})
+
 # ===============================
 # 🔔 Server-to-Server IPN (POST JSON)
 # ===============================
