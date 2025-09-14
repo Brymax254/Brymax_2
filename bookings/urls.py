@@ -20,6 +20,8 @@ urlpatterns = [
     path("nairobi-airport-transfers-and-taxis/", views.nairobi_transfers, name="nairobi_transfers"),
     path("book/excursions/", views.excursions, name="excursions"),
     path("tours-and-safaris/", views.tours, name="tours"),
+path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_base"),
+
 
     # ===============================
     # 💳 Payments (Mpesa + Pesapal + Tours)

@@ -182,7 +182,9 @@ class Payment(models.Model):
 
     # Transaction references
     reference = models.CharField(max_length=100, blank=True, null=True, db_index=True)
-    pesapal_reference = models.CharField(max_length=255, blank=True, null=True)
+    pesapal_reference = models.CharField(
+        max_length=255, blank=True, null=True, help_text="Pesapal OrderTrackingId"
+    )
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
 
     # Extra
@@ -285,6 +287,8 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.name} - {self.subject}"
 
+from cloudinary.models import CloudinaryField
+
 
 class Tour(models.Model):
     """
@@ -297,10 +301,10 @@ class Tour(models.Model):
     duration_days = models.PositiveIntegerField(default=1)
     available = models.BooleanField(default=True)
 
-    # Media
-    image = models.ImageField(upload_to="tours/", blank=True, null=True)
-    image_url = models.URLField(blank=True, null=True)
-    video = models.FileField(upload_to="tours/videos/", blank=True, null=True)
+    # Media (Cloudinary)
+    image = CloudinaryField("image", blank=True, null=True)
+    video = CloudinaryField("video", resource_type="video", blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True)  # optional fallback
 
     # Meta
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_tours")
@@ -314,13 +318,12 @@ class Tour(models.Model):
         return self.title
 
     def get_image_src(self):
-        """Return appropriate image src (file URL preferred, then image_url)."""
+        """Return Cloudinary image URL if available, else fallback to image_url."""
         if self.image:
             return getattr(self.image, "url", None)
         if self.image_url:
             return self.image_url
         return None
-
 
 class Video(models.Model):
     """

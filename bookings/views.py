@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_http_methods
 from django.core.mail import send_mail
-
+from .models import Payment, PaymentStatus
 # ==========================================================
 # PROJECT IMPORTS
 # ==========================================================
@@ -133,8 +133,9 @@ def tour_payment(request, tour_id):
                 user=request.user,
                 tour=tour,
                 amount=tour.price_per_person,
-                reference=order_reference,  # ✅ match Pesapal’s OrderMerchantReference
-                tracking_id=tracking_id,  # ✅ store Pesapal’s OrderTrackingId
+                reference=order_reference,  # Pesapal merchant reference
+                pesapal_reference=tracking_id,  # store Pesapal tracking ID
+                transaction_id=tracking_id,  # optional duplicate if needed
                 provider="PESAPAL",
                 status="PENDING",
                 description=f"Payment for Tour {tour.title}",
@@ -148,7 +149,6 @@ def tour_payment(request, tour_id):
         context["error"] = "Error initializing payment."
 
     return render(request, "payments/tour_payment.html", context)
-
 # ===============================
 # 🌍 Browser Redirect Callback (GET) - Live Status Query
 # ===============================
@@ -157,17 +157,24 @@ def pesapal_callback(request):
     if request.method != "GET":
         return HttpResponse("Method not allowed", status=405)
 
-    tracking_id = request.GET.get("OrderTrackingId")
+    tracking_id = request.GET.get("OrderTrackingId")  # Pesapal order_tracking_id
     merchant_ref = request.GET.get("OrderMerchantReference")
 
-    if not tracking_id or not merchant_ref:
-        return HttpResponse("❌ Missing required payment parameters.", status=400)
+    if not tracking_id:
+        return HttpResponse("❌ Missing tracking ID.", status=400)
 
     try:
-        payment = Payment.objects.get(reference=merchant_ref, provider="PESAPAL")
-        is_guest = merchant_ref.startswith("GUEST-")
+        # 🔹 Fetch the correct payment by Pesapal reference
+        payment = Payment.objects.filter(pesapal_reference=tracking_id).first()
+        if not payment:
+            payment = Payment.objects.filter(reference=merchant_ref).first()
+        if not payment:
+            raise Payment.DoesNotExist
 
-        status = payment.status.upper()  # fallback
+        is_guest = (merchant_ref or "").startswith("GUEST-")
+
+        # Default to stored status
+        status = payment.status
 
         try:
             # 🔹 Fetch Pesapal live transaction status (v3 API)
@@ -182,24 +189,38 @@ def pesapal_callback(request):
 
             response = requests.post(pesapal_url, json=payload, headers=headers, timeout=10)
             response.raise_for_status()
-
             data = response.json()
-            live_status = data.get("status", "").upper()
 
-            if live_status and live_status != status:
-                payment.status = live_status
+            live_status = data.get("payment_status_description", "").upper()
+
+            status_map = {
+                "COMPLETED": PaymentStatus.SUCCESS,
+                "COMPLETED SUCCESS": PaymentStatus.SUCCESS,
+                "FAILED": PaymentStatus.FAILED,
+                "PENDING": PaymentStatus.PENDING,
+                "CANCELLED": PaymentStatus.CANCELLED,
+                "REFUNDED": PaymentStatus.REFUNDED,
+            }
+
+            new_status = status_map.get(live_status, PaymentStatus.PENDING)
+
+            if new_status != payment.status:
+                payment.status = new_status
+                if new_status == PaymentStatus.SUCCESS:
+                    payment.amount_paid = data.get("amount", payment.amount)
+                    payment.paid_on = timezone.now()
                 payment.updated_at = timezone.now()
                 payment.save()
 
-                if live_status == "COMPLETED":
+                if new_status == PaymentStatus.SUCCESS:
                     send_payment_confirmation_email(payment)
 
-            status = payment.status.upper()
+            status = payment.status
 
         except Exception as e:
             logger.exception("Pesapal live status query failed: %s", e)
 
-        # 🔹 Redirect to user-friendly page
+        # 🔹 Render progress page
         return render(
             request,
             "payments/payment_progress.html",
@@ -211,7 +232,7 @@ def pesapal_callback(request):
         )
 
     except Payment.DoesNotExist:
-        template = "payments/guest_failed.html" if merchant_ref.startswith("GUEST-") else "payments/failed.html"
+        template = "payments/guest_failed.html" if (merchant_ref or "").startswith("GUEST-") else "payments/failed.html"
         return render(request, template, {"error": "Payment not found"})
 
 # ===============================
@@ -536,6 +557,7 @@ def create_guest_pesapal_order(request):
 
             # Store guest payment in session
             request.session["guest_order_tracking_id"] = order_tracking_id
+            request.session["guest_order_merchant_ref"] = unique_code  # ✅ add this
             request.session["guest_order_amount"] = amount
             request.session["guest_order_description"] = description
 

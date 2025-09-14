@@ -153,3 +153,12 @@ MPESA_CONSUMER_KEY = config("MPESA_CONSUMER_KEY", default="your_consumer_key")
 MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET", default="your_consumer_secret")
 MPESA_PASSKEY = config("MPESA_PASSKEY", default="your_lipa_na_mpesa_online_passkey")
 MPESA_SHORTCODE = config("MPESA_SHORTCODE", default="174379")  # test shortcode
+
+import cloudinary
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)

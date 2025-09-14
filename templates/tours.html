@@ -118,12 +118,20 @@
 <div id="tours-container" class="tours-container">
     {% for tour in tours %}
     <div class="tour-card" data-category="{{ tour.category }}" data-title="{{ tour.title }}">
-        <img src="{{ tour.image.url }}" alt="{{ tour.title }}" class="tour-image">
+        {% if tour.get_image_src %}
+            <img src="{{ tour.get_image_src }}" alt="{{ tour.title }}" class="tour-image">
+        {% else %}
+            <img src="{% static 'images/default-tour.jpg' %}" alt="{{ tour.title }}" class="tour-image">
+        {% endif %}
         <div class="tour-content">
             <h3 class="tour-title">{{ tour.title }}</h3>
             <p>{{ tour.description|truncatewords:20 }}</p>
             <p class="tour-price">KES {{ tour.price_per_person }}</p>
-            <p><strong>Booking Ref:</strong> AIRTOURS{{ tour.id|stringformat:"04d" }}/{{ now.year }}</p>
+            <p>
+              <strong>Booking Ref:</strong>
+              AIRTOURS{{ tour.id|stringformat:"04d" }}/{% now "Y" %}
+            </p>
+
             <button class="btn-book" onclick="launchConfetti('{{ tour.id }}')" aria-label="Book {{ tour.title }}">
                 Book Now
             </button>
