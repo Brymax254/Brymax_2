@@ -238,38 +238,60 @@ def pesapal_callback(request):
 # ===============================
 # 🔔 Server-to-Server IPN (POST JSON)
 # ===============================
+PESAPAL_STATUS_URL = "https://www.pesapal.com/API/REST/v3/Transactions/GetTransactionStatus"
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def pesapal_ipn(request):
     """Pesapal server-to-server notification (IPN)."""
     try:
         data = json.loads(request.body.decode("utf-8"))
-        tracking_id = data.get("order_tracking_id") or data.get("order_reference")
-        status = data.get("status")
+        tracking_id = data.get("OrderTrackingId") or data.get("order_tracking_id")
+        merchant_ref = data.get("OrderMerchantReference") or data.get("order_reference")
 
-        if not tracking_id or not status:
+        if not tracking_id or not merchant_ref:
             return JsonResponse({"success": False, "message": "Missing parameters"}, status=400)
 
+        # Fetch live status from Pesapal
         try:
-            payment = Payment.objects.get(reference=tracking_id, provider="PESAPAL")
-            payment.status = status.upper()
+            headers = {
+                "Authorization": f"Bearer {settings.PESAPAL_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            payload = {"OrderTrackingId": tracking_id, "OrderMerchantReference": merchant_ref}
+            response = requests.get(PESAPAL_STATUS_URL, params=payload, headers=headers)
+            response.raise_for_status()
+            status_data = response.json()
+            status = status_data.get("Status", "").upper()
+        except requests.exceptions.RequestException as e:
+            logger.error("Pesapal live status query failed: %s", e)
+            return JsonResponse({"success": False, "message": "Failed to fetch status from Pesapal"}, status=500)
+
+        # Update Payment
+        payment = Payment.objects.filter(reference=merchant_ref, provider="PESAPAL").first()
+        if payment:
+            payment.status = status
             payment.updated_at = timezone.now()
+            payment.transaction_id = tracking_id
             payment.save()
 
-            if status.upper() == "COMPLETED":
+            if status == "COMPLETED":
                 send_payment_confirmation_email(payment)
 
-            return JsonResponse({"success": True, "message": "IPN processed"})
+        # Update Booking if exists
+        booking = Booking.objects.filter(reference=merchant_ref).first()
+        if booking:
+            booking.status = status
+            booking.transaction_id = tracking_id
+            booking.save()
 
-        except Payment.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Payment not found"}, status=404)
+        return JsonResponse({"success": True, "message": "IPN processed"})
 
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
     except Exception as e:
         logger.exception("Pesapal IPN error: %s", e)
         return JsonResponse({"success": False, "message": "Server error"}, status=500)
-
 
 @csrf_exempt
 @login_required
