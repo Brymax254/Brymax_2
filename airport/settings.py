@@ -147,12 +147,18 @@ else:
     PESAPAL_BASE_URL = "https://pay.pesapal.com/v3"
 
 
-# Your callback + IPN endpoints
+# ============================
+# 🌍 Site + Pesapal Integration
+# ============================
 SITE_URL = config("SITE_URL", default="https://brymax.xyz")
+
+# Callback URL (where Pesapal redirects browser after payment)
 PESAPAL_CALLBACK_URL = f"{SITE_URL}/payments/callback/"
+
+# IPN Notification ID (from Pesapal dashboard after registering IPN URL)
 PESAPAL_NOTIFICATION_ID = config(
     "PESAPAL_NOTIFICATION_ID",
-    default="123e4567-e89b-12d3-a456-426614174000"
+    default="23fb05db-5452-4053-b234-db53d9528675"  # replace with real ID
 )
 
 # ==============================

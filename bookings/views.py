@@ -233,51 +233,66 @@ Created At: {payment.created_at}
 
 
 @csrf_exempt
-@require_http_methods(["POST"])
 def pesapal_ipn(request):
-    """Server-to-server IPN processing (JSON POST)."""
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-        tracking_id = data.get("OrderTrackingId") or data.get("order_tracking_id")
-        merchant_ref = data.get("OrderMerchantReference") or data.get("order_reference")
-        confirmation_code = data.get("PaymentConfirmationCode") or data.get("confirmation_code")
-        payment_method = data.get("PaymentMethod") or data.get("payment_method")
+    """
+    Handle Pesapal Instant Payment Notifications (IPN).
+    - GET: Pesapal may ping the endpoint to check if it's alive.
+    - POST: Pesapal sends actual payment notifications.
+    """
+    if request.method == "GET":
+        return JsonResponse({"success": True, "message": "IPN endpoint is alive"}, status=200)
 
-        if not tracking_id or not merchant_ref:
-            return JsonResponse({"success": False, "message": "Missing required parameters"}, status=400)
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            tracking_id = data.get("OrderTrackingId") or data.get("order_tracking_id")
+            merchant_ref = data.get("OrderMerchantReference") or data.get("order_reference")
+            confirmation_code = data.get("PaymentConfirmationCode") or data.get("confirmation_code")
+            payment_method = data.get("PaymentMethod") or data.get("payment_method")
 
-        # Fetch live status
-        headers = {"Authorization": f"Bearer {settings.PESAPAL_API_KEY}", "Content-Type": "application/json"}
-        payload = {"OrderTrackingId": tracking_id, "OrderMerchantReference": merchant_ref}
-        response = requests.get("https://www.pesapal.com/API/REST/v3/Transactions/GetTransactionStatus",
-                                params=payload, headers=headers, timeout=10)
-        response.raise_for_status()
-        status_data = response.json()
-        status = status_data.get("Status", "").upper()
+            if not tracking_id or not merchant_ref:
+                return JsonResponse({"success": False, "message": "Missing required parameters"}, status=400)
 
-        # Update Payment
-        payment = Payment.objects.filter(reference=merchant_ref, provider="PESAPAL").first()
-        if payment:
-            payment.status = status
-            payment.transaction_id = confirmation_code or tracking_id
-            payment.method = payment_method or payment.method
-            if status == "COMPLETED":
-                payment.amount_paid = status_data.get("Amount", payment.amount)
-                payment.paid_on = timezone.now()
-            payment.save()
+            # ✅ FIX coming later in Step 2 (use POST instead of GET)
+            headers = {
+                "Authorization": f"Bearer {settings.PESAPAL_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            payload = {"OrderTrackingId": tracking_id, "OrderMerchantReference": merchant_ref}
 
-        # Update Booking if exists
-        booking = Booking.objects.filter(reference=merchant_ref).first()
-        if booking:
-            booking.status = status
-            booking.transaction_id = confirmation_code or tracking_id
-            booking.save()
+            response = requests.get(   # ← will update this to POST in the next step
+                "https://www.pesapal.com/API/REST/v3/Transactions/GetTransactionStatus",
+                params=payload, headers=headers, timeout=10
+            )
+            response.raise_for_status()
+            status_data = response.json()
+            status = status_data.get("Status", "").upper()
 
-        return JsonResponse({"success": True, "message": "IPN processed"})
+            # Update Payment
+            payment = Payment.objects.filter(reference=merchant_ref, provider="PESAPAL").first()
+            if payment:
+                payment.status = status
+                payment.transaction_id = confirmation_code or tracking_id
+                payment.method = payment_method or payment.method
+                if status == "COMPLETED":
+                    payment.amount_paid = status_data.get("Amount", payment.amount)
+                    payment.paid_on = timezone.now()
+                payment.save()
 
-    except Exception as e:
-        logger.exception("Pesapal IPN error: %s", e)
-        return JsonResponse({"success": False, "message": "Server error"}, status=500)
+            # Update Booking if exists
+            booking = Booking.objects.filter(reference=merchant_ref).first()
+            if booking:
+                booking.status = status
+                booking.transaction_id = confirmation_code or tracking_id
+                booking.save()
+
+            return JsonResponse({"success": True, "message": "IPN processed"})
+
+        except Exception as e:
+            logger.exception("Pesapal IPN error: %s", e)
+            return JsonResponse({"success": False, "message": "Server error"}, status=500)
+
+    return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
 
 # ==========================================================
 # MPESA PAYMENT
@@ -574,3 +589,47 @@ def modern_admin_dashboard(request):
     Only accessible by staff users.
     """
     return render(request, "admin/brymax_dashboard.html")
+
+
+import requests, logging
+from django.conf import settings
+from django.http import JsonResponse
+from django.urls import reverse
+from django.contrib.admin.views.decorators import staff_member_required
+
+logger = logging.getLogger(__name__)
+
+@staff_member_required
+def register_pesapal_ipn(request):
+    """
+    Register our IPN URL with Pesapal and return the IPN ID.
+    Run this once and copy IPN_ID to settings.
+    """
+    try:
+        # Get access token
+        auth_url = f"{settings.PESAPAL_BASE_URL}/api/Auth/RequestToken"
+        auth_payload = {
+            "consumer_key": settings.PESAPAL_CONSUMER_KEY,
+            "consumer_secret": settings.PESAPAL_CONSUMER_SECRET,
+        }
+        token_res = requests.post(auth_url, json=auth_payload, timeout=15)
+        token_res.raise_for_status()
+        token_json = token_res.json()
+        access_token = token_json.get("token") or token_json.get("access_token")
+
+        # Build IPN registration request
+        ipn_url = request.build_absolute_uri(reverse("pesapal_ipn"))
+        payload = {"url": ipn_url, "ipn_notification_type": "GET"}
+        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+
+        res = requests.post(f"{settings.PESAPAL_BASE_URL}/api/URLSetup/RegisterIPN",
+                            json=payload, headers=headers, timeout=10)
+        res.raise_for_status()
+        data = res.json()
+
+        ipn_id = data.get("ipn_id")
+        return JsonResponse({"success": True, "ipn_id": ipn_id, "data": data})
+
+    except Exception as e:
+        logger.exception("IPN registration failed: %s", e)
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
