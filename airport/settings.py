@@ -192,3 +192,8 @@ ADMIN_TOOLS_MENU = 'airport.dashboard.CustomMenu'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'airport.dashboard.CustomIndexDashboard'
 ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'admin_tools.dashboard.apps.DefaultAppIndexDashboard'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'myproject.dashboard.CustomIndexDashboard'
+
+
+# Email settings
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="francisbrymax@gmail.com")
+ADMIN_EMAIL = config("ADMIN_EMAIL", default="francisbrymax@gmail.com")
