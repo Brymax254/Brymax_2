@@ -185,6 +185,12 @@ class Payment(models.Model):
     pesapal_reference = models.CharField(
         max_length=255, blank=True, null=True, help_text="Pesapal OrderTrackingId"
     )
+
+    confirmation_code = models.CharField(
+        max_length=100, blank=True, null=True,
+        help_text="The confirmation code from Pesapal/M-Pesa email"
+    )
+
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
 
     # Extra

@@ -1,5 +1,5 @@
 # ================================================
-# urls.py
+# bookings/urls.py
 # Organized URL configuration for Tours & Payments
 # ================================================
 
@@ -15,18 +15,18 @@ urlpatterns = [
     path("contact/", views.contact, name="contact"),
     path("terms/", views.terms, name="terms"),
 
+    # ===============================
     # Tours & Bookings
+    # ===============================
     path("book-online/", views.book_online, name="book_online"),
     path("nairobi-airport-transfers-and-taxis/", views.nairobi_transfers, name="nairobi_transfers"),
     path("book/excursions/", views.excursions, name="excursions"),
     path("tours-and-safaris/", views.tours, name="tours"),
-path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_base"),
-
+    path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_base"),
 
     # ===============================
     # 💳 Payments (Mpesa + Pesapal + Tours)
     # ===============================
-    # Tour Payments
     path("book-tour/<int:tour_id>/", views.tour_payment, name="tour_payment"),
     path("payments/tour/<int:tour_id>/pay/", views.tour_payment, name="tour_payment_page"),  # alias
     path("payments/tour/<int:tour_id>/mpesa/", views.mpesa_payment, name="mpesa_payment"),
@@ -67,4 +67,8 @@ path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_base
     path("driver/add-tour/", views.add_tour, name="add_tour"),
     path("driver/tour/<int:tour_id>/edit/", views.edit_tour, name="edit_tour"),
     path("driver/tour/<int:tour_id>/delete/", views.delete_tour, name="delete_tour"),
+
+    # ===============================
+    # 🖥️ Modern Admin Dashboard (custom)
+    # ===============================
 ]

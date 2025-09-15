@@ -36,6 +36,11 @@ INSTALLED_APPS = [
     "payments",
     'cloudinary',
     'cloudinary_storage',
+'admin_tools',
+    'admin_tools.dashboard',
+    'admin_tools.theming',
+    'admin_tools.menu',
+    'plotly',
 ]
 
 
@@ -69,14 +74,19 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": True,
+        "DIRS": [BASE_DIR / "templates"],  # Keep your Pathlib link
+        "APP_DIRS": False,  # Must be False when loaders are defined
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+            ],
+            "loaders": [
+                "admin_tools.template_loaders.Loader",  # Required for django-admin-tools
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
             ],
         },
     },
@@ -162,3 +172,17 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET"),
     secure=True
 )
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "francisbrymax@gmail.com"
+EMAIL_HOST_PASSWORD = "btlydfhstlbdsguz"  # Remove spaces
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+ADMIN_TOOLS_MENU = 'airport.dashboard.CustomMenu'
+ADMIN_TOOLS_INDEX_DASHBOARD = 'airport.dashboard.CustomIndexDashboard'
+ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'admin_tools.dashboard.apps.DefaultAppIndexDashboard'
+ADMIN_TOOLS_INDEX_DASHBOARD = 'myproject.dashboard.CustomIndexDashboard'
