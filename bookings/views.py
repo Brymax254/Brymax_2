@@ -173,19 +173,27 @@ def pesapal_callback(request):
         return HttpResponse("❌ Payment not found.", status=404)
 
     try:
+        # ✅ Use correct v3 status endpoint (GET with query params)
         access_token = PesapalAuth.get_token()
         pesapal_url = "https://pay.pesapal.com/v3/api/Transactions/GetTransactionStatus"
-        payload = {"orderTrackingId": tracking_id}
-        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+        headers = {"Authorization": f"Bearer {access_token}"}
 
-        response = requests.post(pesapal_url, json=payload, headers=headers, timeout=10)
+        response = requests.get(
+            pesapal_url,
+            params={"orderTrackingId": tracking_id},
+            headers=headers,
+            timeout=10
+        )
         response.raise_for_status()
         data = response.json()
 
-        live_status = data.get("payment_status_description", "").upper()
+        # ✅ Map Pesapal response fields properly
+        live_status = data.get("status", "").upper()
+        confirmation_code = data.get("confirmation_code")
+        payment_method = data.get("payment_method")
+
         status_map = {
             "COMPLETED": PaymentStatus.SUCCESS,
-            "COMPLETED SUCCESS": PaymentStatus.SUCCESS,
             "FAILED": PaymentStatus.FAILED,
             "PENDING": PaymentStatus.PENDING,
             "CANCELLED": PaymentStatus.CANCELLED,
@@ -193,20 +201,21 @@ def pesapal_callback(request):
         }
         new_status = status_map.get(live_status, PaymentStatus.PENDING)
 
+        # ✅ Update payment
         payment.status = new_status
-        payment.transaction_id = data.get("payment_confirmation_code") or payment.transaction_id
+        payment.transaction_id = confirmation_code or payment.transaction_id
         payment.pesapal_reference = tracking_id
-        payment.method = data.get("payment_method") or payment.method
+        payment.method = payment_method or payment.method
         if new_status == PaymentStatus.SUCCESS:
             payment.amount_paid = data.get("amount", payment.amount)
             payment.paid_on = timezone.now()
         payment.updated_at = timezone.now()
         payment.save()
 
-        # Remove duplicate payments
+        # Remove duplicate records
         Payment.objects.filter(pesapal_reference=tracking_id).exclude(id=payment.id).delete()
 
-        # Send admin email
+        # ✅ Send admin email
         subject = f"Pesapal Payment Update: {payment.status} - {payment.pesapal_reference}"
         message = f"""
 Payment Details:
@@ -228,7 +237,7 @@ Created At: {payment.created_at}
         return HttpResponse("✅ Payment updated successfully.", status=200)
 
     except Exception as e:
-        logger.exception("Pesapal IPN failed: %s", e)
+        logger.exception("Pesapal callback failed: %s", e)
         return HttpResponse("❌ Internal server error.", status=500)
 
 

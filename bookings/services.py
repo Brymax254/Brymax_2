@@ -66,20 +66,17 @@ class PesaPalService:
 
     def initiate_payment(self, amount, description, callback_url, email=None, phone=None, first_name=None,
                          last_name=None):
-        """Initiate payment using PesaPal API v3"""
+        """Initiate payment using Pesapal API v3"""
         try:
-            # Get authentication token
             token = self._get_auth_token()
 
             # Prepare order data
-            order_tracking_id = str(uuid.uuid4())
             order_data = {
-                "id": order_tracking_id,
                 "currency": "KES",
                 "amount": amount,
                 "description": description,
                 "callback_url": callback_url,
-                "notification_id": settings.PESAPAL_NOTIFICATION_ID,  # From PesaPal dashboard
+                "notification_id": settings.PESAPAL_NOTIFICATION_ID,
                 "billing_address": {
                     "email_address": email or "",
                     "phone_number": phone or "",
@@ -96,8 +93,7 @@ class PesaPalService:
                 }
             }
 
-            # Submit order
-            submit_order_url = f"{self.BASE_URL}/api/URLSetup/RegisterIPN"
+            submit_order_url = f"{self.BASE_URL}/api/Transactions/SubmitOrderRequest"
             headers = {
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
@@ -106,25 +102,14 @@ class PesaPalService:
 
             response = requests.post(submit_order_url, json=order_data, headers=headers, timeout=30)
             response.raise_for_status()
-
-            # Get iframe URL
-            iframe_url = f"{self.BASE_URL}/api/URLSetup/GetIframeUrl"
-            iframe_payload = {
-                "order_tracking_id": order_tracking_id
-            }
-
-            iframe_response = requests.post(iframe_url, json=iframe_payload, headers=headers, timeout=30)
-            iframe_response.raise_for_status()
-
-            iframe_data = iframe_response.json()
+            order_response = response.json()
 
             return {
-                "order_tracking_id": order_tracking_id,
-                "iframe_url": iframe_data.get("redirect_url", "")
+                "order_tracking_id": order_response.get("order_tracking_id"),
+                "iframe_url": order_response.get("redirect_url")
             }
 
         except requests.exceptions.RequestException as e:
-            # Fallback to v2 API if v3 fails
             return self._fallback_to_v2(amount, description, callback_url, email, phone, first_name, last_name)
         except Exception as e:
             raise Exception(f"Failed to initiate PesaPal payment: {str(e)}")
@@ -167,7 +152,7 @@ class PesaPalService:
         try:
             token = self._get_auth_token()
 
-            status_url = f"{self.BASE_URL}/api/QueryPaymentStatus"
+            status_url = f"{self.BASE_URL}/api/Transactions/GetTransactionStatus"
             params = {
                 "orderTrackingId": order_tracking_id
             }
