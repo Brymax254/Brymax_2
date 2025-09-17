@@ -233,13 +233,17 @@ Guest Phone: {payment.guest_phone or '-'}
 Description: {payment.description or '-'}
 Created At: {payment.created_at}
 """
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [settings.ADMIN_EMAIL], fail_silently=False)
-        return HttpResponse("✅ Payment updated successfully.", status=200)
+        send_mail(subject, message,
+                  settings.DEFAULT_FROM_EMAIL,
+                  [settings.ADMIN_EMAIL],
+                  fail_silently=False)
 
     except Exception as e:
         logger.exception("Pesapal callback failed: %s", e)
-        return HttpResponse("❌ Internal server error.", status=500)
-
+    return JsonResponse({
+        "message": "✅ Payment updated successfully.",
+        "redirect": reverse("receipt", args=[payment.id])
+    })
 
 @csrf_exempt
 def pesapal_ipn(request):
@@ -649,3 +653,11 @@ def register_pesapal_ipn(request):
     except Exception as e:
         logger.exception("IPN registration failed: %s", e)
         return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+from django.views.generic import DetailView
+from .models import Payment
+
+class ReceiptView(DetailView):
+    model = Payment
+    template_name = 'payments/receipt.html'
+    context_object_name = 'payment'

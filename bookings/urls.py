@@ -5,6 +5,7 @@
 
 from django.urls import path
 from . import views
+from .views import ReceiptView
 
 urlpatterns = [
     # ===============================
@@ -68,7 +69,11 @@ urlpatterns = [
     path("driver/tour/<int:tour_id>/edit/", views.edit_tour, name="edit_tour"),
     path("driver/tour/<int:tour_id>/delete/", views.delete_tour, name="delete_tour"),
 path("pesapal/register-ipn/", views.register_pesapal_ipn, name="register_pesapal_ipn"),
-
+    path(
+        'receipt/<uuid:pk>/',
+        ReceiptView.as_view(),
+        name='receipt'
+    ),
     # ===============================
     # 🖥️ Modern Admin Dashboard (custom)
     # ===============================
