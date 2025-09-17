@@ -704,10 +704,11 @@ class ReceiptView(DetailView):
         context = super().get_context_data(**kwargs)
         payment = self.object
 
-        # Cleaned values
-        context["days"] = payment.days or 0
-        context["adults"] = payment.adults or 0
-        context["children"] = payment.children or 0
-        context["amount_paid"] = payment.amount_paid or 0
+        # ✅ Corrected values
+        context["days"] = getattr(payment.tour, "duration", 0) or 0
+        context["adults"] = getattr(payment, "adults", 0) or 0
+        context["children"] = getattr(payment, "children", 0) or 0
+        context["amount_paid"] = getattr(payment, "amount_paid", payment.amount or 0)
 
         return context
+
