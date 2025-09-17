@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin, messages
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -6,6 +7,7 @@ from .models import (
     Destination, Customer, Booking, Payment, PaymentStatus,
     ContactMessage, Tour, Driver, Video, Trip
 )
+
 
 # =====================================================
 # DESTINATION ADMIN
@@ -67,6 +69,31 @@ class BookingAdmin(admin.ModelAdmin):
     date_hierarchy = "travel_date"
     autocomplete_fields = ("customer", "destination", "driver")
 
+
+# =====================================================
+# PAYMENT FORM (Admin-level validation)
+# =====================================================
+class PaymentAdminForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Ensure no critical blank fields
+        required_fields = [
+            "amount", "currency", "provider", "method",
+            "guest_full_name", "guest_email", "guest_phone",
+            "description"
+        ]
+        for field in required_fields:
+            value = cleaned_data.get(field)
+            if not value:
+                raise forms.ValidationError({field: f"{field.replace('_',' ').title()} is required."})
+
+        return cleaned_data
+
 # =====================================================
 # PAYMENT ADMIN
 # =====================================================
@@ -84,6 +111,7 @@ def mark_as_completed(modeladmin, request, queryset):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
+    form = PaymentAdminForm
     actions = [mark_as_completed]
 
     list_display = (
@@ -93,9 +121,10 @@ class PaymentAdmin(admin.ModelAdmin):
         "currency",
         "provider",
         "status",
-        "pesapal_reference",   # Pesapal OrderTrackingId
-        "transaction_id",      # Actual confirmation code
-        "get_method",          # Payment method
+        "pesapal_reference",
+        "transaction_id",
+        "get_method",
+        "guest_full_name",
         "guest_email",
         "guest_phone",
         "description",
@@ -106,6 +135,7 @@ class PaymentAdmin(admin.ModelAdmin):
         "transaction_id",
         "reference",
         "pesapal_reference",
+        "guest_full_name",
         "guest_email",
         "guest_phone",
         "description",
@@ -122,15 +152,15 @@ class PaymentAdmin(admin.ModelAdmin):
         return obj.method
     get_method.short_description = "Payment Method"
 
-    # Deduplicate & Admin Email
     def save_model(self, request, obj, form, change):
         """
-        - Keeps only the latest payment per pesapal_reference.
-        - Sends admin email automatically on save/update with full transaction details.
+        - Ensures no critical blanks (validated by form).
+        - Deduplicates Pesapal references.
+        - Sends admin email automatically.
         """
         super().save_model(request, obj, form, change)
 
-        # Remove duplicates
+        # Deduplicate Pesapal reference
         if obj.pesapal_reference:
             duplicates = Payment.objects.filter(pesapal_reference=obj.pesapal_reference)\
                                         .exclude(id=obj.id)\
@@ -138,7 +168,7 @@ class PaymentAdmin(admin.ModelAdmin):
             duplicates.delete()
 
         # Send admin email
-        subject = f"Payment Update: {obj.status} - {obj.pesapal_reference}"
+        subject = f"Payment Update: {obj.status} - {obj.pesapal_reference or 'No Ref'}"
         message = f"""
 Payment Details:
 
@@ -147,12 +177,13 @@ Tour: {obj.tour or '-'}
 Amount: {obj.amount} {obj.currency}
 Provider: {obj.provider}
 Status: {obj.status}
-Pesapal Reference (Tracking ID): {obj.pesapal_reference}
-Transaction ID (Confirmation Code): {obj.transaction_id}
+Pesapal Reference: {obj.pesapal_reference or '-'}
+Transaction ID: {obj.transaction_id or '-'}
 Payment Method: {obj.method}
-Guest Email: {obj.guest_email or '-'}
-Guest Phone: {obj.guest_phone or '-'}
-Description: {obj.description or '-'}
+Guest Name: {obj.guest_full_name}
+Guest Email: {obj.guest_email}
+Guest Phone: {obj.guest_phone}
+Description: {obj.description}
 Created At: {obj.created_at}
 
 This notification was generated automatically by the admin panel.
@@ -172,7 +203,6 @@ This notification was generated automatically by the admin panel.
                 import logging
                 logger = logging.getLogger(__name__)
                 logger.error(f"Failed to send admin email for Payment {obj.id}: {e}")
-
 # =====================================================
 # CONTACT MESSAGE ADMIN
 # =====================================================

@@ -28,9 +28,9 @@
       <div><strong>Phone:</strong> {{ payment.guest_phone|default:"N/A" }}</div>
       <div><strong>Travel Date:</strong> {{ payment.travel_date|date:"M d, Y" }}</div>
       <div><strong>Tour:</strong> {{ payment.tour.title }}</div>
-      <div><strong>Duration:</strong> {{ payment.days }} days</div>
-      <div><strong>Adults:</strong> {{ payment.adults }}</div>
-      <div><strong>Children:</strong> {{ payment.children }}</div>
+      <div><strong>Duration:</strong> {{ days }} days</div>
+      <div><strong>Adults:</strong> {{ adults }}</div>
+      <div><strong>Children:</strong> {{ children }}</div>
     </div>
   </section>
 
@@ -43,20 +43,20 @@
         <td class="text-right">KES {{ payment.tour.price_per_person|floatformat:0 }}</td>
       </tr>
       <tr>
-        <td>Adults Cost ({{ payment.adults }})</td>
+        <td>Adults Cost ({{ adults }})</td>
         <td class="text-right">
-          KES {{ payment.adults|default:0|mul:payment.tour.price_per_person }}
+          KES {{ adults|mul:payment.tour.price_per_person }}
         </td>
       </tr>
       <tr>
-        <td>Children Cost ({{ payment.children }})</td>
+        <td>Children Cost ({{ children }})</td>
         <td class="text-right">
-          KES {{ payment.children|default:0|mul:payment.tour.price_per_person|div:2 }}
+          KES {{ children|mul:payment.tour.price_per_person|div:2 }}
         </td>
       </tr>
       <tr class="font-bold border-t">
         <td>Total Paid</td>
-        <td class="text-right text-emerald-700">KES {{ payment.amount_paid|floatformat:0 }}</td>
+        <td class="text-right text-emerald-700">KES {{ amount_paid|floatformat:0 }}</td>
       </tr>
     </table>
     <p class="mt-2 text-xs text-gray-500">

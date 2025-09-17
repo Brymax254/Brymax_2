@@ -686,3 +686,15 @@ class ReceiptView(DetailView):
     model = Payment
     template_name = 'payments/receipt.html'
     context_object_name = 'payment'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        payment = self.object
+
+        # Cleaned values
+        context["days"] = payment.days or 0
+        context["adults"] = payment.adults or 0
+        context["children"] = payment.children or 0
+        context["amount_paid"] = payment.amount_paid or 0
+
+        return context
