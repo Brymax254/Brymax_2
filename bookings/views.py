@@ -144,20 +144,20 @@ def tour_payment(request, tour_id, adults=None, children=None, form=None):
             Payment.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 tour=tour,
-                amount=total_amount,
+                amount=tour.price_per_person * (adults + children),
                 amount_paid=0,
                 currency="KES",
                 provider="PESAPAL",
                 method="PESAPAL",
                 pesapal_reference=tracking_id,
                 transaction_id=order_reference,
-                guest_full_name=guest_name,
-                guest_email=guest_email,
-                guest_phone=guest_phone,
-                adults=num_adults,
-                children=num_children,
-                days=travel_days,
-                travel_date=travel_date,
+                guest_full_name=form.cleaned_data.get("full_name"),
+                guest_email=form.cleaned_data.get("email"),
+                guest_phone=form.cleaned_data.get("phone"),
+                adults=form.cleaned_data.get("adults"),
+                children=form.cleaned_data.get("children"),
+                days=form.cleaned_data.get("days"),
+                travel_date=form.cleaned_data.get("travel_date"),
                 description=f"Payment for Tour {tour.title}",
             )
 
@@ -736,9 +736,11 @@ class ReceiptView(DetailView):
         context["amount_paid"] = getattr(payment, "amount_paid", None) or getattr(payment, "amount", 0)
 
         # Guest information
-        context["guest_full_name"] = payment.guest_full_name or (payment.user.get_full_name() if payment.user else "Guest")
+        context["guest_full_name"] = payment.guest_full_name or (
+            payment.user.get_full_name() if payment.user else "Guest")
         context["guest_email"] = payment.guest_email or (payment.user.email if payment.user else "N/A")
-        context["guest_phone"] = payment.guest_phone or getattr(payment.user, "phone", "N/A")
+        context["guest_phone"] = payment.guest_phone or (
+            getattr(payment.user, "phone", "N/A") if payment.user else "N/A")
 
         # Reference for template
         context["reference"] = getattr(payment, "pesapal_reference", getattr(payment, "reference", ""))
