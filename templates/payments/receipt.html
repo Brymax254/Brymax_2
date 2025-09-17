@@ -40,18 +40,18 @@
     <table class="w-full text-sm">
       <tr>
         <td>Base Price per Person</td>
-        <td class="text-right">KES {{ payment.tour.price|floatformat:0 }}</td>
+        <td class="text-right">KES {{ payment.tour.price_per_person|floatformat:0 }}</td>
       </tr>
       <tr>
         <td>Adults Cost ({{ payment.adults }})</td>
         <td class="text-right">
-          KES {{ payment.adults|default:0|add:"0"|floatformat:0|mul:payment.tour.price }}
+          KES {{ payment.adults|default:0|mul:payment.tour.price_per_person }}
         </td>
       </tr>
       <tr>
         <td>Children Cost ({{ payment.children }})</td>
         <td class="text-right">
-          KES {{ payment.children|default:0|add:"0"|floatformat:0|mul:payment.tour.price|div:2 }}
+          KES {{ payment.children|default:0|mul:payment.tour.price_per_person|div:2 }}
         </td>
       </tr>
       <tr class="font-bold border-t">
