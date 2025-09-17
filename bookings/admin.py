@@ -114,7 +114,7 @@ class PaymentAdmin(admin.ModelAdmin):
     form = PaymentAdminForm
     actions = [mark_as_completed]
 
-    # Display columns in the admin list view
+    # Always show guest info
     list_display = (
         "booking",
         "tour",
@@ -135,46 +135,30 @@ class PaymentAdmin(admin.ModelAdmin):
         "created_at",
     )
 
-    # Filters for easy searching
-    list_filter = (
-        "provider",
-        "status",
-        "currency",
-        "method",
-        "created_at",
-    )
-
-    # Search fields for admin convenience
+    list_filter = ("provider", "status", "currency", "method", "created_at")
     search_fields = (
-        "transaction_id",
-        "reference",
-        "pesapal_reference",
         "guest_full_name",
         "guest_email",
         "guest_phone",
+        "transaction_id",
+        "pesapal_reference",
         "description",
         "booking__customer__first_name",
         "booking__customer__last_name",
         "tour__title",
     )
-
-    # Optional: make some fields clickable to quickly edit
     list_display_links = ("tour", "guest_full_name", "booking")
-    # Optional: order by most recent payments
     ordering = ("-created_at",)
     date_hierarchy = "created_at"
     autocomplete_fields = ("booking", "tour", "user")
 
-    # Custom Methods
     def get_method(self, obj):
         return obj.method
     get_method.short_description = "Payment Method"
 
     def save_model(self, request, obj, form, change):
         """
-        - Ensures no critical blanks (validated by form).
-        - Deduplicates Pesapal references.
-        - Sends admin email automatically.
+        Save payments for guests safely.
         """
         super().save_model(request, obj, form, change)
 
@@ -186,8 +170,10 @@ class PaymentAdmin(admin.ModelAdmin):
             duplicates.delete()
 
         # Send admin email
-        subject = f"Payment Update: {obj.status} - {obj.pesapal_reference or 'No Ref'}"
-        message = f"""
+        admin_email = getattr(settings, "ADMIN_EMAIL", None)
+        if admin_email:
+            subject = f"Payment Update: {obj.status} - {obj.pesapal_reference or 'No Ref'}"
+            message = f"""
 Payment Details:
 
 Booking: {obj.booking or '-'}
@@ -205,10 +191,7 @@ Description: {obj.description}
 Created At: {obj.created_at}
 
 This notification was generated automatically by the admin panel.
-        """
-
-        admin_email = getattr(settings, "ADMIN_EMAIL", None)
-        if admin_email:
+            """
             try:
                 send_mail(
                     subject=subject,
@@ -221,6 +204,7 @@ This notification was generated automatically by the admin panel.
                 import logging
                 logger = logging.getLogger(__name__)
                 logger.error(f"Failed to send admin email for Payment {obj.id}: {e}")
+
 # =====================================================
 # CONTACT MESSAGE ADMIN
 # =====================================================

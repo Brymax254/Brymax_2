@@ -99,75 +99,79 @@ def send_payment_confirmation_email(payment):
     )
     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [payment.user.email])
 
+from bookings.forms import GuestCheckoutForm
 # ==========================================================
 # PAYMENT FLOW - PESAPAL
 # ==========================================================
-def tour_payment(request, tour_id, adults=None, children=None, form=None):
+def tour_payment(request, tour_id):
     """
-    Render payment page for logged-in users or redirect guests to guest checkout.
+    Render payment page for guests only.
     Handles Pesapal payments.
     """
     tour = get_object_or_404(Tour, id=tour_id)
 
-    if not request.user.is_authenticated:
-        # Redirect guests to guest checkout
-        return redirect("guest_checkout", tour_id=tour.id)
+    # Always use guest checkout form
+    form = GuestCheckoutForm(request.POST or None)
 
-    # Default traveler info
-    num_adults = adults or (form.cleaned_data.get("adults") if form else 1)
-    num_children = children or (form.cleaned_data.get("children") if form else 0)
-    travel_days = form.cleaned_data.get("days") if form else 1
-    travel_date = form.cleaned_data.get("travel_date") if form else timezone.now().date()
-    guest_name = form.cleaned_data.get("full_name") if form else request.user.get_full_name()
-    guest_email = form.cleaned_data.get("email") if form else request.user.email
-    guest_phone = form.cleaned_data.get("phone") if form else getattr(request.user, "phone", "0700000000")
+    if not form.is_valid():
+        # Render form page (first visit or errors)
+        return render(request, "payments/guest_checkout.html", {"tour": tour, "form": form})
 
-    context = {"tour": tour, "pesapal_iframe_url": None, "error": None}
+    # Extract guest data safely
+    full_name = form.cleaned_data.get("full_name")
+    email = form.cleaned_data.get("email")
+    phone = form.cleaned_data.get("phone")
+    adults = form.cleaned_data.get("adults") or 1
+    children = form.cleaned_data.get("children") or 0
+    days = form.cleaned_data.get("days") or 1
+    travel_date = form.cleaned_data.get("travel_date") or timezone.now().date()
+
+    total_amount = tour.price_per_person * (adults + children)
 
     try:
-        # Build callback URL for Pesapal
-        callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
-
-        total_amount = tour.price_per_person * (num_adults + num_children)
-
+        # Create Pesapal order
         redirect_url, order_reference, tracking_id = create_pesapal_order(
             order_id=tour.id,
             amount=total_amount,
             description=f"Payment for Tour {tour.title}",
-            email=guest_email,
-            phone=normalize_phone_number(guest_phone),
-            first_name=guest_name.split()[0] if guest_name else "Guest",
-            last_name=" ".join(guest_name.split()[1:]) if guest_name and len(guest_name.split()) > 1 else "User",
+            email=email,
+            phone=normalize_phone_number(phone),
+            first_name=full_name.split()[0] if full_name else "Guest",
+            last_name=" ".join(full_name.split()[1:]) if full_name and len(full_name.split()) > 1 else "User",
         )
 
         if redirect_url:
+            # Save payment for guest
             Payment.objects.create(
-                user=request.user if request.user.is_authenticated else None,
                 tour=tour,
-                amount=tour.price_per_person * ((adults or 0) + (children or 0)),
+                amount=total_amount,
                 amount_paid=0,
                 currency="KES",
                 provider="PESAPAL",
                 method="PESAPAL",
                 pesapal_reference=tracking_id,
                 transaction_id=order_reference,
-                guest_full_name=form.cleaned_data.get("full_name"),
-                guest_email=form.cleaned_data.get("email"),
-                guest_phone=form.cleaned_data.get("phone"),
-                adults=form.cleaned_data.get("adults"),
-                children=form.cleaned_data.get("children"),
-                days=form.cleaned_data.get("days"),
-                travel_date=form.cleaned_data.get("travel_date"),
+                guest_full_name=full_name,
+                guest_email=email,
+                guest_phone=phone,
+                adults=adults,
+                children=children,
+                days=days,
+                travel_date=travel_date,
                 description=f"Payment for Tour {tour.title}",
             )
-
-            context["pesapal_iframe_url"] = redirect_url
         else:
-            context["error"] = "Payment service unavailable."
+            redirect_url = None
 
     except Exception as e:
         logger.exception("Pesapal payment initialization error: %s", e)
-        context["error"] = "Error initializing payment."
+        redirect_url = None
+
+    context = {
+        "tour": tour,
+        "pesapal_iframe_url": redirect_url,
+        "error": None if redirect_url else "Payment service unavailable."
+    }
 
     return render(request, "payments/tour_payment.html", context)
 
@@ -711,7 +715,7 @@ def register_pesapal_ipn(request):
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404
-from bookings.models import Payment, Booking
+from bookings.models import Payment
 
 class ReceiptView(DetailView):
     model = Payment
@@ -735,12 +739,10 @@ class ReceiptView(DetailView):
         # Amount paid – prefer recorded payment amount
         context["amount_paid"] = getattr(payment, "amount_paid", None) or getattr(payment, "amount", 0)
 
-        # Guest information
-        context["guest_full_name"] = payment.guest_full_name or (
-            payment.user.get_full_name() if payment.user else "Guest")
-        context["guest_email"] = payment.guest_email or (payment.user.email if payment.user else "N/A")
-        context["guest_phone"] = payment.guest_phone or (
-            getattr(payment.user, "phone", "N/A") if payment.user else "N/A")
+        # Guest information – always use guest fields
+        context["guest_full_name"] = payment.guest_full_name or "Guest"
+        context["guest_email"] = payment.guest_email or "N/A"
+        context["guest_phone"] = payment.guest_phone or "N/A"
 
         # Reference for template
         context["reference"] = getattr(payment, "pesapal_reference", getattr(payment, "reference", ""))
