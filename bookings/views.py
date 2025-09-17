@@ -693,7 +693,8 @@ def register_pesapal_ipn(request):
         return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 from django.views.generic import DetailView
-from .models import Payment
+from django.shortcuts import get_object_or_404
+from bookings.models import Payment, Booking
 
 class ReceiptView(DetailView):
     model = Payment
@@ -704,11 +705,21 @@ class ReceiptView(DetailView):
         context = super().get_context_data(**kwargs)
         payment = self.object
 
-        # ✅ Corrected values
-        context["days"] = getattr(payment.tour, "duration", 0) or 0
-        context["adults"] = getattr(payment, "adults", 0) or 0
-        context["children"] = getattr(payment, "children", 0) or 0
-        context["amount_paid"] = getattr(payment, "amount_paid", payment.amount or 0)
+        # Try to get linked booking if available
+        booking = getattr(payment, 'booking', None)
+
+        # Duration (days) – prefer booking, fallback to tour duration
+        context["days"] = getattr(booking, "days", None) or getattr(payment.tour, "duration", 0) or 0
+
+        # Number of adults and children – prefer booking, fallback to payment attributes
+        context["adults"] = getattr(booking, "adults", None) or getattr(payment, "adults", 0) or 0
+        context["children"] = getattr(booking, "children", None) or getattr(payment, "children", 0) or 0
+
+        # Amount paid – prefer recorded payment amount
+        context["amount_paid"] = getattr(payment, "amount_paid", None) or getattr(payment, "amount", 0)
+
+        # Optional: Pass reference for easier template access
+        context["reference"] = getattr(payment, "pesapal_reference", getattr(payment, "reference", ""))
 
         return context
 
