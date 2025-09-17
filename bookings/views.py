@@ -240,10 +240,10 @@ Created At: {payment.created_at}
 
     except Exception as e:
         logger.exception("Pesapal callback failed: %s", e)
-    return JsonResponse({
-        "message": "✅ Payment updated successfully.",
-        "redirect": reverse("receipt", args=[payment.id])
-    })
+
+        # ✅ Redirect user straight to receipt page
+    return redirect("receipt", pk=payment.id)
+
 
 @csrf_exempt
 def pesapal_ipn(request):
