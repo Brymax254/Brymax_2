@@ -133,13 +133,16 @@ def tour_payment(request, tour_id):
                 user=request.user,
                 tour=tour,
                 amount=tour.price_per_person,
-                reference=order_reference,
-                pesapal_reference=tracking_id,
-                transaction_id=tracking_id,
+                currency="KES",
                 provider="PESAPAL",
-                status="PENDING",
+                status=PaymentStatus.PENDING,
+                pesapal_reference=tracking_id,   # Tracking ID from Pesapal
+                transaction_id=order_reference,  # Unique merchant reference
                 description=f"Payment for Tour {tour.title}",
+                method="PESAPAL",
+                travel_date=timezone.now().date(),  # Safe fallback
             )
+
             context["pesapal_iframe_url"] = redirect_url
         else:
             context["error"] = "Payment service unavailable."
@@ -149,7 +152,6 @@ def tour_payment(request, tour_id):
         context["error"] = "Error initializing payment."
 
     return render(request, "payments/tour_payment.html", context)
-
 
 @csrf_exempt
 def pesapal_callback(request):
@@ -310,6 +312,9 @@ def pesapal_ipn(request):
 # ==========================================================
 # MPESA PAYMENT
 # ==========================================================
+# ==========================================================
+# MPESA PAYMENT
+# ==========================================================
 @csrf_exempt
 @login_required
 @require_http_methods(["POST"])
@@ -325,6 +330,7 @@ def mpesa_payment(request, tour_id):
 
         tour = get_object_or_404(Tour, id=tour_id)
         mpesa = MpesaSTKPush()
+
         response = mpesa.stk_push(
             phone_number=phone_number,
             amount=tour.price_per_person,
@@ -337,17 +343,24 @@ def mpesa_payment(request, tour_id):
                 user=request.user,
                 tour=tour,
                 amount=tour.price_per_person,
-                reference=response.get("CheckoutRequestID"),
+                currency="KES",
                 provider="MPESA",
                 status=PaymentStatus.PENDING,
+                transaction_id=response["CheckoutRequestID"],  # Safely store Mpesa checkout ref
+                description=f"Payment for Tour {tour.title}",
+                method="MPESA",
+                travel_date=timezone.now().date(),  # fallback travel date
             )
-            return JsonResponse({"success": True, "message": "STK Push sent", "response": response})
+            return JsonResponse(
+                {"success": True, "message": "STK Push sent", "response": response},
+                status=200
+            )
         else:
-            return JsonResponse({"success": False, "message": "Failed to initiate Mpesa payment"}, status=500)
+            return JsonResponse({"success": False, "message": "Failed to initiate STK Push"}, status=500)
 
     except Exception as e:
-        logger.exception("Mpesa payment error: %s", e)
-        return JsonResponse({"success": False, "message": "Unexpected error"}, status=500)
+        logger.exception("Mpesa STK Push error: %s", e)
+        return JsonResponse({"success": False, "message": "Error processing payment"}, status=500)
 
 # ==========================================================
 # PAYMENT PAGES
