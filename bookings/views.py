@@ -144,7 +144,7 @@ def tour_payment(request, tour_id, adults=None, children=None, form=None):
             Payment.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 tour=tour,
-                amount=tour.price_per_person * (adults + children),
+                amount=tour.price_per_person * ((adults or 0) + (children or 0)),
                 amount_paid=0,
                 currency="KES",
                 provider="PESAPAL",
