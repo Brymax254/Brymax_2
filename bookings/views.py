@@ -505,16 +505,41 @@ def test_pesapal_auth(request):
 # ==========================================================
 def guest_checkout(request, tour_id):
     """
-    Lightweight handler for guest form submission.
-    Does not render any template — just returns 204 for JS to handle.
+    Handle guest form submission, save booking details,
+    and create a Payment record for receipt.
     """
+    tour = get_object_or_404(Tour, id=tour_id)
+
     if request.method == "POST":
-        # You can optionally capture guest data here
-        # full_name = request.POST.get("full_name")
-        # email = request.POST.get("email")
-        # phone = request.POST.get("country_code") + request.POST.get("phone")
-        # travel_date = request.POST.get("travel_date")
-        return HttpResponse(status=204)
+        # Capture guest form data
+        full_name = request.POST.get("full_name")
+        email = request.POST.get("email")
+        phone = f"{request.POST.get('country_code')}{request.POST.get('phone')}"
+        adults = int(request.POST.get("adults", 0))
+        children = int(request.POST.get("children", 0))
+        days = int(request.POST.get("days", 1))
+        travel_date = request.POST.get("travel_date")
+
+        # Calculate costs
+        adult_cost = adults * tour.price
+        child_cost = children * (tour.price * Decimal("0.5"))  # Example: half price for kids
+        total = adult_cost + child_cost
+
+        # Save Payment object
+        payment = Payment.objects.create(
+            tour=tour,
+            guest_full_name=full_name,
+            guest_email=email,
+            guest_phone=phone,
+            adults=adults,
+            children=children,
+            days=days,
+            travel_date=travel_date,
+            amount_paid=total,
+        )
+
+        # Redirect to receipt page
+        return redirect("receipt", pk=payment.pk)
 
     return HttpResponse(status=405)  # Method not allowed
 
