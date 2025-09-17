@@ -28,7 +28,7 @@
       <div><strong>Phone:</strong> {{ payment.guest_phone|default:"N/A" }}</div>
       <div><strong>Travel Date:</strong> {{ payment.travel_date|date:"M d, Y" }}</div>
       <div><strong>Tour:</strong> {{ payment.tour.title }}</div>
-      <div><strong>Duration:</strong> {{ days|default:payment.tour.duration }} days</div>
+      <div><strong>Duration:</strong> {{ days }} days</div>
       <div><strong>Adults:</strong> {{ adults|default:0 }}</div>
       <div><strong>Children:</strong> {{ children|default:0 }}</div>
     </div>
