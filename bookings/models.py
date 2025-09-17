@@ -86,10 +86,14 @@ class Driver(models.Model):
     def __str__(self):
         return self.name
 
+# =====================================================
+# BOOKINGS
+# =====================================================
 
 class Booking(models.Model):
     """
     Bookings for transfers, excursions, or tours.
+    Strongly linked with Payment for Pesapal.
     """
     BOOKING_TYPE_CHOICES = [
         ('TRANSFER', 'Airport Transfer'),
@@ -97,16 +101,17 @@ class Booking(models.Model):
         ('TOUR', 'Tour / Safari'),
     ]
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="bookings")
-    destination = models.ForeignKey(Destination, on_delete=models.SET_NULL, null=True, related_name="bookings")
+    customer = models.ForeignKey(
+        'Customer', on_delete=models.CASCADE, related_name='bookings'
+    )
+    destination = models.ForeignKey(
+        'Destination', on_delete=models.SET_NULL, null=True, related_name='bookings'
+    )
     booking_type = models.CharField(max_length=20, choices=BOOKING_TYPE_CHOICES)
-
     num_passengers = models.PositiveIntegerField(default=1)
     pickup_location = models.CharField(max_length=200, blank=True, null=True)
     dropoff_location = models.CharField(max_length=200, blank=True, null=True)
     travel_date = models.DateField()
-
-    pesapal_reference = models.CharField(max_length=100, blank=True, null=True, unique=True)
 
     special_requests = models.TextField(blank=True, null=True)
     booking_date = models.DateTimeField(default=timezone.now)
@@ -115,7 +120,7 @@ class Booking(models.Model):
     is_confirmed = models.BooleanField(default=False)
     is_cancelled = models.BooleanField(default=False)
 
-    driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True, related_name="bookings")
+    driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
 
     class Meta:
         ordering = ['-booking_date']
@@ -125,11 +130,22 @@ class Booking(models.Model):
 
     @property
     def calculate_total_price(self):
-        """Calculate total price based on destination price and number of passengers."""
+        """Compute total price based on destination price."""
         if self.destination:
             return self.num_passengers * self.destination.price_per_person
         return Decimal('0.00')
 
+    def save(self, *args, **kwargs):
+        """Auto-fill total price on save."""
+        self.total_price = self.calculate_total_price
+        super().save(*args, **kwargs)
+
+
+from django.db import models
+from django.utils import timezone
+from django.conf import settings
+from decimal import Decimal
+import uuid
 
 # =====================================================
 # PAYMENTS
@@ -156,16 +172,11 @@ class PaymentStatus(models.TextChoices):
 
 class Payment(models.Model):
     """
-    Unified payment model for both registered users and guest checkouts.
-    Captures guest info, travel date, optional billing address, and
-    integrates with Pesapal / M-Pesa.
+    Strongly integrated Payment model for both registered users and guest checkouts.
+    Guarantees a Payment record exists before Pesapal redirect.
     """
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # --------------------
     # Who is paying
@@ -178,93 +189,42 @@ class Payment(models.Model):
         related_name="payments",
         help_text="Registered user (if logged in)."
     )
-    guest_full_name = models.CharField(
-        max_length=200,
-        blank=True,
-        null=True,
-        help_text="Full name entered by guest during checkout."
-    )
-    guest_email = models.EmailField(
-        blank=True,
-        null=True,
-        help_text="Email address entered by guest during checkout."
-    )
-    guest_phone = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        help_text="Phone number entered by guest during checkout."
-    )
+    guest_full_name = models.CharField(max_length=200, blank=True, null=True)
+    guest_email = models.EmailField(blank=True, null=True)
+    guest_phone = models.CharField(max_length=20, blank=True, null=True)
 
     # --------------------
-    # Guest booking details
-    # --------------------
-    adults = models.PositiveIntegerField(default=1, help_text="Number of adults.")
-    children = models.PositiveIntegerField(default=0, help_text="Number of children.")
-    days = models.PositiveIntegerField(default=1, help_text="Number of travel days.")
-
-    # --------------------
-    # Booking context
+    # Booking / Tour
     # --------------------
     booking = models.OneToOneField(
         "Booking",
         on_delete=models.CASCADE,
         related_name="payment",
+        help_text="Each booking must have one Payment.",
         null=True,
-        blank=True,
-        help_text="Link to a booking if this is a booking payment."
+        blank=True
     )
     tour = models.ForeignKey(
         "Tour",
         on_delete=models.CASCADE,
         related_name="payments",
         null=True,
-        blank=True,
-        help_text="Link to a tour if this is a direct tour payment."
+        blank=True
     )
 
     # --------------------
-    # Trip details
+    # Trip info
     # --------------------
-    travel_date = models.DateField(
-        null=False,
-        blank=False,
-        help_text="Date of travel as selected by the guest."
-    )
+    travel_date = models.DateField()
 
     # --------------------
-    # Optional billing address (for card payments)
+    # Billing details
     # --------------------
-    billing_line1 = models.CharField(
-        max_length=255,
-        blank=False,
-        default="Nairobi",
-        help_text="Billing street address (line 1)."
-    )
-    billing_city = models.CharField(
-        max_length=100,
-        blank=False,
-        default="Nairobi",
-        help_text="Billing city or town."
-    )
-    billing_state = models.CharField(
-        max_length=100,
-        blank=False,
-        default="Nairobi",
-        help_text="Billing state or region."
-    )
-    billing_postal_code = models.CharField(
-        max_length=20,
-        blank=False,
-        default="00100",
-        help_text="Billing postal / ZIP code."
-    )
-    billing_country_code = models.CharField(
-        max_length=3,
-        blank=False,
-        default="KE",
-        help_text="Billing country code (ISO 3166-1 alpha-3)."
-    )
+    billing_line1 = models.CharField(max_length=255, default="Nairobi")
+    billing_city = models.CharField(max_length=100, default="Nairobi")
+    billing_state = models.CharField(max_length=100, default="Nairobi")
+    billing_postal_code = models.CharField(max_length=20, default="00100")
+    billing_country_code = models.CharField(max_length=3, default="KE")
 
     # --------------------
     # Payment parameters
@@ -272,104 +232,49 @@ class Payment(models.Model):
     provider = models.CharField(
         max_length=20,
         choices=PaymentProvider.choices,
-        default=PaymentProvider.PESAPAL,
-        help_text="The payment gateway."
+        default=PaymentProvider.PESAPAL
     )
     method = models.CharField(
         max_length=20,
         choices=PaymentProvider.choices,
-        default=PaymentProvider.MPESA,
-        help_text="The payment method selected by the guest."
+        default=PaymentProvider.PESAPAL
     )
-    currency = models.CharField(
-        max_length=10,
-        default="KES",
-        help_text="Currency code."
-    )
-    amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0.00,
-        help_text="Calculated total amount due."
-    )
-    amount_paid = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0.00,
-        help_text="Amount actually paid (returned by the gateway)."
-    )
-    phone_number = models.CharField(
-        max_length=20,
-        blank=False,
-        default="",
-        help_text="Phone used for mobile payments."
-    )
+    currency = models.CharField(max_length=10, default="KES")
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    phone_number = models.CharField(max_length=20, blank=True, default="")
     status = models.CharField(
         max_length=20,
         choices=PaymentStatus.choices,
-        default=PaymentStatus.PENDING,
-        help_text="Current status of the payment."
+        default=PaymentStatus.PENDING
     )
 
     # --------------------
-    # Transaction references
+    # Pesapal transaction
     # --------------------
-    reference = models.CharField(
-        max_length=100,
-        blank=False,
-        default="",
-        db_index=True,
-        help_text="Merchant reference for this transaction."
-    )
+    reference = models.CharField(max_length=100, db_index=True, default="")
     pesapal_reference = models.CharField(
         max_length=255,
-        blank=False,
-        default="",
-        help_text="Pesapal OrderTrackingId."
-    )
-    confirmation_code = models.CharField(
-        max_length=100,
-        blank=False,
-        default="",
-        help_text="Confirmation code returned by the gateway."
-    )
-    transaction_id = models.CharField(
-        max_length=100,
-        blank=False,
-        default="",
-        help_text="Transaction ID returned by the gateway."
-    )
-
-    # --------------------
-    # Optional description & raw response
-    # --------------------
-    description = models.TextField(
-        blank=False,
-        default="Payment for Tour",
-        help_text="Free-form description or notes."
-    )
-    raw_response = models.JSONField(
         blank=True,
         null=True,
-        help_text="Full JSON response from the payment gateway."
+
+        help_text="Pesapal OrderTrackingId"
     )
+    confirmation_code = models.CharField(max_length=100, default="")
+    transaction_id = models.CharField(max_length=100, default="")
+    raw_response = models.JSONField(blank=True, null=True)
+
+    # --------------------
+    # Optional description
+    # --------------------
+    description = models.TextField(default="Payment for Tour")
 
     # --------------------
     # Timestamps
     # --------------------
-    paid_on = models.DateTimeField(
-        blank=True,
-        null=True,
-        help_text="Datetime when payment was confirmed."
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="Record created at this timestamp."
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="Record last updated at this timestamp."
-    )
+    paid_on = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -385,11 +290,15 @@ class Payment(models.Model):
         )
         return f"{identity} - {self.amount} {self.currency} ({self.status})"
 
-    # --- Helper methods ---
+    # --------------------
+    # Helper methods
+    # --------------------
     def save(self, *args, **kwargs):
         """
-        Auto-fill amount_paid and paid_on when payment is successful.
+        Ensures Payment is always tied to a booking and sets amounts when successful.
         """
+        if self.booking and not self.amount:
+            self.amount = self.booking.total_price
         if self.status == PaymentStatus.SUCCESS:
             if not self.amount_paid:
                 self.amount_paid = self.amount
@@ -397,7 +306,9 @@ class Payment(models.Model):
                 self.paid_on = timezone.now()
         super().save(*args, **kwargs)
 
-    # --- Utility properties ---
+    # --------------------
+    # Utility properties
+    # --------------------
     @property
     def is_successful(self):
         return self.status == PaymentStatus.SUCCESS
@@ -409,7 +320,6 @@ class Payment(models.Model):
     @property
     def is_failed(self):
         return self.status == PaymentStatus.FAILED
-
 
 # =====================================================
 # CONTENT & MISC

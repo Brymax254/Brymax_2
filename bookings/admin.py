@@ -8,7 +8,6 @@ from .models import (
     ContactMessage, Tour, Driver, Video, Trip
 )
 
-
 # =====================================================
 # DESTINATION ADMIN
 # =====================================================
@@ -69,7 +68,6 @@ class BookingAdmin(admin.ModelAdmin):
     date_hierarchy = "travel_date"
     autocomplete_fields = ("customer", "destination", "driver")
 
-
 # =====================================================
 # PAYMENT FORM (Admin-level validation)
 # =====================================================
@@ -80,18 +78,14 @@ class PaymentAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
-        # Ensure no critical blank fields
         required_fields = [
             "amount", "currency", "provider", "method",
             "guest_full_name", "guest_email", "guest_phone",
             "description"
         ]
         for field in required_fields:
-            value = cleaned_data.get(field)
-            if not value:
+            if not cleaned_data.get(field):
                 raise forms.ValidationError({field: f"{field.replace('_',' ').title()} is required."})
-
         return cleaned_data
 
 # =====================================================
@@ -108,22 +102,20 @@ def mark_as_completed(modeladmin, request, queryset):
             updated_count += 1
     messages.success(request, f"{updated_count} payment(s) marked as Completed.")
 
-
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     form = PaymentAdminForm
     actions = [mark_as_completed]
 
-    # Always show guest info
     list_display = (
         "booking",
         "tour",
         "guest_full_name",
         "guest_email",
         "guest_phone",
-        "adults",
-        "children",
-        "days",
+        "get_adults",
+        "get_children",
+        "get_days",
         "amount",
         "currency",
         "provider",
@@ -134,7 +126,6 @@ class PaymentAdmin(admin.ModelAdmin):
         "description",
         "created_at",
     )
-
     list_filter = ("provider", "status", "currency", "method", "created_at")
     search_fields = (
         "guest_full_name",
@@ -152,14 +143,25 @@ class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     autocomplete_fields = ("booking", "tour", "user")
 
+    # --- Custom list_display properties ---
     def get_method(self, obj):
         return obj.method
     get_method.short_description = "Payment Method"
 
+    def get_adults(self, obj):
+        return obj.adults
+    get_adults.short_description = "Adults"
+
+    def get_children(self, obj):
+        return obj.children
+    get_children.short_description = "Children"
+
+    def get_days(self, obj):
+        return obj.days
+    get_days.short_description = "Days"
+
+    # --- Override save_model for Pesapal deduplication & notifications ---
     def save_model(self, request, obj, form, change):
-        """
-        Save payments for guests safely.
-        """
         super().save_model(request, obj, form, change)
 
         # Deduplicate Pesapal reference
@@ -169,7 +171,7 @@ class PaymentAdmin(admin.ModelAdmin):
                                         .order_by("-created_at")
             duplicates.delete()
 
-        # Send admin email
+        # Notify admin via email
         admin_email = getattr(settings, "ADMIN_EMAIL", None)
         if admin_email:
             subject = f"Payment Update: {obj.status} - {obj.pesapal_reference or 'No Ref'}"
