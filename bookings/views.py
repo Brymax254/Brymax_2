@@ -101,12 +101,21 @@ def send_payment_confirmation_email(payment):
 
 from bookings.forms import GuestCheckoutForm
 # ==========================================================
-# PAYMENT FLOW - PESAPAL
+# PAYMENT FLOW - PESAPAL (LIVE)
 # ==========================================================
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+from .models import Tour, Payment
+from .forms import GuestCheckoutForm
+from .pesapal_utils import create_pesapal_order, normalize_phone_number
+import logging
+
+logger = logging.getLogger(__name__)
+
 def tour_payment(request, tour_id):
     """
     Render payment page for guests only.
-    Handles Pesapal payments.
+    Handles LIVE Pesapal payments.
     """
     tour = get_object_or_404(Tour, id=tour_id)
 
@@ -128,8 +137,10 @@ def tour_payment(request, tour_id):
 
     total_amount = tour.price_per_person * (adults + children)
 
+    redirect_url = None
+
     try:
-        # Create Pesapal order
+        # Create Pesapal order using LIVE credentials
         redirect_url, order_reference, tracking_id = create_pesapal_order(
             order_id=tour.id,
             amount=total_amount,
@@ -138,10 +149,11 @@ def tour_payment(request, tour_id):
             phone=normalize_phone_number(phone),
             first_name=full_name.split()[0] if full_name else "Guest",
             last_name=" ".join(full_name.split()[1:]) if full_name and len(full_name.split()) > 1 else "User",
+            environment="live",  # Ensure live environment is used
         )
 
         if redirect_url:
-            # Save payment for guest
+            # Save payment record for guest
             Payment.objects.create(
                 tour=tour,
                 amount=total_amount,
@@ -161,7 +173,7 @@ def tour_payment(request, tour_id):
                 description=f"Payment for Tour {tour.title}",
             )
         else:
-            redirect_url = None
+            logger.error("Pesapal LIVE redirect URL not returned. Check credentials & endpoint.")
 
     except Exception as e:
         logger.exception("Pesapal payment initialization error: %s", e)
@@ -169,8 +181,9 @@ def tour_payment(request, tour_id):
 
     context = {
         "tour": tour,
+        "form": form,
         "pesapal_iframe_url": redirect_url,
-        "error": None if redirect_url else "Payment service unavailable."
+        "error": None if redirect_url else "Payment service unavailable. Please try again later."
     }
 
     return render(request, "payments/tour_payment.html", context)
