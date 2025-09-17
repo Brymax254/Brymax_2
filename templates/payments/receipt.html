@@ -23,7 +23,15 @@
   <section class="bg-white rounded-lg glassmorphism p-6 mb-6">
     <h2 class="text-xl font-semibold mb-4">Traveler & Booking Details</h2>
     <div class="grid grid-cols-2 gap-4 text-sm">
-      <div><strong>Name:</strong> {{ payment.guest_full_name|default:payment.user.get_full_name }}</div>
+     <div><strong>Name:</strong>
+  {% if payment.guest_full_name %}
+    {{ payment.guest_full_name }}
+  {% elif payment.user %}
+    {{ payment.user.get_full_name }}
+  {% else %}
+    N/A
+  {% endif %}
+</div>
       <div><strong>Email:</strong> {{ payment.guest_email|default:"N/A" }}</div>
       <div><strong>Phone:</strong> {{ payment.guest_phone|default:"N/A" }}</div>
       <div><strong>Travel Date:</strong> {{ payment.travel_date|date:"M d, Y" }}</div>
