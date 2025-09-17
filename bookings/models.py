@@ -575,3 +575,4 @@ class Trip(models.Model):
 
     def __str__(self):
         return f"{self.destination} ({self.status}) - {self.driver.name}"
+

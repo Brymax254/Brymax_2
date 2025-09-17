@@ -23,8 +23,8 @@
     <h2 class="text-xl font-semibold mb-4">Traveler & Booking Details</h2>
     <div class="grid grid-cols-2 gap-4 text-sm">
       <div><strong>Name:</strong> {{ payment.guest_full_name|default:payment.user.get_full_name }}</div>
-      <div><strong>Email:</strong> {{ payment.guest_email|default:payment.user.email }}</div>
-      <div><strong>Phone:</strong> {{ payment.guest_phone|default:payment.user.phone_number }}</div>
+      <div><strong>Email:</strong> {{ payment.guest_email|default:"N/A"}}</div>
+      <div><strong>Phone:</strong> {{ payment.guest_phone|default:"N/A"}}</div>
       <div><strong>Travel Date:</strong> {{ payment.travel_date }}</div>
       <div><strong>Tour:</strong> {{ payment.tour.title }}</div>
       <div><strong>Duration:</strong> {{ payment.days }} days</div>
