@@ -1,10 +1,10 @@
-# ==========================================================
-# DJANGO IMPORTS
-# ==========================================================
+# views.py
+
 import json
-import logging
 import uuid
+import logging
 from decimal import Decimal, InvalidOperation
+
 import requests
 from django.conf import settings
 from django.contrib import messages
@@ -12,71 +12,32 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
-from django.http import JsonResponse, HttpResponse
+from django.db import transaction
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from airport.dashboard import CustomIndexDashboard
-from airport.dashboard import CustomMenu
+from django.views.decorators.http import (
+    require_GET, require_POST, require_http_methods
+)
+from django.views.generic import DetailView
 
-# ==========================================================
-# PROJECT IMPORTS
-# ==========================================================
 from .models import (
-    Tour, Destination, Video, Booking, Payment, ContactMessage, Trip, PaymentStatus
+    Tour, Destination, Video, Booking, Payment,
+    ContactMessage, Trip, PaymentStatus
 )
 from .services import PesaPalService, MpesaSTKPush
-from .utils.pesapal_auth import PesapalAuth
-from .pesapal import create_pesapal_order
+from .pesapal_utils import create_pesapal_order
+from .forms import GuestCheckoutForm
 
 logger = logging.getLogger(__name__)
 
-# ==========================================================
-# FRONTEND PAGES
-# ==========================================================
-def home(request):
-    return render(request, "home.html")
 
+# =============================================================================
+# UTILITIES & DECORATORS
+# =============================================================================
 
-def book_online(request):
-    return render(request, "book_online.html")
-
-
-def nairobi_transfers(request):
-    return render(request, "nairobi_transfers.html")
-
-
-def excursions(request):
-    return render(request, "excursions.html")
-
-
-def tours(request):
-    """Public tours page with all trips, videos, and destinations."""
-    context = {
-        "tours": Tour.objects.filter(is_approved=True, available=True).order_by("-created_at"),
-        "trips": Trip.objects.all().order_by("-created_at"),
-        "videos": Video.objects.all().order_by("-created_at"),
-        "destinations": Destination.objects.all().order_by("-created_at"),
-    }
-    return render(request, "tours.html", context)
-
-
-def contact(request):
-    return render(request, "contact.html")
-
-
-def terms(request):
-    return render(request, "terms.html")
-
-
-def about(request):
-    return render(request, "about.html")
-
-# ==========================================================
-# HELPERS
-# ==========================================================
 def normalize_phone_number(phone: str) -> str | None:
     """Convert phone number to E.164 format (+254...)."""
     if not phone:
@@ -89,397 +50,549 @@ def normalize_phone_number(phone: str) -> str | None:
     return None
 
 
-def send_payment_confirmation_email(payment):
-    """Send email confirmation after successful payment."""
+def send_payment_confirmation_email(payment: Payment) -> None:
+    """Send payment confirmation to guest email."""
     subject = f"Payment Confirmation - {payment.tour.title}"
     message = (
-        f"Dear {payment.user.get_full_name()},\n\n"
-        f"We have received your payment of KES {payment.amount} for {payment.tour.title}.\n"
-        "Thank you for booking with us!"
+        f"Dear {payment.guest_full_name},\n\n"
+        f"We have received your payment of KES {payment.amount_paid} "
+        f"for \"{payment.tour.title}\".\n\n"
+        "Thank you for booking with Safari Adventures Kenya!"
     )
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [payment.user.email])
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [payment.guest_email])
 
-from bookings.forms import GuestCheckoutForm
-# ==========================================================
-# PAYMENT FLOW - PESAPAL (LIVE)
-# ==========================================================
-from django.shortcuts import render, get_object_or_404
-from django.utils import timezone
-from .models import Tour, Payment
-from .forms import GuestCheckoutForm
-from .pesapal_utils import create_pesapal_order, normalize_phone_number
-import logging
 
-logger = logging.getLogger(__name__)
+def driver_required(view_func):
+    """Decorator to ensure user is a logged-in driver."""
+    @login_required
+    def _wrapped(request, *args, **kwargs):
+        if not hasattr(request.user, "driver"):
+            messages.error(request, "You must log in as a driver.")
+            return redirect("driver_login")
+        return view_func(request, *args, **kwargs)
+    return _wrapped
 
+
+# =============================================================================
+# FRONTEND PAGES
+# =============================================================================
+
+def home(request):
+    """Homepage."""
+    return render(request, "home.html")
+
+
+def book_online(request):
+    """Book Online landing page."""
+    return render(request, "book_online.html")
+
+
+def nairobi_transfers(request):
+    """Nairobi Transfers information page."""
+    return render(request, "nairobi_transfers.html")
+
+
+def excursions(request):
+    """Excursions page."""
+    return render(request, "excursions.html")
+
+
+def tours(request):
+    """Public tours listing with trips, videos, and destinations."""
+    context = {
+        "tours":   Tour.objects.filter(is_approved=True, available=True)
+                               .order_by("-created_at"),
+        "trips":   Trip.objects.all().order_by("-created_at"),
+        "videos":  Video.objects.all().order_by("-created_at"),
+        "destinations": Destination.objects.all().order_by("-created_at"),
+    }
+    return render(request, "tours.html", context)
+
+
+def contact(request):
+    """Contact page."""
+    return render(request, "contact.html")
+
+
+def terms(request):
+    """Terms and Conditions page."""
+    return render(request, "terms.html")
+
+
+def about(request):
+    """About Us page."""
+    return render(request, "about.html")
+
+
+# =============================================================================
+# TOUR PAYMENT (PESAPAL)
+# =============================================================================
+
+@require_http_methods(["GET", "POST"])
 def tour_payment(request, tour_id):
     """
-    Render payment page for guests only.
-    Handles LIVE Pesapal payments.
+    Show checkout form on GET; initiate Pesapal order on POST.
     """
     tour = get_object_or_404(Tour, id=tour_id)
 
-    # Always use guest checkout form
-    form = GuestCheckoutForm(request.POST or None)
-
-    if not form.is_valid():
-        # Render form page (first visit or errors)
-        return render(request, "payments/tour_payment.html", {"tour": tour, "form": form})
-
-    # Extract guest data safely
-    full_name = form.cleaned_data.get("full_name")
-    email = form.cleaned_data.get("email")
-    phone = form.cleaned_data.get("phone")
-    adults = form.cleaned_data.get("adults") or 1
-    children = form.cleaned_data.get("children") or 0
-    days = form.cleaned_data.get("days") or 1
-    travel_date = form.cleaned_data.get("travel_date") or timezone.now().date()
-
-    total_amount = tour.price_per_person * (adults + children)
-
-    redirect_url = None
-
-    try:
-        # Create Pesapal order using LIVE credentials
-        redirect_url, order_reference, tracking_id = create_pesapal_order(
-            order_id=tour.id,
-            amount=total_amount,
-            description=f"Payment for Tour {tour.title}",
-            email=email,
-            phone=normalize_phone_number(phone),
-            first_name=full_name.split()[0] if full_name else "Guest",
-            last_name=" ".join(full_name.split()[1:]) if full_name and len(full_name.split()) > 1 else "User",
-            environment="live",  # Ensure live environment is used
-        )
-
-        if redirect_url:
-            # Save payment record for guest
-            Payment.objects.create(
-                tour=tour,
-                amount=total_amount,
-                amount_paid=0,
-                currency="KES",
-                provider="PESAPAL",
-                method="PESAPAL",
-                pesapal_reference=tracking_id,
-                transaction_id=order_reference,
-                guest_full_name=full_name,
-                guest_email=email,
-                guest_phone=phone,
-                adults=adults,
-                children=children,
-                days=days,
-                travel_date=travel_date,
-                description=f"Payment for Tour {tour.title}",
+    if request.method == "POST":
+        form = GuestCheckoutForm(request.POST)
+        if form.is_valid():
+            full_name  = form.cleaned_data["full_name"]
+            email      = form.cleaned_data["email"]
+            phone      = normalize_phone_number(form.cleaned_data["phone"])
+            adults     = form.cleaned_data.get("adults", 1)
+            children   = form.cleaned_data.get("children", 0)
+            travel_date = form.cleaned_data.get(
+                "travel_date", timezone.now().date()
             )
-        else:
-            logger.error("Pesapal LIVE redirect URL not returned. Check credentials & endpoint.")
 
-    except Exception as e:
-        logger.exception("Pesapal payment initialization error: %s", e)
-        redirect_url = None
+            total_amount = tour.price_per_person * (adults + children)
 
-    context = {
-        "tour": tour,
-        "form": form,
-        "pesapal_iframe_url": redirect_url,
-        "error": None if redirect_url else "Payment service unavailable. Please try again later."
-    }
+            with transaction.atomic():
+                payment, created = Payment.objects.get_or_create(
+                    tour=tour,
+                    guest_email=email,
+                    pesapal_reference__isnull=True,
+                    defaults={
+                        "amount": total_amount,
+                        "currency": "KES",
+                        "provider": "PESAPAL",
+                        "status":   PaymentStatus.PENDING,
+                        "guest_full_name": full_name,
+                        "guest_phone":      phone,
+                        "adults":     adults,
+                        "children":   children,
+                        "travel_date": travel_date,
+                        "description": f"Tour {tour.title} booking",
+                    }
+                )
 
-    return render(request, "payments/tour_payment.html", context)
+                if created:
+                    try:
+                        redirect_url, order_ref, tracking_id = create_pesapal_order(
+                            order_id=str(uuid.uuid4()),
+                            amount=total_amount,
+                            description=f"Tour {tour.title}",
+                            email=email,
+                            phone=phone,
+                            first_name=full_name.split()[0],
+                            last_name=" ".join(full_name.split()[1:]) or "Guest",
+                        )
+                        payment.transaction_id   = order_ref
+                        payment.pesapal_reference = tracking_id
+                        payment.save()
+                    except Exception:
+                        logger.exception("Pesapal initialization failed")
+                        messages.error(
+                            request,
+                            "Payment service unavailable. Please try again later."
+                        )
+                        redirect_url = None
+                else:
+                    messages.info(request, "You already have a pending payment.")
+                    redirect_url = None
 
-@csrf_exempt
-def pesapal_callback(request):
+            return render(
+                request,
+                "payments/tour_payment.html",
+                {
+                    "tour": tour,
+                    "form": form,
+                    "pesapal_iframe_url": redirect_url,
+                },
+            )
+
+    else:
+        form = GuestCheckoutForm()
+
+    return render(
+        request, "payments/tour_payment.html", {"tour": tour, "form": form}
+    )
+
+
+@require_GET
+def pesapal_redirect(request):
     """
-    Handles Pesapal browser redirect or IPN callback.
-    Updates Payment status and sends admin email.
+    Handle browser redirect from Pesapal.
+    Update status and redirect to receipt.
     """
-    if request.method != "GET":
-        return HttpResponse("Method not allowed", status=405)
-
     tracking_id = request.GET.get("OrderTrackingId")
-    merchant_ref = request.GET.get("OrderMerchantReference")
-
     if not tracking_id:
-        return HttpResponse("❌ Missing tracking ID.", status=400)
+        return HttpResponse("Missing tracking ID", status=400)
 
-    payment = Payment.objects.filter(pesapal_reference=tracking_id).first() or \
-              Payment.objects.filter(reference=merchant_ref).first()
-
-    if not payment:
-        return HttpResponse("❌ Payment not found.", status=404)
-
-    try:
-        # ✅ Use correct v3 status endpoint (GET with query params)
-        access_token = PesapalAuth.get_token()
-        pesapal_url = "https://pay.pesapal.com/v3/api/Transactions/GetTransactionStatus"
-        headers = {"Authorization": f"Bearer {access_token}"}
-
-        response = requests.get(
-            pesapal_url,
-            params={"orderTrackingId": tracking_id},
-            headers=headers,
-            timeout=10
-        )
-        response.raise_for_status()
-        data = response.json()
-
-        # ✅ Map Pesapal response fields properly
-        live_status = data.get("status", "").upper()
-        confirmation_code = data.get("confirmation_code")
-        payment_method = data.get("payment_method")
-
-        status_map = {
-            "COMPLETED": PaymentStatus.SUCCESS,
-            "FAILED": PaymentStatus.FAILED,
-            "PENDING": PaymentStatus.PENDING,
-            "CANCELLED": PaymentStatus.CANCELLED,
-            "REFUNDED": PaymentStatus.REFUNDED,
-        }
-        new_status = status_map.get(live_status, PaymentStatus.PENDING)
-
-        # ✅ Update payment
-        payment.status = new_status
-        payment.transaction_id = confirmation_code or payment.transaction_id
-        payment.pesapal_reference = tracking_id
-        payment.method = payment_method or payment.method
-        if new_status == PaymentStatus.SUCCESS:
-            payment.amount_paid = data.get("amount", payment.amount)
-            payment.paid_on = timezone.now()
-        payment.updated_at = timezone.now()
-        payment.save()
-
-        # Remove duplicate records
-        Payment.objects.filter(pesapal_reference=tracking_id).exclude(id=payment.id).delete()
-
-        # ✅ Send admin email
-        subject = f"Pesapal Payment Update: {payment.status} - {payment.pesapal_reference}"
-        message = f"""
-Payment Details:
-
-Booking: {payment.booking or '-'}
-Tour: {payment.tour or '-'}
-Amount: {payment.amount} {payment.currency}
-Provider: {payment.provider}
-Status: {payment.status}
-Pesapal Reference: {payment.pesapal_reference}
-Transaction ID: {payment.transaction_id}
-Payment Method: {payment.method}
-Guest Email: {payment.guest_email or '-'}
-Guest Phone: {payment.guest_phone or '-'}
-Description: {payment.description or '-'}
-Created At: {payment.created_at}
-"""
-        send_mail(subject, message,
-                  settings.DEFAULT_FROM_EMAIL,
-                  [settings.ADMIN_EMAIL],
-                  fail_silently=False)
-
-    except Exception as e:
-        logger.exception("Pesapal callback failed: %s", e)
-
-        # ✅ Redirect user straight to receipt page
-    return redirect("receipt", pk=payment.id)
+    payment = get_object_or_404(Payment, pesapal_reference=tracking_id)
+    return _update_pesapal_status_and_redirect(payment)
 
 
 @csrf_exempt
+@require_GET
+def pesapal_health(request):
+    """Pesapal IPN health-check (liveness)."""
+    return HttpResponse("OK", status=200)
+
+
+@csrf_exempt
+@require_POST
 def pesapal_ipn(request):
     """
-    Handle Pesapal Instant Payment Notifications (IPN).
-    - GET: Pesapal may ping the endpoint to check if it's alive.
-    - POST: Pesapal sends actual payment notifications.
-    """
-    if request.method == "GET":
-        return JsonResponse({"success": True, "message": "IPN endpoint is alive"}, status=200)
-
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body.decode("utf-8"))
-            tracking_id = data.get("OrderTrackingId") or data.get("order_tracking_id")
-            merchant_ref = data.get("OrderMerchantReference") or data.get("order_reference")
-            confirmation_code = data.get("PaymentConfirmationCode") or data.get("confirmation_code")
-            payment_method = data.get("PaymentMethod") or data.get("payment_method")
-
-            if not tracking_id or not merchant_ref:
-                return JsonResponse({"success": False, "message": "Missing required parameters"}, status=400)
-
-            # ✅ FIX coming later in Step 2 (use POST instead of GET)
-            headers = {
-                "Authorization": f"Bearer {settings.PESAPAL_API_KEY}",
-                "Content-Type": "application/json"
-            }
-            payload = {"OrderTrackingId": tracking_id, "OrderMerchantReference": merchant_ref}
-
-            response = requests.get(   # ← will update this to POST in the next step
-                "https://www.pesapal.com/API/REST/v3/Transactions/GetTransactionStatus",
-                params=payload, headers=headers, timeout=10
-            )
-            response.raise_for_status()
-            status_data = response.json()
-            status = status_data.get("Status", "").upper()
-
-            # Update Payment
-            payment = Payment.objects.filter(reference=merchant_ref, provider="PESAPAL").first()
-            if payment:
-                payment.status = status
-                payment.transaction_id = confirmation_code or tracking_id
-                payment.method = payment_method or payment.method
-                if status == "COMPLETED":
-                    payment.amount_paid = status_data.get("Amount", payment.amount)
-                    payment.paid_on = timezone.now()
-                payment.save()
-
-            # Update Booking if exists
-            booking = Booking.objects.filter(reference=merchant_ref).first()
-            if booking:
-                booking.status = status
-                booking.transaction_id = confirmation_code or tracking_id
-                booking.save()
-
-            return JsonResponse({"success": True, "message": "IPN processed"})
-
-        except Exception as e:
-            logger.exception("Pesapal IPN error: %s", e)
-            return JsonResponse({"success": False, "message": "Server error"}, status=500)
-
-    return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
-
-# ==========================================================
-# MPESA PAYMENT
-# ==========================================================
-# ==========================================================
-# MPESA PAYMENT
-# ==========================================================
-@csrf_exempt
-@login_required
-@require_http_methods(["POST"])
-def mpesa_payment(request, tour_id):
-    """
-    Initiates Mpesa STK Push payment for a given tour.
+    Handle Pesapal server-to-server IPN notifications.
+    Expects JSON with OrderTrackingId.
     """
     try:
-        data = json.loads(request.body)
-        phone_number = normalize_phone_number(data.get("phone_number"))
-        if not phone_number:
-            return JsonResponse({"success": False, "message": "Invalid phone number"}, status=400)
+        payload = json.loads(request.body)
+        tracking_id = payload.get("OrderTrackingId") or payload.get("order_tracking_id")
+        if not tracking_id:
+            return HttpResponse("Missing tracking ID", status=400)
+
+        payment = get_object_or_404(Payment, pesapal_reference=tracking_id)
+        return _update_pesapal_status_and_redirect(payment)
+
+    except Exception as exc:
+        logger.exception("Pesapal IPN error: %s", exc)
+        return HttpResponse("Server error", status=500)
+
+
+def _update_pesapal_status_and_redirect(payment: Payment):
+    """
+    Shared logic to call Pesapal status API,
+    update Payment model, send email, and redirect.
+    """
+    try:
+        access_token = PesaPalService.get_token()
+        res = requests.get(
+            f"{settings.PESAPAL_BASE_URL}/v3/api/Transactions/GetTransactionStatus",
+            params={"orderTrackingId": payment.pesapal_reference},
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10,
+        )
+        res.raise_for_status()
+        data = res.json()
+
+        STATUS_MAP = {
+            "COMPLETED": PaymentStatus.SUCCESS,
+            "FAILED":    PaymentStatus.FAILED,
+            "PENDING":   PaymentStatus.PENDING,
+            "CANCELLED": PaymentStatus.CANCELLED,
+            "REFUNDED":  PaymentStatus.REFUNDED,
+        }
+        live_status = data.get("status", "").upper()
+        new_status  = STATUS_MAP.get(live_status, PaymentStatus.PENDING)
+
+        with transaction.atomic():
+            if payment.status != new_status:
+                payment.status = new_status
+                if new_status == PaymentStatus.SUCCESS:
+                    payment.amount_paid = Decimal(data.get("amount", payment.amount))
+                    payment.paid_on     = timezone.now()
+                    if not payment.confirmation_sent:
+                        send_payment_confirmation_email(payment)
+                        payment.confirmation_sent = True
+
+                payment.transaction_id = data.get("confirmation_code", payment.transaction_id)
+                payment.method         = data.get("payment_method", payment.method)
+                payment.updated_at     = timezone.now()
+                payment.save()
+
+        return redirect("receipt", pk=payment.id)
+
+    except Exception as exc:
+        logger.exception("Error updating Pesapal status: %s", exc)
+        return redirect("receipt", pk=payment.id)
+
+
+# =============================================================================
+# MPESA STK PUSH PAYMENT
+# =============================================================================
+
+@csrf_exempt
+@login_required
+@require_POST
+def mpesa_payment(request, tour_id):
+    """
+    Initiate Mpesa STK Push payment for a tour.
+    """
+    try:
+        body = json.loads(request.body)
+        phone = normalize_phone_number(body.get("phone_number"))
+        if not phone:
+            return JsonResponse(
+                {"success": False, "message": "Invalid phone number"},
+                status=400,
+            )
 
         tour = get_object_or_404(Tour, id=tour_id)
         mpesa = MpesaSTKPush()
-
         response = mpesa.stk_push(
-            phone_number=phone_number,
+            phone_number=phone,
             amount=tour.price_per_person,
             account_reference=f"Tour-{tour.id}",
             transaction_desc=f"Payment for Tour {tour.title}",
         )
 
-        if response.get("CheckoutRequestID"):
-            Payment.objects.create(
-                user=request.user,
-                tour=tour,
-                amount=tour.price_per_person,
-                currency="KES",
-                provider="MPESA",
-                status=PaymentStatus.PENDING,
-                transaction_id=response["CheckoutRequestID"],  # Safely store Mpesa checkout ref
-                description=f"Payment for Tour {tour.title}",
-                method="MPESA",
-                travel_date=timezone.now().date(),  # fallback travel date
-            )
+        checkout_id = response.get("CheckoutRequestID")
+        if not checkout_id:
             return JsonResponse(
-                {"success": True, "message": "STK Push sent", "response": response},
-                status=200
+                {"success": False, "message": "STK Push initiation failed"},
+                status=500,
             )
-        else:
-            return JsonResponse({"success": False, "message": "Failed to initiate STK Push"}, status=500)
 
-    except Exception as e:
-        logger.exception("Mpesa STK Push error: %s", e)
-        return JsonResponse({"success": False, "message": "Error processing payment"}, status=500)
+        payment, _ = Payment.objects.get_or_create(
+            user=request.user,
+            tour=tour,
+            transaction_id=checkout_id,
+            provider="MPESA",
+            defaults={
+                "amount": tour.price_per_person,
+                "currency": "KES",
+                "status":   PaymentStatus.PENDING,
+                "method":   "MPESA",
+                "description": f"Tour {tour.title}",
+                "travel_date": timezone.now().date(),
+            },
+        )
 
-# ==========================================================
-# PAYMENT PAGES
-# ==========================================================
+        return JsonResponse(
+            {"success": True, "message": "STK Push sent", "checkout_id": checkout_id}
+        )
+
+    except Exception as exc:
+        logger.exception("Mpesa STK Push error: %s", exc)
+        return JsonResponse(
+            {"success": False, "message": "Error processing payment"},
+            status=500,
+        )
+
+
+# =============================================================================
+# PAYMENT RESULT PAGES
+# =============================================================================
+
+@require_GET
 def payment_success(request):
+    """Render payment success page."""
     return render(request, "payments/success.html")
 
 
+@require_GET
 def payment_failed(request):
+    """Render payment failed page."""
     return render(request, "payments/failed.html")
 
 
-# ==========================================================
-# DRIVER DASHBOARD & TOUR MANAGEMENT
-# ==========================================================
-@login_required
-def driver_dashboard(request):
-    if not hasattr(request.user, "driver"):
-        messages.error(request, "You must log in as a driver.")
-        return redirect("driver_login")
+# =============================================================================
+# GUEST CHECKOUT & SESSION-BASED PESAPAL
+# =============================================================================
 
-    driver = request.user.driver
+@require_POST
+def guest_checkout(request, tour_id):
+    """
+    Save provisional Booking & Payment for guest, then redirect to receipt.
+    """
+    tour = get_object_or_404(Tour, id=tour_id)
+    try:
+        data       = request.POST
+        full_name  = data["full_name"]
+        email      = data["email"]
+        phone      = normalize_phone_number(data["phone"])
+        adults     = int(data.get("adults", 1))
+        children   = int(data.get("children", 0))
+        travel_date = data.get("travel_date", timezone.now().date())
 
-    if request.method == "POST":
-        if "new_trip" in request.POST:
-            Trip.objects.create(
-                driver=driver,
-                destination=request.POST.get("destination"),
-                date=request.POST.get("date"),
-                earnings=request.POST.get("earnings") or 0,
-                status=request.POST.get("status") or "Scheduled",
+        total = tour.price_per_person * (adults + children)
+
+        payment = Payment.objects.create(
+            tour=tour,
+            guest_full_name=full_name,
+            guest_email=email,
+            guest_phone=phone,
+            adults=adults,
+            children=children,
+            travel_date=travel_date,
+            amount=total,
+            amount_paid=0,
+            currency="KES",
+            provider="GUEST",
+            status=PaymentStatus.PENDING,
+            description=f"Tour {tour.title} (Guest)",
+        )
+
+        return redirect("receipt", pk=payment.pk)
+
+    except (KeyError, InvalidOperation) as exc:
+        logger.exception("Guest checkout error: %s", exc)
+        return HttpResponse(status=400)
+
+
+@csrf_exempt
+@require_POST
+def process_guest_info(request):
+    """Store guest email & phone in session for AJAX checkout."""
+    email = request.POST.get("email")
+    phone = request.POST.get("phone")
+    if not email or not phone:
+        return JsonResponse(
+            {"success": False, "message": "Email and phone required."},
+            status=400,
+        )
+    request.session["guest_email"] = email
+    request.session["guest_phone"] = phone
+    return JsonResponse({"success": True})
+
+
+@csrf_exempt
+@require_POST
+def create_guest_pesapal_order(request):
+    """Initiate Pesapal order for a guest via AJAX."""
+    try:
+        payload     = json.loads(request.body)
+        amount      = payload["amount"]
+        description = payload.get("description", "Tour booking")
+        email       = request.session.get("guest_email")
+        phone       = normalize_phone_number(request.session.get("guest_phone"))
+
+        if not email or not phone:
+            return JsonResponse(
+                {"success": False, "message": "Guest info missing."},
+                status=400,
             )
-            messages.success(request, "Trip added successfully.")
-            return redirect("driver_dashboard")
 
-        if "new_tour" in request.POST:
-            return add_tour(request)
+        order_id = f"GUEST-{uuid.uuid4().hex[:10]}"
+        redirect_url, merchant_ref, tracking_id = create_pesapal_order(
+            order_id=order_id,
+            amount=amount,
+            description=description,
+            email=email,
+            phone=phone,
+            first_name="Guest",
+            last_name="User",
+        )
 
+        request.session.update({
+            "guest_order_tracking_id": tracking_id,
+            "guest_order_merchant_ref": merchant_ref,
+        })
+
+        return JsonResponse(
+            {"success": True, "redirect_url": redirect_url}
+        )
+
+    except Exception as exc:
+        logger.exception("Guest Pesapal order creation error: %s", exc)
+        return JsonResponse(
+            {"success": False, "message": str(exc)},
+            status=500,
+        )
+
+
+@csrf_exempt
+@require_POST
+def guest_pesapal_callback(request):
+    """
+    AJAX endpoint to update guest payment status.
+    Expects JSON: {order_tracking_id, status}.
+    """
+    try:
+        payload     = json.loads(request.body)
+        tracking_id = payload.get("order_tracking_id")
+        status      = payload.get("status", "").upper()
+
+        if tracking_id != request.session.get("guest_order_tracking_id"):
+            return JsonResponse(
+                {"success": False, "message": "Order not found"},
+                status=404,
+            )
+
+        request.session["guest_payment_status"] = status
+        return JsonResponse({"success": True})
+
+    except Exception as exc:
+        logger.exception("Guest Pesapal callback error: %s", exc)
+        return JsonResponse(
+            {"success": False, "message": "Server error"},
+            status=500,
+        )
+
+
+@require_GET
+def guest_payment_success(request):
+    """
+    Render guest payment result based on session status.
+    """
+    status   = request.session.get("guest_payment_status", "")
+    template = (
+        "payments/guest_success.html"
+        if status == "COMPLETED"
+        else "payments/guest_failed.html"
+    )
+    return render(request, template)
+
+
+# =============================================================================
+# DRIVER DASHBOARD & MANAGEMENT
+# =============================================================================
+
+@driver_required
+@require_GET
+def driver_dashboard(request):
+    driver = request.user.driver
     context = {
-        "driver": driver,
-        "tripHistory": Trip.objects.filter(driver=driver).order_by("-date"),
-        "tours": Tour.objects.filter(created_by=request.user).order_by("-created_at"),
-        "bookings": Booking.objects.filter(driver=driver).select_related("customer", "destination"),
-        "payments": Payment.objects.filter(booking__driver=driver).select_related("booking", "booking__customer"),
-        "messages": ContactMessage.objects.none() if not request.user.is_staff else ContactMessage.objects.all(),
+        "driver":      driver,
+        "trip_history": Trip.objects.filter(driver=driver).order_by("-date"),
+        "tours":        Tour.objects.filter(created_by=request.user).order_by("-created_at"),
+        "bookings":     Booking.objects.filter(driver=driver)
+                                         .select_related("customer", "destination"),
+        "payments":     Payment.objects.filter(booking__driver=driver)
+                                         .select_related("booking", "booking__customer"),
+        "messages":     ContactMessage.objects.all() if request.user.is_staff else ContactMessage.objects.none(),
     }
     return render(request, "driver_dashboard.html", context)
 
 
-@login_required
-def add_tour(request):
-    if not hasattr(request.user, "driver"):
-        messages.error(request, "You must log in as a driver.")
-        return redirect("driver_login")
+@driver_required
+@require_POST
+def create_trip(request):
+    Trip.objects.create(
+        driver= request.user.driver,
+        destination=request.POST.get("destination"),
+        date=request.POST.get("date"),
+        earnings=request.POST.get("earnings") or 0,
+        status=request.POST.get("status") or "Scheduled",
+    )
+    messages.success(request, "Trip added successfully.")
+    return redirect("driver_dashboard")
 
-    if request.method == "POST":
+
+@driver_required
+@require_POST
+def create_tour(request):
+    try:
         title = request.POST.get("title", "").strip() or "Untitled Tour"
-        description = request.POST.get("description", "").strip()
-        itinerary = request.POST.get("itinerary", "").strip()
-        duration_days = max(1, int(request.POST.get("duration_days", "1")))
-        price_per_person = Decimal(request.POST.get("price_per_person", "0.00"))
-
-        tour = Tour.objects.create(
+        price = Decimal(request.POST.get("price_per_person", "0.00"))
+        tour  = Tour.objects.create(
             title=title,
-            description=description,
-            itinerary=itinerary,
-            duration_days=duration_days,
-            price_per_person=price_per_person,
+            description=request.POST.get("description", ""),
+            itinerary=request.POST.get("itinerary", ""),
+            duration_days=max(1, int(request.POST.get("duration_days", 1))),
+            price_per_person=price,
             available=True,
             created_by=request.user,
             is_approved=True,
         )
-
         if "image" in request.FILES:
             tour.image = request.FILES["image"]
         if "video" in request.FILES:
             tour.video = request.FILES["video"]
         tour.save()
-        messages.success(request, f'Tour "{tour.title}" added successfully ✅')
-
+        messages.success(request, f'Tour "{tour.title}" added successfully.')
+    except Exception as exc:
+        logger.exception("Error creating tour: %s", exc)
+        messages.error(request, "Failed to add tour.")
     return redirect("driver_dashboard")
 
 
-@login_required
+@driver_required
+@require_http_methods(["GET", "POST"])
 def edit_tour(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
     if tour.created_by != request.user and not request.user.is_staff:
@@ -487,10 +600,10 @@ def edit_tour(request, tour_id):
         return redirect("driver_dashboard")
 
     if request.method == "POST":
-        tour.title = request.POST.get("title", tour.title)
-        tour.description = request.POST.get("description", tour.description)
-        tour.itinerary = request.POST.get("itinerary", tour.itinerary)
-        tour.duration_days = int(request.POST.get("duration_days", tour.duration_days))
+        tour.title            = request.POST.get("title", tour.title)
+        tour.description      = request.POST.get("description", tour.description)
+        tour.itinerary        = request.POST.get("itinerary", tour.itinerary)
+        tour.duration_days    = int(request.POST.get("duration_days", tour.duration_days))
         tour.price_per_person = Decimal(request.POST.get("price_per_person", tour.price_per_person))
         if "image" in request.FILES:
             tour.image = request.FILES["image"]
@@ -503,261 +616,119 @@ def edit_tour(request, tour_id):
     return render(request, "edit_tour.html", {"tour": tour})
 
 
-@login_required
+@driver_required
+@require_POST
 def delete_tour(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
     if tour.created_by != request.user and not request.user.is_staff:
         messages.error(request, "Permission denied.")
-        return redirect("driver_dashboard")
-    tour.delete()
-    messages.success(request, "Tour deleted.")
+    else:
+        tour.delete()
+        messages.success(request, "Tour deleted.")
     return redirect("driver_dashboard")
 
 
-# ==========================================================
-# DRIVER LOGIN
-# ==========================================================
+# =============================================================================
+# DRIVER AUTHENTICATION
+# =============================================================================
+
+@require_http_methods(["GET", "POST"])
 def driver_login(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-
-        if user:
-            if hasattr(user, "driver"):
-                login(request, user)
-                return redirect("driver_dashboard")
-            messages.error(request, "This account is not linked to a driver.")
-        else:
-            messages.error(request, "Invalid username or password.")
-
+        user = authenticate(
+            request,
+            username=request.POST.get("username"),
+            password=request.POST.get("password"),
+        )
+        if user and hasattr(user, "driver"):
+            login(request, user)
+            return redirect("driver_dashboard")
+        messages.error(request, "Invalid credentials or not a driver.")
     return render(request, "driver_login.html")
 
 
-# ==========================================================
-# STAFF / DEBUG UTILITIES
-# ==========================================================
+# =============================================================================
+# STAFF UTILITIES & RECEIPTS
+# =============================================================================
+
 @staff_member_required
-def test_pesapal_auth(request):
-    """Verify Pesapal token retrieval (staff only)."""
+@require_POST
+def register_pesapal_ipn(request):
+    """
+    One-off endpoint to register IPN URL with Pesapal.
+    Consider migrating to a management command after initial run.
+    """
     try:
-        token = PesapalAuth.get_token()
-        masked = token[:6] + "..." + token[-6:] if len(token) > 12 else "*****"
-        return JsonResponse({"status": "success", "token": masked})
+        auth_res = requests.post(
+            f"{settings.PESAPAL_BASE_URL}/api/Auth/RequestToken",
+            json={
+                "consumer_key": settings.PESAPAL_CONSUMER_KEY,
+                "consumer_secret": settings.PESAPAL_CONSUMER_SECRET,
+            },
+            timeout=15,
+        )
+        auth_res.raise_for_status()
+        token = auth_res.json().get("token")
+
+        ipn_url = request.build_absolute_uri(reverse("pesapal_ipn"))
+        reg_res = requests.post(
+            f"{settings.PESAPAL_BASE_URL}/api/URLSetup/RegisterIPN",
+            json={"url": ipn_url, "ipn_notification_type": "GET"},
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=10,
+        )
+        reg_res.raise_for_status()
+        ipn_id = reg_res.json().get("ipn_id")
+
+        return JsonResponse({"success": True, "ipn_id": ipn_id})
     except Exception as exc:
-        return JsonResponse({"status": "error", "message": str(exc)}, status=500)
+        logger.exception("IPN registration failed: %s", exc)
+        return JsonResponse({"success": False, "message": str(exc)}, status=500)
 
 
-# ==========================================================
-# GUEST CHECKOUT & SESSION PESAPAL
-# ==========================================================
-def guest_checkout(request, tour_id):
+class ReceiptView(DetailView):
     """
-    Handle guest form submission, save booking details,
-    and create a Payment record for receipt.
+    Shows the receipt page for a Payment.
+    Staff users see all; guests/users see only their own.
     """
-    tour = get_object_or_404(Tour, id=tour_id)
+    model = Payment
+    template_name = "payments/receipt.html"
+    context_object_name = "payment"
 
-    if request.method == "POST":
-        # Capture guest form data
-        full_name = request.POST.get("full_name")
-        email = request.POST.get("email")
-        phone = f"{request.POST.get('country_code')}{request.POST.get('phone')}"
-        adults = int(request.POST.get("adults", 0))
-        children = int(request.POST.get("children", 0))
-        days = int(request.POST.get("days", 1))
-        travel_date = request.POST.get("travel_date")
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if not self.request.user.is_staff:
+            return (
+                qs.filter(guest_email=self.request.session.get("guest_email"))
+                | qs.filter(user=self.request.user)
+            )
+        return qs
 
-        # Calculate costs
-        adult_cost = adults * tour.price
-        child_cost = children * (tour.price * Decimal("0.5"))  # Example: half price for kids
-        total = adult_cost + child_cost
-
-        # Save Payment object
-        payment = Payment.objects.create(
-            tour=tour,
-            guest_full_name=full_name,
-            guest_email=email,
-            guest_phone=phone,
-            adults=adults,
-            children=children,
-            days=days,
-            travel_date=travel_date,
-            amount_paid=total,
-        )
-
-        # Redirect to receipt page
-        return redirect("receipt", pk=payment.pk)
-
-    return HttpResponse(status=405)  # Method not allowed
-
-@csrf_exempt
-def process_guest_info(request):
-    """Store guest email and phone in session."""
-    if request.method == "POST":
-        email = request.POST.get("email")
-        phone = request.POST.get("phone")
-        if not email or not phone:
-            return JsonResponse({"success": False, "message": "Email and phone are required."})
-        request.session["guest_email"] = email
-        request.session["guest_phone"] = phone
-        return JsonResponse({"success": True})
-    return JsonResponse({"success": False, "message": "Invalid request method."})
-
-
-@csrf_exempt
-def create_guest_pesapal_order(request):
-    """Create Pesapal order for guests."""
-    if request.method != "POST":
-        return JsonResponse({"success": False, "message": "Invalid request method."})
-
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-        amount = data.get("amount")
-        description = data.get("description", "Payment for tour/booking")
-        email = request.session.get("guest_email")
-        phone = request.session.get("guest_phone")
-
-        if not email or not phone:
-            return JsonResponse({"success": False, "message": "Missing guest email or phone."})
-
-        order_id = f"GUEST-{uuid.uuid4().hex[:10]}"
-        redirect_url, unique_code, order_tracking_id = create_pesapal_order(
-            order_id=order_id,
-            amount=amount,
-            description=description,
-            email=email,
-            phone=normalize_phone_number(phone),
-            first_name="Guest",
-            last_name="User",
-        )
-
-        request.session["guest_order_tracking_id"] = order_tracking_id
-        request.session["guest_order_merchant_ref"] = unique_code
-        request.session["guest_order_amount"] = amount
-        request.session["guest_order_description"] = description
-
-        return JsonResponse({"success": True, "redirect_url": redirect_url})
-
-    except Exception as e:
-        logger.exception("Guest Pesapal order creation error: %s", e)
-        return JsonResponse({"success": False, "message": str(e)})
-
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def guest_pesapal_callback(request):
-    """Update guest payment status."""
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-        tracking_id = data.get("order_tracking_id")
-        status = data.get("status")
-
-        if tracking_id != request.session.get("guest_order_tracking_id"):
-            return JsonResponse({"success": False, "message": "Order not found"}, status=404)
-
-        request.session["guest_payment_status"] = status.upper()
-        return JsonResponse({"success": True, "message": "Guest payment updated"})
-
-    except Exception as e:
-        logger.exception("Guest Pesapal callback error: %s", e)
-        return JsonResponse({"success": False, "message": "Server error"}, status=500)
-
-
-def guest_payment_success(request):
-    """Render guest payment success page."""
-    status = request.session.get("guest_payment_status")
-    return render(request, "payments/guest_success.html" if status == "COMPLETED" else "payments/guest_failed.html")
-
-
-def guest_payment_failed(request):
-    """Render guest payment failure page."""
-    return render(request, "payments/guest_failed.html")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        p = self.object
+        context.update({
+            "days":             p.days or p.tour.duration_days,
+            "adults":           p.adults,
+            "children":         p.children,
+            "amount_paid":      p.amount_paid or p.amount,
+            "guest_full_name":  p.guest_full_name or "Guest",
+            "guest_email":      p.guest_email or "N/A",
+            "guest_phone":      p.guest_phone or "N/A",
+            "reference":        p.pesapal_reference or p.transaction_id,
+        })
+        return context
 
 
 @staff_member_required
 def modern_admin_dashboard(request):
     """
-    Renders the modern custom admin dashboard at /admin/brymax/
-    Only accessible by staff users.
+    Custom modern admin dashboard at /brymax-admin/.
+    Accessible to staff users only.
     """
     return render(request, "admin/brymax_dashboard.html")
 
-
-import requests, logging
-from django.conf import settings
-from django.http import JsonResponse
-from django.urls import reverse
-from django.contrib.admin.views.decorators import staff_member_required
-
-logger = logging.getLogger(__name__)
-
-@staff_member_required
-def register_pesapal_ipn(request):
-    """
-    Register our IPN URL with Pesapal and return the IPN ID.
-    Run this once and copy IPN_ID to settings.
-    """
-    try:
-        # Get access token
-        auth_url = f"{settings.PESAPAL_BASE_URL}/api/Auth/RequestToken"
-        auth_payload = {
-            "consumer_key": settings.PESAPAL_CONSUMER_KEY,
-            "consumer_secret": settings.PESAPAL_CONSUMER_SECRET,
-        }
-        token_res = requests.post(auth_url, json=auth_payload, timeout=15)
-        token_res.raise_for_status()
-        token_json = token_res.json()
-        access_token = token_json.get("token") or token_json.get("access_token")
-
-        # Build IPN registration request
-        ipn_url = request.build_absolute_uri(reverse("pesapal_ipn"))
-        payload = {"url": ipn_url, "ipn_notification_type": "GET"}
-        headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-
-        res = requests.post(f"{settings.PESAPAL_BASE_URL}/api/URLSetup/RegisterIPN",
-                            json=payload, headers=headers, timeout=10)
-        res.raise_for_status()
-        data = res.json()
-
-        ipn_id = data.get("ipn_id")
-        return JsonResponse({"success": True, "ipn_id": ipn_id, "data": data})
-
-    except Exception as e:
-        logger.exception("IPN registration failed: %s", e)
-        return JsonResponse({"success": False, "message": str(e)}, status=500)
-from django.views.generic import DetailView
-from django.shortcuts import get_object_or_404
-from bookings.models import Payment
-
-class ReceiptView(DetailView):
-    model = Payment
-    template_name = 'payments/receipt.html'
-    context_object_name = 'payment'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        payment = self.object
-
-        # Linked booking if exists
-        booking = getattr(payment, 'booking', None)
-
-        # Duration (days) – prefer booking, fallback to payment or tour
-        context["days"] = getattr(booking, "days", None) or getattr(payment, "days", None) or getattr(payment.tour, "duration", 0) or 0
-
-        # Number of adults and children – prefer booking, fallback to payment
-        context["adults"] = getattr(booking, "adults", None) or getattr(payment, "adults", 0)
-        context["children"] = getattr(booking, "children", None) or getattr(payment, "children", 0)
-
-        # Amount paid – prefer recorded payment amount
-        context["amount_paid"] = getattr(payment, "amount_paid", None) or getattr(payment, "amount", 0)
-
-        # Guest information – always use guest fields
-        context["guest_full_name"] = payment.guest_full_name or "Guest"
-        context["guest_email"] = payment.guest_email or "N/A"
-        context["guest_phone"] = payment.guest_phone or "N/A"
-
-        # Reference for template
-        context["reference"] = getattr(payment, "pesapal_reference", getattr(payment, "reference", ""))
-
-        return context
+@require_GET
+def guest_payment_failed(request):
+    """Render guest payment failure page."""
+    return render(request, "payments/guest_failed.html")

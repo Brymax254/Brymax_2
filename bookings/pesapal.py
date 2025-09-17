@@ -27,7 +27,6 @@ def normalize_phone_number(phone: str) -> str:
         phone = "+254" + phone
     return phone
 
-
 def create_pesapal_order(
     order_id,
     amount,
@@ -38,82 +37,77 @@ def create_pesapal_order(
     last_name,
 ):
     """
-    Create a Pesapal order and return redirect URL, unique code, and order tracking ID.
+    Create a Pesapal order and return (redirect_url, merchant_ref, order_tracking_id).
 
-    Parameters:
-        order_id (str): Your internal order/ticket ID
-        amount (Decimal/str): Payment amount
-        description (str): Short description of the order
-        email (str): User/guest email
-        phone (str): User/guest phone
-        first_name (str): First name of the payer
-        last_name (str): Last name of the payer
-
-    Returns:
-        (redirect_url, unique_code, order_tracking_id)
+    Relies on these settings:
+      - PESAPAL_BASE_URL        e.g. "https://pay.pesapal.com"
+      - PESAPAL_CONSUMER_KEY
+      - PESAPAL_CONSUMER_SECRET
+      - PESAPAL_IPN_URL         your callback endpoint
+      - PESAPAL_NOTIFICATION_ID configured in your .env
     """
 
-    # 1. Request authentication token
-    auth_url = f"{BASE_URL}/api/Auth/RequestToken"
+    base_url = settings.PESAPAL_BASE_URL.rstrip("/")
+    token_url = f"{base_url}/api/Auth/RequestToken"
+
+    # 1) Authenticate
     auth_payload = {
-        "consumer_key": settings.PESAPAL_CONSUMER_KEY,
+        "consumer_key":    settings.PESAPAL_CONSUMER_KEY,
         "consumer_secret": settings.PESAPAL_CONSUMER_SECRET,
     }
-
     try:
-        token_res = requests.post(auth_url, json=auth_payload, timeout=15)
-        token_res.raise_for_status()
-        token_json = token_res.json()
+        r = requests.post(token_url, json=auth_payload, timeout=15)
+        r.raise_for_status()
+        token_data = r.json()
     except Exception as e:
-        logger.error("Pesapal Auth failed: %s", e)
+        logger.error("Pesapal Auth failed: %s", e, exc_info=True)
         raise
 
-    access_token = token_json.get("token") or token_json.get("access_token")
+    access_token = token_data.get("token") or token_data.get("access_token")
     if not access_token:
-        raise ValueError(f"Invalid Pesapal token response: {token_json}")
+        raise ValueError(f"Invalid auth token response: {token_data}")
 
-    # 2. Generate unique request ID
-    unique_code = f"{order_id}-{uuid.uuid4().hex[:8]}"
-
-    # 3. Build order payload
-    order_url = f"{BASE_URL}/api/Transactions/SubmitOrderRequest"
-    headers = {
+    # 2) Build order
+    merchant_ref    = f"{order_id}-{uuid.uuid4().hex[:8]}"
+    order_url       = f"{base_url}/api/Transactions/SubmitOrderRequest"
+    headers         = {
         "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json",
+        "Content-Type":  "application/json",
     }
     order_payload = {
-        "id": unique_code,
-        "currency": "KES",
-        "amount": str(amount),
-        "description": description,
-        "callback_url": settings.PESAPAL_CALLBACK_URL,
-        "notification_id": settings.PESAPAL_NOTIFICATION_ID,
+        "id":               merchant_ref,
+        "currency":         "KES",
+        "amount":           str(amount),
+        "description":      description,
+        "callback_url":     settings.PESAPAL_IPN_URL,
+        "notification_id":  settings.PESAPAL_NOTIFICATION_ID,
         "billing_address": {
             "email_address": email or "guest@brymax.xyz",
-            "phone_number": normalize_phone_number(phone),
-            "first_name": first_name or "Guest",
-            "last_name": last_name or "User",
-            "country_code": "KE",
+            "phone_number":  normalize_phone_number(phone) or phone,
+            "first_name":    first_name or "Guest",
+            "last_name":     last_name or "User",
+            "country_code":  "KE",
         },
     }
 
-    # 4. Submit order
+    logger.debug("Submitting Pesapal order payload: %s", order_payload)
+
+    # 3) Submit order
     try:
-        order_res = requests.post(
-            order_url, json=order_payload, headers=headers, timeout=15
-        )
-        order_res.raise_for_status()
-        order_data = order_res.json()
+        r2 = requests.post(order_url, json=order_payload, headers=headers, timeout=15)
+        r2.raise_for_status()
+        order_data = r2.json()
     except Exception as e:
-        logger.error("Pesapal order creation failed: %s", e)
+        logger.error("Pesapal order creation failed: %s", e, exc_info=True)
         raise
 
-    redirect_url = order_data.get("redirect_url")
-    order_tracking_id = order_data.get("order_tracking_id")
+    # 4) Extract redirect URL and tracking ID
+    # handle snake_case or CamelCase keys
+    redirect_url       = order_data.get("redirect_url")       or order_data.get("RedirectURL")
+    order_tracking_id  = order_data.get("order_tracking_id")  or order_data.get("OrderTrackingId")
+    logger.info("Pesapal order response: %s", order_data)
 
     if not redirect_url or not order_tracking_id:
-        raise ValueError(f"Pesapal response invalid: {order_data}")
+        raise ValueError(f"Invalid Pesapal response: {order_data}")
 
-    logger.info("Pesapal order created: %s", order_data)
-
-    return redirect_url, unique_code, order_tracking_id
+    return redirect_url, merchant_ref, order_tracking_id
