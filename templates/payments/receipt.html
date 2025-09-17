@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block content %}
 {% load static %}
+{% block content %}
 
 <main class="max-w-3xl mx-auto p-8 bg-gray-50">
 
@@ -11,9 +11,11 @@
 
   <!-- Hero Image -->
   <div class="mb-6 rounded-lg overflow-hidden shadow-lg">
-    <img src="{{ payment.tour.hero_image.url }}"
-         alt="{{ payment.tour.title }}"
-         class="w-full h-64 object-cover">
+    {% if payment.tour.hero_image %}
+      <img src="{{ payment.tour.hero_image.url }}"
+           alt="{{ payment.tour.title }}"
+           class="w-full h-64 object-cover">
+    {% endif %}
   </div>
 
   <!-- Traveler & Booking Info -->
@@ -53,7 +55,7 @@
       </tr>
     </table>
     <p class="mt-2 text-xs text-gray-500">
-      Reference: {{ payment.pesapal_reference or payment.reference }}
+      Reference: {{ payment.pesapal_reference|default:payment.reference }}
     </p>
   </section>
 
