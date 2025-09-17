@@ -197,6 +197,13 @@ class Payment(models.Model):
     )
 
     # --------------------
+    # Guest booking details
+    # --------------------
+    adults = models.PositiveIntegerField(default=1, help_text="Number of adults.")
+    children = models.PositiveIntegerField(default=0, help_text="Number of children.")
+    days = models.PositiveIntegerField(default=1, help_text="Number of travel days.")
+
+    # --------------------
     # Booking context
     # --------------------
     booking = models.OneToOneField(

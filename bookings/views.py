@@ -102,7 +102,7 @@ def send_payment_confirmation_email(payment):
 # ==========================================================
 # PAYMENT FLOW - PESAPAL
 # ==========================================================
-def tour_payment(request, tour_id):
+def tour_payment(request, tour_id, adults=None, children=None, form=None):
     """
     Render payment page for logged-in users or redirect guests to guest checkout.
     Handles Pesapal payments.
@@ -110,37 +110,55 @@ def tour_payment(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
 
     if not request.user.is_authenticated:
+        # Redirect guests to guest checkout
         return redirect("guest_checkout", tour_id=tour.id)
+
+    # Default traveler info
+    num_adults = adults or (form.cleaned_data.get("adults") if form else 1)
+    num_children = children or (form.cleaned_data.get("children") if form else 0)
+    travel_days = form.cleaned_data.get("days") if form else 1
+    travel_date = form.cleaned_data.get("travel_date") if form else timezone.now().date()
+    guest_name = form.cleaned_data.get("full_name") if form else request.user.get_full_name()
+    guest_email = form.cleaned_data.get("email") if form else request.user.email
+    guest_phone = form.cleaned_data.get("phone") if form else getattr(request.user, "phone", "0700000000")
 
     context = {"tour": tour, "pesapal_iframe_url": None, "error": None}
 
     try:
-        # Build callback URL
+        # Build callback URL for Pesapal
         callback_url = request.build_absolute_uri(reverse("pesapal_callback"))
+
+        total_amount = tour.price_per_person * (num_adults + num_children)
 
         redirect_url, order_reference, tracking_id = create_pesapal_order(
             order_id=tour.id,
-            amount=tour.price_per_person,
+            amount=total_amount,
             description=f"Payment for Tour {tour.title}",
-            email=request.user.email,
-            phone=normalize_phone_number(getattr(request.user, "phone", "0700000000")),
-            first_name=getattr(request.user, "first_name", "Guest"),
-            last_name=getattr(request.user, "last_name", "User"),
+            email=guest_email,
+            phone=normalize_phone_number(guest_phone),
+            first_name=guest_name.split()[0] if guest_name else "Guest",
+            last_name=" ".join(guest_name.split()[1:]) if guest_name and len(guest_name.split()) > 1 else "User",
         )
 
         if redirect_url:
             Payment.objects.create(
-                user=request.user,
+                user=request.user if request.user.is_authenticated else None,
                 tour=tour,
-                amount=tour.price_per_person,
+                amount=total_amount,
+                amount_paid=0,
                 currency="KES",
                 provider="PESAPAL",
-                status=PaymentStatus.PENDING,
-                pesapal_reference=tracking_id,   # Tracking ID from Pesapal
-                transaction_id=order_reference,  # Unique merchant reference
-                description=f"Payment for Tour {tour.title}",
                 method="PESAPAL",
-                travel_date=timezone.now().date(),  # Safe fallback
+                pesapal_reference=tracking_id,
+                transaction_id=order_reference,
+                guest_full_name=guest_name,
+                guest_email=guest_email,
+                guest_phone=guest_phone,
+                adults=num_adults,
+                children=num_children,
+                days=travel_days,
+                travel_date=travel_date,
+                description=f"Payment for Tour {tour.title}",
             )
 
             context["pesapal_iframe_url"] = redirect_url
@@ -691,7 +709,6 @@ def register_pesapal_ipn(request):
     except Exception as e:
         logger.exception("IPN registration failed: %s", e)
         return JsonResponse({"success": False, "message": str(e)}, status=500)
-
 from django.views.generic import DetailView
 from django.shortcuts import get_object_or_404
 from bookings.models import Payment, Booking
@@ -705,21 +722,25 @@ class ReceiptView(DetailView):
         context = super().get_context_data(**kwargs)
         payment = self.object
 
-        # Try to get linked booking if available
+        # Linked booking if exists
         booking = getattr(payment, 'booking', None)
 
-        # Duration (days) – prefer booking, fallback to tour duration
-        context["days"] = getattr(booking, "days", None) or getattr(payment.tour, "duration", 0) or 0
+        # Duration (days) – prefer booking, fallback to payment or tour
+        context["days"] = getattr(booking, "days", None) or getattr(payment, "days", None) or getattr(payment.tour, "duration", 0) or 0
 
-        # Number of adults and children – prefer booking, fallback to payment attributes
-        context["adults"] = getattr(booking, "adults", None) or getattr(payment, "adults", 0) or 0
-        context["children"] = getattr(booking, "children", None) or getattr(payment, "children", 0) or 0
+        # Number of adults and children – prefer booking, fallback to payment
+        context["adults"] = getattr(booking, "adults", None) or getattr(payment, "adults", 0)
+        context["children"] = getattr(booking, "children", None) or getattr(payment, "children", 0)
 
         # Amount paid – prefer recorded payment amount
         context["amount_paid"] = getattr(payment, "amount_paid", None) or getattr(payment, "amount", 0)
 
-        # Optional: Pass reference for easier template access
+        # Guest information
+        context["guest_full_name"] = payment.guest_full_name or (payment.user.get_full_name() if payment.user else "Guest")
+        context["guest_email"] = payment.guest_email or (payment.user.email if payment.user else "N/A")
+        context["guest_phone"] = payment.guest_phone or getattr(payment.user, "phone", "N/A")
+
+        # Reference for template
         context["reference"] = getattr(payment, "pesapal_reference", getattr(payment, "reference", ""))
 
         return context
-

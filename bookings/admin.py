@@ -114,23 +114,37 @@ class PaymentAdmin(admin.ModelAdmin):
     form = PaymentAdminForm
     actions = [mark_as_completed]
 
+    # Display columns in the admin list view
     list_display = (
         "booking",
         "tour",
-        "amount",
-        "currency",
-        "provider",
-        "status",
-        "pesapal_reference",
-        "transaction_id",
-        "get_method",
         "guest_full_name",
         "guest_email",
         "guest_phone",
+        "adults",
+        "children",
+        "days",
+        "amount",
+        "currency",
+        "provider",
+        "get_method",
+        "status",
+        "pesapal_reference",
+        "transaction_id",
         "description",
         "created_at",
     )
-    list_filter = ("provider", "status", "currency", "created_at", "method")
+
+    # Filters for easy searching
+    list_filter = (
+        "provider",
+        "status",
+        "currency",
+        "method",
+        "created_at",
+    )
+
+    # Search fields for admin convenience
     search_fields = (
         "transaction_id",
         "reference",
@@ -143,6 +157,10 @@ class PaymentAdmin(admin.ModelAdmin):
         "booking__customer__last_name",
         "tour__title",
     )
+
+    # Optional: make some fields clickable to quickly edit
+    list_display_links = ("tour", "guest_full_name", "booking")
+    # Optional: order by most recent payments
     ordering = ("-created_at",)
     date_hierarchy = "created_at"
     autocomplete_fields = ("booking", "tour", "user")
