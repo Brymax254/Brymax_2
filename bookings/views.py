@@ -115,7 +115,7 @@ def tour_payment(request, tour_id):
 
     if not form.is_valid():
         # Render form page (first visit or errors)
-        return render(request, "payments/guest_checkout.html", {"tour": tour, "form": form})
+        return render(request, "payments/tour_payment.html", {"tour": tour, "form": form})
 
     # Extract guest data safely
     full_name = form.cleaned_data.get("full_name")
