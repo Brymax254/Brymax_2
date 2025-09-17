@@ -499,13 +499,20 @@ def test_pesapal_auth(request):
 # ==========================================================
 # GUEST CHECKOUT & SESSION PESAPAL
 # ==========================================================
-def guest_checkout_page(request, tour_id=None, booking_id=None):
-    """Render guest checkout page for non-logged-in users."""
-    booking = get_object_or_404(Booking, id=booking_id) if booking_id else None
-    tour = get_object_or_404(Tour, id=tour_id) if tour_id else None
-    context = {"booking": booking, "tour": tour, "pesapal_iframe_url": None, "error": None}
-    return render(request, "guest_checkout.html", context)
+def guest_checkout(request, tour_id):
+    """
+    Lightweight handler for guest form submission.
+    Does not render any template — just returns 204 for JS to handle.
+    """
+    if request.method == "POST":
+        # You can optionally capture guest data here
+        # full_name = request.POST.get("full_name")
+        # email = request.POST.get("email")
+        # phone = request.POST.get("country_code") + request.POST.get("phone")
+        # travel_date = request.POST.get("travel_date")
+        return HttpResponse(status=204)
 
+    return HttpResponse(status=405)  # Method not allowed
 
 @csrf_exempt
 def process_guest_info(request):

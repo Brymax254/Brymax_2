@@ -153,54 +153,223 @@ class PaymentStatus(models.TextChoices):
     CANCELLED = "CANCELLED", "Cancelled"
     REFUNDED = "REFUNDED", "Refunded"
 
-
 class Payment(models.Model):
     """
-    Unified payment model that works for both registered users and guest checkouts.
+    Unified payment model for both registered users and guest checkouts.
+    Captures guest info, travel date, optional billing address, and
+    integrates with Pesapal / M-Pesa.
     """
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
 
-    # Who made the payment (either user or guest)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="payments")
-    guest_email = models.EmailField(blank=True, null=True, help_text="Email provided by guest user")
-    guest_phone = models.CharField(max_length=20, blank=True, null=True, help_text="Phone provided by guest user")
+    # --------------------
+    # Who is paying
+    # --------------------
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="payments",
+        help_text="Select a user if this payment is by a registered customer."
+    )
+    guest_full_name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Full name entered by guest during checkout."
+    )
+    guest_email = models.EmailField(
+        blank=True,
+        null=True,
+        help_text="Email address entered by guest during checkout."
+    )
+    guest_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Phone number entered by guest during checkout."
+    )
 
-    # Payment can belong to either a Booking or a Tour
-    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name="payment", null=True, blank=True)
-    tour = models.ForeignKey("Tour", on_delete=models.CASCADE, related_name="payments", null=True, blank=True)
+    # --------------------
+    # Booking context
+    # --------------------
+    booking = models.OneToOneField(
+        "Booking",
+        on_delete=models.CASCADE,
+        related_name="payment",
+        null=True,
+        blank=True,
+        help_text="Link to a booking if this is a booking payment."
+    )
+    tour = models.ForeignKey(
+        "Tour",
+        on_delete=models.CASCADE,
+        related_name="payments",
+        null=True,
+        blank=True,
+        help_text="Link to a tour if this is a direct tour payment."
+    )
 
-    # Payment details
-    provider = models.CharField(max_length=20, choices=PaymentProvider.choices, default=PaymentProvider.PESAPAL)
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    amount_paid = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    method = models.CharField(max_length=20, choices=PaymentProvider.choices, default=PaymentProvider.MPESA)
-    currency = models.CharField(max_length=10, default="KES")
-    phone_number = models.CharField(max_length=20, blank=True, null=True, help_text="Phone number used for mobile payments")
+    # --------------------
+    # Trip details
+    # --------------------
+    travel_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Date of travel as selected by the guest."
+    )
 
-    status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
+    # --------------------
+    # Optional billing address (for card payments)
+    # --------------------
+    billing_line1 = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Billing street address (line 1)."
+    )
+    billing_line2 = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Billing street address (line 2)."
+    )
+    billing_city = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Billing city or town."
+    )
+    billing_state = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Billing state or region."
+    )
+    billing_postal_code = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Billing postal / ZIP code."
+    )
+    billing_country_code = models.CharField(
+        max_length=3,
+        blank=True,
+        null=True,
+        default="KE",
+        help_text="Billing country code (ISO 3166-1 alpha-3)."
+    )
 
+    # --------------------
+    # Payment parameters
+    # --------------------
+    provider = models.CharField(
+        max_length=20,
+        choices=PaymentProvider.choices,
+        default=PaymentProvider.PESAPAL,
+        help_text="The payment gateway (Pesapal or M-Pesa)."
+    )
+    method = models.CharField(
+        max_length=20,
+        choices=PaymentProvider.choices,
+        default=PaymentProvider.MPESA,
+        help_text="The payment method selected by the guest."
+    )
+    currency = models.CharField(
+        max_length=10,
+        default="KES",
+        help_text="Currency code for this payment."
+    )
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0.00,
+        help_text="Calculated total amount due (based on guests, days, rates)."
+    )
+    amount_paid = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="Amount actually paid (returned by the gateway)."
+    )
+    phone_number = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Phone used for mobile payments (e.g. M-Pesa)."
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.PENDING,
+        help_text="Current status of the payment."
+    )
+
+    # --------------------
     # Transaction references
-    reference = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    # --------------------
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text="Merchant reference for this transaction."
+    )
     pesapal_reference = models.CharField(
-        max_length=255, blank=True, null=True, help_text="Pesapal OrderTrackingId"
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Pesapal OrderTrackingId."
     )
-
     confirmation_code = models.CharField(
-        max_length=100, blank=True, null=True,
-        help_text="The confirmation code from Pesapal/M-Pesa email"
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Confirmation code returned by the gateway/email."
+    )
+    transaction_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Transaction ID returned by the gateway."
     )
 
-    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    # --------------------
+    # Optional description & raw response
+    # --------------------
+    description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Free-form description or notes."
+    )
+    raw_response = models.JSONField(
+        blank=True,
+        null=True,
+        help_text="Full JSON response from the payment gateway."
+    )
 
-    # Extra
-    description = models.TextField(blank=True, null=True)
-    raw_response = models.JSONField(blank=True, null=True)
-
-    # Tracking
-    paid_on = models.DateTimeField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # --------------------
+    # Timestamps
+    # --------------------
+    paid_on = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Datetime when payment was confirmed."
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Record created at this timestamp."
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Record last updated at this timestamp."
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -208,49 +377,83 @@ class Payment(models.Model):
     def __str__(self):
         if self.booking:
             return f"Booking {self.booking.id} - {self.amount} {self.currency} ({self.status})"
-        elif self.tour:
+        if self.tour:
             return f"Tour {self.tour.title} - {self.amount} {self.currency} ({self.status})"
-        return f"{self.user or self.guest_email} - {self.amount} {self.currency} ({self.status})"
-
+        identity = self.user.get_full_name() if self.user and self.user.is_authenticated else self.guest_email or "Guest"
+        return f"{identity} - {self.amount} {self.currency} ({self.status})"
     # --- Helper methods ---
     def create_pesapal_order(self, callback_url):
         """
-        Register this payment with Pesapal.
+        Register or update a Pesapal order, pre-filling billing details
+        from the guest form inputs if present, otherwise from the authenticated user.
         """
+        # 1) Determine full name, split into first/last
+        raw_full_name = (
+                (self.guest_full_name or "").strip()
+                or (self.user.get_full_name().strip() if self.user and self.user.is_authenticated else "")
+        )
+        parts = raw_full_name.split()
+        first_name = parts[0] if parts else "Guest"
+        last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+
+        # 2) Determine email
+        email = (
+                (self.guest_email or "").strip()
+                or (self.user.email.strip() if self.user and self.user.is_authenticated else "")
+        )
+
+        # 3) Determine phone, normalize spacing
+        raw_phone = (
+                (self.guest_phone or "").strip()
+                or (getattr(self.user, "phone_number", "") if self.user and self.user.is_authenticated else "")
+        )
+        phone = re.sub(r"\s+", "", raw_phone)
+
+        # 4) Build billing address dict
+        billing_address = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "email_address": email,
+            "phone_number": phone,
+            "line_1": getattr(self, "billing_line1", "Nairobi"),
+            "line_2": getattr(self, "billing_line2", ""),
+            "city": getattr(self, "billing_city", "Nairobi"),
+            "state": getattr(self, "billing_state", "Nairobi"),
+            "postal_code": getattr(self, "billing_postal_code", "00100"),
+            "country_code": getattr(self, "billing_country_code", "KE"),
+        }
+
+        # 5) Build order payload
         order_data = {
             "id": str(self.id),
-            "currency": self.currency,
+            "currency": self.currency or "KES",
             "amount": float(self.amount),
             "description": self.description or f"Payment for {self}",
             "callback_url": callback_url,
             "notification_id": settings.PESAPAL_NOTIFICATION_ID,
-            "branch": "Main Branch",
-            "billing_address": {
-                "email_address": self.user.email if self.user else self.guest_email or "guest@example.com",
-                "phone_number": self.phone_number or self.guest_phone or "",
-                "first_name": self.user.first_name if self.user else "Guest",
-                "last_name": self.user.last_name if self.user else "User",
-                "line_1": "Nairobi",
-                "line_2": "",
-                "city": "Nairobi",
-                "state": "Nairobi",
-                "postal_code": "00100",
-                "country_code": "KE"
-            }
+            "branch": getattr(self, "branch", "Main Branch"),
+            "billing_address": billing_address,
         }
+
+        # 6) Submit to Pesapal
         response = PesapalAPI.submit_order(order_data)
 
+        # 7) Persist response & references
         self.raw_response = response
-        if response.get("order_tracking_id"):
-            self.pesapal_reference = response["order_tracking_id"]
-            self.reference = response.get("merchant_reference")
-        self.save()
-        return response
+        tracking_id = response.get("order_tracking_id") or response.get("tracking_id")
+        merchant_ref = response.get("merchant_reference")
+        if tracking_id:
+            self.pesapal_reference = tracking_id
+        if merchant_ref:
+            self.reference = merchant_ref
 
+        self.save(update_fields=["raw_response", "pesapal_reference", "reference"])
+        return response
     def save(self, *args, **kwargs):
         """
         Auto-fill amount_paid and paid_on when payment is successful.
         """
+
         if self.status == PaymentStatus.SUCCESS:
             if not self.amount_paid:
                 self.amount_paid = self.amount

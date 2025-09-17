@@ -50,7 +50,7 @@ urlpatterns = [
     # ===============================
     # 👤 Guest Checkout (Non-logged-in Users)
     # ===============================
-    path("guest/checkout/<int:tour_id>/", views.guest_checkout_page, name="guest_checkout"),
+    path('guest/checkout/<int:tour_id>/', views.guest_checkout, name='guest_checkout'),
     path("guest/process-info/", views.process_guest_info, name="process_guest_info"),
     path("guest/create-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
     path("guest/callback/", views.guest_pesapal_callback, name="guest_pesapal_callback"),
