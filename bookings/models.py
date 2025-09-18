@@ -172,8 +172,8 @@ class PaymentStatus(models.TextChoices):
 
 class Payment(models.Model):
     """
-    Strongly integrated Payment model for both registered users and guest checkouts.
-    Guarantees a Payment record exists before Pesapal redirect.
+    Integrated Payment model for registered users and guests.
+    Supports Pesapal, Mpesa, and other providers.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -192,6 +192,9 @@ class Payment(models.Model):
     guest_full_name = models.CharField(max_length=200, blank=True, null=True)
     guest_email = models.EmailField(blank=True, null=True)
     guest_phone = models.CharField(max_length=20, blank=True, null=True)
+    adults = models.PositiveIntegerField(default=1)
+    children = models.PositiveIntegerField(default=0)
+    days = models.PositiveIntegerField(default=1)
 
     # --------------------
     # Booking / Tour
@@ -200,9 +203,9 @@ class Payment(models.Model):
         "Booking",
         on_delete=models.CASCADE,
         related_name="payment",
-        help_text="Each booking must have one Payment.",
         null=True,
-        blank=True
+        blank=True,
+        help_text="Each booking must have one Payment."
     )
     tour = models.ForeignKey(
         "Tour",
@@ -212,10 +215,7 @@ class Payment(models.Model):
         blank=True
     )
 
-    # --------------------
-    # Trip info
-    # --------------------
-    travel_date = models.DateField()
+    travel_date = models.DateField(default=timezone.now)
 
     # --------------------
     # Billing details
@@ -250,18 +250,17 @@ class Payment(models.Model):
     )
 
     # --------------------
-    # Pesapal transaction
+    # Pesapal / transaction
     # --------------------
     reference = models.CharField(max_length=100, db_index=True, default="")
     pesapal_reference = models.CharField(
         max_length=255,
         blank=True,
         null=True,
-
-        help_text="Pesapal OrderTrackingId"
+        help_text="Pesapal OrderTrackingId for tracking payments"
     )
-    confirmation_code = models.CharField(max_length=100, default="")
-    transaction_id = models.CharField(max_length=100, default="")
+    transaction_id = models.CharField(max_length=100, blank=True, default="")
+    confirmation_code = models.CharField(max_length=100, blank=True, default="")
     raw_response = models.JSONField(blank=True, null=True)
 
     # --------------------
@@ -284,21 +283,16 @@ class Payment(models.Model):
             return f"Booking {self.booking.id} - {self.amount} {self.currency} ({self.status})"
         if self.tour:
             return f"Tour {self.tour.title} - {self.amount} {self.currency} ({self.status})"
-        identity = (
-            self.user.get_full_name() if self.user and self.user.is_authenticated
-            else self.guest_email or "Guest"
-        )
+        identity = self.guest_full_name or (self.user.get_full_name() if self.user else "Guest")
         return f"{identity} - {self.amount} {self.currency} ({self.status})"
 
     # --------------------
-    # Helper methods
+    # Automatic behavior
     # --------------------
     def save(self, *args, **kwargs):
         """
-        Ensures Payment is always tied to a booking and sets amounts when successful.
+        Auto-sets amount_paid and paid_on for successful payments.
         """
-        if self.booking and not self.amount:
-            self.amount = self.booking.total_price
         if self.status == PaymentStatus.SUCCESS:
             if not self.amount_paid:
                 self.amount_paid = self.amount
@@ -320,7 +314,6 @@ class Payment(models.Model):
     @property
     def is_failed(self):
         return self.status == PaymentStatus.FAILED
-
 # =====================================================
 # CONTENT & MISC
 # =====================================================

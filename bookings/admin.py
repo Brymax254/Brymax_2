@@ -7,6 +7,9 @@ from .models import (
     Destination, Customer, Booking, Payment, PaymentStatus,
     ContactMessage, Tour, Driver, Video, Trip
 )
+from django.contrib import admin
+from .models import Payment
+
 
 # =====================================================
 # DESTINATION ADMIN
@@ -91,6 +94,12 @@ class PaymentAdminForm(forms.ModelForm):
 # =====================================================
 # PAYMENT ADMIN
 # =====================================================
+from django.contrib import admin, messages
+from django.core.mail import send_mail
+from django.utils import timezone
+from .models import Payment, PaymentStatus
+from django.conf import settings
+
 @admin.action(description="Mark selected payments as Completed")
 def mark_as_completed(modeladmin, request, queryset):
     updated_count = 0
@@ -102,17 +111,17 @@ def mark_as_completed(modeladmin, request, queryset):
             updated_count += 1
     messages.success(request, f"{updated_count} payment(s) marked as Completed.")
 
+
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    form = PaymentAdminForm
     actions = [mark_as_completed]
 
     list_display = (
         "booking",
         "tour",
-        "guest_full_name",
-        "guest_email",
-        "guest_phone",
+        "guest_full_name_safe",
+        "guest_email_safe",
+        "guest_phone_safe",
         "get_adults",
         "get_children",
         "get_days",
@@ -121,54 +130,60 @@ class PaymentAdmin(admin.ModelAdmin):
         "provider",
         "get_method",
         "status",
-        "pesapal_reference",
-        "transaction_id",
+        "transaction_id_safe",
+        "pesapal_reference_safe",
         "description",
         "created_at",
     )
-    list_filter = ("provider", "status", "currency", "method", "created_at")
-    search_fields = (
-        "guest_full_name",
-        "guest_email",
-        "guest_phone",
-        "transaction_id",
-        "pesapal_reference",
-        "description",
-        "booking__customer__first_name",
-        "booking__customer__last_name",
-        "tour__title",
-    )
-    list_display_links = ("tour", "guest_full_name", "booking")
-    ordering = ("-created_at",)
-    date_hierarchy = "created_at"
-    autocomplete_fields = ("booking", "tour", "user")
 
-    # --- Custom list_display properties ---
-    def get_method(self, obj):
-        return obj.method
-    get_method.short_description = "Payment Method"
+    # --- Safe list_display methods ---
+    def guest_full_name_safe(self, obj):
+        return obj.guest_full_name or "Guest"
+    guest_full_name_safe.short_description = "Guest Full Name"
+
+    def guest_email_safe(self, obj):
+        return obj.guest_email or "-"
+    guest_email_safe.short_description = "Guest Email"
+
+    def guest_phone_safe(self, obj):
+        return obj.guest_phone or "-"
+    guest_phone_safe.short_description = "Guest Phone"
 
     def get_adults(self, obj):
-        return obj.adults
+        return getattr(obj, "adults", 1)
     get_adults.short_description = "Adults"
 
     def get_children(self, obj):
-        return obj.children
+        return getattr(obj, "children", 0)
     get_children.short_description = "Children"
 
     def get_days(self, obj):
-        return obj.days
+        return getattr(obj, "days", obj.tour.duration_days if obj.tour else 0)
     get_days.short_description = "Days"
 
-    # --- Override save_model for Pesapal deduplication & notifications ---
+    def get_method(self, obj):
+        return obj.method or obj.provider
+    get_method.short_description = "Payment Method"
+
+    def transaction_id_safe(self, obj):
+        # Unified transaction ID
+        return obj.transaction_id or obj.pesapal_reference or "-"
+    transaction_id_safe.short_description = "Transaction ID"
+
+    def pesapal_reference_safe(self, obj):
+        # Unified Pesapal reference for tracking
+        return obj.pesapal_reference or obj.transaction_id or "-"
+    pesapal_reference_safe.short_description = "Pesapal Reference"
+
+    # --- Override save_model for deduplication & notifications ---
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
-        # Deduplicate Pesapal reference
+        # Deduplicate Pesapal references
         if obj.pesapal_reference:
-            duplicates = Payment.objects.filter(pesapal_reference=obj.pesapal_reference)\
-                                        .exclude(id=obj.id)\
-                                        .order_by("-created_at")
+            duplicates = Payment.objects.filter(
+                pesapal_reference=obj.pesapal_reference
+            ).exclude(id=obj.id).order_by("-created_at")
             duplicates.delete()
 
         # Notify admin via email
@@ -183,13 +198,13 @@ Tour: {obj.tour or '-'}
 Amount: {obj.amount} {obj.currency}
 Provider: {obj.provider}
 Status: {obj.status}
-Pesapal Reference: {obj.pesapal_reference or '-'}
 Transaction ID: {obj.transaction_id or '-'}
-Payment Method: {obj.method}
-Guest Name: {obj.guest_full_name}
-Guest Email: {obj.guest_email}
-Guest Phone: {obj.guest_phone}
-Description: {obj.description}
+Pesapal Reference: {obj.pesapal_reference or '-'}
+Payment Method: {obj.method or obj.provider}
+Guest Name: {obj.guest_full_name or 'Guest'}
+Guest Email: {obj.guest_email or '-'}
+Guest Phone: {obj.guest_phone or '-'}
+Description: {obj.description or '-'}
 Created At: {obj.created_at}
 
 This notification was generated automatically by the admin panel.
