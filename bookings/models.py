@@ -4,8 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from decimal import Decimal
 import uuid
-from .utils.pesapal import PesapalAPI
-
+from cloudinary.models import CloudinaryField
 
 # =====================================================
 # DESTINATIONS & CUSTOMERS
@@ -86,9 +85,6 @@ class Driver(models.Model):
     def __str__(self):
         return self.name
 
-# =====================================================
-# BOOKINGS
-# =====================================================
 
 class Booking(models.Model):
     """
@@ -140,12 +136,6 @@ class Booking(models.Model):
         self.total_price = self.calculate_total_price
         super().save(*args, **kwargs)
 
-
-from django.db import models
-from django.utils import timezone
-from django.conf import settings
-from decimal import Decimal
-import uuid
 
 # =====================================================
 # PAYMENTS
@@ -253,7 +243,7 @@ class Payment(models.Model):
     # Pesapal / transaction
     # --------------------
     reference = models.CharField(max_length=100, db_index=True, default="")
-    pesapal_reference = models.CharField(
+    pesapal_tracking_id = models.CharField(
         max_length=255,
         blank=True,
         null=True,
@@ -286,9 +276,6 @@ class Payment(models.Model):
         identity = self.guest_full_name or (self.user.get_full_name() if self.user else "Guest")
         return f"{identity} - {self.amount} {self.currency} ({self.status})"
 
-    # --------------------
-    # Automatic behavior
-    # --------------------
     def save(self, *args, **kwargs):
         """
         Auto-sets amount_paid and paid_on for successful payments.
@@ -300,9 +287,6 @@ class Payment(models.Model):
                 self.paid_on = timezone.now()
         super().save(*args, **kwargs)
 
-    # --------------------
-    # Utility properties
-    # --------------------
     @property
     def is_successful(self):
         return self.status == PaymentStatus.SUCCESS
@@ -317,9 +301,11 @@ class Payment(models.Model):
 
     @property
     def pesapal_iframe_url(self):
-        if self.pesapal_reference:
-            return f"https://www.pesapal.com/iframe_payment_url/{self.pesapal_reference}"
+        if self.pesapal_tracking_id:
+            return f"https://www.pesapal.com/iframe_payment_url/{self.pesapal_tracking_id}"
         return None
+
+
 # =====================================================
 # CONTENT & MISC
 # =====================================================
@@ -341,8 +327,6 @@ class ContactMessage(models.Model):
     def __str__(self):
         return f"Message from {self.name} - {self.subject}"
 
-from cloudinary.models import CloudinaryField
-
 
 class Tour(models.Model):
     """
@@ -360,7 +344,6 @@ class Tour(models.Model):
     video = CloudinaryField("video", resource_type="video", blank=True, null=True)
     image_url = models.URLField(blank=True, null=True)  # optional fallback
 
-    # Meta
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_tours")
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -378,6 +361,7 @@ class Tour(models.Model):
         if self.image_url:
             return self.image_url
         return None
+
 
 class Video(models.Model):
     """
@@ -420,4 +404,3 @@ class Trip(models.Model):
 
     def __str__(self):
         return f"{self.destination} ({self.status}) - {self.driver.name}"
-

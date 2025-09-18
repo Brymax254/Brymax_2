@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>🚀 Brymax Modern Admin Dashboard</h1>
+  <p>Welcome, {{ request.user.username }}!</p>
+
+  <ul>
+    <li><a href="{% url 'driver_dashboard' %}">Driver Dashboard</a></li>
+    <li><a href="{% url 'book_online' %}">Manage Bookings</a></li>
+    <li><a href="{% url 'tours' %}">Manage Tours</a></li>
+    <li><a href="{% url 'api_payments' %}">View Payments (API)</a></li>
+  </ul>
+{% endblock %}
