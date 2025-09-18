@@ -314,6 +314,12 @@ class Payment(models.Model):
     @property
     def is_failed(self):
         return self.status == PaymentStatus.FAILED
+
+    @property
+    def pesapal_iframe_url(self):
+        if self.pesapal_reference:
+            return f"https://www.pesapal.com/iframe_payment_url/{self.pesapal_reference}"
+        return None
 # =====================================================
 # CONTENT & MISC
 # =====================================================
