@@ -269,7 +269,6 @@ def tour_payment(request, tour_id):
         },
     )
 
-
 def get_pesapal_iframe_url(payment: Payment) -> Optional[str]:
     """
     Safely return the Pesapal iframe URL for a payment.

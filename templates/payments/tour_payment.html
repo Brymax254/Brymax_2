@@ -451,25 +451,25 @@
       <!-- Left Column: Payment Form -->
       <div class="lg:col-span-2">
         <!-- Guest Information -->
-        <div class="card mb-8 p-6 md:p-8">
+        <div id="guest-form" class="card mb-8 p-6 md:p-8">
           <h2 class="section-title">
             <i class="fas fa-user-circle"></i>
             Traveler Information
           </h2>
           <p class="text-gray-600 mb-6">Please provide your details to complete the booking</p>
 
-          <form id="guest-info-form" method="POST" action="{% url 'guest_checkout' tour.id %}">
+          <form id="guest-info-form" method="POST" action="{% url 'tour_payment_page' tour.id %}">
             {% csrf_token %}
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
-                <input type="text" name="full_name" id="full-name" required
+                <input type="text" id="full-name" name="full_name" required
                   class="input-field" placeholder="John Doe" />
               </div>
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Email Address *</label>
-                <input type="email" name="email" id="guest-email" required
+                <input type="email" id="guest-email" name="email" required
                   class="input-field" placeholder="john@example.com" />
               </div>
             </div>
@@ -477,12 +477,12 @@
             <div class="mb-6">
               <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
               <div class="flex">
-                <select name="country_code" class="input-field w-1/3 rounded-r-none">
+                <select id="country-code" name="country_code" class="input-field w-1/3 rounded-r-none">
                   <option value="+254">+254 (KE)</option>
                   <option value="+255">+255 (TZ)</option>
                   <option value="+256">+256 (UG)</option>
                 </select>
-                <input type="tel" name="phone" id="phone" required
+                <input type="tel" id="phone" name="phone" required
                   class="input-field flex-1 rounded-l-none" placeholder="712 345 678" />
               </div>
             </div>
@@ -490,24 +490,24 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Adults *</label>
-                <input type="number" name="adults" id="adults" min="1" required
+                <input type="number" id="adults" name="adults" min="1" required
                   class="input-field" value="1" />
               </div>
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Children</label>
-                <input type="number" name="children" id="children" min="0"
+                <input type="number" id="children" name="children" min="0"
                   class="input-field" value="0" />
               </div>
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Days *</label>
-                <input type="number" name="days" id="days" min="1"
+                <input type="number" id="days" name="days" min="1"
                   class="input-field" value="{{ tour.duration_days }}" />
               </div>
             </div>
 
             <div class="mb-8">
               <label class="block text-gray-700 font-medium mb-2">Travel Date *</label>
-              <input type="date" name="travel_date" id="travel-date" required
+              <input type="date" id="travel-date" name="travel_date" required
                 min="{{ today|date:'Y-m-d' }}" class="input-field" />
             </div>
 
@@ -525,47 +525,88 @@
             Complete Your Payment
           </h2>
 
-          <!-- Order Summary -->
+          <!-- Modern Guest Summary -->
           <div class="order-summary mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <i class="fas fa-receipt mr-2"></i> Booking Summary
+            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+              <i class="fas fa-receipt mr-3 text-indigo-600"></i> Booking Summary
             </h3>
-            <div class="space-y-3">
-              <div class="order-line">
-                <span class="label">Name:</span>
-                <span class="value" id="summary-name"></span>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-indigo-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Traveler</p>
+                    <p class="font-medium text-gray-800" id="summary-name">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-envelope text-indigo-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Email</p>
+                    <p class="font-medium text-gray-800" id="summary-email">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-phone text-indigo-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Phone</p>
+                    <p class="font-medium text-gray-800" id="summary-phone">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-calendar text-indigo-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Travel Date</p>
+                    <p class="font-medium text-gray-800" id="summary-date">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-users text-indigo-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Travelers</p>
+                    <p class="font-medium text-gray-800" id="summary-travelers">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-clock text-indigo-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Duration</p>
+                    <p class="font-medium text-gray-800" id="summary-days">-</p>
+                  </div>
+                </div>
               </div>
-              <div class="order-line">
-                <span class="label">Email:</span>
-                <span class="value" id="summary-email"></span>
-              </div>
-              <div class="order-line">
-                <span class="label">Phone:</span>
-                <span class="value" id="summary-phone"></span>
-              </div>
-              <div class="order-line">
-                <span class="label">Travel Date:</span>
-                <span class="value" id="summary-date"></span>
-              </div>
-              <div class="order-line">
-                <span class="label">Travelers:</span>
-                <span class="value" id="summary-travelers"></span>
-              </div>
-              <div class="order-line">
-                <span class="label">Days:</span>
-                <span class="value" id="summary-days"></span>
-              </div>
-              <div class="order-line">
-                <span class="label">Adult Cost:</span>
-                <span class="value" id="summary-adults-cost"></span>
-              </div>
-              <div class="order-line">
-                <span class="label">Children Cost:</span>
-                <span class="value" id="summary-children-cost"></span>
-              </div>
-              <div class="order-line order-total">
-                <span class="label font-bold text-gray-800">Total Amount:</span>
-                <span class="value font-bold" id="summary-total"></span>
+
+              <div class="border-t border-gray-200 pt-4 mt-4">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-gray-600">Adult Cost</span>
+                  <span class="font-medium" id="summary-adults-cost">-</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-gray-600">Children Cost</span>
+                  <span class="font-medium" id="summary-children-cost">-</span>
+                </div>
+                <div class="flex justify-between items-center pt-3 mt-3 border-t border-gray-200">
+                  <span class="text-lg font-bold text-gray-800">Total Amount</span>
+                  <span class="text-xl font-bold text-indigo-600" id="summary-total">-</span>
+                </div>
               </div>
             </div>
           </div>
@@ -994,10 +1035,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const total = adultsCost + childrenCost;
 
     // Update summary
-    sName.textContent = nameInput.value || '';
-    sEmail.textContent = emailInput.value || '';
-    sPhone.textContent = phoneInput.value ? `${codeInput.value} ${phoneInput.value}` : '';
-    sDate.textContent = travelDateInput.value || 'Not selected';
+    sName.textContent = nameInput.value || '-';
+    sEmail.textContent = emailInput.value || '-';
+    sPhone.textContent = phoneInput.value ? `${codeInput.value} ${phoneInput.value}` : '-';
+    sDate.textContent = travelDateInput.value || '-';
     sTrav.textContent = `${adults} Adults, ${children} Children`;
     sDays.textContent = `${days} Days`;
     sAdultsCost.textContent = formatKES(adultsCost);
@@ -1038,34 +1079,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
     const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
     const childrenCost = children * dailyRate * 0.5 * days;
-    const total = Math.round(firstAdultCost + additionalAdultsCost);
+    const adultsCost = firstAdultCost + additionalAdultsCost;
+    const total = Math.round(adultsCost + childrenCost);
 
     console.log('Processing payment with data:', data, 'Total amount:', total);
 
-    // First, submit the guest checkout form to create a payment record
-    fetch(`/guest/checkout/{{ tour.id }}/`, {
+    // First, process guest info
+    fetch('/process-guest-info/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
       },
       body: new URLSearchParams({
-        full_name: data.full_name,
         email: data.email,
-        phone: data.phone,
-        country_code: data.country_code,
-        adults: data.adults,
-        children: data.children,
-        days: data.days,
-        travel_date: data.travel_date
+        phone: data.country_code + data.phone
       })
     })
     .then(response => {
-      console.log('Guest checkout response status:', response.status);
+      console.log('Process guest info response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       return response.json();
     })
     .then(result => {
-      console.log('Guest checkout result:', result);
+      console.log('Process guest info result:', result);
       if (result.success) {
         // Now create the PesaPal order
         return fetch('/create-guest-pesapal-order/', {
@@ -1094,6 +1133,9 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(response => {
       console.log('Create Pesapal order response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       return response.json();
     })
     .then(result => {
@@ -1137,11 +1179,24 @@ document.addEventListener('DOMContentLoaded', () => {
     guestForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
+      console.log("Form submitted!");
+
       // Simple validation
       if (!nameInput.value || !emailInput.value || !phoneInput.value) {
+        console.log("Validation failed");
         showToast('error', 'Validation Error', 'Please fill in all required fields');
         return;
       }
+
+      // Validate adults
+      const adults = parseInt(adultsInput.value || '0', 10);
+      if (adults < 1) {
+        console.log("Adults validation failed");
+        showToast('error', 'Validation Error', 'At least one adult is required');
+        return;
+      }
+
+      console.log("Validation passed");
 
       // Show loading state on button
       continueBtn.disabled = true;
@@ -1159,6 +1214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Load PesaPal iframe
       setTimeout(() => {
+        console.log("About to load PesaPal iframe");
         loadPesapalIframe();
 
         // Reset button
