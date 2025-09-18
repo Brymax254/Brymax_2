@@ -1,15 +1,13 @@
 from django import forms
 from django.contrib import admin, messages
 from django.utils import timezone
+from django.utils.html import format_html
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import (
     Destination, Customer, Booking, Payment, PaymentStatus,
     ContactMessage, Tour, Driver, Video, Trip
 )
-from django.contrib import admin
-from .models import Payment
-
 
 # =====================================================
 # DESTINATION ADMIN
@@ -61,9 +59,17 @@ class DriverAdmin(admin.ModelAdmin):
 # =====================================================
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ("customer", "destination", "booking_type", "num_passengers",
-                    "travel_date", "total_price", "is_confirmed", "is_cancelled",
-                    "booking_date", "driver")
+    list_display = (
+        "customer",
+        "destination",
+        "booking_type",
+        "num_passengers",
+        "travel_date",
+        "total_price",
+        "colored_status",
+        "booking_date",
+        "driver"
+    )
     list_filter = ("booking_type", "is_confirmed", "is_cancelled", "travel_date", "booking_date")
     search_fields = ("customer__first_name", "customer__last_name",
                      "customer__email", "destination__name", "driver__name")
@@ -71,8 +77,21 @@ class BookingAdmin(admin.ModelAdmin):
     date_hierarchy = "travel_date"
     autocomplete_fields = ("customer", "destination", "driver")
 
+    def colored_status(self, obj):
+        if obj.is_cancelled:
+            color = "red"
+            status = "Cancelled"
+        elif obj.is_confirmed:
+            color = "green"
+            status = "Confirmed"
+        else:
+            color = "orange"
+            status = "Pending"
+        return format_html('<span style="color: {};">{}</span>', color, status)
+    colored_status.short_description = "Status"
+
 # =====================================================
-# PAYMENT FORM (Admin-level validation)
+# PAYMENT ADMIN FORM
 # =====================================================
 class PaymentAdminForm(forms.ModelForm):
     class Meta:
@@ -92,14 +111,8 @@ class PaymentAdminForm(forms.ModelForm):
         return cleaned_data
 
 # =====================================================
-# PAYMENT ADMIN
+# PAYMENT ADMIN ACTIONS
 # =====================================================
-from django.contrib import admin, messages
-from django.core.mail import send_mail
-from django.utils import timezone
-from .models import Payment, PaymentStatus
-from django.conf import settings
-
 @admin.action(description="Mark selected payments as Completed")
 def mark_as_completed(modeladmin, request, queryset):
     updated_count = 0
@@ -111,9 +124,12 @@ def mark_as_completed(modeladmin, request, queryset):
             updated_count += 1
     messages.success(request, f"{updated_count} payment(s) marked as Completed.")
 
-
+# =====================================================
+# PAYMENT ADMIN
+# =====================================================
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
+    form = PaymentAdminForm
     actions = [mark_as_completed]
 
     list_display = (
@@ -129,9 +145,8 @@ class PaymentAdmin(admin.ModelAdmin):
         "currency",
         "provider",
         "get_method",
-        "status",
+        "colored_status",
         "transaction_id_safe",
-        "pesapal_reference_safe",
         "description",
         "created_at",
     )
@@ -166,14 +181,20 @@ class PaymentAdmin(admin.ModelAdmin):
     get_method.short_description = "Payment Method"
 
     def transaction_id_safe(self, obj):
-        # Unified transaction ID
-        return obj.transaction_id or obj.pesapal_reference or "-"
+        # Use only transaction_id field that exists
+        return obj.transaction_id or "-"
     transaction_id_safe.short_description = "Transaction ID"
 
-    def pesapal_reference_safe(self, obj):
-        # Unified Pesapal reference for tracking
-        return obj.pesapal_reference or obj.transaction_id or "-"
-    pesapal_reference_safe.short_description = "Pesapal Reference"
+    # --- Colored payment status ---
+    def colored_status(self, obj):
+        color_map = {
+            PaymentStatus.SUCCESS: "green",
+            PaymentStatus.PENDING: "orange",
+            PaymentStatus.FAILED: "red",
+        }
+        color = color_map.get(obj.status, "black")
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+    colored_status.short_description = "Status"
 
     # --- Override save_model for deduplication & notifications ---
     def save_model(self, request, obj, form, change):

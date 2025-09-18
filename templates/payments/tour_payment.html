@@ -5,560 +5,532 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token }}" />
-  <meta name="theme-color" content="#064e3b" />
-  <title>Secure - PesaPal</title>
+  <meta name="theme-color" content="#4f46e5" />
+  <title>Secure Payment - SafariAdventures</title>
 
-  <!-- Tailwind CSS v2.2.19 -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-    rel="stylesheet"
-  />
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- FontAwesome 6.4.0 -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <!-- Google Fonts: Inter -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --safari-green: #0f766e;
-      --safari-green-600: #0e7a6c;
-      --safari-amber: #f59e0b;
-      --card-bg: rgba(255, 255, 255, 0.75);
-      --glass-border: rgba(255, 255, 255, 0.35);
-      --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-
-      --pesapal-border-color: #e5e7eb;
-      --pesapal-border-radius: 1rem;
-      --pesapal-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-      --pesapal-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.1);
-      --pesapal-container-max: 1200px;
-      --pesapal-padding: clamp(1rem, 2vw, 2rem);
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --secondary: #f59e0b;
+      --accent: #818cf8;
+      --light: #f5f3ff;
+      --dark: #1e1b4b;
+      --gray: #64748b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
     }
 
-    .header-bg {
-      background: radial-gradient(
-        1200px 600px at 10% -10%,
-        #115e59 0%,
-        #064e3b 25%,
-        #052e2a 85%
-      );
-      position: relative;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      color: #334155;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
       overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .header-bg:after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='160' height='160' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop stop-color='%23ffffff' stop-opacity='.04'/%3E%3Cstop offset='1' stop-color='%23ffffff' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='160' height='160' fill='url(%23g)'/%3E%3C/svg%3E")
-        center/400px 400px repeat;
-      mix-blend-mode: overlay;
-      opacity: 0.35;
-      pointer-events: none;
-      z-index: 0;
+    .card:hover {
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
     }
 
-    .safari-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      box-shadow: var(--soft-shadow);
-      position: relative;
-      z-index: 1;
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
 
-    .safari-pattern {
-      position: relative;
-      overflow: hidden;
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
     }
 
-    .safari-pattern:before {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      background: radial-gradient(
-          800px 400px at -10% -10%,
-          rgba(16, 185, 129, 0.08),
-          transparent 40%
-        ),
-        radial-gradient(
-          600px 300px at 110% -10%,
-          rgba(245, 158, 11, 0.08),
-          transparent 40%
-        );
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .safari-btn {
-      background-image: linear-gradient(135deg, var(--safari-green), #16a34a);
-      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
-    }
-
-    .safari-btn:hover:not(:disabled) {
-      filter: brightness(1.03);
-      transform: translateY(-1px);
-      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.25);
-    }
-
-    .safari-btn:disabled {
+    .btn-primary:disabled {
       opacity: 0.7;
       cursor: not-allowed;
+      transform: none;
     }
 
-    .countdown-pulse {
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.03);
-      }
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    .payment-card {
+    .input-field {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
       background: white;
-      border: 1px solid #e5e7eb;
-      transition: all 0.2s ease;
-      user-select: none;
-      cursor: pointer;
-      border-radius: 0.75rem;
-      padding: 1rem;
     }
 
-    .payment-card:hover {
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
-      transform: translateY(-1px);
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
     }
 
-    .payment-card.active {
-      border-color: #10b981;
-      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.18);
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title i {
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+
+    .payment-container {
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      border-radius: 20px;
+      padding: 2rem;
       position: relative;
+      overflow: hidden;
     }
 
-    .payment-card.active:after {
+    .payment-container::before {
       content: "";
       position: absolute;
-      inset: -1px;
-      border: 2px solid rgba(16, 185, 129, 0.35);
-      border-radius: 0.75rem;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23818cf8' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
       pointer-events: none;
     }
 
-    .btn-processing i {
-      animation: spin 1s linear infinite;
+    .pesapal-iframe {
+      width: 100%;
+      min-height: 600px;
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      background: white;
+      transition: all 0.3s ease;
     }
 
-    @keyframes spin {
-      from {
-        transform: rotate(0);
-      }
-      to {
-        transform: rotate(360deg);
-      }
+    .pesapal-iframe:hover {
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
     }
 
-    .mpesa-pulse {
-      animation: glow 2s ease-in-out infinite;
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
     }
 
-    @keyframes glow {
-      0% {
-        box-shadow: 0 0 0 rgba(16, 185, 129, 0);
-      }
-      50% {
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.12);
-      }
-      100% {
-        box-shadow: 0 0 0 rgba(16, 185, 129, 0);
-      }
+    .feature-card {
+      padding: 1.5rem;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-card:hover .feature-icon {
+      background: var(--primary);
+      color: white;
     }
 
     .faq-item {
-      border-bottom: 1px dashed #e5e7eb;
-      padding: 0.75rem 0;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 1.25rem 0;
+      transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+      background: rgba(79, 70, 229, 0.03);
+      margin: 0 -1rem;
+      padding: 1.25rem 1rem;
+      border-radius: 12px;
     }
 
     .faq-question {
+      font-weight: 600;
       cursor: pointer;
-      padding: 0.25rem 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 0.5rem 0;
+      color: var(--dark);
     }
 
     .faq-answer {
-      display: none;
-      padding-bottom: 0.75rem;
-      color: #4b5563;
+      margin-top: 1rem;
+      color: var(--gray);
+      line-height: 1.6;
     }
 
-    .faq-active .faq-answer {
-      display: block;
+    .countdown {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--light);
+      color: var(--primary);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .order-summary {
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(129, 140, 248, 0.2);
     }
 
     .order-line {
       display: flex;
       justify-content: space-between;
+      padding: 0.75rem 0;
     }
 
     .order-line .label {
-      color: #4b5563;
+      color: var(--gray);
+      font-weight: 500;
     }
 
     .order-line .value {
       font-weight: 600;
-      color: #111827;
+      color: var(--dark);
     }
 
     .order-total {
-      border-top: 1px solid #a7f3d0;
-      padding-top: 0.75rem;
+      border-top: 1px solid #c7d2fe;
+      padding-top: 1rem;
+      margin-top: 1rem;
     }
 
-    .pesapal-container {
-      max-width: var(--pesapal-container-max);
-      margin-inline: auto;
-      padding: var(--pesapal-padding);
+    .order-total .value {
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 700;
     }
 
-    #pesapal-iframe {
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 0.875rem;
+      color: var(--gray);
+      backdrop-filter: blur(10px);
+    }
+
+    .security-badge i {
+      color: var(--success);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    .payment-processing {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      /* Fluid height: min 700px, ideal 80vh, max 1000px */
-      height: clamp(700px, 80vh, 1000px);
-      border: 1px solid var(--pesapal-border-color);
-      border-radius: var(--pesapal-border-radius);
-      box-shadow: var(--pesapal-shadow);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      background-color: #fff;
-      display: block;
-      overflow: hidden;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(5px);
     }
 
-    #pesapal-iframe:hover {
-      transform: translateY(-4px) scale(1.01);
-      box-shadow: var(--pesapal-shadow-hover);
+    .processing-content {
+      text-align: center;
+      max-width: 500px;
+      padding: 2rem;
     }
 
-    /* Tablet */
+    .processing-spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid #f3f4f6;
+      border-top: 8px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 2rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary);
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-notification.success {
+      border-left-color: var(--success);
+    }
+
+    .toast-notification.error {
+      border-left-color: var(--danger);
+    }
+
+    .toast-icon {
+      font-size: 24px;
+    }
+
+    .toast-notification.success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-notification.error .toast-icon {
+      color: var(--danger);
+    }
+
+    .payment-method-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .payment-method-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .payment-method-card.active {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(129, 140, 248, 0.1) 100%);
+    }
+
+    .loading-skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
     @media (max-width: 768px) {
-      #pesapal-iframe {
-        height: clamp(600px, 70vh, 900px);
-      }
-    }
-
-    /* Mobile */
-    @media (max-width: 480px) {
-      #pesapal-iframe {
-        height: clamp(500px, 60vh, 800px);
+      .pesapal-iframe {
+        min-height: 500px;
       }
     }
   </style>
 </head>
-<body class="antialiased bg-gray-50 font-sans">
-
+<body>
   <!-- Header -->
-  <header
-    class="header-bg text-white py-6 px-4 md:px-8 rounded-b-2xl shadow-lg"
-    role="banner"
-  >
+  <header class="gradient-bg text-white py-6 px-4 md:px-8">
     <div class="container mx-auto">
-      <div
-        class="flex flex-col md:flex-row justify-between items-center gap-4"
-      >
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center">
-          <i
-            class="fas fa-paw fa-2x mr-3 text-amber-300"
-            aria-hidden="true"
-          ></i>
-          <h1 class="text-3xl font-bold">
-            Safari<span class="text-amber-300">Adventures</span>
-          </h1>
-        </div>
-        <div
-          class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4"
-          aria-live="polite"
-        >
-          <div
-            class="countdown flex items-center bg-amber-500/90 px-4 py-2 rounded-full"
-            aria-label="Countdown timer"
-          >
-            <i class="fas fa-clock mr-2" aria-hidden="true"></i>
-            <span id="countdown-timer" class="font-semibold" aria-live="polite"
-              >15:00</span
-            >
+          <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mr-4 backdrop-filter backdrop-blur-sm">
+            <i class="fas fa-paw text-3xl text-amber-300"></i>
           </div>
-          <div
-            class="flex items-center bg-white/20 px-4 py-2 rounded-full"
-            aria-label="Secure payment indicator"
-          >
-            <i
-              class="fas fa-lock text-green-300"
-              aria-hidden="true"
-              title="Secure payment"
-            ></i>
-            <span class="text-sm font-medium ml-2">Secure Payment</span>
+          <h1 class="text-3xl font-bold">Safari<span class="text-amber-300">Adventures</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="countdown pulse">
+            <i class="fas fa-clock"></i>
+            <span id="countdown-timer">15:00</span>
+          </div>
+          <div class="security-badge">
+            <i class="fas fa-lock"></i>
+            <span>Secure Payment</span>
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main -->
-  <main class="container mx-auto px-4 py-8 max-w-7xl" role="main">
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8 max-w-6xl">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Left: Guest form + payment -->
-      <section
-        class="lg:col-span-2 space-y-8"
-        aria-labelledby="traveler-details"
-      >
-        <!-- Guest Checkout -->
-        <div
-          id="guest-form"
-          class="safari-card p-6 safari-pattern"
-          aria-live="polite"
-        >
-          <div class="flex items-center gap-3 mb-4">
-            <div
-              class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"
-              aria-hidden="true"
-            >
-              <i class="fas fa-user-circle text-xl text-emerald-700"></i>
-            </div>
-            <h2 id="traveler-details" class="text-2xl font-bold text-gray-800">
-              Traveler details
-            </h2>
-          </div>
-          <p class="text-gray-600 mb-6">
-            Add your contact info and booking details to proceed.
-          </p>
+      <!-- Left Column: Payment Form -->
+      <div class="lg:col-span-2">
+        <!-- Guest Information -->
+        <div class="card mb-8 p-6 md:p-8">
+          <h2 class="section-title">
+            <i class="fas fa-user-circle"></i>
+            Traveler Information
+          </h2>
+          <p class="text-gray-600 mb-6">Please provide your details to complete the booking</p>
 
-          <form
-            id="guest-info-form"
-            method="POST"
-            action="{% url 'guest_checkout' tour.id %}"
-            class="space-y-6"
-            novalidate
-          >
+          <form id="guest-info-form" method="POST" action="{% url 'guest_checkout' tour.id %}">
             {% csrf_token %}
 
-            <!-- Contact -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label
-                  for="full-name"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >Full name *</label
-                >
-                <input
-                  type="text"
-                  name="full_name"
-                  id="full-name"
-                  required
-                  autocomplete="name"
-                  aria-required="true"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
+                <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
+                <input type="text" name="full_name" id="full-name" required
+                  class="input-field" placeholder="John Doe" />
               </div>
               <div>
-                <label
-                  for="guest-email"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >Email address *</label
-                >
-                <input
-                  type="email"
-                  name="email"
-                  id="guest-email"
-                  required
-                  autocomplete="email"
-                  aria-required="true"
-                  aria-describedby="email-error"
-                  pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
-                <span
-                  id="email-error"
-                  class="hidden text-xs text-red-600 mt-1"
-                  role="alert"
-                  >Please enter a valid email</span
-                >
+                <label class="block text-gray-700 font-medium mb-2">Email Address *</label>
+                <input type="email" name="email" id="guest-email" required
+                  class="input-field" placeholder="john@example.com" />
               </div>
             </div>
 
-            <!-- Phone -->
-            <div>
-              <label
-                for="phone"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Phone number *</label
-              >
-              <div class="mt-1 relative rounded-md shadow-sm">
-                <div
-                  class="absolute inset-y-0 left-0 flex items-center pl-3"
-                  aria-hidden="true"
-                >
-                  <select
-                    id="country-code"
-                    name="country_code"
-                    class="h-full py-0 pl-0 pr-7 bg-transparent text-gray-700 sm:text-sm rounded-md focus:ring-emerald-500 focus:border-emerald-500"
-                  >
-                    <option value="+254">+254 (KE)</option>
-                    <option value="+255">+255 (TZ)</option>
-                    <option value="+256">+256 (UG)</option>
-                    <option value="+257">+257 (BI)</option>
-                    <option value="+258">+258 (MZ)</option>
-                  </select>
-                </div>
-                <input
-                  type="tel"
-                  name="phone"
-                  id="phone"
-                  placeholder="712 345 678"
-                  required
-                  autocomplete="tel"
-                  aria-required="true"
-                  aria-describedby="phone-error"
-                  inputmode="numeric"
-                  pattern="^[0-9]{9}$"
-                  class="focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-24 sm:text-sm border-gray-300 rounded-lg py-3 px-4"
-                />
-                <span
-                  id="phone-error"
-                  class="hidden text-xs text-red-600 mt-1"
-                  role="alert"
-                  >Please enter a valid phone number</span
-                >
+            <div class="mb-6">
+              <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
+              <div class="flex">
+                <select name="country_code" class="input-field w-1/3 rounded-r-none">
+                  <option value="+254">+254 (KE)</option>
+                  <option value="+255">+255 (TZ)</option>
+                  <option value="+256">+256 (UG)</option>
+                </select>
+                <input type="tel" name="phone" id="phone" required
+                  class="input-field flex-1 rounded-l-none" placeholder="712 345 678" />
               </div>
             </div>
 
-            <!-- Travelers -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
-                <label
-                  for="adults"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >Adults *</label
-                >
-                <input
-                  type="number"
-                  name="adults"
-                  id="adults"
-                  min="1"
-                  required
-                  aria-required="true"
-                  autocomplete="off"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
+                <label class="block text-gray-700 font-medium mb-2">Adults *</label>
+                <input type="number" name="adults" id="adults" min="1" required
+                  class="input-field" value="1" />
               </div>
               <div>
-                <label
-                  for="children"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >Children</label
-                >
-                <input
-                  type="number"
-                  name="children"
-                  id="children"
-                  min="0"
-                  autocomplete="off"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
+                <label class="block text-gray-700 font-medium mb-2">Children</label>
+                <input type="number" name="children" id="children" min="0"
+                  class="input-field" value="0" />
               </div>
               <div>
-                <label
-                  for="days"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >Days *</label
-                >
-                <input
-                  type="number"
-                  name="days"
-                  id="days"
-                  min="1"
-                  value="{{ tour.duration_days }}"
-                  required
-                  aria-required="true"
-                  autocomplete="off"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                />
+                <label class="block text-gray-700 font-medium mb-2">Days *</label>
+                <input type="number" name="days" id="days" min="1"
+                  class="input-field" value="{{ tour.duration_days }}" />
               </div>
             </div>
 
-            <!-- Travel Date -->
-            <div>
-              <label
-                for="travel-date"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Date of Travel *</label
-              >
-              <input
-                type="date"
-                id="travel-date"
-                name="travel_date"
-                required
-                aria-required="true"
-                min="{{ today|date:'Y-m-d' }}"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              />
+            <div class="mb-8">
+              <label class="block text-gray-700 font-medium mb-2">Travel Date *</label>
+              <input type="date" name="travel_date" id="travel-date" required
+                min="{{ today|date:'Y-m-d' }}" class="input-field" />
             </div>
 
-            <!-- Submit -->
-            <div class="pt-2">
-              <button
-                type="submit"
-                id="continue-btn"
-                class="w-full safari-btn text-white font-semibold py-3 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2"
-              >
-                <span>Proceed to payment</span>
-                <i class="fas fa-arrow-right" aria-hidden="true"></i>
-              </button>
-            </div>
+            <button type="submit" id="continue-btn" class="btn-primary w-full">
+              <span>Continue to Payment</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
           </form>
         </div>
 
         <!-- Payment Section -->
-        <div id="payment-section" class="safari-card p-6 hidden" aria-live="polite">
-          <div class="flex items-center gap-3 mb-6">
-            <div
-              class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"
-              aria-hidden="true"
-            >
-              <i class="fas fa-credit-card text-xl text-emerald-700"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-800">Complete your payment</h2>
-          </div>
+        <div id="payment-section" class="card p-6 md:p-8 hidden">
+          <h2 class="section-title">
+            <i class="fas fa-credit-card"></i>
+            Complete Your Payment
+          </h2>
 
-          <!-- Live Order Summary -->
-          <div
-            class="mb-8 p-6 border rounded-xl bg-green-50 border-green-200"
-            aria-label="Booking summary"
-          >
-            <h3
-              class="text-lg font-semibold text-gray-700 mb-4 flex items-center"
-            >
-              <i class="fas fa-receipt mr-2" aria-hidden="true"></i> Booking summary
+          <!-- Order Summary -->
+          <div class="order-summary mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-receipt mr-2"></i> Booking Summary
             </h3>
-            <div class="space-y-2 text-sm">
+            <div class="space-y-3">
               <div class="order-line">
                 <span class="label">Name:</span>
                 <span class="value" id="summary-name"></span>
@@ -584,388 +556,167 @@
                 <span class="value" id="summary-days"></span>
               </div>
               <div class="order-line">
-                <span class="label">Adult cost:</span>
+                <span class="label">Adult Cost:</span>
                 <span class="value" id="summary-adults-cost"></span>
               </div>
               <div class="order-line">
-                <span class="label">Children cost:</span>
+                <span class="label">Children Cost:</span>
                 <span class="value" id="summary-children-cost"></span>
               </div>
-              <div class="order-line order-total text-base pt-3">
-                <span class="label font-bold text-gray-800">Total amount:</span>
-                <span class="value font-bold text-emerald-700" id="summary-total"></span>
+              <div class="order-line order-total">
+                <span class="label font-bold text-gray-800">Total Amount:</span>
+                <span class="value font-bold" id="summary-total"></span>
               </div>
             </div>
           </div>
 
-          <!-- Payment status -->
-          <div
-            id="payment-status"
-            class="payment-status mb-6"
-            aria-live="polite"
-            role="status"
-          ></div>
-
-          <!-- Iframe container -->
-          <div
-            id="pesapal-iframe-container"
-            class="bg-white border border-gray-200 rounded-xl shadow-md overflow-auto p-6 mb-6"
-          >
-            <!-- Header -->
-            <div
-              class="flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
-            >
-              <h4
-                id="selected-method-title"
-                class="text-xl font-semibold text-gray-800"
-              >
-                Credit / Debit Card
-              </h4>
-              <div class="flex space-x-3" aria-label="Accepted cards">
-                <div
-                  class="flex items-center justify-center w-8 h-5 bg-gray-100 rounded"
-                  aria-hidden="true"
-                >
-                  <i class="fab fa-cc-visa text-gray-700"></i>
+          <!-- Payment Method -->
+          <div class="mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Payment Method</h3>
+            <div class="payment-method-card active">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="w-14 h-14 rounded-xl bg-indigo-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-credit-card text-indigo-600 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-800 text-lg">PesaPal</h4>
+                    <p class="text-sm text-gray-600">Secure online payment</p>
+                  </div>
                 </div>
-                <div
-                  class="flex items-center justify-center w-8 h-5 bg-gray-100 rounded"
-                  aria-hidden="true"
-                >
-                  <i class="fab fa-cc-mastercard text-gray-700"></i>
-                </div>
-                <div
-                  class="flex items-center justify-center w-8 h-5 bg-gray-100 rounded"
-                  aria-hidden="true"
-                >
-                  <i class="fab fa-cc-amex text-gray-700"></i>
+                <div class="flex space-x-3">
+                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-visa text-gray-700 text-xl"></i>
+                  </div>
+                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-mastercard text-gray-700 text-xl"></i>
+                  </div>
+                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-amex text-gray-700 text-xl"></i>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {% if pesapal_iframe_url %}
-            <div class="pesapal-container">
+          <!-- PesaPal Payment Container -->
+          <div class="payment-container mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Enter Payment Details</h3>
+            <div id="pesapal-container">
+              <!-- Loading state -->
+              <div id="pesapal-loading" class="flex flex-col items-center justify-center h-64">
+                <div class="processing-spinner mb-4"></div>
+                <p class="text-gray-600 font-medium">Initializing secure payment...</p>
+                <p class="text-gray-500 text-sm mt-2">Please wait while we connect to PesaPal</p>
+              </div>
+
+              <!-- PesaPal iframe (hidden initially) -->
               <iframe
                 id="pesapal-iframe"
-                src="{{ pesapal_iframe_url }}"
-                title="PesaPal Payment"
-                loading="lazy"
-                frameborder="0"
-                allowfullscreen
-              ></iframe>
+                class="pesapal-iframe hidden"
+                title="PesaPal Payment Form"
+                loading="lazy">
+              </iframe>
 
-              <div
-                class="flex items-center text-sm text-gray-500 mt-4"
-                aria-label="Payment security information"
-              >
-                <i
-                  class="fas fa-lock text-green-500 mr-2"
-                  aria-hidden="true"
-                  title="Your payment details are encrypted and secure."
-                ></i>
-                <span>Your payment details are encrypted and secure.</span>
+              <!-- Error state (hidden initially) -->
+              <div id="pesapal-error" class="hidden p-8 bg-red-50 rounded-xl text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-red-800 mb-2">Payment Error</h3>
+                <p class="text-red-600 mb-4">We couldn't initialize the payment. Please try again.</p>
+                <button id="retry-payment" class="btn-primary">
+                  <span>Try Again</span>
+                  <i class="fas fa-redo"></i>
+                </button>
               </div>
             </div>
-            {% elif error %}
-            <div
-              class="p-4 bg-red-50 border-l-4 border-red-500 rounded-md"
-              role="alert"
-            >
-              <h3 class="text-sm font-semibold text-red-800 mb-1">Payment Error</h3>
-              <p class="text-sm text-red-700">{{ error }}</p>
-            </div>
-            {% else %}
-            <div
-              class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-md"
-              role="alert"
-            >
-              <h3 class="text-sm font-semibold text-yellow-800 mb-1">
-                Initializing Payment
-              </h3>
-              <p class="text-sm text-yellow-700">
-                Please wait while we connect to the payment service.
-              </p>
-            </div>
-            {% endif %}
           </div>
 
-          <!-- M-Pesa STK Push -->
-          <div
-            id="mpesa-section"
-            class="border border-gray-200 rounded-xl p-4 mt-6 hidden"
-          >
-            <form id="mpesa-form" class="space-y-4" novalidate>
-              <div>
-                <label
-                  for="mpesa-phone"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                  >M-Pesa phone number</label
-                >
-                <div class="mt-1 relative rounded-md shadow-sm">
-                  <div
-                    class="absolute inset-y-0 left-0 flex items-center pl-3"
-                    aria-hidden="true"
-                  >
-                    <select
-                      id="mpesa-country"
-                      name="country"
-                      class="h-full py-0 pl-0 pr-7 bg-transparent text-gray-700 sm:text-sm rounded-md focus:ring-emerald-500 focus:border-emerald-500"
-                    >
-                      <option>+254 (KE)</option>
-                      <option>+255 (TZ)</option>
-                      <option>+256 (UG)</option>
-                    </select>
-                  </div>
-                  <input
-                    type="tel"
-                    name="phone"
-                    id="mpesa-phone"
-                    placeholder="712 345 678"
-                    required
-                    autocomplete="tel"
-                    aria-required="true"
-                    inputmode="numeric"
-                    class="focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 block w-full pl-24 sm:text-sm border-gray-300 rounded-lg py-3 px-4"
-                  />
-                </div>
-              </div>
-
-              <div class="mpesa-pulse bg-green-50 border border-green-200 rounded-lg p-4">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0">
-                    <i
-                      class="fas fa-mobile-alt text-green-600 text-xl"
-                      aria-hidden="true"
-                    ></i>
-                  </div>
-                  <div class="ml-3">
-                    <h4 class="text-sm font-medium text-green-800">
-                      STK Push payment
-                    </h4>
-                    <p class="mt-1 text-sm text-green-700">
-                      You will receive a prompt on your phone to complete payment.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                class="w-full flex justify-center items-center py-3 px-4 rounded-lg shadow-sm text-sm font-medium text-white safari-btn"
-              >
-                <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i>
-                Request M-Pesa payment
-              </button>
-            </form>
-            <div id="mpesa-feedback" class="mt-4 hidden" aria-live="polite"></div>
-          </div>
-
-          <!-- PesaPal perks -->
-          <div class="safari-card p-6 mt-8">
-            <h3
-              class="text-lg font-medium text-gray-800 mb-4 flex items-center"
-            >
-              <i
-                class="fas fa-leaf mr-2 text-emerald-700"
-                aria-hidden="true"
-              ></i>
-              Why pay with PesaPal?
-            </h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Payment Features -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="feature-card">
               <div class="flex items-start">
-                <div
-                  class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  <i class="fas fa-shield-alt text-green-600"></i>
+                <div class="feature-icon mr-4">
+                  <i class="fas fa-shield-alt"></i>
                 </div>
-                <div class="ml-3">
-                  <h4 class="text-sm font-medium text-gray-800">Secure payments</h4>
-                  <p class="mt-1 text-sm text-gray-600">
-                    Bank-level security with encryption and fraud protection.
-                  </p>
+                <div>
+                  <h4 class="font-semibold text-gray-800 mb-1">Secure Payments</h4>
+                  <p class="text-gray-600 text-sm">Bank-level security with encryption and fraud protection</p>
                 </div>
               </div>
-
+            </div>
+            <div class="feature-card">
               <div class="flex items-start">
-                <div
-                  class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  <i class="fas fa-bolt text-green-600"></i>
+                <div class="feature-icon mr-4">
+                  <i class="fas fa-bolt"></i>
                 </div>
-                <div class="ml-3">
-                  <h4 class="text-sm font-medium text-gray-800">Instant processing</h4>
-                  <p class="mt-1 text-sm text-gray-600">
-                    Most payments are processed and confirmed instantly.
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-start">
-                <div
-                  class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  <i class="fas fa-mobile-alt text-green-600"></i>
-                </div>
-                <div class="ml-3">
-                  <h4 class="text-sm font-medium text-gray-800">Mobile optimized</h4>
-                  <p class="mt-1 text-sm text-gray-600">
-                    Seamless payment experience on any device.
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-start">
-                <div
-                  class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  <i class="fas fa-headset text-green-600"></i>
-                </div>
-                <div class="ml-3">
-                  <h4 class="text-sm font-medium text-gray-800">24/7 support</h4>
-                  <p class="mt-1 text-sm text-gray-600">
-                    Dedicated customer support for payment issues.
-                  </p>
+                <div>
+                  <h4 class="font-semibold text-gray-800 mb-1">Instant Processing</h4>
+                  <p class="text-gray-600 text-sm">Most payments are processed and confirmed instantly</p>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- FAQ -->
-          <div class="safari-card p-6 mt-8">
-            <h3
-              class="text-xl font-bold text-gray-800 mb-6 flex items-center"
-            >
-              <i
-                class="fas fa-question-circle mr-2 text-emerald-700"
-                aria-hidden="true"
-              ></i>
-              Frequently asked questions
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-question-circle mr-2 text-indigo-600"></i>
+              Frequently Asked Questions
             </h3>
 
             <div class="faq-item">
-              <div
-                class="faq-question flex justify-between items-center"
-                role="button"
-                tabindex="0"
-                aria-expanded="false"
-                aria-controls="faq1-answer"
-              >
+              <div class="faq-question">
                 <span>What is included in the safari package?</span>
-                <i class="fas fa-chevron-down text-green-600" aria-hidden="true"></i>
+                <i class="fas fa-chevron-down text-indigo-600"></i>
               </div>
-              <div
-                id="faq1-answer"
-                class="faq-answer text-gray-600"
-                hidden
-              >
-                <p>
-                  Accommodation, meals, game drives, park entry fees, professional guide services, and transportation. Some packages may include cultural visits and activities.
-                </p>
+              <div class="faq-answer hidden">
+                <p>Accommodation, meals, game drives, park entry fees, professional guide services, and transportation. Some packages may include cultural visits and activities.</p>
               </div>
             </div>
 
             <div class="faq-item">
-              <div
-                class="faq-question flex justify-between items-center"
-                role="button"
-                tabindex="0"
-                aria-expanded="false"
-                aria-controls="faq2-answer"
-              >
+              <div class="faq-question">
                 <span>What is the cancellation policy?</span>
-                <i class="fas fa-chevron-down text-green-600" aria-hidden="true"></i>
+                <i class="fas fa-chevron-down text-indigo-600"></i>
               </div>
-              <div
-                id="faq2-answer"
-                class="faq-answer text-gray-600"
-                hidden
-              >
+              <div class="faq-answer hidden">
                 <p>30+ days: full refund. 15–29 days: 50% refund. Within 14 days: no refund.</p>
               </div>
             </div>
 
             <div class="faq-item">
-              <div
-                class="faq-question flex justify-between items-center"
-                role="button"
-                tabindex="0"
-                aria-expanded="false"
-                aria-controls="faq3-answer"
-              >
+              <div class="faq-question">
                 <span>What should I pack for the safari?</span>
-                <i class="fas fa-chevron-down text-green-600" aria-hidden="true"></i>
+                <i class="fas fa-chevron-down text-indigo-600"></i>
               </div>
-              <div
-                id="faq3-answer"
-                class="faq-answer text-gray-600"
-                hidden
-              >
-                <p>
-                  Neutral clothing, hat, sunscreen, binoculars, camera, comfortable shoes, and a light jacket for early drives.
-                </p>
-              </div>
-            </div>
-
-            <div class="faq-item">
-              <div
-                class="faq-question flex justify-between items-center"
-                role="button"
-                tabindex="0"
-                aria-expanded="false"
-                aria-controls="faq4-answer"
-              >
-                <span>Is travel insurance included?</span>
-                <i class="fas fa-chevron-down text-green-600" aria-hidden="true"></i>
-              </div>
-              <div
-                id="faq4-answer"
-                class="faq-answer text-gray-600"
-                hidden
-              >
-                <p>
-                  Not included, but highly recommended. We can assist with comprehensive coverage options.
-                </p>
+              <div class="faq-answer hidden">
+                <p>Neutral clothing, hat, sunscreen, binoculars, camera, comfortable shoes, and a light jacket for early drives.</p>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Right: Tour details, trust, support -->
-      <aside class="lg:col-span-1 space-y-8" aria-labelledby="tour-details">
-        <!-- Tour Summary Card -->
-        <div class="safari-card p-6 overflow-hidden">
-          <h2
-            id="tour-details"
-            class="text-xl font-bold text-gray-800 mb-4 flex items-center"
-          >
-            <i
-              class="fas fa-map-marked-alt mr-2 text-emerald-700"
-              aria-hidden="true"
-            ></i>
-            Tour details
+      <!-- Right Column: Tour Details -->
+      <div class="lg:col-span-1">
+        <!-- Tour Summary -->
+        <div class="card mb-8 p-6">
+          <h2 class="section-title">
+            <i class="fas fa-map-marked-alt"></i>
+            Tour Details
           </h2>
 
-          <div class="mb-4">
-            <img
-              src="{{ tour.image.url }}"
-              alt="{{ tour.title }}"
-              class="w-full h-48 object-cover rounded-lg"
-              loading="lazy"
-            />
+          <div class="mb-6">
+            <img src="{{ tour.image.url }}" alt="{{ tour.title }}"
+              class="w-full h-48 object-cover rounded-xl" />
           </div>
 
-          <h3 class="text-lg font-semibold text-gray-800">{{ tour.title }}</h3>
-          <p class="text-gray-600 text-sm mt-1">
-            {{ tour.description|default_if_none:""|truncatewords:28 }}
-          </p>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">{{ tour.title }}</h3>
+          <p class="text-gray-600 mb-4">{{ tour.description|truncatewords:20 }}</p>
 
-          <div class="mt-4 space-y-2 text-sm text-gray-700">
+          <div class="space-y-3 mb-6">
             <div class="flex justify-between">
               <span class="text-gray-600">Duration:</span>
               <span class="font-medium">{{ tour.duration_days }} days</span>
@@ -976,170 +727,206 @@
             </div>
           </div>
 
-          <div class="mt-6 pt-4 border-t border-gray-200">
-            <h4 class="text-md font-semibold text-gray-800 mb-2">What's included</h4>
-            <ul class="text-sm text-gray-600 space-y-1">
-              <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2 text-xs" aria-hidden="true"></i><span>Park entry fees</span></li>
-              <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2 text-xs" aria-hidden="true"></i><span>Professional guide</span></li>
-              <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2 text-xs" aria-hidden="true"></i><span>Comfortable accommodation</span></li>
-              <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2 text-xs" aria-hidden="true"></i><span>Meals &amp; drinking water</span></li>
-              <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2 text-xs" aria-hidden="true"></i><span>4x4 game drives</span></li>
+          <div class="pt-4 border-t border-gray-200">
+            <h4 class="font-semibold text-gray-800 mb-3">What's Included</h4>
+            <ul class="space-y-2">
+              <li class="flex items-center text-sm">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>Park entry fees</span>
+              </li>
+              <li class="flex items-center text-sm">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>Professional guide</span>
+              </li>
+              <li class="flex items-center text-sm">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>Comfortable accommodation</span>
+              </li>
+              <li class="flex items-center text-sm">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>Meals & drinking water</span>
+              </li>
+              <li class="flex items-center text-sm">
+                <i class="fas fa-check text-green-500 mr-2"></i>
+                <span>4x4 game drives</span>
+              </li>
             </ul>
           </div>
         </div>
 
-        <!-- Support Card -->
-        <div class="safari-card p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-question-circle mr-2 text-emerald-700" aria-hidden="true"></i> Need help?
+        <!-- Support -->
+        <div class="card mb-8 p-6">
+          <h2 class="section-title">
+            <i class="fas fa-headset"></i>
+            Need Help?
           </h2>
-          <div class="space-y-3">
-            <div class="flex items-center text-gray-700 p-3 rounded-lg bg-gray-50">
-              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                <i class="fas fa-phone-alt text-green-600 text-sm"></i>
+
+          <div class="space-y-4">
+            <div class="flex items-center p-3 bg-indigo-50 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                <i class="fas fa-phone text-indigo-600"></i>
               </div>
-              <a href="tel:+254700123456" class="ml-3 hover:underline" aria-label="Call support phone number">+254 700 123456</a>
+              <a href="tel:+254700123456" class="text-gray-700 hover:text-indigo-600">+254 700 123456</a>
             </div>
-            <div class="flex items-center text-gray-700 p-3 rounded-lg bg-gray-50">
-              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                <i class="fas fa-envelope text-green-600 text-sm"></i>
+
+            <div class="flex items-center p-3 bg-indigo-50 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                <i class="fas fa-envelope text-indigo-600"></i>
               </div>
-              <a href="mailto:support@safariadventures.com" class="ml-3 hover:underline" aria-label="Email support">support@safariadventures.com</a>
+              <a href="mailto:support@safariadventures.com" class="text-gray-700 hover:text-indigo-600">support@safariadventures.com</a>
             </div>
-            <div class="flex items-center text-gray-700 p-3 rounded-lg bg-gray-50 cursor-pointer hover:bg-green-50 transition-colors" role="button" tabindex="0" aria-label="Open live chat">
-              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                <i class="fas fa-comments text-green-600 text-sm"></i>
+
+            <div class="flex items-center p-3 bg-indigo-50 rounded-lg cursor-pointer hover:bg-indigo-100">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                <i class="fas fa-comments text-indigo-600"></i>
               </div>
-              <span class="ml-3">Live Chat</span>
+              <span class="text-gray-700">Live Chat</span>
             </div>
           </div>
         </div>
 
-        <!-- Security Badges -->
-        <div class="safari-card p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-shield-alt mr-2 text-emerald-700" aria-hidden="true"></i> Secure &amp; protected
+        <!-- Security -->
+        <div class="card p-6">
+          <h2 class="section-title">
+            <i class="fas fa-shield-alt"></i>
+            Security & Protection
           </h2>
-          <div class="space-y-3">
-            <div class="flex items-center p-3 rounded-lg bg-gray-50">
-              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                <i class="fas fa-lock text-green-600 text-sm" aria-label="SSL Encryption Icon"></i>
-              </div>
-              <span class="ml-3 text-sm text-gray-600" title="Your data is encrypted">256-bit SSL Encryption</span>
-            </div>
-            <div class="flex items-center p-3 rounded-lg bg-gray-50">
-              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                <i class="fas fa-shield-alt text-green-600 text-sm"></i>
-              </div>
-              <span class="ml-3 text-sm text-gray-600">PCI DSS Compliant</span>
-            </div>
-            <div class="flex items-center p-3 rounded-lg bg-gray-50">
-              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" aria-hidden="true">
-                <i class="fas fa-user-shield text-green-600 text-sm"></i>
-              </div>
-              <span class="ml-3 text-sm text-gray-600">Privacy Protected</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Payment Methods -->
-        <div class="safari-card p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-credit-card mr-2 text-emerald-700" aria-hidden="true"></i> Accepted payment methods
-          </h2>
-          <div class="grid grid-cols-4 gap-2">
-            <div class="p-2 border border-gray-200 rounded-lg flex items-center justify-center" aria-hidden="true">
-              <i class="fab fa-cc-visa text-2xl text-blue-800"></i>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                <i class="fas fa-lock text-indigo-600"></i>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-800">256-bit SSL Encryption</h4>
+                <p class="text-sm text-gray-600">Your data is encrypted and secure</p>
+              </div>
             </div>
-            <div class="p-2 border border-gray-200 rounded-lg flex items-center justify-center" aria-hidden="true">
-              <i class="fab fa-cc-mastercard text-2xl text-red-600"></i>
+
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                <i class="fas fa-shield-alt text-indigo-600"></i>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-800">PCI DSS Compliant</h4>
+                <p class="text-sm text-gray-600">Payment industry security standards</p>
+              </div>
             </div>
-            <div class="p-2 border border-gray-200 rounded-lg flex items-center justify-center" aria-hidden="true">
-              <i class="fab fa-cc-amex text-2xl text-blue-600"></i>
-            </div>
-            <div class="p-2 border border-gray-200 rounded-lg flex items-center justify-center" aria-hidden="true">
-              <i class="fas fa-mobile-alt text-2xl text-green-600"></i>
+
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                <i class="fas fa-user-shield text-indigo-600"></i>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-800">Privacy Protected</h4>
+                <p class="text-sm text-gray-600">Your information is never shared</p>
+              </div>
             </div>
           </div>
-          <p class="text-xs text-gray-500 mt-3 text-center">All major cards and mobile money</p>
         </div>
-      </aside>
+      </div>
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class="mt-12 py-8 bg-green-900 text-green-100" role="contentinfo">
-    <div class="container mx-auto px-4">
+  <footer class="bg-gray-900 text-gray-300 py-12 px-4 mt-16">
+    <div class="container mx-auto max-w-6xl">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-          <h3 class="text-lg font-bold mb-4">Safari<span class="text-amber-300">Adventures</span></h3>
-          <p class="text-sm">
-            Creating unforgettable wildlife experiences since 2005. Our expert guides will show you Africa's most spectacular wildlife.
-          </p>
+          <h3 class="text-xl font-bold text-white mb-4">Safari<span class="text-amber-300">Adventures</span></h3>
+          <p class="mb-4">Creating unforgettable wildlife experiences since 2005.</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
+          </div>
         </div>
+
         <div>
-          <h4 class="text-md font-semibold mb-4">Contact info</h4>
-          <p class="text-sm flex items-center mb-2">
-            <i class="fas fa-map-marker-alt mr-2" aria-hidden="true"></i> Nairobi, Kenya
-          </p>
-          <p class="text-sm flex items-center mb-2">
-            <i class="fas fa-phone-alt mr-2" aria-hidden="true"></i> +254 700 123456
-          </p>
-          <p class="text-sm flex items-center">
-            <i class="fas fa-envelope mr-2" aria-hidden="true"></i> info@safariadventures.com
-          </p>
-        </div>
-        <div>
-          <h4 class="text-md font-semibold mb-4">Quick links</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Safari Packages</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Testimonials</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Gallery</a></li>
+          <h4 class="text-lg font-semibold text-white mb-4">Quick Links</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-white">About Us</a></li>
+            <li><a href="#" class="hover:text-white">Safari Packages</a></li>
+            <li><a href="#" class="hover:text-white">Testimonials</a></li>
+            <li><a href="#" class="hover:text-white">Gallery</a></li>
           </ul>
         </div>
+
         <div>
-          <h4 class="text-md font-semibold mb-4">Stay connected</h4>
-          <div class="flex space-x-4">
-            <a href="#" aria-label="Facebook" class="text-lg hover:text-white transition-colors"><i class="fab fa-facebook"></i></a>
-            <a href="#" aria-label="Instagram" class="text-lg hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="Twitter" class="text-lg hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="YouTube" class="text-lg hover:text-white transition-colors"><i class="fab fa-youtube"></i></a>
-          </div>
-          <div class="mt-4">
-            <p class="text-sm">Subscribe to our newsletter</p>
-            <form method="POST" action="#" class="mt-2 flex" novalidate>
-              {% csrf_token %}
-              <input
-                type="email"
-                name="email"
-                placeholder="Your email"
-                required
-                autocomplete="email"
-                class="px-3 py-2 rounded-l-lg text-gray-800 text-sm w-full focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-              <button
-                type="submit"
-                class="bg-green-700 text-white px-3 rounded-r-lg hover:bg-green-600 transition-colors"
-                aria-label="Subscribe to newsletter"
-              >
-                <i class="fas fa-paper-plane"></i>
-              </button>
-            </form>
-          </div>
+          <h4 class="text-lg font-semibold text-white mb-4">Contact Info</h4>
+          <ul class="space-y-2">
+            <li class="flex items-start">
+              <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+              <span>Nairobi, Kenya</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-phone mr-2"></i>
+              <span>+254 700 123456</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-envelope mr-2"></i>
+              <span>info@safariadventures.com</span>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold text-white mb-4">Newsletter</h4>
+          <p class="mb-4">Subscribe for special offers and safari tips</p>
+          <form class="flex">
+            <input type="email" placeholder="Your email"
+              class="px-4 py-2 rounded-l-lg text-gray-800 w-full focus:outline-none" />
+            <button class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
         </div>
       </div>
-      <div class="border-t border-green-800 mt-8 pt-6 text-center text-sm">
-        <p>
-          © {% now "Y" %} SafariAdventures. All rights reserved.
-          | <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-          | <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
-        </p>
+
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
+        <p>&copy; {% now "Y" %} SafariAdventures. All rights reserved.</p>
+        <div class="mt-2">
+          <a href="#" class="mx-2 hover:text-white">Privacy Policy</a>
+          <a href="#" class="mx-2 hover:text-white">Terms of Service</a>
+        </div>
       </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Payment Processing Overlay -->
+  <div id="payment-processing" class="payment-processing hidden">
+    <div class="processing-content">
+      <div class="processing-spinner"></div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">Processing Your Payment</h3>
+      <p class="text-gray-600 mb-6">Please wait while we initialize your secure payment with PesaPal.</p>
+      <div class="bg-gray-100 p-4 rounded-lg text-left">
+        <div class="flex items-center mb-3">
+          <i class="fas fa-check-circle text-green-500 mr-2"></i>
+          <span>Verifying your information</span>
+        </div>
+        <div class="flex items-center mb-3">
+          <i class="fas fa-check-circle text-green-500 mr-2"></i>
+          <span>Creating your booking</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-5 h-5 rounded-full border-2 border-gray-300 mr-2"></div>
+          <span>Initializing PesaPal payment</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-notification">
+    <i class="toast-icon"></i>
+    <div>
+      <div class="toast-title font-medium"></div>
+      <div class="toast-message text-sm text-gray-600"></div>
+    </div>
+  </div>
+
+<!-- Scripts -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   // Elements
@@ -1147,18 +934,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const continueBtn = document.getElementById('continue-btn');
   const paymentSection = document.getElementById('payment-section');
   const guestFormSection = document.getElementById('guest-form');
+  const toast = document.getElementById('toast');
+  const pesapalContainer = document.getElementById('pesapal-container');
+  const pesapalLoading = document.getElementById('pesapal-loading');
+  const pesapalIframe = document.getElementById('pesapal-iframe');
+  const pesapalError = document.getElementById('pesapal-error');
+  const retryPaymentBtn = document.getElementById('retry-payment');
+
+  // Form inputs
+  const nameInput = document.getElementById('full-name');
   const emailInput = document.getElementById('guest-email');
   const phoneInput = document.getElementById('phone');
-  const emailError = document.getElementById('email-error');
-  const phoneError = document.getElementById('phone-error');
-
-  const nameInput = document.getElementById('full-name');
   const codeInput = document.getElementById('country-code');
   const adultsInput = document.getElementById('adults');
   const childrenInput = document.getElementById('children');
   const daysInput = document.getElementById('days');
   const travelDateInput = document.getElementById('travel-date');
 
+  // Summary elements
   const sName = document.getElementById('summary-name');
   const sEmail = document.getElementById('summary-email');
   const sPhone = document.getElementById('summary-phone');
@@ -1169,11 +962,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const sChildrenCost = document.getElementById('summary-children-cost');
   const sTotal = document.getElementById('summary-total');
 
-  // Pricing from Django context
+  // Pricing
   const pricePerPerson = Number('{{ tour.price_per_person|floatformat:2 }}');
   const durationDays = Number('{{ tour.duration_days }}');
   const dailyRate = durationDays > 0 ? (pricePerPerson / durationDays) : 0;
 
+  // Format currency
   function formatKES(amount) {
     try {
       return new Intl.NumberFormat('en-KE', {
@@ -1186,41 +980,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  function validatePhone(phone) {
-    return /^[0-9]{9}$/.test((phone || '').replace(/\s/g, ''));
-  }
-
-  // Live Summary Calculation with tiered pricing and travel date
+  // Calculate order summary
   function recalc() {
-    const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
-    const code = codeInput.value;
-    const phone = phoneInput.value.trim();
-    const travelDate = travelDateInput.value || '';
-
     const adults = Math.max(parseInt(adultsInput.value || '0', 10), 0);
     const children = Math.max(parseInt(childrenInput.value || '0', 10), 0);
     const days = Math.max(parseInt(daysInput.value || '0', 10), 0);
 
-    // Pricing logic:
-    // - First adult: 100% of daily x days
-    // - Additional adults: 90% each x daily x days
-    // - Children: 50% each x daily x days
+    // Pricing logic
     const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
     const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
     const childrenCost = children * dailyRate * 0.5 * days;
     const adultsCost = firstAdultCost + additionalAdultsCost;
     const total = adultsCost + childrenCost;
 
-    // Update summary fields
-    sName.textContent = name || '';
-    sEmail.textContent = email || '';
-    sPhone.textContent = phone ? `${code} ${phone}` : '';
-    sDate.textContent = travelDate || 'Not selected';
+    // Update summary
+    sName.textContent = nameInput.value || '';
+    sEmail.textContent = emailInput.value || '';
+    sPhone.textContent = phoneInput.value ? `${codeInput.value} ${phoneInput.value}` : '';
+    sDate.textContent = travelDateInput.value || 'Not selected';
     sTrav.textContent = `${adults} Adults, ${children} Children`;
     sDays.textContent = `${days} Days`;
     sAdultsCost.textContent = formatKES(adultsCost);
@@ -1228,26 +1005,17 @@ document.addEventListener('DOMContentLoaded', () => {
     sTotal.textContent = formatKES(total);
   }
 
-  // Input listeners for live updates
-  [
-    nameInput, emailInput, phoneInput, codeInput,
-    adultsInput, childrenInput, daysInput, travelDateInput
-  ].forEach(el => {
+  // Add input listeners
+  [nameInput, emailInput, phoneInput, codeInput, adultsInput, childrenInput, daysInput, travelDateInput].forEach(el => {
     if (el) el.addEventListener('input', recalc);
   });
 
-  // Function to load Pesapal iframe
+  // Function to load PesaPal iframe
   function loadPesapalIframe() {
-    const pesapalContainer = document.querySelector('.pesapal-container');
-    if (!pesapalContainer) return;
-
     // Show loading state
-    pesapalContainer.innerHTML = `
-      <div class="flex flex-col items-center justify-center h-64">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 mb-4"></div>
-        <p class="text-gray-600">Initializing secure payment...</p>
-      </div>
-    `;
+    pesapalLoading.classList.remove('hidden');
+    pesapalIframe.classList.add('hidden');
+    pesapalError.classList.add('hidden');
 
     // Get form data
     const formData = new FormData(guestForm);
@@ -1272,23 +1040,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const childrenCost = children * dailyRate * 0.5 * days;
     const total = Math.round(firstAdultCost + additionalAdultsCost);
 
-    // Store guest info in session
-    fetch('/guest/process-info/', {
+    console.log('Processing payment with data:', data, 'Total amount:', total);
+
+    // First, submit the guest checkout form to create a payment record
+    fetch(`/guest/checkout/{{ tour.id }}/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
       },
       body: new URLSearchParams({
+        full_name: data.full_name,
         email: data.email,
-        phone: data.country_code + data.phone
+        phone: data.phone,
+        country_code: data.country_code,
+        adults: data.adults,
+        children: data.children,
+        days: data.days,
+        travel_date: data.travel_date
       })
     })
-    .then(response => response.json())
+    .then(response => {
+      console.log('Guest checkout response status:', response.status);
+      return response.json();
+    })
     .then(result => {
+      console.log('Guest checkout result:', result);
       if (result.success) {
-        // Create Pesapal order
-        return fetch('/guest/create-order/', {
+        // Now create the PesaPal order
+        return fetch('/create-guest-pesapal-order/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1296,190 +1076,166 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           body: JSON.stringify({
             amount: total,
-            description: `Tour booking for {{ tour.title }}`
+            description: `Tour booking for {{ tour.title }}`,
+            guest_info: {
+              full_name: data.full_name,
+              email: data.email,
+              phone: data.country_code + data.phone,
+              adults: data.adults,
+              children: data.children,
+              days: data.days,
+              travel_date: data.travel_date
+            }
           })
         });
       } else {
         throw new Error(result.message || 'Failed to process guest information');
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      console.log('Create Pesapal order response status:', response.status);
+      return response.json();
+    })
     .then(result => {
-      if (result.success) {
-        // Load Pesapal iframe
-        pesapalContainer.innerHTML = `
-          <iframe
-            id="pesapal-iframe"
-            src="${result.redirect_url}"
-            title="PesaPal Payment"
-            loading="lazy"
-            frameborder="0"
-            allowfullscreen
-          ></iframe>
-          <div class="flex items-center text-sm text-gray-500 mt-4">
-            <i class="fas fa-lock text-green-500 mr-2" aria-hidden="true"></i>
-            <span>Your payment details are encrypted and secure.</span>
-          </div>
-        `;
+      console.log('Create Pesapal order result:', result);
+      if (result.success && result.redirect_url) {
+        // Load PesaPal iframe
+        pesapalIframe.src = result.redirect_url;
+        pesapalIframe.onload = () => {
+          console.log('PesaPal iframe loaded successfully');
+          // Hide loading, show iframe
+          pesapalLoading.classList.add('hidden');
+          pesapalIframe.classList.remove('hidden');
+        };
+
+        // Set a timeout in case the iframe doesn't load
+        setTimeout(() => {
+          if (pesapalLoading.classList.contains('hidden') === false) {
+            console.log('PesaPal iframe loading timeout');
+            pesapalLoading.classList.add('hidden');
+            pesapalError.classList.remove('hidden');
+          }
+        }, 10000); // 10 seconds timeout
       } else {
         throw new Error(result.message || 'Failed to initialize payment');
       }
     })
     .catch(error => {
       console.error('Payment initialization error:', error);
-      pesapalContainer.innerHTML = `
-        <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-md">
-          <h3 class="text-sm font-semibold text-red-800 mb-1">Payment Error</h3>
-          <p class="text-sm text-red-700">${error.message || 'Failed to initialize payment. Please try again.'}</p>
-          <button class="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors" onclick="loadPesapalIframe()">
-            Try Again
-          </button>
-        </div>
-      `;
+
+      // Show error state
+      pesapalLoading.classList.add('hidden');
+      pesapalError.classList.remove('hidden');
+
+      // Show error message
+      showToast('error', 'Payment Error', error.message || 'Failed to initialize payment. Please try again.');
     });
   }
 
   // Form submission handler
   if (guestForm) {
-    let formSubmitted = false;
-
     guestForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      if (formSubmitted) return;
-      formSubmitted = true;
 
-      let ok = true;
-      if (!validateEmail(emailInput.value)) {
-        emailError.classList.remove('hidden'); ok = false;
-      } else {
-        emailError.classList.add('hidden');
-      }
-      if (!validatePhone(phoneInput.value)) {
-        phoneError.classList.remove('hidden'); ok = false;
-      } else {
-        phoneError.classList.add('hidden');
-      }
-      if (!(Number(adultsInput.value) >= 1)) {
-        ok = false; adultsInput.focus();
-      }
-
-      if (!ok) {
-        formSubmitted = false;
-        toast('Please fix the highlighted errors to continue.', 'error');
+      // Simple validation
+      if (!nameInput.value || !emailInput.value || !phoneInput.value) {
+        showToast('error', 'Validation Error', 'Please fill in all required fields');
         return;
       }
 
-      continueBtn.classList.add('btn-processing');
+      // Show loading state on button
       continueBtn.disabled = true;
-      continueBtn.innerHTML = '<span>Processing</span> <i class="fas fa-spinner"></i>';
+      continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
 
+      // Calculate and display summary
+      recalc();
+
+      // Show payment section
+      guestFormSection.classList.add('hidden');
+      paymentSection.classList.remove('hidden');
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Load PesaPal iframe
       setTimeout(() => {
-        recalc();
-        guestFormSection.classList.add('hidden');
-        paymentSection.classList.remove('hidden');
-
-        // Load Pesapal iframe
         loadPesapalIframe();
 
-        continueBtn.classList.remove('btn-processing');
+        // Reset button
         continueBtn.disabled = false;
-        continueBtn.innerHTML = '<span>Proceed to payment</span> <i class="fas fa-arrow-right"></i>';
-        toast('Details confirmed. Continue with payment.', 'success');
-      }, 900);
+        continueBtn.innerHTML = '<span>Continue to Payment</span> <i class="fas fa-arrow-right"></i>';
+      }, 500);
     });
   }
 
-  // Toast helper
-  function toast(message, type='success') {
-    const t = document.createElement('div');
-    t.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm text-white ${
-      type==='success' ? 'bg-emerald-600' : 'bg-red-600'
-    }`;
-    t.textContent = message;
-    document.body.appendChild(t);
-    setTimeout(() => { t.remove(); }, 2600);
+  // Retry payment button handler
+  if (retryPaymentBtn) {
+    retryPaymentBtn.addEventListener('click', () => {
+      loadPesapalIframe();
+    });
   }
 
-  // Payment method interactions
-  (function() {
-    const cards = Array.from(document.querySelectorAll('.payment-card'));
-    const mpesaSection = document.getElementById('mpesa-section');
-    const pesapalSection = document.getElementById('pesapal-iframe-container');
-    const selectedMethodTitle = document.getElementById('selected-method-title');
+  // Toast notification function
+  function showToast(type, title, message) {
+    const toastEl = document.getElementById('toast');
+    const toastIcon = toastEl.querySelector('.toast-icon');
+    const toastTitle = toastEl.querySelector('.toast-title');
+    const toastMessage = toastEl.querySelector('.toast-message');
 
-    const titleMap = {
-      credit_card: 'Credit / Debit Card',
-      debit_card: 'Debit Card',
-      bank: 'Bank Transfer',
-      mpesa: 'M-Pesa'
-    };
+    // Set toast content
+    toastTitle.textContent = title;
+    toastMessage.textContent = message;
 
-    cards.forEach(card => {
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('role', 'button');
-      card.setAttribute('aria-selected', 'false');
+    // Set toast type
+    toastEl.className = 'toast-notification ' + type;
 
-      function activate() {
-        cards.forEach(c => {
-          c.classList.remove('active','ring','ring-2','ring-green-500');
-          c.setAttribute('aria-selected','false');
-        });
-        card.classList.add('active','ring','ring-2','ring-green-500');
-        card.setAttribute('aria-selected','true');
+    // Set icon based on type
+    if (type === 'success') {
+      toastIcon.className = 'toast-icon fas fa-check-circle';
+    } else if (type === 'error') {
+      toastIcon.className = 'toast-icon fas fa-exclamation-circle';
+    }
 
-        const method = card.dataset.method;
-        if (method === 'mpesa') {
-          mpesaSection.classList.remove('hidden');
-          pesapalSection.classList.add('hidden');
-        } else {
-          mpesaSection.classList.add('hidden');
-          pesapalSection.classList.remove('hidden');
-          selectedMethodTitle.textContent = titleMap[method] || 'Credit / Debit Card';
-        }
-      }
+    // Show toast
+    toastEl.classList.add('show');
 
-      card.addEventListener('click', activate);
-      card.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          activate();
-        }
-      });
-    });
-  })();
+    // Hide toast after 5 seconds
+    setTimeout(() => {
+      toastEl.classList.remove('show');
+    }, 5000);
+  }
 
   // FAQ toggles
-  document.querySelectorAll('.faq-question').forEach(q => {
-    q.addEventListener('click', () => {
-      const item = q.closest('.faq-item');
-      const answer = item.querySelector('.faq-answer');
-      const icon = q.querySelector('i');
-      const expanded = q.getAttribute('aria-expanded') === 'true';
-      q.setAttribute('aria-expanded', String(!expanded));
-      if (answer) {
-        if (expanded) {
-          answer.hidden = true;
-          item.classList.remove('faq-active');
-        } else {
-          answer.hidden = false;
-          item.classList.add('faq-active');
-        }
-      }
-      if (icon) {
-        icon.classList.toggle('fa-chevron-down');
-        icon.classList.toggle('fa-chevron-up');
-      }
-    });
-    q.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        q.click();
-      }
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      const answer = question.nextElementSibling;
+      const icon = question.querySelector('i');
+
+      answer.classList.toggle('hidden');
+      icon.classList.toggle('fa-chevron-down');
+      icon.classList.toggle('fa-chevron-up');
     });
   });
 
   // Initialize summary
   recalc();
+
+  // Countdown timer
+  let timeLeft = 15 * 60; // 15 minutes in seconds
+  const countdownElement = document.getElementById('countdown-timer');
+
+  const countdown = setInterval(() => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    countdownElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+      countdownElement.textContent = "Expired";
+    }
+
+    timeLeft--;
+  }, 1000);
 });
 </script>
 </body>
