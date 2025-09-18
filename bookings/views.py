@@ -162,8 +162,8 @@ def tour_payment(request, tour_id):
 
                 if payment:
                     messages.info(request, "You already have a pending payment for this tour.")
-                    if payment.pesapal_reference:
-                        iframe_url = get_pesapal_iframe_url(payment.pesapal_reference)
+                    if payment.pesapal_iframe_url:
+                        iframe_url = payment.pesapal_iframe_url
                         show_payment_options = True
                 else:
                     # Create new payment record
@@ -197,6 +197,7 @@ def tour_payment(request, tour_id):
                         # Update payment with Pesapal details
                         payment.transaction_id = order_ref
                         payment.pesapal_reference = tracking_id
+                        payment.pesapal_iframe_url = iframe_url  # Store actual iframe URL
                         payment.save()
 
                         # Store payment info in session
@@ -228,12 +229,12 @@ def tour_payment(request, tour_id):
                 payment = Payment.objects.get(id=payment_id, tour_id=tour_id)
 
                 if payment.status == PaymentStatus.PENDING:
-                    if payment.pesapal_reference:
-                        iframe_url = get_pesapal_iframe_url(payment.pesapal_reference)
+                    if payment.pesapal_iframe_url:
+                        iframe_url = payment.pesapal_iframe_url
                         show_payment_options = True
                         logger.info(f"Resuming payment {payment_id} with iframe")
                     else:
-                        # Payment exists but no Pesapal reference - create one
+                        # Payment exists but no Pesapal iframe - create one
                         try:
                             iframe_url, order_ref, tracking_id = create_pesapal_order(
                                 order_id=f"TOUR-{payment.id}",
@@ -247,6 +248,7 @@ def tour_payment(request, tour_id):
 
                             payment.transaction_id = order_ref
                             payment.pesapal_reference = tracking_id
+                            payment.pesapal_iframe_url = iframe_url
                             payment.save()
 
                             show_payment_options = True
@@ -280,15 +282,17 @@ def tour_payment(request, tour_id):
         },
     )
 
-# Helper function to get Pesapal iframe URL
-def get_pesapal_iframe_url(tracking_id):
+
+# =============================================================================
+# Helper function to get Pesapal iframe URL (LIVE)
+# =============================================================================
+def get_pesapal_iframe_url(payment: Payment) -> str | None:
     """
-    Generate Pesapal iframe URL from tracking ID.
-    In a real implementation, this would call Pesapal API to get the iframe URL.
+    Return the actual Pesapal iframe URL from Payment record.
+    Safe for live usage.
     """
-    # This is a placeholder - implement according to Pesapal documentation
-    base_url = "https://www.pesapal.com/iframe/Embed"
-    return f"{base_url}?OrderTrackingId={tracking_id}"
+    return getattr(payment, "pesapal_iframe_url", None)
+
 
 
 @require_GET
