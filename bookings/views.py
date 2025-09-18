@@ -350,12 +350,19 @@ def pesapal_health(request):
 def pesapal_ipn(request):
     """
     Handle Pesapal server-to-server IPN notifications.
-    Expects JSON with OrderTrackingId.
+    Expects JSON with transaction_tracking_id.
     """
     try:
         payload = json.loads(request.body)
-        tracking_id = payload.get("OrderTrackingId") or payload.get("order_tracking_id")
+        # Check all possible field names Pesapal might use
+        tracking_id = (
+                payload.get("OrderTrackingId") or
+                payload.get("order_tracking_id") or
+                payload.get("transaction_tracking_id")
+        )
+
         if not tracking_id:
+            logger.error(f"Missing tracking ID in IPN payload: {payload}")
             return HttpResponse("Missing tracking ID", status=400)
 
         payment = get_object_or_404(Payment, pesapal_reference=tracking_id)
@@ -364,7 +371,6 @@ def pesapal_ipn(request):
     except Exception as exc:
         logger.exception("Pesapal IPN error: %s", exc)
         return HttpResponse("Server error", status=500)
-
 
 def _update_pesapal_status_and_redirect(payment: Payment):
     """
