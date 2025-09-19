@@ -3,6 +3,7 @@ import os
 import dj_database_url  # pip install dj-database-url
 from dotenv import load_dotenv  # pip install python-dotenv
 from decouple import config
+from airport.utils import normalize_phone_number
 
 # ==============================
 # BASE DIRECTORY & ENV LOADING
@@ -141,9 +142,19 @@ PESAPAL_CONSUMER_KEY = config("PESAPAL_CONSUMER_KEY")
 PESAPAL_CONSUMER_SECRET = config("PESAPAL_CONSUMER_SECRET")
 PESAPAL_NOTIFICATION_ID = config("PESAPAL_NOTIFICATION_ID")
 
-# Base URL for Pesapal API
-PESAPAL_BASE_URL = "https://api.pesapal.com/v3"
+# Production (live) PesaPal v3 API
+PESAPAL_BASE_URL = config(
+    "PESAPAL_BASE_URL",
+    default="https://pay.pesapal.com/v3"
+)
 
+# (Optional) you can also expose a SANDBOX flag and switch dynamically:
+USE_PESAPAL_SANDBOX = config("USE_PESAPAL_SANDBOX", default=False, cast=bool)
+if USE_PESAPAL_SANDBOX:
+    PESAPAL_BASE_URL = config(
+        "PESAPAL_SANDBOX_BASE_URL",
+        default="https://cybqa.pesapal.com/pesapalv3"
+    )
 # Force live mode - no demo mode option
 PESAPAL_DEMO = False
 
