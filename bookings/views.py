@@ -776,10 +776,20 @@ def guest_payment_success(request):
 @require_GET
 def guest_payment_failed(request):
     """Render guest payment failure page."""
+    # Get tour_id from session if available
+    tour_id = request.session.get('last_tour_id')
+
+    # Try to convert to integer if it exists
+    if tour_id:
+        try:
+            tour_id = int(tour_id)
+        except (ValueError, TypeError):
+            tour_id = None
+
     # Clear any remaining session data
     clear_payment_session(request)
-    return render(request, "payments/guest_failed.html")
 
+    return render(request, "payments/guest_failed.html", {'tour_id': tour_id})
 
 # Helper functions for session management
 def validate_payment_session(request):
