@@ -1,40 +1,1235 @@
-{% extends "base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token }}" />
+  <meta name="theme-color" content="#4f46e5" />
+  <title>Payment Receipt - Safari Adventures Kenya</title>
 
-{% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <!-- Icon -->
-            <div class="mb-4">
-                <i class="fas fa-times-circle text-danger" style="font-size: 4rem;"></i>
-            </div>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 6.4.0 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-            <!-- Title -->
-            <h2 class="fw-bold text-danger">Guest Payment Failed</h2>
-            <p class="mt-3">
-                Unfortunately, your payment could not be completed. <br>
-                Please try again or use a different payment method.
-            </p>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
-            <!-- Actions -->
-            <div class="mt-4">
-                <!-- Back to Tours page only -->
-                <a href="{% url 'tours' %}" class="btn btn-outline-secondary rounded-pill px-4">
-                    <i class="fas fa-home"></i> Back to Tours
-                </a>
-            </div>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --secondary: #f59e0b;
+      --accent: #818cf8;
+      --light: #f5f3ff;
+      --dark: #1e1b4b;
+      --gray: #64748b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --safari-green: #2e7d32;
+      --safari-accent: #8bc34a;
+      --grass-green: #388e3c;
+      --earth-brown: #795548;
+    }
 
-            <!-- Additional help -->
-            <div class="mt-5 p-4 bg-light rounded">
-                <h5 class="text-start">Need Help?</h5>
-                <p class="text-start small text-muted">
-                    If you continue to experience issues, please contact our support team at
-                    <a href="mailto:support@safariadventureskenya.com">support@safariadventureskenya.com</a>
-                    or call us at +254 712 345 678.
-                </p>
-            </div>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e8f5e9 100%);
+      color: #334155;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Lighter background elements */
+    .grass-bg {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%232e7d32' fill-opacity='0.15' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") no-repeat bottom center;
+      background-size: cover;
+      z-index: -1;
+      opacity: 0.5;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card:hover {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--safari-green) 0%, var(--safari-accent) 100%);
+      color: white;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(46, 125, 50, 0.35);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--safari-green);
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: var(--safari-green);
+      font-size: 1.25rem;
+    }
+
+    .payment-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .payment-status.success {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .payment-status.error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .payment-status.processing {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .payment-status.pending {
+      background-color: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+    }
+
+    .payment-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .payment-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-card.selected {
+      border: 2px solid var(--safari-green);
+      background-color: rgba(46, 125, 50, 0.05);
+    }
+
+    .loading-skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--safari-green);
+      max-width: 350px;
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-notification.success {
+      border-left-color: var(--success);
+    }
+
+    .toast-notification.error {
+      border-left-color: var(--danger);
+    }
+
+    .toast-icon {
+      font-size: 20px;
+    }
+
+    .toast-notification.success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-notification.error .toast-icon {
+      color: var(--danger);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background-color: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--safari-green), var(--safari-accent));
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Payment Search Styles */
+    .search-highlight {
+      background-color: rgba(46, 125, 50, 0.1);
+      border-left: 4px solid var(--safari-green);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-badge.success {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .status-badge.processing {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .status-badge.pending {
+      background-color: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+    }
+
+    .status-badge.failed {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    /* Timeline Styles */
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: #e2e8f0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 30px;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -30px;
+      top: 5px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+
+    .timeline-dot.active {
+      background: var(--safari-green);
+    }
+
+    .timeline-dot.processing {
+      background: var(--warning);
+    }
+
+    .timeline-dot.completed {
+      background: var(--success);
+    }
+
+    .timeline-content {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .timeline-date {
+      font-size: 0.875rem;
+      color: var(--gray);
+      margin-bottom: 5px;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .timeline-description {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    /* Payment Details Card */
+    .payment-details-card {
+      background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(139, 195, 74, 0.15);
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(139, 195, 74, 0.1);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .detail-highlight {
+      color: var(--safari-green);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    /* Real-time status update animation */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    /* Payment Tracking */
+    .tracking-container {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .tracking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .tracking-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tracking-timeline {
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    .tracking-timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: #e2e8f0;
+    }
+
+    .tracking-step {
+      position: relative;
+      padding-left: 50px;
+      padding-bottom: 2rem;
+    }
+
+    .tracking-step:last-child {
+      padding-bottom: 0;
+    }
+
+    .tracking-step-dot {
+      position: absolute;
+      left: 8px;
+      top: 5px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+
+    .tracking-step-dot.active {
+      background: var(--safari-green);
+    }
+
+    .tracking-step-dot.completed {
+      background: var(--success);
+    }
+
+    .tracking-step-dot.pending {
+      background: var(--warning);
+    }
+
+    .tracking-step-content {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .tracking-step-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .tracking-step-description {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .tracking-step-time {
+      font-size: 0.75rem;
+      color: var(--gray);
+      margin-top: 0.5rem;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        padding: 0;
+        margin: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .card {
+        box-shadow: none !important;
+        border: 1px solid #e5e7eb;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Grassmorphosim Background Elements -->
+  <div class="grass-bg"></div>
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-green-700 to-green-900 text-white py-5 px-4 md:px-8 shadow-lg">
+    <div class="container mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center">
+          <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-3 backdrop-filter backdrop-blur-sm">
+            <i class="fas fa-paw text-2xl text-amber-300"></i>
+          </div>
+          <h1 class="text-2xl font-bold">Safari<span class="text-amber-300">Adventures</span></h1>
         </div>
+        <div class="flex items-center gap-3">
+          <div class="bg-white/20 px-4 py-2 rounded-full text-sm font-medium">
+            <i class="fas fa-receipt mr-2"></i>
+            Payment Receipt
+          </div>
+        </div>
+      </div>
     </div>
-</div>
-{% endblock %}
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-6 max-w-6xl">
+    <!-- Payment Search Section -->
+    <div class="card mb-8 p-6 no-print" id="search-section">
+      <h2 class="section-title">
+        <i class="fas fa-search"></i>
+        Track Your Payment
+      </h2>
+      <p class="text-gray-600 mb-6">Enter your details to find and track your payment status</p>
+
+      <form id="payment-search-form" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Phone Number</label>
+            <input type="tel" id="search-phone" class="input-field" placeholder="Enter your phone number">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Full Name</label>
+            <input type="text" id="search-name" class="input-field" placeholder="Enter your full name">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Email Address</label>
+            <input type="email" id="search-email" class="input-field" placeholder="Enter your email">
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-search"></i>
+            Search Payments
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Payment Results Section -->
+    <div id="payment-results" class="mb-8 hidden no-print">
+      <div class="card p-6">
+        <h2 class="section-title">
+          <i class="fas fa-list"></i>
+          Payment Records
+        </h2>
+        <p class="text-gray-600 mb-4">Select a payment to view details and track status</p>
+
+        <div id="payments-list" class="space-y-4">
+          <!-- Payments will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt Section -->
+    <div id="receipt-section" class="hidden">
+      <div class="card mb-6 p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+          <div>
+            <h2 class="section-title">
+              <i class="fas fa-receipt"></i>
+              Payment Receipt
+            </h2>
+            <p class="text-gray-600">Receipt ID: <span id="receipt-id" class="font-medium"></span></p>
+          </div>
+          <div id="payment-status-container" class="payment-status processing">
+            <i class="fas fa-spinner fa-spin mr-2"></i>
+            <span id="payment-status-text">Loading...</span>
+          </div>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="payment-details-card mb-8">
+          <h3 class="text-xl font-semibold text-gray-800 mb-5 flex items-center">
+            <i class="fas fa-file-invoice-dollar text-green-600 mr-3"></i>
+            Payment Details
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div class="detail-row">
+                <span class="detail-label">Payment ID:</span>
+                <span class="detail-value" id="payment-id">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Transaction ID:</span>
+                <span class="detail-value" id="transaction-id">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Payment Date:</span>
+                <span class="detail-value" id="payment-date">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Payment Method:</span>
+                <span class="detail-value" id="payment-method">-</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="detail-row">
+                <span class="detail-label">Amount Paid:</span>
+                <span class="detail-value detail-highlight" id="amount-paid">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Currency:</span>
+                <span class="detail-value" id="currency">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Status:</span>
+                <span class="detail-value" id="detail-status">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Reference:</span>
+                <span class="detail-value" id="payment-reference">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Traveler Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-user text-green-600 mr-2"></i>
+              Traveler Information
+            </h3>
+            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Name:</span>
+                <span class="font-medium" id="traveler-name">-</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Email:</span>
+                <span class="font-medium" id="traveler-email">-</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Phone:</span>
+                <span class="font-medium" id="traveler-phone">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-map-marked-alt text-green-600 mr-2"></i>
+              Tour Information
+            </h3>
+            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Tour:</span>
+                <span class="font-medium" id="tour-name">-</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Travel Date:</span>
+                <span class="font-medium" id="travel-date">-</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Duration:</span>
+                <span class="font-medium" id="tour-duration">-</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Travelers:</span>
+                <span class="font-medium" id="travelers-count">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Breakdown -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-money-check-alt text-green-600 mr-2"></i>
+            Payment Breakdown
+          </h3>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Adults (x<span id="adults-count"></span>):</span>
+                <span class="font-medium" id="adults-cost">-</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Children (x<span id="children-count"></span>):</span>
+                <span class="font-medium" id="children-cost">-</span>
+              </div>
+              <div class="flex justify-between pt-3 border-t border-gray-200 mt-3">
+                <span class="text-lg font-bold text-gray-800">Total Paid:</span>
+                <span class="text-xl font-bold text-green-600" id="total-amount">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Status Tracking -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-tasks text-green-600 mr-2"></i>
+            Payment Status Tracking
+          </h3>
+
+          <div class="tracking-container">
+            <div class="tracking-header">
+              <h4 class="font-semibold text-gray-800">Payment Timeline</h4>
+              <div class="tracking-status">
+                <span class="text-sm text-gray-600">Last updated:</span>
+                <span id="last-updated" class="text-sm font-medium">Just now</span>
+              </div>
+            </div>
+
+            <div class="tracking-timeline">
+              <div class="tracking-step">
+                <div class="tracking-step-dot completed"></div>
+                <div class="tracking-step-content">
+                  <div class="tracking-step-title">Payment Initiated</div>
+                  <div class="tracking-step-description">Your payment has been successfully initiated and is being processed.</div>
+                  <div class="tracking-step-time" id="initiated-time">-</div>
+                </div>
+              </div>
+
+              <div class="tracking-step">
+                <div class="tracking-step-dot active" id="processing-dot"></div>
+                <div class="tracking-step-content">
+                  <div class="tracking-step-title">Processing</div>
+                  <div class="tracking-step-description">Your payment is being verified by our team. This usually takes 1-2 business days.</div>
+                  <div class="tracking-step-time" id="processing-time">-</div>
+                </div>
+              </div>
+
+              <div class="tracking-step">
+                <div class="tracking-step-dot" id="completed-dot"></div>
+                <div class="tracking-step-content">
+                  <div class="tracking-step-title">Completed</div>
+                  <div class="tracking-step-description">Your payment has been approved and confirmed. You will receive a confirmation email.</div>
+                  <div class="tracking-step-time" id="completed-time">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <div class="progress-bar">
+                <div class="progress-fill" id="status-progress"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4 no-print">
+          <button onclick="window.print()" class="btn-primary">
+            <i class="fas fa-print"></i>
+            Print Receipt
+          </button>
+          <button onclick="refreshPaymentStatus()" class="bg-white text-green-600 border border-green-600 px-6 py-3 rounded-xl hover:bg-green-50 transition">
+            <i class="fas fa-sync-alt"></i>
+            Refresh Status
+          </button>
+          <a href="{% url 'tours' %}" class="bg-white text-green-600 border border-green-600 px-6 py-3 rounded-xl hover:bg-green-50 transition">
+            <i class="fas fa-home"></i>
+            Back to Tours
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="card p-12 text-center">
+      <div class="flex justify-center mb-4">
+        <div class="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-800 mb-2">Loading Payment Details</h3>
+      <p class="text-gray-600">Please wait while we retrieve your payment information</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-10 px-4 mt-12">
+    <div class="container mx-auto max-w-6xl">
+      <div class="text-center">
+        <p>&copy; {% now "Y" %} SafariAdventures. All rights reserved.</p>
+        <div class="mt-2">
+          <a href="#" class="mx-2 hover:text-white">Privacy Policy</a>
+          <a href="#" class="mx-2 hover:text-white">Terms of Service</a>
+        </div>
+        <div class="mt-4 text-gray-500">
+          <p>Developed by <a href="https://brytechltd.com" target="_blank" class="text-green-500 hover:text-green-400">Brytech Ltd</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-notification">
+    <i class="toast-icon"></i>
+    <div>
+      <div class="toast-title font-medium"></div>
+      <div class="toast-message text-sm text-gray-600"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Elements
+      const searchForm = document.getElementById('payment-search-form');
+      const searchSection = document.getElementById('search-section');
+      const paymentResults = document.getElementById('payment-results');
+      const receiptSection = document.getElementById('receipt-section');
+      const loadingState = document.getElementById('loading-state');
+      const paymentsList = document.getElementById('payments-list');
+      const toast = document.getElementById('toast');
+
+      // Payment status elements
+      const paymentStatusContainer = document.getElementById('payment-status-container');
+      const paymentStatusText = document.getElementById('payment-status-text');
+      const statusProgress = document.getElementById('status-progress');
+      const lastUpdated = document.getElementById('last-updated');
+      const processingDot = document.getElementById('processing-dot');
+      const completedDot = document.getElementById('completed-dot');
+
+      // Receipt elements
+      const receiptId = document.getElementById('receipt-id');
+      const paymentId = document.getElementById('payment-id');
+      const transactionId = document.getElementById('transaction-id');
+      const paymentDate = document.getElementById('payment-date');
+      const paymentMethod = document.getElementById('payment-method');
+      const amountPaid = document.getElementById('amount-paid');
+      const currency = document.getElementById('currency');
+      const detailStatus = document.getElementById('detail-status');
+      const paymentReference = document.getElementById('payment-reference');
+      const travelerName = document.getElementById('traveler-name');
+      const travelerEmail = document.getElementById('traveler-email');
+      const travelerPhone = document.getElementById('traveler-phone');
+      const tourName = document.getElementById('tour-name');
+      const travelDate = document.getElementById('travel-date');
+      const tourDuration = document.getElementById('tour-duration');
+      const travelersCount = document.getElementById('travelers-count');
+      const adultsCount = document.getElementById('adults-count');
+      const childrenCount = document.getElementById('children-count');
+      const adultsCost = document.getElementById('adults-cost');
+      const childrenCost = document.getElementById('children-cost');
+      const totalAmount = document.getElementById('total-amount');
+
+      // Timeline elements
+      const initiatedTime = document.getElementById('initiated-time');
+      const processingTime = document.getElementById('processing-time');
+      const completedTime = document.getElementById('completed-time');
+
+      // State variables
+      let selectedPaymentId = null;
+      let statusUpdateInterval = null;
+
+      // Format currency
+      function formatKES(amount) {
+        try {
+          return new Intl.NumberFormat('en-KE', {
+            style: 'currency',
+            currency: 'KES',
+            minimumFractionDigits: 0
+          }).format(Math.round(amount));
+        } catch (e) {
+          return `KES ${Math.round(amount).toLocaleString('en-KE')}`;
+        }
+      }
+
+      // Format date
+      function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(dateString).toLocaleDateString('en-KE', options);
+      }
+
+      // Show toast notification
+      function showToast(type, title, message) {
+        const toastEl = document.getElementById('toast');
+        if (!toastEl) return;
+
+        const toastIcon = toastEl.querySelector('.toast-icon');
+        const toastTitle = toastEl.querySelector('.toast-title');
+        const toastMessage = toastEl.querySelector('.toast-message');
+
+        if (toastTitle) toastTitle.textContent = title;
+        if (toastMessage) toastMessage.textContent = message;
+
+        toastEl.className = 'toast-notification ' + type;
+        if (toastIcon) {
+          toastIcon.className = type === 'success'
+            ? 'toast-icon fas fa-check-circle'
+            : 'toast-icon fas fa-exclamation-circle';
+        }
+
+        toastEl.classList.add('show');
+        setTimeout(() => toastEl.classList.remove('show'), 5000);
+      }
+
+      // Search for payments
+      searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const phone = document.getElementById('search-phone').value.trim();
+        const name = document.getElementById('search-name').value.trim();
+        const email = document.getElementById('search-email').value.trim();
+
+        if (!phone && !name && !email) {
+          showToast('error', 'Validation Error', 'Please enter at least one search criteria');
+          return;
+        }
+
+        // Show loading
+        paymentsList.innerHTML = `
+          <div class="flex justify-center py-8">
+            <div class="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+          </div>
+        `;
+        paymentResults.classList.remove('hidden');
+
+        // Simulate API call (replace with actual API call)
+        setTimeout(() => {
+          // Mock data - replace with actual API response
+          const mockPayments = [
+            {
+              id: '12345678-1234-1234-1234-123456789012',
+              guest_full_name: 'John Doe',
+              guest_email: 'john@example.com',
+              guest_phone: '+254712345678',
+              amount: 45000,
+              status: 'PROCESSING',
+              tour_title: 'Masai Mara Safari',
+              created_at: '2023-06-15T14:30:00Z',
+              payment_method: 'PesaPal'
+            },
+            {
+              id: '87654321-4321-4321-4321-210987654321',
+              guest_full_name: 'John Doe',
+              guest_email: 'john@example.com',
+              guest_phone: '+254712345678',
+              amount: 32000,
+              status: 'SUCCESS',
+              tour_title: 'Amboseli National Park',
+              created_at: '2023-05-20T10:15:00Z',
+              payment_method: 'M-Pesa'
+            }
+          ];
+
+          // Filter mock data based on search criteria
+          const filteredPayments = mockPayments.filter(payment => {
+            return (!phone || payment.guest_phone.includes(phone)) &&
+                   (!name || payment.guest_full_name.toLowerCase().includes(name.toLowerCase())) &&
+                   (!email || payment.guest_email.toLowerCase().includes(email.toLowerCase()));
+          });
+
+          if (filteredPayments.length === 0) {
+            paymentsList.innerHTML = `
+              <div class="text-center py-8">
+                <i class="fas fa-search text-gray-400 text-4xl mb-3"></i>
+                <p class="text-gray-600">No payments found matching your criteria</p>
+              </div>
+            `;
+            return;
+          }
+
+          // Display payments
+          paymentsList.innerHTML = '';
+          filteredPayments.forEach(payment => {
+            const paymentCard = document.createElement('div');
+            paymentCard.className = 'payment-card card p-4';
+            paymentCard.dataset.paymentId = payment.id;
+
+            const statusClass = payment.status === 'SUCCESS' ? 'success' :
+                               payment.status === 'FAILED' ? 'error' : 'processing';
+
+            paymentCard.innerHTML = `
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div class="mb-3 md:mb-0">
+                  <h3 class="font-semibold text-lg">${payment.guest_full_name}</h3>
+                  <p class="text-gray-600">${payment.tour_title}</p>
+                  <p class="text-sm text-gray-500">${formatDate(payment.created_at)}</p>
+                </div>
+                <div class="flex flex-col items-end">
+                  <div class="status-badge ${statusClass} mb-2">
+                    ${payment.status}
+                  </div>
+                  <div class="font-bold text-lg">${formatKES(payment.amount)}</div>
+                </div>
+              </div>
+            `;
+
+            paymentCard.addEventListener('click', () => {
+              // Remove selected class from all cards
+              document.querySelectorAll('.payment-card').forEach(card => {
+                card.classList.remove('selected');
+              });
+
+              // Add selected class to clicked card
+              paymentCard.classList.add('selected');
+
+              // Load payment details
+              loadPaymentDetails(payment.id);
+            });
+
+            paymentsList.appendChild(paymentCard);
+          });
+        }, 1000);
+      });
+
+      // Load payment details
+      function loadPaymentDetails(paymentId) {
+        selectedPaymentId = paymentId;
+
+        // Show loading state
+        receiptSection.classList.add('hidden');
+        loadingState.classList.remove('hidden');
+
+        // Simulate API call (replace with actual API call)
+        setTimeout(() => {
+          // Mock data - replace with actual API response
+          const mockPayment = {
+            id: paymentId,
+            guest_full_name: 'John Doe',
+            guest_email: 'john@example.com',
+            guest_phone: '+254712345678',
+            amount: 45000,
+            status: 'PROCESSING',
+            tour_title: 'Masai Mara Safari',
+            tour_duration: '5 days',
+            travel_date: '2023-07-15',
+            adults: 2,
+            children: 1,
+            price_per_person: 15000,
+            created_at: '2023-06-15T14:30:00Z',
+            payment_method: 'PesaPal',
+            currency: 'KES',
+            transaction_id: 'PESAPAL-123456789',
+            reference: 'REF-123456789'
+          };
+
+          // Calculate costs
+          const adultsCost = mockPayment.adults * mockPayment.price_per_person;
+          const childrenCost = mockPayment.children * (mockPayment.price_per_person / 2);
+
+          // Update receipt details
+          receiptId.textContent = mockPayment.id;
+          paymentId.textContent = mockPayment.id;
+          transactionId.textContent = mockPayment.transaction_id;
+          paymentDate.textContent = formatDate(mockPayment.created_at);
+          paymentMethod.textContent = mockPayment.payment_method;
+          amountPaid.textContent = formatKES(mockPayment.amount);
+          currency.textContent = mockPayment.currency;
+          detailStatus.textContent = mockPayment.status;
+          paymentReference.textContent = mockPayment.reference;
+          travelerName.textContent = mockPayment.guest_full_name;
+          travelerEmail.textContent = mockPayment.guest_email;
+          travelerPhone.textContent = mockPayment.guest_phone;
+          tourName.textContent = mockPayment.tour_title;
+          travelDate.textContent = mockPayment.travel_date;
+          tourDuration.textContent = mockPayment.tour_duration;
+          travelersCount.textContent = `${mockPayment.adults} Adults, ${mockPayment.children} Children`;
+          adultsCount.textContent = mockPayment.adults;
+          childrenCount.textContent = mockPayment.children;
+          adultsCost.textContent = formatKES(adultsCost);
+          childrenCost.textContent = formatKES(childrenCost);
+          totalAmount.textContent = formatKES(mockPayment.amount);
+
+          // Update timeline
+          initiatedTime.textContent = formatDate(mockPayment.created_at);
+
+          // Update payment status
+          updatePaymentStatus(mockPayment.status);
+
+          // Hide loading state and show receipt
+          loadingState.classList.add('hidden');
+          receiptSection.classList.remove('hidden');
+
+          // Start status updates
+          startStatusUpdates();
+        }, 1000);
+      }
+
+      // Update payment status UI
+      function updatePaymentStatus(status) {
+        paymentStatusText.textContent = status;
+        detailStatus.textContent = status;
+
+        // Update status container
+        paymentStatusContainer.className = 'payment-status';
+        if (status === 'SUCCESS') {
+          paymentStatusContainer.classList.add('success');
+          paymentStatusText.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Approved';
+
+          // Update progress
+          statusProgress.style.width = '100%';
+
+          // Update timeline
+          processingDot.className = 'tracking-step-dot completed';
+          completedDot.className = 'tracking-step-dot completed';
+          completedTime.textContent = formatDate(new Date().toISOString());
+
+          // Stop status updates
+          if (statusUpdateInterval) {
+            clearInterval(statusUpdateInterval);
+          }
+        } else if (status === 'FAILED') {
+          paymentStatusContainer.classList.add('error');
+          paymentStatusText.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Failed';
+
+          // Update progress
+          statusProgress.style.width = '100%';
+
+          // Update timeline
+          processingDot.className = 'tracking-step-dot failed';
+
+          // Stop status updates
+          if (statusUpdateInterval) {
+            clearInterval(statusUpdateInterval);
+          }
+        } else {
+          paymentStatusContainer.classList.add('processing');
+          paymentStatusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing';
+
+          // Update progress
+          statusProgress.style.width = '50%';
+        }
+      }
+
+      // Start status updates
+      function startStatusUpdates() {
+        // Clear any existing interval
+        if (statusUpdateInterval) {
+          clearInterval(statusUpdateInterval);
+        }
+
+        // Set up new interval
+        statusUpdateInterval = setInterval(() => {
+          // Simulate status check (replace with actual API call)
+          setTimeout(() => {
+            // Randomly update status for demo purposes
+            const random = Math.random();
+            let newStatus = 'PROCESSING';
+
+            if (random > 0.7) {
+              newStatus = 'SUCCESS';
+            } else if (random > 0.9) {
+              newStatus = 'FAILED';
+            }
+
+            // Update UI
+            updatePaymentStatus(newStatus);
+
+            // Update last updated time
+            lastUpdated.textContent = 'Just now';
+
+            // Show notification for status change
+            if (newStatus === 'SUCCESS') {
+              showToast('success', 'Payment Approved', 'Your payment has been approved by the admin!');
+            } else if (newStatus === 'FAILED') {
+              showToast('error', 'Payment Failed', 'Your payment could not be processed. Please contact support.');
+            }
+          }, 500);
+        }, 5000); // Check every 5 seconds
+      }
+
+      // Refresh payment status
+      function refreshPaymentStatus() {
+        if (!selectedPaymentId) return;
+
+        // Show loading indicator
+        paymentStatusContainer.className = 'payment-status processing';
+        paymentStatusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Refreshing...';
+
+        // Simulate API call (replace with actual API call)
+        setTimeout(() => {
+          // Randomly update status for demo purposes
+          const random = Math.random();
+          let newStatus = 'PROCESSING';
+
+          if (random > 0.5) {
+            newStatus = 'SUCCESS';
+          }
+
+          // Update UI
+          updatePaymentStatus(newStatus);
+
+          // Update last updated time
+          lastUpdated.textContent = 'Just now';
+
+          // Show notification
+          if (newStatus === 'SUCCESS') {
+            showToast('success', 'Payment Approved', 'Your payment has been approved by the admin!');
+          }
+        }, 1000);
+      }
+
+      // Check if payment ID is in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentIdFromUrl = urlParams.get('payment_id');
+
+      if (paymentIdFromUrl) {
+        // Hide search section
+        searchSection.classList.add('hidden');
+
+        // Load payment directly
+        loadPaymentDetails(paymentIdFromUrl);
+      } else {
+        // Show search section by default
+        searchSection.classList.remove('hidden');
+        loadingState.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
