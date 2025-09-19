@@ -19,15 +19,8 @@
 
             <!-- Actions -->
             <div class="mt-4">
-                <!-- Retry checkout with the same tour (only if tour_id is available) -->
-                {% if tour_id %}
-                    <a href="{% url 'guest_checkout' tour_id %}" class="btn btn-outline-primary rounded-pill px-4">
-                        <i class="fas fa-redo"></i> Try Again
-                    </a>
-                {% endif %}
-
-                <!-- Back to Tours page -->
-                <a href="{% url 'tours' %}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">
+                <!-- Back to Tours page only -->
+                <a href="{% url 'tours' %}" class="btn btn-outline-secondary rounded-pill px-4">
                     <i class="fas fa-home"></i> Back to Tours
                 </a>
             </div>
