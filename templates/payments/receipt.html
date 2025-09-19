@@ -1,106 +1,350 @@
-{% extends "base.html" %}
-{% load static %}
-{% block content %}
-{% load math_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Receipt - Safari Adventures Kenya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.03);
+        }
+        
+        .status-badge {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .receipt-header {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        }
+        
+        @media print {
+            body {
+                background: white !important;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .card-shadow {
+                box-shadow: none !important;
+                border: 1px solid #e5e7eb;
+            }
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Dashboard Header -->
+    <header class="receipt-header text-white py-6 px-6 shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="bg-white bg-opacity-20 p-3 rounded-lg mr-4">
+                    <i class="fas fa-receipt text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">Trip Receipt Dashboard</h1>
+                    <p class="text-purple-200">Safari Adventures Kenya</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-purple-200">Receipt Date</p>
+                <p class="font-semibold">{{ payment.paid_at|date:"F d, Y" }}</p>
+            </div>
+        </div>
+    </header>
 
-<main class="max-w-3xl mx-auto p-8 bg-gray-50">
+    <!-- Main Dashboard Content -->
+    <main class="max-w-6xl mx-auto p-6">
+        <!-- Hero Section -->
+        <div class="gradient-bg rounded-2xl p-8 mb-8 text-white card-shadow">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-6 md:mb-0">
+                    <h2 class="text-3xl font-bold mb-2">{{ payment.tour.title }}</h2>
+                    <p class="text-purple-200 mb-4">Your adventure is confirmed!</p>
+                    <div class="flex items-center">
+                        <div class="status-badge text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Payment Confirmed
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative">
+                        {% if payment.tour.hero_image %}
+                            <img src="{{ payment.tour.hero_image.url }}" 
+                                 alt="{{ payment.tour.title }}" 
+                                 class="rounded-xl shadow-xl w-80 h-56 object-cover">
+                        {% else %}
+                            <div class="w-80 h-56 bg-purple-300 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-mountain text-6xl text-purple-700"></i>
+                            </div>
+                        {% endif %}
+                        <div class="absolute -bottom-4 -right-4 bg-white text-purple-700 rounded-full p-3 shadow-lg">
+                            <i class="fas fa-camera text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <!-- Header -->
-  <header class="flex items-center mb-8">
-    <h1 class="text-3xl font-bold">Trip Receipt</h1>
-  </header>
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Traveler Info Card -->
+            <div class="dashboard-card rounded-2xl p-6 card-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-user text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Traveler Details</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Name</span>
+                        <span class="font-medium">
+                            {% if payment.guest_full_name %}
+                                {{ payment.guest_full_name }}
+                            {% elif payment.user %}
+                                {{ payment.user.get_full_name }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Email</span>
+                        <span class="font-medium">{{ payment.guest_email|default:"N/A" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Phone</span>
+                        <span class="font-medium">{{ payment.guest_phone|default:"N/A" }}</span>
+                    </div>
+                </div>
+            </div>
 
-  <!-- Hero Image -->
-  <div class="mb-6 rounded-lg overflow-hidden shadow-lg">
-    {% if payment.tour.hero_image %}
-      <img src="{{ payment.tour.hero_image.url }}"
-           alt="{{ payment.tour.title }}"
-           class="w-full h-64 object-cover">
-    {% endif %}
-  </div>
+            <!-- Booking Info Card -->
+            <div class="dashboard-card rounded-2xl p-6 card-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="bg-green-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-calendar-check text-green-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Booking Details</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Travel Date</span>
+                        <span class="font-medium">{{ payment.travel_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Duration</span>
+                        <span class="font-medium">{{ days }} days</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Tour</span>
+                        <span class="font-medium">{{ payment.tour.title }}</span>
+                    </div>
+                </div>
+            </div>
 
-  <!-- Traveler & Booking Info -->
-  <section class="bg-white rounded-lg glassmorphism p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Traveler & Booking Details</h2>
-    <div class="grid grid-cols-2 gap-4 text-sm">
-     <div><strong>Name:</strong>
-  {% if payment.guest_full_name %}
-    {{ payment.guest_full_name }}
-  {% elif payment.user %}
-    {{ payment.user.get_full_name }}
-  {% else %}
-    N/A
-  {% endif %}
-</div>
-      <div><strong>Email:</strong> {{ payment.guest_email|default:"N/A" }}</div>
-      <div><strong>Phone:</strong> {{ payment.guest_phone|default:"N/A" }}</div>
-      <div><strong>Travel Date:</strong> {{ payment.travel_date|date:"M d, Y" }}</div>
-      <div><strong>Tour:</strong> {{ payment.tour.title }}</div>
-      <div><strong>Duration:</strong> {{ days }} days</div>
-      <div><strong>Adults:</strong> {{ adults|default:0 }}</div>
-      <div><strong>Children:</strong> {{ children|default:0 }}</div>
+            <!-- Participants Card -->
+            <div class="dashboard-card rounded-2xl p-6 card-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="bg-yellow-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-users text-yellow-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Participants</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Adults</span>
+                        <span class="font-medium">{{ adults|default:0 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Children</span>
+                        <span class="font-medium">{{ children|default:0 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Total</span>
+                        <span class="font-medium">{{ adults|default:0|add:children|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Breakdown Card -->
+        <div class="dashboard-card rounded-2xl p-6 mb-8 card-shadow">
+            <div class="flex items-center mb-6">
+                <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                    <i class="fas fa-money-check-alt text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800">Payment Breakdown</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="text-left py-3 text-gray-500">Description</th>
+                            <th class="text-right py-3 text-gray-500">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-3">Base Price per Person</td>
+                            <td class="py-3 text-right">KES {{ payment.tour.price_per_person|floatformat:0 }}</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3">Adults ({{ adults|default:0 }})</td>
+                            <td class="py-3 text-right">
+                                KES {{ adults|default:0|mul:payment.tour.price_per_person }}
+                            </td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-3">Children ({{ children|default:0 }})</td>
+                            <td class="py-3 text-right">
+                                KES {{ children|default:0|mul:payment.tour.price_per_person|div:2 }}
+                            </td>
+                        </tr>
+                        <tr class="font-bold text-lg">
+                            <td class="py-4">Total Paid</td>
+                            <td class="py-4 text-right text-purple-700">
+                                KES {{ amount_paid|default:payment.amount|floatformat:0 }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+                <p class="text-sm text-gray-500">
+                    Reference: {{ payment.pesapal_reference|default:payment.reference }}
+                </p>
+                <div class="flex items-center">
+                    <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                    <span class="text-sm text-green-600 font-medium">Secure Payment</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trip Features Section -->
+        <div class="dashboard-card rounded-2xl p-6 mb-8 card-shadow">
+            <div class="flex items-center mb-6">
+                <div class="bg-indigo-100 p-3 rounded-lg mr-4">
+                    <i class="fas fa-star text-indigo-600 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800">Trip Features</h3>
+            </div>
+            
+            {% if payment.tour.features.all %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for feature in payment.tour.features.all %}
+                        <div class="feature-card bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <div class="flex items-start">
+                                <div class="bg-indigo-100 p-2 rounded-lg mr-3">
+                                    <i class="fas fa-check text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">{{ feature.name }}</h4>
+                                    <p class="text-sm text-gray-600 mt-1">{{ feature.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-10 bg-gray-50 rounded-xl">
+                    <i class="fas fa-info-circle text-gray-400 text-4xl mb-3"></i>
+                    <p class="text-gray-500">No special features added to this trip.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10 no-print">
+            <button onclick="window.print()" 
+                    class="flex items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition shadow-lg">
+                <i class="fas fa-print mr-3"></i>
+                Download Receipt
+            </button>
+            <a href="{% url 'tours' %}" 
+               class="flex items-center justify-center bg-white text-purple-600 border border-purple-600 px-8 py-4 rounded-xl hover:bg-purple-50 transition shadow">
+                <i class="fas fa-safari mr-3"></i>
+                Browse More Tours
+            </a>
+        </div>
+
+        <!-- Related Tours Section -->
+        <div class="text-center py-8 border-t border-gray-200">
+            <h3 class="font-semibold text-gray-700 mb-2">Explore More Safaris</h3>
+            <p class="text-gray-600 mb-4">Discover other amazing adventures we offer</p>
+            <a href="{% url 'tours' %}" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium">
+                View all packages
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </main>
+
+    <!-- Print-only Header -->
+    <div class="print-only hidden">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold">Safari Adventures Kenya</h1>
+            <p class="text-gray-600">Trip Receipt</p>
+        </div>
     </div>
-  </section>
 
-  <!-- Payment Breakdown -->
-  <section class="bg-white rounded-lg glassmorphism p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Payment Breakdown</h2>
-    <table class="w-full text-sm">
-      <tr>
-        <td>Base Price per Person</td>
-        <td class="text-right">KES {{ payment.tour.price_per_person|floatformat:0 }}</td>
-      </tr>
-      <tr>
-        <td>Adults Cost ({{ adults|default:0 }})</td>
-        <td class="text-right">
-          KES {{ adults|default:0|mul:payment.tour.price_per_person }}
-        </td>
-      </tr>
-      <tr>
-        <td>Children Cost ({{ children|default:0 }})</td>
-        <td class="text-right">
-          KES {{ children|default:0|mul:payment.tour.price_per_person|div:2 }}
-        </td>
-      </tr>
-      <tr class="font-bold border-t">
-        <td>Total Paid</td>
-        <td class="text-right text-emerald-700">
-          KES {{ amount_paid|default:payment.amount|floatformat:0 }}
-        </td>
-      </tr>
-    </table>
-    <p class="mt-2 text-xs text-gray-500">
-      Reference: {{ payment.pesapal_reference|default:payment.reference }}
-    </p>
-  </section>
-
-  <!-- Extras & Upsells -->
-  <section class="bg-white rounded-lg glassmorphism p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Your Trip Extras</h2>
-    <ul class="list-disc list-inside text-sm space-y-1">
-      {% for feature in payment.tour.features.all %}
-        <li>{{ feature.name }} — {{ feature.description }}</li>
-      {% empty %}
-        <li>No extras added.</li>
-      {% endfor %}
-    </ul>
-  </section>
-
-  <!-- Download Button -->
-  <div class="text-center mb-8">
-    <button onclick="window.print()"
-            class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-500 transition">
-      Download Receipt
-    </button>
-  </div>
-
-  <!-- Related Tours -->
-  <section class="text-center text-sm text-gray-600">
-    <h3 class="font-semibold mb-2">Explore More Safaris</h3>
-    <a href="{% url 'tours' %}" class="text-emerald-600 hover:underline">
-      View all packages →
-    </a>
-  </section>
-
-</main>
-{% endblock %}
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on load
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
