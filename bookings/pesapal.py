@@ -7,25 +7,12 @@ import uuid
 import requests
 import logging
 from django.conf import settings
+from airport.utils import normalize_phone_number  # Import from utils
 
 logger = logging.getLogger(__name__)
 
 # Base URL for Pesapal environment (sandbox/live)
 BASE_URL = settings.PESAPAL_BASE_URL
-
-
-def normalize_phone_number(phone: str) -> str:
-    """
-    Convert phone numbers to international format (+254...).
-    """
-    if not phone:
-        return "+254700000000"
-    phone = phone.strip().replace(" ", "")
-    if phone.startswith("0"):
-        phone = "+254" + phone[1:]
-    elif not phone.startswith("+"):
-        phone = "+254" + phone
-    return phone
 
 def create_pesapal_order(
     order_id,
@@ -63,8 +50,10 @@ def create_pesapal_order(
         logger.error("Pesapal Auth failed: %s", e, exc_info=True)
         raise
 
+    # Check for token in response
     access_token = token_data.get("token") or token_data.get("access_token")
     if not access_token:
+        logger.error("Invalid auth token response: %s", token_data)
         raise ValueError(f"Invalid auth token response: {token_data}")
 
     # 2) Build order
@@ -74,6 +63,10 @@ def create_pesapal_order(
         "Authorization": f"Bearer {access_token}",
         "Content-Type":  "application/json",
     }
+
+    # Normalize phone number
+    normalized_phone = normalize_phone_number(phone)
+
     order_payload = {
         "id":               merchant_ref,
         "currency":         "KES",
@@ -83,7 +76,7 @@ def create_pesapal_order(
         "notification_id":  settings.PESAPAL_NOTIFICATION_ID,
         "billing_address": {
             "email_address": email or "guest@brymax.xyz",
-            "phone_number":  normalize_phone_number(phone) or phone,
+            "phone_number":  normalized_phone,
             "first_name":    first_name or "Guest",
             "last_name":     last_name or "User",
             "country_code":  "KE",
@@ -108,6 +101,56 @@ def create_pesapal_order(
     logger.info("Pesapal order response: %s", order_data)
 
     if not redirect_url or not order_tracking_id:
+        logger.error("Invalid Pesapal response: %s", order_data)
         raise ValueError(f"Invalid Pesapal response: {order_data}")
 
     return redirect_url, merchant_ref, order_tracking_id
+
+
+class PesapalAPI:
+    """Wrapper class for Pesapal API operations"""
+
+    def __init__(self):
+        self.base_url = settings.PESAPAL_BASE_URL
+
+    def create_order(self, order_data):
+        """
+        Create a Pesapal order using the provided order data
+
+        Args:
+            order_data (dict): Contains order details including:
+                - order_id: Unique identifier for the order
+                - amount: Payment amount
+                - description: Order description
+                - email: Customer email
+                - phone: Customer phone
+                - first_name: Customer first name
+                - last_name: Customer last name
+
+        Returns:
+            dict: Response with redirect_url, merchant_ref, and order_tracking_id
+        """
+        try:
+            redirect_url, merchant_ref, order_tracking_id = create_pesapal_order(
+                order_id=order_data.get('order_id', str(uuid.uuid4())),
+                amount=order_data.get('amount', 0),
+                description=order_data.get('description', 'Safari Booking'),
+                email=order_data.get('email'),
+                phone=order_data.get('phone'),
+                first_name=order_data.get('first_name'),
+                last_name=order_data.get('last_name')
+            )
+
+            return {
+                'success': True,
+                'redirect_url': redirect_url,
+                'merchant_ref': merchant_ref,
+                'order_tracking_id': order_tracking_id
+            }
+
+        except Exception as e:
+            logger.error("Error creating Pesapal order: %s", str(e), exc_info=True)
+            return {
+                'success': False,
+                'error': str(e)
+            }

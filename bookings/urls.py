@@ -18,6 +18,8 @@ urlpatterns = [
     path("nairobi-airport-transfers-and-taxis/", views.nairobi_transfers, name="nairobi_transfers"),
     path("book/excursions/", views.excursions, name="excursions"),
     path("tours-and-safaris/", views.tours, name="tours"),
+
+    # FIXED: Added base URL for tour payment
     path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_base"),
     path("book-tour/<int:tour_id>/", views.tour_payment, name="tour_payment"),
     path("payments/tour/<int:tour_id>/pay/", views.tour_payment, name="tour_payment_page"),
@@ -35,6 +37,7 @@ urlpatterns = [
     path("create-guest-pesapal-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
     path("pesapal/callback/", views.pesapal_redirect, name="pesapal_callback"),
     path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
+    # Aliases for backward compatibility
     path("payments/callback/", views.pesapal_redirect, name="payments_callback"),
     path("payments/ipn/", views.pesapal_ipn, name="payments_ipn"),
 
@@ -43,7 +46,6 @@ urlpatterns = [
     # ===============================
     path("guest/checkout/<int:tour_id>/", views.guest_checkout, name="guest_checkout"),
     path("process-guest-info/", views.process_guest_info, name="process_guest_info"),
-    path("create-guest-pesapal-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
     path("guest/success/", views.guest_payment_page, name="guest_payment_success"),
     path("guest/failed/", views.guest_payment_failed, name="guest_payment_failed"),
 

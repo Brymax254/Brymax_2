@@ -1,4 +1,3 @@
-# bookings/services.py
 import uuid
 import hmac
 import hashlib
@@ -10,15 +9,18 @@ from django.conf import settings
 import requests
 from requests.auth import HTTPBasicAuth
 from django.utils import timezone
+from airport.utils import normalize_phone_number  # Import from utils
+import logging
 
+logger = logging.getLogger(__name__)
 
 class PesaPalService:
-    # PesaPal API v3 endpoints
-    BASE_URL = "https://pay.pesapal.com/v3"  # Production
-
-    # BASE_URL = "https://cybqa.pesapal.com/pesapalv3"  # Sandbox
+    """
+    Service class for handling Pesapal API operations
+    """
 
     def __init__(self):
+        self.base_url = settings.PESAPAL_BASE_URL
         self.consumer_key = settings.PESAPAL_CONSUMER_KEY
         self.consumer_secret = settings.PESAPAL_CONSUMER_SECRET
         self.token = None
@@ -30,7 +32,7 @@ class PesaPalService:
         if self.token and self.token_expiry and self.token_expiry > timezone.now():
             return self.token
 
-        auth_url = f"{self.BASE_URL}/api/Auth/RequestToken"
+        auth_url = f"{self.base_url}/api/Auth/RequestToken"
         payload = {
             "consumer_key": self.consumer_key,
             "consumer_secret": self.consumer_secret
@@ -54,6 +56,7 @@ class PesaPalService:
             return self.token
 
         except requests.exceptions.RequestException as e:
+            logger.error("Pesapal Auth failed: %s", e, exc_info=True)
             raise Exception(f"Failed to get PesaPal auth token: {str(e)}")
 
     def _generate_oauth_nonce(self):
@@ -64,11 +67,95 @@ class PesaPalService:
         """Generate current timestamp for OAuth"""
         return str(int(time.time()))
 
+    def create_order(self, order_data):
+        """
+        Create a Pesapal order using the provided order data
+
+        Args:
+            order_data (dict): Contains order details including:
+                - order_id: Unique identifier for the order
+                - amount: Payment amount
+                - description: Order description
+                - email: Customer email
+                - phone: Customer phone
+                - first_name: Customer first name
+                - last_name: Customer last name
+
+        Returns:
+            dict: Response with redirect_url, merchant_ref, and order_tracking_id
+        """
+        try:
+            # Get authentication token
+            token = self._get_auth_token()
+
+            # Prepare order data
+            merchant_ref = f"{order_data.get('order_id', str(uuid.uuid4()))}-{uuid.uuid4().hex[:8]}"
+            order_url = f"{self.base_url}/api/Transactions/SubmitOrderRequest"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+
+            # Normalize phone number
+            from airport.utils import normalize_phone_number
+            normalized_phone = normalize_phone_number(order_data.get('phone', ''))
+
+            order_payload = {
+                "id": merchant_ref,
+                "currency": "KES",
+                "amount": str(order_data.get('amount', 0)),
+                "description": order_data.get('description', 'Safari Booking'),
+                "callback_url": settings.PESAPAL_IPN_URL,
+                "notification_id": settings.PESAPAL_NOTIFICATION_ID,
+                "billing_address": {
+                    "email_address": order_data.get('email', 'guest@brymax.xyz'),
+                    "phone_number": normalized_phone,
+                    "first_name": order_data.get('first_name', 'Guest'),
+                    "last_name": order_data.get('last_name', 'User'),
+                    "country_code": "KE",
+                },
+            }
+
+            logger.debug("Submitting Pesapal order payload: %s", order_payload)
+
+            # Submit order
+            response = requests.post(order_url, json=order_payload, headers=headers, timeout=30)
+            response.raise_for_status()
+            order_response = response.json()
+
+            # Extract redirect URL and tracking ID
+            # handle snake_case or CamelCase keys
+            redirect_url = order_response.get("redirect_url") or order_response.get("RedirectURL")
+            order_tracking_id = order_response.get("order_tracking_id") or order_response.get("OrderTrackingId")
+            logger.info("Pesapal order response: %s", order_response)
+
+            if not redirect_url or not order_tracking_id:
+                logger.error("Invalid Pesapal response: %s", order_response)
+                raise ValueError(f"Invalid Pesapal response: {order_response}")
+
+            return {
+                'success': True,
+                'redirect_url': redirect_url,
+                'merchant_ref': merchant_ref,
+                'order_tracking_id': order_tracking_id
+            }
+
+        except Exception as e:
+            logger.error("Error creating Pesapal order: %s", str(e), exc_info=True)
+            return {
+                'success': False,
+                'error': str(e)
+            }
+
     def initiate_payment(self, amount, description, callback_url, email=None, phone=None, first_name=None,
                          last_name=None):
         """Initiate payment using Pesapal API v3"""
         try:
             token = self._get_auth_token()
+
+            # Normalize phone number
+            from airport.utils import normalize_phone_number
+            normalized_phone = normalize_phone_number(phone)
 
             # Prepare order data
             order_data = {
@@ -79,7 +166,7 @@ class PesaPalService:
                 "notification_id": settings.PESAPAL_NOTIFICATION_ID,
                 "billing_address": {
                     "email_address": email or "",
-                    "phone_number": phone or "",
+                    "phone_number": normalized_phone,
                     "country_code": "KE",
                     "first_name": first_name or "",
                     "middle_name": "",
@@ -93,7 +180,7 @@ class PesaPalService:
                 }
             }
 
-            submit_order_url = f"{self.BASE_URL}/api/Transactions/SubmitOrderRequest"
+            submit_order_url = f"{self.base_url}/api/Transactions/SubmitOrderRequest"
             headers = {
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
@@ -110,49 +197,17 @@ class PesaPalService:
             }
 
         except requests.exceptions.RequestException as e:
-            return self._fallback_to_v2(amount, description, callback_url, email, phone, first_name, last_name)
-        except Exception as e:
-            raise Exception(f"Failed to initiate PesaPal payment: {str(e)}")
-
-    def _fallback_to_v2(self, amount, description, callback_url, email=None, phone=None, first_name=None,
-                        last_name=None):
-        """Fallback to PesaPal v2 API if v3 fails"""
-        base_url = "https://www.pesapal.com/API/PostPesapalDirectOrderV4"
-
-        order_tracking_id = str(uuid.uuid4())
-        params = {
-            "amount": amount,
-            "description": description,
-            "type": "MERCHANT",
-            "reference": order_tracking_id,
-            "first_name": first_name or "",
-            "last_name": last_name or "",
-            "email": email or "",
-            "phone_number": phone or "",
-            "currency": "KES",
-            "callback_url": callback_url
-        }
-
-        # Generate HMAC SHA1 signature
-        param_string = urlencode(params)
-        key = f"{settings.PESAPAL_CONSUMER_KEY}&{settings.PESAPAL_CONSUMER_SECRET}"
-        signature = base64.b64encode(
-            hmac.new(key.encode(), param_string.encode(), hashlib.sha1).digest()
-        ).decode()
-
-        iframe_url = f"{base_url}?{param_string}&signature={signature}"
-
-        return {
-            "order_tracking_id": order_tracking_id,
-            "iframe_url": iframe_url
-        }
+            # In production, we don't want to fallback to v2 because it's deprecated and less secure.
+            # Instead, we should log the error and raise an exception.
+            logger.error("Pesapal v3 API failed: %s", e, exc_info=True)
+            raise Exception(f"PesaPal payment initiation failed: {str(e)}")
 
     def check_payment_status(self, order_tracking_id):
         """Check payment status using PesaPal API v3"""
         try:
             token = self._get_auth_token()
 
-            status_url = f"{self.BASE_URL}/api/Transactions/GetTransactionStatus"
+            status_url = f"{self.base_url}/api/Transactions/GetTransactionStatus"
             params = {
                 "orderTrackingId": order_tracking_id
             }
@@ -168,42 +223,8 @@ class PesaPalService:
             return response.json()
 
         except requests.exceptions.RequestException as e:
-            # Fallback to v2 status check
-            return self._fallback_status_check(order_tracking_id)
-
-    def _fallback_status_check(self, order_tracking_id):
-        """Fallback to v2 status check"""
-        query_url = "https://www.pesapal.com/API/QueryPaymentStatus"
-
-        params = {
-            "pesapal_merchant_reference": order_tracking_id
-        }
-
-        # Generate signature for v2
-        param_string = urlencode(params)
-        key = f"{settings.PESAPAL_CONSUMER_KEY}&{settings.PESAPAL_CONSUMER_SECRET}"
-        signature = base64.b64encode(
-            hmac.new(key.encode(), param_string.encode(), hashlib.sha1).digest()
-        ).decode()
-
-        query_url = f"{query_url}?{param_string}&signature={signature}"
-
-        try:
-            response = requests.get(query_url, timeout=30)
-            response.raise_for_status()
-
-            # Parse the XML response (v2 returns XML)
-            # This is a simplified parsing - you might need to adjust based on actual response
-            if "COMPLETED" in response.text:
-                return {"status": "COMPLETED"}
-            elif "PENDING" in response.text:
-                return {"status": "PENDING"}
-            else:
-                return {"status": "FAILED"}
-
-        except requests.exceptions.RequestException:
-            return {"status": "UNKNOWN"}
-
+            logger.error("Pesapal status check failed: %s", e, exc_info=True)
+            raise Exception(f"PesaPal status check failed: {str(e)}")
 
 class MpesaSTKPush:
     """Handle M-PESA STK Push with proper API integration"""
@@ -217,16 +238,24 @@ class MpesaSTKPush:
         self.token = None
         self.token_expiry = None
 
+        # Determine base URL based on environment
+        if settings.MPESA_ENV == "production":
+            self.auth_url = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+            self.stk_url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+            self.query_url = "https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query"
+        else:
+            self.auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+            self.stk_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+            self.query_url = "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query"
+
     def _get_auth_token(self):
         """Get M-Pesa API authentication token"""
         if self.token and self.token_expiry and self.token_expiry > timezone.now():
             return self.token
 
-        auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-
         try:
             response = requests.get(
-                auth_url,
+                self.auth_url,
                 auth=HTTPBasicAuth(self.consumer_key, self.consumer_secret),
                 timeout=30
             )
@@ -255,11 +284,11 @@ class MpesaSTKPush:
     def stk_push(self, phone_number, amount, account_reference, transaction_desc):
         """Initiate M-Pesa STK Push"""
         try:
-            # Clean phone number (ensure it starts with 254)
-            if phone_number.startswith('0'):
-                phone_number = '254' + phone_number[1:]
-            elif phone_number.startswith('+'):
-                phone_number = phone_number[1:]
+            # Normalize phone number for M-Pesa (must be in format 254...)
+            normalized_phone = normalize_phone_number(phone_number)
+            # Remove the '+' and ensure it starts with 254
+            if normalized_phone.startswith('+'):
+                normalized_phone = normalized_phone[1:]
 
             # Get auth token
             token = self._get_auth_token()
@@ -269,17 +298,15 @@ class MpesaSTKPush:
             password = self._generate_password(timestamp)
 
             # Prepare STK push request
-            stk_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-
             payload = {
                 "BusinessShortCode": self.shortcode,
                 "Password": password,
                 "Timestamp": timestamp,
                 "TransactionType": "CustomerPayBillOnline",
                 "Amount": amount,
-                "PartyA": phone_number,
+                "PartyA": normalized_phone,
                 "PartyB": self.shortcode,
-                "PhoneNumber": phone_number,
+                "PhoneNumber": normalized_phone,
                 "CallBackURL": self.callback_url,
                 "AccountReference": account_reference,
                 "TransactionDesc": transaction_desc
@@ -290,7 +317,7 @@ class MpesaSTKPush:
                 "Content-Type": "application/json"
             }
 
-            response = requests.post(stk_url, json=payload, headers=headers, timeout=30)
+            response = requests.post(self.stk_url, json=payload, headers=headers, timeout=30)
             response.raise_for_status()
 
             response_data = response.json()
@@ -303,27 +330,14 @@ class MpesaSTKPush:
             }
 
         except requests.exceptions.RequestException as e:
-            # Fallback to mock response in production if API call fails
-            if settings.DEBUG:
-                raise Exception(f"M-Pesa STK Push failed: {str(e)}")
-            else:
-                return self._mock_stk_response(phone_number, amount)
-
-    def _mock_stk_response(self, phone_number, amount):
-        """Generate a mock response for production fallback"""
-        return {
-            "CheckoutRequestID": str(uuid.uuid4()),
-            "ResponseDescription": "Success. Accept the prompt on your phone to complete payment.",
-            "MerchantRequestID": f"MOCK_{str(uuid.uuid4())[:8]}",
-            "CustomerMessage": f"Confirm payment of KES {amount} to {self.shortcode}"
-        }
+            # In production, we should not use mock responses. Instead, log and raise.
+            logger.error("M-Pesa STK Push failed: %s", e, exc_info=True)
+            raise Exception(f"M-Pesa STK Push failed: {str(e)}")
 
     def check_stk_status(self, checkout_request_id):
         """Check status of an STK push request"""
         try:
             token = self._get_auth_token()
-
-            status_url = "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query"
 
             timestamp = self._generate_timestamp()
             password = self._generate_password(timestamp)
@@ -340,13 +354,11 @@ class MpesaSTKPush:
                 "Content-Type": "application/json"
             }
 
-            response = requests.post(status_url, json=payload, headers=headers, timeout=30)
+            response = requests.post(self.query_url, json=payload, headers=headers, timeout=30)
             response.raise_for_status()
 
             return response.json()
 
         except requests.exceptions.RequestException as e:
-            return {
-                "ResultCode": "1032",
-                "ResultDesc": "Request cancelled by user" if not settings.DEBUG else f"Error: {str(e)}"
-            }
+            logger.error("M-Pesa STK status check failed: %s", e, exc_info=True)
+            raise Exception(f"M-Pesa STK status check failed: {str(e)}")

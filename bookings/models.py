@@ -5,7 +5,7 @@ from django.conf import settings
 from decimal import Decimal
 import uuid
 from cloudinary.models import CloudinaryField
-
+from airport.utils import normalize_phone_number
 # =====================================================
 # DESTINATIONS & CUSTOMERS
 # =====================================================
@@ -124,7 +124,6 @@ class Booking(models.Model):
     def __str__(self):
         return f"{self.customer} - {self.destination} ({self.booking_type})"
 
-    @property
     def calculate_total_price(self):
         """Compute total price based on destination price."""
         if self.destination:
@@ -133,8 +132,47 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         """Auto-fill total price on save."""
-        self.total_price = self.calculate_total_price
+        self.total_price = self.calculate_total_price()
         super().save(*args, **kwargs)
+
+
+# =====================================================
+# TOURS (Moved before Payment to avoid circular reference)
+# =====================================================
+
+class Tour(models.Model):
+    """
+    Extended model for multi-day safaris/tours.
+    """
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    itinerary = models.TextField(blank=True, null=True)
+    price_per_person = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    duration_days = models.PositiveIntegerField(default=1)
+    available = models.BooleanField(default=True)
+
+    # Media (Cloudinary)
+    image = CloudinaryField("image", blank=True, null=True)
+    video = CloudinaryField("video", resource_type="video", blank=True, null=True)
+    image_url = models.URLField(blank=True, null=True)  # optional fallback
+
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_tours")
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+    def get_image_src(self):
+        """Return Cloudinary image URL if available, else fallback to image_url."""
+        if self.image:
+            return getattr(self.image, "url", None)
+        if self.image_url:
+            return self.image_url
+        return None
 
 
 # =====================================================
@@ -243,6 +281,12 @@ class Payment(models.Model):
     # Pesapal / transaction
     # --------------------
     reference = models.CharField(max_length=100, db_index=True, default="")
+    session_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Unique session identifier for this payment attempt"
+    )
     pesapal_tracking_id = models.CharField(
         max_length=255,
         blank=True,
@@ -302,7 +346,8 @@ class Payment(models.Model):
     @property
     def pesapal_iframe_url(self):
         if self.pesapal_tracking_id:
-            return f"https://www.pesapal.com/iframe_payment_url/{self.pesapal_tracking_id}"
+            base_url = settings.PESAPAL_BASE_URL.rstrip('/')
+            return f"{base_url}/iframe_payment_url/{self.pesapal_tracking_id}"
         return None
 
 
@@ -326,41 +371,6 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} - {self.subject}"
-
-
-class Tour(models.Model):
-    """
-    Extended model for multi-day safaris/tours.
-    """
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    itinerary = models.TextField(blank=True, null=True)
-    price_per_person = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
-    duration_days = models.PositiveIntegerField(default=1)
-    available = models.BooleanField(default=True)
-
-    # Media (Cloudinary)
-    image = CloudinaryField("image", blank=True, null=True)
-    video = CloudinaryField("video", resource_type="video", blank=True, null=True)
-    image_url = models.URLField(blank=True, null=True)  # optional fallback
-
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_tours")
-    is_approved = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return self.title
-
-    def get_image_src(self):
-        """Return Cloudinary image URL if available, else fallback to image_url."""
-        if self.image:
-            return getattr(self.image, "url", None)
-        if self.image_url:
-            return self.image_url
-        return None
 
 
 class Video(models.Model):

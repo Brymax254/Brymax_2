@@ -30,6 +30,8 @@
       --warning: #f59e0b;
       --safari-green: #2e7d32;
       --safari-accent: #8bc34a;
+      --grass-green: #388e3c;
+      --earth-brown: #795548;
     }
 
     * {
@@ -44,23 +46,89 @@
       color: #334155;
       line-height: 1.6;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Lighter background elements */
+    .grass-bg {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%232e7d32' fill-opacity='0.15' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") no-repeat bottom center;
+      background-size: cover;
+      z-index: -1;
+      opacity: 0.5;
+    }
+
+    /* Optimized animations */
+    .leaf-decoration {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23388e3c' fill-opacity='0.3'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+      z-index: -1;
+      animation: float 8s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .leaf-1 {
+      top: 10%;
+      left: 5%;
+      animation-delay: 0s;
+    }
+
+    .leaf-2 {
+      top: 20%;
+      right: 8%;
+      animation-delay: 1s;
+      transform: scale(0.7) rotate(15deg);
+    }
+
+    .leaf-3 {
+      bottom: 30%;
+      left: 7%;
+      animation-delay: 2s;
+      transform: scale(1.1) rotate(-10deg);
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(-10px) rotate(3deg); }
+      100% { transform: translateY(0) rotate(0); }
     }
 
     .safari-bg {
       background: linear-gradient(135deg, var(--safari-green) 0%, var(--safari-accent) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .safari-bg::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+      border-radius: 50%;
     }
 
     .card {
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       overflow: hidden;
       transition: all 0.3s ease;
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .card:hover {
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
       transform: translateY(-2px);
     }
 
@@ -68,22 +136,39 @@
       background: linear-gradient(135deg, var(--safari-green) 0%, var(--safari-accent) 100%);
       color: white;
       font-weight: 600;
-      padding: 14px 28px;
-      border-radius: 12px;
+      padding: 12px 24px;
+      border-radius: 10px;
       transition: all 0.3s ease;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       font-size: 16px;
-      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+      box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
+      box-shadow: 0 6px 15px rgba(46, 125, 50, 0.35);
     }
 
     .btn-primary:disabled {
@@ -94,9 +179,9 @@
 
     .input-field {
       width: 100%;
-      padding: 16px 20px;
+      padding: 14px 16px;
       border: 2px solid #e2e8f0;
-      border-radius: 12px;
+      border-radius: 10px;
       font-size: 16px;
       transition: all 0.3s ease;
       background: white;
@@ -105,28 +190,28 @@
     .input-field:focus {
       outline: none;
       border-color: var(--safari-green);
-      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
     }
 
     .section-title {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--dark);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .section-title i {
       color: var(--safari-green);
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
 
     .payment-container {
       background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
-      border-radius: 20px;
-      padding: 2rem;
+      border-radius: 16px;
+      padding: 1.5rem;
       position: relative;
       overflow: hidden;
     }
@@ -138,50 +223,74 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232e7d32' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      opacity: 0.5;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232e7d32' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.4;
       pointer-events: none;
     }
 
     .pesapal-iframe {
       width: 100%;
-      min-height: 600px;
+      min-height: 500px;
       border: none;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       background: white;
       transition: all 0.3s ease;
     }
 
-    .pesapal-iframe:hover {
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    .pesapal-iframe-container {
+      position: relative;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .iframe-loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    .iframe-loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .feature-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
       background: var(--light);
       color: var(--safari-green);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       transition: all 0.3s ease;
     }
 
     .feature-card {
-      padding: 1.5rem;
-      border-radius: 16px;
+      padding: 1.25rem;
+      border-radius: 12px;
       background: white;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
       transition: all 0.3s ease;
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .feature-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     }
 
     .feature-card:hover .feature-icon {
@@ -191,15 +300,15 @@
 
     .faq-item {
       border-bottom: 1px solid #e2e8f0;
-      padding: 1.25rem 0;
+      padding: 1rem 0;
       transition: all 0.3s ease;
     }
 
     .faq-item:hover {
       background: rgba(46, 125, 50, 0.03);
       margin: 0 -1rem;
-      padding: 1.25rem 1rem;
-      border-radius: 12px;
+      padding: 1rem;
+      border-radius: 8px;
     }
 
     .faq-question {
@@ -215,44 +324,69 @@
     .faq-answer {
       margin-top: 1rem;
       color: var(--gray);
-      line-height: 1.6;
+      line-height: 1.5;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq-answer.active {
+      max-height: 500px;
     }
 
     .countdown {
       background: rgba(255, 255, 255, 0.2);
-      padding: 10px 20px;
-      border-radius: 30px;
+      padding: 8px 16px;
+      border-radius: 24px;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .countdown::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: var(--light);
       color: var(--safari-green);
-      padding: 8px 16px;
-      border-radius: 30px;
+      padding: 6px 12px;
+      border-radius: 24px;
       font-size: 0.875rem;
       font-weight: 600;
     }
 
     .order-summary {
       background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
-      border-radius: 20px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      border: 1px solid rgba(139, 195, 74, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(139, 195, 74, 0.15);
     }
 
     .order-line {
       display: flex;
       justify-content: space-between;
-      padding: 0.75rem 0;
+      padding: 0.5rem 0;
     }
 
     .order-line .label {
@@ -273,17 +407,17 @@
 
     .order-total .value {
       color: var(--safari-green);
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 700;
     }
 
     .security-badge {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: rgba(255, 255, 255, 0.9);
-      padding: 10px 20px;
-      border-radius: 30px;
+      padding: 8px 16px;
+      border-radius: 24px;
       font-size: 0.875rem;
       color: var(--gray);
       backdrop-filter: blur(10px);
@@ -295,7 +429,7 @@
 
     @keyframes pulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      50% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
 
@@ -321,17 +455,17 @@
     .processing-content {
       text-align: center;
       max-width: 500px;
-      padding: 2rem;
+      padding: 1.5rem;
     }
 
     .processing-spinner {
-      width: 80px;
-      height: 80px;
-      border: 8px solid #f3f4f6;
-      border-top: 8px solid var(--safari-green);
+      width: 60px;
+      height: 60px;
+      border: 6px solid #f3f4f6;
+      border-top: 6px solid var(--safari-green);
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin: 0 auto 2rem;
+      margin: 0 auto 1.5rem;
     }
 
     @keyframes spin {
@@ -343,18 +477,19 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      padding: 16px 24px;
+      padding: 12px 20px;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       z-index: 1000;
       transform: translateY(100px);
       opacity: 0;
       transition: all 0.3s ease;
       border-left: 4px solid var(--safari-green);
+      max-width: 350px;
     }
 
     .toast-notification.show {
@@ -371,7 +506,7 @@
     }
 
     .toast-icon {
-      font-size: 24px;
+      font-size: 20px;
     }
 
     .toast-notification.success .toast-icon {
@@ -384,9 +519,9 @@
 
     .payment-method-card {
       background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
       border: 2px solid transparent;
       transition: all 0.3s ease;
       cursor: pointer;
@@ -414,25 +549,324 @@
       100% { background-position: -200% 0; }
     }
 
+    .progress-bar {
+      height: 6px;
+      background-color: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--safari-green), var(--safari-accent));
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .payment-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .payment-status.success {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .payment-status.error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .payment-status.processing {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .connection-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--gray);
+    }
+
+    .connection-dot.active {
+      background-color: var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    .connection-dot.error {
+      background-color: var(--danger);
+    }
+
+    /* NEW FEATURES STYLES */
+    .payment-method-selector {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .payment-method-option {
+      flex: 1;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 2px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .payment-method-option:hover {
+      border-color: var(--safari-green);
+    }
+
+    .payment-method-option.active {
+      border-color: var(--safari-green);
+      background: rgba(46, 125, 50, 0.05);
+    }
+
+    .payment-method-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--safari-green);
+    }
+
+    .promo-code-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .promo-code-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .promo-code-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px 0 0 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .promo-code-input:focus {
+      outline: none;
+      border-color: var(--safari-green);
+    }
+
+    .promo-code-btn {
+      padding: 12px 20px;
+      background: var(--safari-green);
+      color: white;
+      border: none;
+      border-radius: 0 10px 10px 0;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .promo-code-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .discount-badge {
+      display: inline-block;
+      background: var(--warning);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .testimonial-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .testimonial-content {
+      font-style: italic;
+      margin-bottom: 1rem;
+      color: var(--gray);
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+    }
+
+    .testimonial-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 0.75rem;
+      object-fit: cover;
+    }
+
+    .testimonial-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .testimonial-name {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .testimonial-date {
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+
+    .rating {
+      display: flex;
+      margin-bottom: 0.5rem;
+    }
+
+    .rating i {
+      color: var(--warning);
+      font-size: 0.875rem;
+    }
+
+    .installment-options {
+      margin-bottom: 1.5rem;
+    }
+
+    .installment-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .installment-option:hover {
+      border-color: var(--safari-green);
+    }
+
+    .installment-option.active {
+      border-color: var(--safari-green);
+      background: rgba(46, 125, 50, 0.05);
+    }
+
+    .installment-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .installment-title {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .installment-desc {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .installment-price {
+      font-weight: 700;
+      color: var(--safari-green);
+    }
+
+    .security-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .security-feature {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .security-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(46, 125, 50, 0.1);
+      color: var(--safari-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.75rem;
+    }
+
+    .security-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .security-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--dark);
+    }
+
+    .security-desc {
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+
     @media (max-width: 768px) {
       .pesapal-iframe {
-        min-height: 500px;
+        min-height: 450px;
+      }
+
+      .security-features {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Grassmorphosim Background Elements -->
+  <div class="grass-bg"></div>
+  <div class="leaf-decoration leaf-1"></div>
+  <div class="leaf-decoration leaf-2"></div>
+  <div class="leaf-decoration leaf-3"></div>
+
   <!-- Header -->
-  <header class="safari-bg text-white py-6 px-4 md:px-8">
+  <header class="safari-bg text-white py-5 px-4 md:px-8">
     <div class="container mx-auto">
       <div class="flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center">
-          <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mr-4 backdrop-filter backdrop-blur-sm">
-            <i class="fas fa-paw text-3xl text-amber-300"></i>
+          <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-3 backdrop-filter backdrop-blur-sm">
+            <i class="fas fa-paw text-2xl text-amber-300"></i>
           </div>
-          <h1 class="text-3xl font-bold">Safari<span class="text-amber-300">Adventures</span></h1>
+          <h1 class="text-2xl font-bold">Safari<span class="text-amber-300">Adventures</span></h1>
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <div class="countdown pulse">
             <i class="fas fa-clock"></i>
             <span id="countdown-timer">15:00</span>
@@ -447,35 +881,37 @@
   </header>
 
   <!-- Main Content -->
-  <main class="container mx-auto px-4 py-8 max-w-6xl">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <main class="container mx-auto px-4 py-6 max-w-6xl">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Left Column: Payment Form -->
       <div class="lg:col-span-2">
         <!-- Guest Information -->
-        <div id="guest-form" class="card mb-8 p-6 md:p-8">
+        <div id="guest-form" class="card mb-6 p-5 md:p-6">
           <h2 class="section-title">
             <i class="fas fa-user-circle"></i>
             Traveler Information
           </h2>
-          <p class="text-gray-600 mb-6">Please provide your details to complete the booking</p>
+          <p class="text-gray-600 mb-5">Please provide your details to complete the booking</p>
 
           <form id="guest-info-form" method="POST" action="{% url 'tour_payment_page' tour.id %}">
             {% csrf_token %}
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
                 <input type="text" id="full-name" name="full_name" required
                   class="input-field" placeholder="John Doe" />
+                <span class="text-red-500 text-sm hidden" id="name-error">Please enter your full name</span>
               </div>
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Email Address *</label>
                 <input type="email" id="guest-email" name="email" required
                   class="input-field" placeholder="john@example.com" />
+                <span class="text-red-500 text-sm hidden" id="email-error">Please enter a valid email</span>
               </div>
             </div>
 
-            <div class="mb-6">
+            <div class="mb-5">
               <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
               <div class="flex">
                 <select id="country-code" name="country_code" class="input-field w-1/3 rounded-r-none">
@@ -486,9 +922,10 @@
                 <input type="tel" id="phone" name="phone" required
                   class="input-field flex-1 rounded-l-none" placeholder="712 345 678" />
               </div>
+              <span class="text-red-500 text-sm hidden" id="phone-error">Please enter a valid phone number</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
               <div>
                 <label class="block text-gray-700 font-medium mb-2">Adults *</label>
                 <input type="number" id="adults" name="adults" min="1" required
@@ -506,10 +943,11 @@
               </div>
             </div>
 
-            <div class="mb-8">
+            <div class="mb-6">
               <label class="block text-gray-700 font-medium mb-2">Travel Date *</label>
               <input type="date" id="travel-date" name="travel_date" required
                 min="{{ today|date:'Y-m-d' }}" class="input-field" />
+              <span class="text-red-500 text-sm hidden" id="date-error">Please select a future date</span>
             </div>
 
             <button type="submit" id="continue-btn" class="btn-primary w-full">
@@ -520,20 +958,20 @@
         </div>
 
         <!-- Payment Section -->
-        <div id="payment-section" class="card p-6 md:p-8 hidden">
+        <div id="payment-section" class="card p-5 md:p-6 hidden">
           <h2 class="section-title">
             <i class="fas fa-credit-card"></i>
             Complete Your Payment
           </h2>
 
           <!-- Modern Guest Summary -->
-          <div class="order-summary mb-8">
-            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+          <div class="order-summary mb-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-5 flex items-center">
               <i class="fas fa-receipt mr-3 text-green-600"></i> Booking Summary
             </h3>
 
-            <div class="bg-white rounded-xl p-6 shadow-sm">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-white rounded-xl p-5 shadow-sm">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <div class="flex items-center">
                   <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
                     <i class="fas fa-user text-green-600"></i>
@@ -604,6 +1042,10 @@
                   <span class="text-gray-600">Children Cost</span>
                   <span class="font-medium" id="summary-children-cost">-</span>
                 </div>
+                <div id="discount-row" class="flex justify-between items-center mb-2 hidden">
+                  <span class="text-gray-600">Discount</span>
+                  <span class="font-medium text-green-600" id="discount-amount">-</span>
+                </div>
                 <div class="flex justify-between items-center pt-3 mt-3 border-t border-gray-200">
                   <span class="text-lg font-bold text-gray-800">Total Amount</span>
                   <span class="text-xl font-bold text-green-600" id="summary-total">-</span>
@@ -612,9 +1054,63 @@
             </div>
           </div>
 
-          <!-- Payment Method -->
-          <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Payment Method</h3>
+          <!-- NEW: Payment Method Selector -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Select Payment Method</h3>
+            <div class="payment-method-selector">
+              <div class="payment-method-option active" data-method="pesapal">
+                <div class="payment-method-icon">
+                  <i class="fas fa-credit-card"></i>
+                </div>
+                <div>PesaPal</div>
+              </div>
+              <div class="payment-method-option" data-method="mpesa">
+                <div class="payment-method-icon">
+                  <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div>M-Pesa</div>
+              </div>
+              <div class="payment-method-option" data-method="card">
+                <div class="payment-method-icon">
+                  <i class="fas fa-credit-card"></i>
+                </div>
+                <div>Card</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NEW: Promo Code Section -->
+          <div class="promo-code-section mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Promo Code</h3>
+            <div class="promo-code-input-group">
+              <input type="text" id="promo-code" class="promo-code-input" placeholder="Enter promo code">
+              <button type="button" id="apply-promo" class="promo-code-btn">Apply</button>
+            </div>
+            <div id="promo-message" class="mt-2 text-sm hidden"></div>
+          </div>
+
+          <!-- NEW: Installment Options -->
+          <div class="installment-options mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Payment Options</h3>
+            <div class="installment-option active" data-option="full">
+              <div class="installment-info">
+                <div class="installment-title">Pay in Full</div>
+                <div class="installment-desc">Pay the full amount now</div>
+              </div>
+              <div class="installment-price" id="full-price">-</div>
+            </div>
+            <div class="installment-option" data-option="installment">
+              <div class="installment-info">
+                <div class="installment-title">Pay in Installments</div>
+                <div class="installment-desc">50% now, 50% before travel</div>
+              </div>
+              <div class="installment-price" id="installment-price">-</div>
+            </div>
+          </div>
+
+          <!-- Payment Method Details -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Payment Details</h3>
             <div class="payment-method-card active">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -642,18 +1138,38 @@
           </div>
 
           <!-- PesaPal Payment Container -->
-          <div class="payment-container mb-8">
+          <div class="payment-container mb-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Enter Payment Details</h3>
+
+            <!-- Connection Status -->
+            <div class="connection-indicator">
+              <div class="connection-dot" id="connection-dot"></div>
+              <span id="connection-text">Initializing connection...</span>
+            </div>
+
+            <!-- Payment Status -->
+            <div class="payment-status processing" id="payment-status">
+              <i class="fas fa-spinner fa-spin mr-2"></i>
+              <span>Preparing secure payment...</span>
+            </div>
+
             <div id="pesapal-container">
               <!-- Loading state -->
               <div id="pesapal-loading" class="flex flex-col items-center justify-center h-64">
                 <div class="processing-spinner mb-4"></div>
                 <p class="text-gray-600 font-medium">Initializing secure payment...</p>
                 <p class="text-gray-500 text-sm mt-2">Please wait while we connect to PesaPal</p>
+                <div class="progress-bar w-full max-w-md mt-4">
+                  <div class="progress-fill" id="progress-fill"></div>
+                </div>
               </div>
 
               <!-- PesaPal iframe container (hidden initially) -->
-              <div id="pesapal-iframe-container" class="hidden">
+              <div id="pesapal-iframe-container" class="pesapal-iframe-container hidden">
+                <div class="iframe-loading-overlay" id="iframe-loading">
+                  <div class="processing-spinner mb-4"></div>
+                  <p class="text-gray-600 font-medium">Loading payment form...</p>
+                </div>
                 <!-- PesaPal iframe will be loaded here -->
               </div>
 
@@ -672,8 +1188,48 @@
             </div>
           </div>
 
+          <!-- NEW: Security Features -->
+          <div class="security-features mb-6">
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">SSL Encryption</div>
+                <div class="security-desc">256-bit security</div>
+              </div>
+            </div>
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-lock"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">Data Protection</div>
+                <div class="security-desc">PCI DSS compliant</div>
+              </div>
+            </div>
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-user-shield"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">Privacy</div>
+                <div class="security-desc">Your data is safe</div>
+              </div>
+            </div>
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-money-check-alt"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">Refund Policy</div>
+                <div class="security-desc">30-day guarantee</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Payment Features -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
             <div class="feature-card">
               <div class="flex items-start">
                 <div class="feature-icon mr-4">
@@ -698,8 +1254,30 @@
             </div>
           </div>
 
+          <!-- NEW: Testimonials -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Customer Reviews</h3>
+            <div class="testimonial-card">
+              <div class="rating">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <p class="testimonial-content">"The payment process was seamless and secure. I had my safari booked in minutes!"</p>
+              <div class="testimonial-author">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Customer" class="testimonial-avatar">
+                <div class="testimonial-info">
+                  <div class="testimonial-name">Sarah Johnson</div>
+                  <div class="testimonial-date">March 15, 2023</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- FAQ -->
-          <div class="card p-6">
+          <div class="card p-5">
             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
               <i class="fas fa-question-circle mr-2 text-green-600"></i>
               Frequently Asked Questions
@@ -710,7 +1288,7 @@
                 <span>What is included in the safari package?</span>
                 <i class="fas fa-chevron-down text-green-600"></i>
               </div>
-              <div class="faq-answer hidden">
+              <div class="faq-answer">
                 <p>Accommodation, meals, game drives, park entry fees, professional guide services, and transportation. Some packages may include cultural visits and activities.</p>
               </div>
             </div>
@@ -720,7 +1298,7 @@
                 <span>What is the cancellation policy?</span>
                 <i class="fas fa-chevron-down text-green-600"></i>
               </div>
-              <div class="faq-answer hidden">
+              <div class="faq-answer">
                 <p>30+ days: full refund. 15–29 days: 50% refund. Within 14 days: no refund.</p>
               </div>
             </div>
@@ -730,7 +1308,7 @@
                 <span>What should I pack for the safari?</span>
                 <i class="fas fa-chevron-down text-green-600"></i>
               </div>
-              <div class="faq-answer hidden">
+              <div class="faq-answer">
                 <p>Neutral clothing, hat, sunscreen, binoculars, camera, comfortable shoes, and a light jacket for early drives.</p>
               </div>
             </div>
@@ -741,13 +1319,13 @@
       <!-- Right Column: Tour Details -->
       <div class="lg:col-span-1">
         <!-- Tour Summary -->
-        <div class="card mb-8 p-6">
+        <div class="card mb-6 p-5">
           <h2 class="section-title">
             <i class="fas fa-map-marked-alt"></i>
             Tour Details
           </h2>
 
-          <div class="mb-6">
+          <div class="mb-5">
             <img src="{{ tour.image.url }}" alt="{{ tour.title }}"
               class="w-full h-48 object-cover rounded-xl" />
           </div>
@@ -755,7 +1333,7 @@
           <h3 class="text-xl font-bold text-gray-800 mb-2">{{ tour.title }}</h3>
           <p class="text-gray-600 mb-4">{{ tour.description|truncatewords:20 }}</p>
 
-          <div class="space-y-3 mb-6">
+          <div class="space-y-3 mb-5">
             <div class="flex justify-between">
               <span class="text-gray-600">Duration:</span>
               <span class="font-medium">{{ tour.duration_days }} days</span>
@@ -794,7 +1372,7 @@
         </div>
 
         <!-- Support -->
-        <div class="card mb-8 p-6">
+        <div class="card mb-6 p-5">
           <h2 class="section-title">
             <i class="fas fa-headset"></i>
             Need Help?
@@ -825,7 +1403,7 @@
         </div>
 
         <!-- Security -->
-        <div class="card p-6">
+        <div class="card p-5">
           <h2 class="section-title">
             <i class="fas fa-shield-alt"></i>
             Security & Protection
@@ -868,9 +1446,9 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-300 py-12 px-4 mt-16">
+  <footer class="bg-gray-900 text-gray-300 py-10 px-4 mt-12">
     <div class="container mx-auto max-w-6xl">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
           <h3 class="text-xl font-bold text-white mb-4">Safari<span class="text-amber-300">Adventures</span></h3>
           <p class="mb-4">Creating unforgettable wildlife experiences since 2005.</p>
@@ -968,251 +1546,596 @@
     </div>
   </div>
 
-
-<<!-- Scripts -->
+ <!-- Scripts -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Elements
-  const guestForm = document.getElementById('guest-info-form');
-  const continueBtn = document.getElementById('continue-btn');
-  const paymentSection = document.getElementById('payment-section');
-  const guestFormSection = document.getElementById('guest-form');
-  const toast = document.getElementById('toast');
-  const pesapalLoading = document.getElementById('pesapal-loading');
-  const pesapalIframeContainer = document.getElementById('pesapal-iframe-container');
-  const pesapalError = document.getElementById('pesapal-error');
-  const retryPaymentBtn = document.getElementById('retry-payment');
+    // Elements
+    const guestForm = document.getElementById('guest-info-form');
+    const continueBtn = document.getElementById('continue-btn');
+    const paymentSection = document.getElementById('payment-section');
+    const guestFormSection = document.getElementById('guest-form');
+    const toast = document.getElementById('toast');
+    const pesapalLoading = document.getElementById('pesapal-loading');
+    const pesapalIframeContainer = document.getElementById('pesapal-iframe-container');
+    const pesapalError = document.getElementById('pesapal-error');
+    const retryPaymentBtn = document.getElementById('retry-payment');
+    const iframeLoading = document.getElementById('iframe-loading');
+    const connectionDot = document.getElementById('connection-dot');
+    const connectionText = document.getElementById('connection-text');
+    const paymentStatus = document.getElementById('payment-status');
+    const progressFill = document.getElementById('progress-fill');
 
-  // Form inputs
-  const nameInput = document.getElementById('full-name');
-  const emailInput = document.getElementById('guest-email');
-  const phoneInput = document.getElementById('phone');
-  const codeInput = document.getElementById('country-code');
-  const adultsInput = document.getElementById('adults');
-  const childrenInput = document.getElementById('children');
-  const daysInput = document.getElementById('days');
-  const travelDateInput = document.getElementById('travel-date');
+    // Payment method selector
+    const paymentMethodOptions = document.querySelectorAll('.payment-method-option');
 
-  // Summary elements
-  const sName = document.getElementById('summary-name');
-  const sEmail = document.getElementById('summary-email');
-  const sPhone = document.getElementById('summary-phone');
-  const sDate = document.getElementById('summary-date');
-  const sTrav = document.getElementById('summary-travelers');
-  const sDays = document.getElementById('summary-days');
-  const sAdultsCost = document.getElementById('summary-adults-cost');
-  const sChildrenCost = document.getElementById('summary-children-cost');
-  const sTotal = document.getElementById('summary-total');
+    // Promo code elements
+    const promoCodeInput = document.getElementById('promo-code');
+    const applyPromoBtn = document.getElementById('apply-promo');
+    const promoMessage = document.getElementById('promo-message');
+    const discountRow = document.getElementById('discount-row');
+    const discountAmount = document.getElementById('discount-amount');
 
-  // Pricing
-  const pricePerPerson = Number('{{ tour.price_per_person|floatformat:2 }}');
-  const durationDays = Number('{{ tour.duration_days }}');
-  const dailyRate = durationDays > 0 ? (pricePerPerson / durationDays) : 0;
+    // Installment options
+    const installmentOptions = document.querySelectorAll('.installment-option');
+    const fullPriceElement = document.getElementById('full-price');
+    const installmentPriceElement = document.getElementById('installment-price');
 
-  // Format currency
-  function formatKES(amount) {
-    try {
-      return new Intl.NumberFormat('en-KE', {
-        style: 'currency',
-        currency: 'KES',
-        minimumFractionDigits: 0
-      }).format(Math.round(amount));
-    } catch (e) {
-      return `KES ${Math.round(amount).toLocaleString('en-KE')}`;
+    // Form inputs
+    const nameInput = document.getElementById('full-name');
+    const emailInput = document.getElementById('guest-email');
+    const phoneInput = document.getElementById('phone');
+    const codeInput = document.getElementById('country-code');
+    const adultsInput = document.getElementById('adults');
+    const childrenInput = document.getElementById('children');
+    const daysInput = document.getElementById('days');
+    const travelDateInput = document.getElementById('travel-date');
+
+    // Error elements
+    const nameError = document.getElementById('name-error');
+    const emailError = document.getElementById('email-error');
+    const phoneError = document.getElementById('phone-error');
+    const dateError = document.getElementById('date-error');
+
+    // Summary elements
+    const sName = document.getElementById('summary-name');
+    const sEmail = document.getElementById('summary-email');
+    const sPhone = document.getElementById('summary-phone');
+    const sDate = document.getElementById('summary-date');
+    const sTrav = document.getElementById('summary-travelers');
+    const sDays = document.getElementById('summary-days');
+    const sAdultsCost = document.getElementById('summary-adults-cost');
+    const sChildrenCost = document.getElementById('summary-children-cost');
+    const sTotal = document.getElementById('summary-total');
+
+    // Pricing
+    const pricePerPerson = Number('{{ tour.price_per_person|floatformat:2 }}');
+    const durationDays = Number('{{ tour.duration_days }}');
+    const dailyRate = durationDays > 0 ? (pricePerPerson / durationDays) : 0;
+
+    // State variables
+    let selectedPaymentMethod = 'pesapal';
+    let selectedInstallmentOption = 'full';
+    let discountPercentage = 0;
+    let discountCode = '';
+
+    // Format currency
+    function formatKES(amount) {
+      try {
+        return new Intl.NumberFormat('en-KE', {
+          style: 'currency',
+          currency: 'KES',
+          minimumFractionDigits: 0
+        }).format(Math.round(amount));
+      } catch (e) {
+        return `KES ${Math.round(amount).toLocaleString('en-KE')}`;
+      }
     }
-  }
 
-  // Calculate order summary
-  function recalc() {
-    const adults = Math.max(parseInt(adultsInput.value || '0', 10), 0);
-    const children = Math.max(parseInt(childrenInput.value || '0', 10), 0);
-    const days = Math.max(parseInt(daysInput.value || '0', 10), 0);
+    // Calculate order summary
+    function recalc() {
+      const adults = Math.max(parseInt(adultsInput.value || '0', 10), 0);
+      const children = Math.max(parseInt(childrenInput.value || '0', 10), 0);
+      const days = Math.max(parseInt(daysInput.value || '0', 10), 0);
 
-    // Pricing logic
-    const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
-    const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
-    const childrenCost = children * dailyRate * 0.5 * days;
-    const adultsCost = firstAdultCost + additionalAdultsCost;
-    const total = adultsCost + childrenCost;
+      // Pricing logic
+      const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
+      const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
+      const childrenCost = children * dailyRate * 0.5 * days;
+      const adultsCost = firstAdultCost + additionalAdultsCost;
+      const subtotal = adultsCost + childrenCost;
 
-    // Update summary
-    sName.textContent = nameInput.value || '-';
-    sEmail.textContent = emailInput.value || '-';
-    sPhone.textContent = phoneInput.value ? `${codeInput.value} ${phoneInput.value}` : '-';
-    sDate.textContent = travelDateInput.value || '-';
-    sTrav.textContent = `${adults} Adults, ${children} Children`;
-    sDays.textContent = `${days} Days`;
-    sAdultsCost.textContent = formatKES(adultsCost);
-    sChildrenCost.textContent = formatKES(childrenCost);
-    sTotal.textContent = formatKES(total);
-  }
+      // Apply discount if any
+      const discountAmountValue = subtotal * (discountPercentage / 100);
+      const total = subtotal - discountAmountValue;
 
-  // Add input listeners
-  [nameInput, emailInput, phoneInput, codeInput, adultsInput, childrenInput, daysInput, travelDateInput].forEach(el => {
-    if (el) el.addEventListener('input', recalc);
-  });
+      // Update summary
+      sName.textContent = nameInput.value || '-';
+      sEmail.textContent = emailInput.value || '-';
+      sPhone.textContent = phoneInput.value ? `${codeInput.value} ${phoneInput.value}` : '-';
+      sDate.textContent = travelDateInput.value || '-';
+      sTrav.textContent = `${adults} Adults, ${children} Children`;
+      sDays.textContent = `${days} Days`;
+      sAdultsCost.textContent = formatKES(adultsCost);
+      sChildrenCost.textContent = formatKES(childrenCost);
+      sTotal.textContent = formatKES(total);
 
-  // Function to embed Pesapal iframe
-  function createPesapalIframe(redirectUrl) {
-    const iframeContainer = document.getElementById('pesapal-iframe-container');
-    iframeContainer.innerHTML = '';
+      // Update installment options
+      fullPriceElement.textContent = formatKES(total);
+      installmentPriceElement.textContent = formatKES(total / 2);
 
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '100%';
-    iframe.style.height = '600px';
-    iframe.style.border = 'none';
-    iframe.style.borderRadius = '16px';
-    iframe.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
-    iframe.style.background = 'white';
-    iframe.src = redirectUrl;
-
-    iframeContainer.appendChild(iframe);
-
-    pesapalLoading.classList.add('hidden');
-    pesapalIframeContainer.classList.remove('hidden');
-
-    console.log('Pesapal iframe created with URL:', redirectUrl);
-  }
-
-  // Function to initialize Pesapal payment
-  function initializePesapalPayment() {
-    pesapalLoading.classList.remove('hidden');
-    pesapalIframeContainer.classList.add('hidden');
-    pesapalError.classList.add('hidden');
-
-    const payload = {
-      full_name: nameInput.value,
-      email: emailInput.value,
-      phone: phoneInput.value,
-      country_code: codeInput.value,
-      adults: parseInt(adultsInput.value || '0', 10),
-      children: parseInt(childrenInput.value || '0', 10),
-      days: parseInt(daysInput.value || '0', 10),
-      travel_date: travelDateInput.value,
-    };
-
-    fetch('/create-guest-pesapal-order/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      },
-      body: JSON.stringify(payload)
-    })
-    .then(response => {
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      return response.json();
-    })
-    .then(result => {
-      console.log('Pesapal order response:', result);
-
-      if (result.success && result.redirect_url) {
-        createPesapalIframe(result.redirect_url);
+      // Show discount if applied
+      if (discountPercentage > 0) {
+        discountRow.classList.remove('hidden');
+        discountAmount.textContent = `-${formatKES(discountAmountValue)}`;
       } else {
-        throw new Error(result.message || 'Failed to get Pesapal redirect URL');
-      }
-    })
-    .catch(error => {
-      console.error('Payment initialization error:', error);
-
-      pesapalLoading.classList.add('hidden');
-      pesapalError.classList.remove('hidden');
-
-      showToast('error', 'Payment Error', error.message || 'Failed to initialize payment. Please try again.');
-    });
-  }
-
-  // Form submission handler
-  if (guestForm) {
-    guestForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      if (!nameInput.value || !emailInput.value || !phoneInput.value) {
-        showToast('error', 'Validation Error', 'Please fill in all required fields');
-        return;
+        discountRow.classList.add('hidden');
       }
 
-      const adults = parseInt(adultsInput.value || '0', 10);
-      if (adults < 1) {
-        showToast('error', 'Validation Error', 'At least one adult is required');
-        return;
-      }
-
-      continueBtn.disabled = true;
-      continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
-
-      recalc();
-
-      guestFormSection.classList.add('hidden');
-      paymentSection.classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      setTimeout(() => {
-        initializePesapalPayment();
-        continueBtn.disabled = false;
-        continueBtn.innerHTML = '<span>Continue to Payment</span> <i class="fas fa-arrow-right"></i>';
-      }, 500);
-    });
-  }
-
-  // Retry payment
-  if (retryPaymentBtn) {
-    retryPaymentBtn.addEventListener('click', () => {
-      initializePesapalPayment();
-    });
-  }
-
-  // Toast notification
-  function showToast(type, title, message) {
-    const toastEl = document.getElementById('toast');
-    const toastIcon = toastEl.querySelector('.toast-icon');
-    const toastTitle = toastEl.querySelector('.toast-title');
-    const toastMessage = toastEl.querySelector('.toast-message');
-
-    toastTitle.textContent = title;
-    toastMessage.textContent = message;
-
-    toastEl.className = 'toast-notification ' + type;
-    toastIcon.className = type === 'success'
-      ? 'toast-icon fas fa-check-circle'
-      : 'toast-icon fas fa-exclamation-circle';
-
-    toastEl.classList.add('show');
-    setTimeout(() => toastEl.classList.remove('show'), 5000);
-  }
-
-  // FAQ toggles
-  document.querySelectorAll('.faq-question').forEach(question => {
-    question.addEventListener('click', () => {
-      const answer = question.nextElementSibling;
-      const icon = question.querySelector('i');
-      answer.classList.toggle('hidden');
-      icon.classList.toggle('fa-chevron-down');
-      icon.classList.toggle('fa-chevron-up');
-    });
-  });
-
-  // Initialize summary
-  recalc();
-
-  // Countdown timer
-  let timeLeft = 15 * 60;
-  const countdownElement = document.getElementById('countdown-timer');
-
-  const countdown = setInterval(() => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    countdownElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-    if (timeLeft <= 0) {
-      clearInterval(countdown);
-      countdownElement.textContent = "Expired";
+      return total;
     }
-    timeLeft--;
-  }, 1000);
-});
+
+    // Add input listeners
+    [nameInput, emailInput, phoneInput, codeInput, adultsInput, childrenInput, daysInput, travelDateInput].forEach(el => {
+      if (el) el.addEventListener('input', recalc);
+    });
+
+    // Payment method selection
+    if (paymentMethodOptions) {
+      paymentMethodOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          paymentMethodOptions.forEach(opt => opt.classList.remove('active'));
+          option.classList.add('active');
+          selectedPaymentMethod = option.dataset.method;
+
+          // Update payment method card
+          const paymentMethodCard = document.querySelector('.payment-method-card');
+          if (paymentMethodCard) {
+            const cardTitle = paymentMethodCard.querySelector('h4');
+            const cardDesc = paymentMethodCard.querySelector('p');
+
+            switch(selectedPaymentMethod) {
+              case 'pesapal':
+                cardTitle.textContent = 'PesaPal';
+                cardDesc.textContent = 'Secure online payment';
+                break;
+              case 'mpesa':
+                cardTitle.textContent = 'M-Pesa';
+                cardDesc.textContent = 'Mobile money payment';
+                break;
+              case 'card':
+                cardTitle.textContent = 'Card Payment';
+                cardDesc.textContent = 'Credit/Debit card';
+                break;
+            }
+          }
+        });
+      });
+    }
+
+    // Promo code handling
+    if (applyPromoBtn && promoCodeInput) {
+      applyPromoBtn.addEventListener('click', () => {
+        const code = promoCodeInput.value.trim().toUpperCase();
+
+        // Simple validation - in a real app, this would be validated server-side
+        if (code === 'SAFARI10') {
+          discountPercentage = 10;
+          discountCode = code;
+          promoMessage.textContent = 'Promo code applied! 10% discount.';
+          promoMessage.className = 'mt-2 text-sm text-green-600';
+          promoMessage.classList.remove('hidden');
+          applyPromoBtn.disabled = true;
+          applyPromoBtn.textContent = 'Applied';
+          recalc();
+        } else if (code === 'WELCOME15') {
+          discountPercentage = 15;
+          discountCode = code;
+          promoMessage.textContent = 'Promo code applied! 15% discount.';
+          promoMessage.className = 'mt-2 text-sm text-green-600';
+          promoMessage.classList.remove('hidden');
+          applyPromoBtn.disabled = true;
+          applyPromoBtn.textContent = 'Applied';
+          recalc();
+        } else if (code === '') {
+          promoMessage.textContent = 'Please enter a promo code.';
+          promoMessage.className = 'mt-2 text-sm text-red-600';
+          promoMessage.classList.remove('hidden');
+        } else {
+          promoMessage.textContent = 'Invalid promo code.';
+          promoMessage.className = 'mt-2 text-sm text-red-600';
+          promoMessage.classList.remove('hidden');
+        }
+      });
+    }
+
+    // Installment option selection
+    if (installmentOptions) {
+      installmentOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          installmentOptions.forEach(opt => opt.classList.remove('active'));
+          option.classList.add('active');
+          selectedInstallmentOption = option.dataset.option;
+        });
+      });
+    }
+
+    // Function to embed Pesapal iframe
+    function createPesapalIframe(redirectUrl) {
+      const iframeContainer = document.getElementById('pesapal-iframe-container');
+      if (!iframeContainer) return;
+
+      iframeContainer.innerHTML = '';
+
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.height = '500px';
+      iframe.style.border = 'none';
+      iframe.style.borderRadius = '12px';
+      iframe.style.background = 'white';
+      iframe.src = redirectUrl;
+
+      // Show loading overlay initially
+      if (iframeLoading) {
+        iframeLoading.classList.remove('hidden');
+      }
+
+      // When iframe loads, hide loading overlay
+      iframe.addEventListener('load', () => {
+        setTimeout(() => {
+          if (iframeLoading) {
+            iframeLoading.classList.add('hidden');
+          }
+          if (connectionDot) {
+            connectionDot.classList.add('active');
+          }
+          if (connectionText) {
+            connectionText.textContent = 'Connected to PesaPal';
+          }
+          if (paymentStatus) {
+            paymentStatus.className = 'payment-status success';
+            paymentStatus.innerHTML = '<i class="fas fa-check-circle mr-2"></i><span>Payment form loaded successfully</span>';
+          }
+        }, 1500); // Simulate additional processing time
+      });
+
+      // Handle iframe errors
+      iframe.addEventListener('error', () => {
+        if (iframeLoading) {
+          iframeLoading.classList.add('hidden');
+        }
+        if (connectionDot) {
+          connectionDot.classList.add('error');
+        }
+        if (connectionText) {
+          connectionText.textContent = 'Connection failed';
+        }
+        if (paymentStatus) {
+          paymentStatus.className = 'payment-status error';
+          paymentStatus.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i><span>Failed to load payment form</span>';
+        }
+        showToast('error', 'Connection Error', 'Could not connect to PesaPal. Please check your internet connection.');
+      });
+
+      iframeContainer.appendChild(iframe);
+
+      if (pesapalLoading) {
+        pesapalLoading.classList.add('hidden');
+      }
+      if (pesapalIframeContainer) {
+        pesapalIframeContainer.classList.remove('hidden');
+      }
+
+      console.log('Pesapal iframe created with URL:', redirectUrl);
+    }
+
+    // Function to initialize Pesapal payment
+    function initializePesapalPayment() {
+      if (pesapalLoading) {
+        pesapalLoading.classList.remove('hidden');
+      }
+      if (pesapalIframeContainer) {
+        pesapalIframeContainer.classList.add('hidden');
+      }
+      if (pesapalError) {
+        pesapalError.classList.add('hidden');
+      }
+
+      // Reset connection indicators
+      if (connectionDot) {
+        connectionDot.classList.remove('active', 'error');
+      }
+      if (connectionText) {
+        connectionText.textContent = 'Connecting to PesaPal...';
+      }
+      if (paymentStatus) {
+        paymentStatus.className = 'payment-status processing';
+        paymentStatus.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Initializing secure payment...</span>';
+      }
+
+      // Simulate progress
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += 10;
+        if (progressFill) {
+          progressFill.style.width = `${progress}%`;
+        }
+
+        if (progress >= 100) {
+          clearInterval(progressInterval);
+        }
+      }, 200);
+
+      // Calculate the total amount
+      const adults = parseInt(adultsInput.value || '0', 10);
+      const children = parseInt(childrenInput.value || '0', 10);
+      const days = parseInt(daysInput.value || '0', 10);
+
+      // Pricing logic
+      const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
+      const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
+      const childrenCost = children * dailyRate * 0.5 * days;
+      const adultsCost = firstAdultCost + additionalAdultsCost;
+      const subtotal = adultsCost + childrenCost;
+
+      // Apply discount if any
+      const discountAmountValue = subtotal * (discountPercentage / 100);
+      const total = subtotal - discountAmountValue;
+
+      // Calculate payment amount based on installment option
+      const paymentAmount = selectedInstallmentOption === 'full' ? total : total / 2;
+
+      const payload = {
+        full_name: nameInput.value,
+        email: emailInput.value,
+        phone: phoneInput.value,
+        country_code: codeInput.value,
+        adults: adults,
+        children: children,
+        days: days,
+        travel_date: travelDateInput.value,
+        amount: paymentAmount,
+        description: `Safari Booking: {{ tour.title }} - ${adults} adults, ${children} children, ${days} days`,
+        currency: 'KES',
+        tour_id: {{ tour.id }},
+        payment_method: selectedPaymentMethod,
+        installment_option: selectedInstallmentOption,
+        discount_code: discountCode,
+        discount_percentage: discountPercentage
+      };
+
+      console.log('Sending payload:', payload); // Debug log
+
+      fetch('/create-guest-pesapal-order/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          return response.text().then(text => {
+            throw new Error(`HTTP error! Status: ${response.status}, Message: ${text}`);
+          });
+        }
+        return response.json();
+      })
+      .then(result => {
+        console.log('Pesapal order response:', result);
+
+        if (result.success && result.redirect_url) {
+          createPesapalIframe(result.redirect_url);
+
+          // Store order tracking ID for future reference
+          if (result.order_tracking_id) {
+            localStorage.setItem('pesapal_order_tracking_id', result.order_tracking_id);
+          }
+          if (result.merchant_ref) {
+            localStorage.setItem('pesapal_merchant_ref', result.merchant_ref);
+          }
+        } else {
+          throw new Error(result.message || result.error || 'Failed to get Pesapal redirect URL');
+        }
+      })
+      .catch(error => {
+        console.error('Payment initialization error:', error);
+
+        if (pesapalLoading) {
+          pesapalLoading.classList.add('hidden');
+        }
+        if (pesapalError) {
+          pesapalError.classList.remove('hidden');
+        }
+
+        if (connectionDot) {
+          connectionDot.classList.add('error');
+        }
+        if (connectionText) {
+          connectionText.textContent = 'Connection failed';
+        }
+        if (paymentStatus) {
+          paymentStatus.className = 'payment-status error';
+          paymentStatus.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i><span>Failed to initialize payment</span>';
+        }
+
+        // Show the actual error message
+        let errorMessage = 'Failed to initialize payment. Please try again.';
+        if (error.message) {
+          errorMessage = error.message;
+        } else if (error.error) {
+          errorMessage = error.error;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+        }
+
+        showToast('error', 'Payment Error', errorMessage);
+      });
+    }
+
+    // Form validation
+    function validateForm() {
+      let isValid = true;
+
+      // Validate name
+      if (!nameInput.value.trim()) {
+        if (nameError) nameError.classList.remove('hidden');
+        isValid = false;
+      } else {
+        if (nameError) nameError.classList.add('hidden');
+      }
+
+      // Validate email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailInput.value)) {
+        if (emailError) emailError.classList.remove('hidden');
+        isValid = false;
+      } else {
+        if (emailError) emailError.classList.add('hidden');
+      }
+
+      // Validate phone
+      if (!phoneInput.value.trim() || phoneInput.value.length < 6) {
+        if (phoneError) phoneError.classList.remove('hidden');
+        isValid = false;
+      } else {
+        if (phoneError) phoneError.classList.add('hidden');
+      }
+
+      // Validate date
+      const selectedDate = new Date(travelDateInput.value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (!travelDateInput.value || selectedDate < today) {
+        if (dateError) dateError.classList.remove('hidden');
+        isValid = false;
+      } else {
+        if (dateError) dateError.classList.add('hidden');
+      }
+
+      return isValid;
+    }
+
+    // Form submission handler
+    if (guestForm) {
+      guestForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+          showToast('error', 'Validation Error', 'Please correct the errors in the form');
+          return;
+        }
+
+        const adults = parseInt(adultsInput.value || '0', 10);
+        if (adults < 1) {
+          showToast('error', 'Validation Error', 'At least one adult is required');
+          return;
+        }
+
+        if (continueBtn) {
+          continueBtn.disabled = true;
+          continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+        }
+
+        recalc();
+
+        if (guestFormSection) {
+          guestFormSection.classList.add('hidden');
+        }
+        if (paymentSection) {
+          paymentSection.classList.remove('hidden');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+          initializePesapalPayment();
+          if (continueBtn) {
+            continueBtn.disabled = false;
+            continueBtn.innerHTML = '<span>Continue to Payment</span> <i class="fas fa-arrow-right"></i>';
+          }
+        }, 500);
+      });
+    }
+
+    // Retry payment
+    if (retryPaymentBtn) {
+      retryPaymentBtn.addEventListener('click', () => {
+        initializePesapalPayment();
+      });
+    }
+
+    // Toast notification
+    function showToast(type, title, message) {
+      const toastEl = document.getElementById('toast');
+      if (!toastEl) return;
+
+      const toastIcon = toastEl.querySelector('.toast-icon');
+      const toastTitle = toastEl.querySelector('.toast-title');
+      const toastMessage = toastEl.querySelector('.toast-message');
+
+      if (toastTitle) toastTitle.textContent = title;
+      if (toastMessage) toastMessage.textContent = message;
+
+      toastEl.className = 'toast-notification ' + type;
+      if (toastIcon) {
+        toastIcon.className = type === 'success'
+          ? 'toast-icon fas fa-check-circle'
+          : 'toast-icon fas fa-exclamation-circle';
+      }
+
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 5000);
+    }
+
+    // FAQ toggles
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const answer = question.nextElementSibling;
+        const icon = question.querySelector('i');
+
+        if (answer) {
+          answer.classList.toggle('active');
+        }
+        if (icon) {
+          icon.classList.toggle('fa-chevron-down');
+          icon.classList.toggle('fa-chevron-up');
+        }
+      });
+    });
+
+    // Initialize summary
+    recalc();
+
+    // Countdown timer
+    let timeLeft = 15 * 60;
+    const countdownElement = document.getElementById('countdown-timer');
+
+    if (countdownElement) {
+      const countdown = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        countdownElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          countdownElement.textContent = "Expired";
+
+          // Show session expired message
+          showToast('error', 'Session Expired', 'Your payment session has expired. Please refresh the page to start again.');
+
+          // Disable form
+          if (guestForm) {
+            guestForm.querySelectorAll('input, button').forEach(el => {
+              el.disabled = true;
+            });
+          }
+        }
+        timeLeft--;
+      }, 1000);
+    }
+  });
 </script>
-
-
 </body>
 </html>

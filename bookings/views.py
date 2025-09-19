@@ -659,138 +659,111 @@ def process_guest_info(request):
 
 
 @csrf_exempt
-@require_POST
+@require_http_methods(["POST"])
 def create_guest_pesapal_order(request):
     """
-    AJAX endpoint to create Pesapal order for guest.
-
-    Uses session-stored email and phone, updates Payment record.
-
-    Returns:
-        JsonResponse with redirect_url or error.
+    Create a Pesapal order for guest checkout
     """
     try:
-        # Log the incoming request for debugging
-        logger.info(f"Request content type: {request.content_type}")
-        logger.info(f"Request body: {request.body}")
-        logger.info(f"Request POST data: {request.POST}")
+        # Parse the request body
+        data = json.loads(request.body)
 
-        # Try to parse JSON from request body
-        payload = {}
-        if request.content_type == 'application/json':
-            try:
-                if request.body:
-                    payload = json.loads(request.body)
-                    logger.info(f"JSON payload: {payload}")
-            except json.JSONDecodeError:
-                logger.error("Invalid JSON format")
-                return JsonResponse({"success": False, "message": "Invalid JSON format"}, status=400)
-        else:
-            # If not JSON, get data from POST
-            payload = {
-                "amount": request.POST.get("amount"),
-                "description": request.POST.get("description", "Tour booking"),
-                "guest_info": {
-                    "email": request.POST.get("email"),
-                    "phone": request.POST.get("phone"),
-                    "full_name": request.POST.get("full_name"),
-                }
-            }
-            logger.info(f"Form payload: {payload}")
+        # Extract required fields
+        full_name = data.get('full_name')
+        email = data.get('email')
+        phone = data.get('phone')
+        country_code = data.get('country_code')
+        adults = data.get('adults')
+        children = data.get('children')
+        days = data.get('days')
+        travel_date = data.get('travel_date')
+        amount = data.get('amount')
+        description = data.get('description')
+        currency = data.get('currency', 'KES')
+        tour_id = data.get('tour_id')
+        payment_method = data.get('payment_method', 'pesapal')
+        installment_option = data.get('installment_option', 'full')
+        discount_code = data.get('discount_code', '')
+        discount_percentage = data.get('discount_percentage', 0)
 
-        # Get amount with better error handling
+        # Validate required fields
+        if not all([full_name, email, phone, adults, days, travel_date, amount, tour_id]):
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing required fields'
+            }, status=400)
+
+        # Get the tour
         try:
-            amount_str = payload.get("amount", "0")
-            logger.info(f"Amount string: {amount_str}")
-            amount = Decimal(str(amount_str))
-            if not amount or amount <= 0:
-                logger.error(f"Invalid amount: {amount}")
-                return JsonResponse({"error": "Valid amount is required"}, status=400)
-        except (ValueError, TypeError, InvalidOperation) as e:
-            logger.error(f"Amount parsing error: {e}")
-            return JsonResponse({"error": "Invalid amount format"}, status=400)
+            tour = Tour.objects.get(id=tour_id)
+        except Tour.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'Tour not found'
+            }, status=404)
 
-        description = payload.get("description", "Tour booking")
-        guest_info = payload.get("guest_info", {})
+        # Create payment record
+        payment = Payment.objects.create(
+            guest_full_name=full_name,
+            guest_email=email,
+            guest_phone=f"{country_code}{phone}",
+            adults=adults,
+            children=children,
+            days=days,
+            travel_date=travel_date,
+            amount=amount,
+            description=description,
+            currency=currency,
+            status=PaymentStatus.PENDING,
+            tour=tour
+        )
 
-        # Get guest info from session or payload
-        email = request.session.get("guest_email", guest_info.get("email"))
-        phone = normalize_phone_number(request.session.get("guest_phone", guest_info.get("phone")))
+        # Create order data for Pesapal
+        order_data = {
+            'order_id': str(payment.id),
+            'amount': amount,
+            'description': description,
+            'email': email,
+            'phone': f"{country_code}{phone}",
+            'first_name': full_name.split(' ')[0],
+            'last_name': ' '.join(full_name.split(' ')[1:]) if ' ' in full_name else '',
+        }
 
-        logger.info(f"Guest info - Email: {email}, Phone: {phone}")
-
-        if not email or not phone:
-            logger.warning(
-                f"Missing guest info. Session email: {request.session.get('guest_email')}, Session phone: {request.session.get('guest_phone')}, Payload email: {guest_info.get('email')}, Payload phone: {guest_info.get('phone')}")
-            return JsonResponse({"success": False, "message": "Missing guest info."}, status=400)
-
-        # Generate unique order ID
-        order_id = f"GUEST-{uuid.uuid4().hex[:10]}"
-        logger.info(f"Generated order ID: {order_id}")
-
-        # Use PesaPalService to create order
+        # Initialize Pesapal service
         pesapal_service = PesaPalService()
+        result = pesapal_service.create_order(order_data)
 
-        try:
-            payment_result = pesapal_service.initiate_payment(
-                amount=amount,
-                description=description,
-                callback_url=settings.PESAPAL_CALLBACK_URL,
-                email=email,
-                phone=phone,
-                first_name=guest_info.get("full_name", "Guest").split()[0],
-                last_name=" ".join(guest_info.get("full_name", "Guest").split()[1:]) or "User"
-            )
+        if result.get('success'):
+            # Update payment with tracking info
+            payment.pesapal_tracking_id = result.get('order_tracking_id')
+            payment.reference = result.get('merchant_ref')
+            payment.save()
 
-            logger.info(f"Pesapal payment result: {payment_result}")
-
-            if not payment_result or "order_tracking_id" not in payment_result:
-                logger.error("Invalid payment result from Pesapal")
-                return JsonResponse({"success": False, "message": "Failed to create Pesapal order"}, status=500)
-
-            redirect_url = payment_result.get("iframe_url") or payment_result.get("redirect_url")
-            tracking_id = payment_result.get("order_tracking_id")
-            merchant_ref = order_id  # We'll use our order ID as merchant reference
-
-            if not redirect_url or not tracking_id:
-                logger.error(f"Missing required fields in payment result: {payment_result}")
-                return JsonResponse({"success": False, "message": "Invalid Pesapal response"}, status=500)
-
-            logger.info(f"Pesapal order created - Redirect URL: {redirect_url}, Tracking ID: {tracking_id}")
-        except Exception as e:
-            logger.exception(f"Error creating Pesapal order: {e}")
-            return JsonResponse({"success": False, "message": f"Failed to create Pesapal order: {str(e)}"}, status=500)
-
-        # Update payment record if exists
-        payment_id = request.session.get("pending_payment_id")
-        if payment_id:
-            try:
-                payment = Payment.objects.get(id=payment_id)
-                payment.pesapal_merchant_ref = merchant_ref
-                payment.pesapal_tracking_id = tracking_id
-                payment.save()
-                logger.info(f"Updated payment {payment_id} with Pesapal details")
-            except Payment.DoesNotExist:
-                logger.warning(f"Payment not found for ID: {payment_id}")
+            return JsonResponse(result)
         else:
-            logger.warning("No pending payment ID in session")
+            # Delete the payment record if payment initialization failed
+            payment.delete()
+            return JsonResponse({
+                'success': False,
+                'error': result.get('error', 'Failed to initialize payment')
+            })
 
-        # Update session with tracking info
-        request.session.update({
-            "guest_order_tracking_id": tracking_id,
-            "guest_order_merchant_ref": merchant_ref,
-            "payment_initiated_at": timezone.now().isoformat(),  # For expiration check
-        })
-
-        # Explicitly save session
-        request.session.save()
-
-        logger.info(f"Guest Pesapal order created, tracking_id={tracking_id}")
-        return JsonResponse({"success": True, "redirect_url": redirect_url})
-    except Exception as exc:
-        logger.exception("Guest Pesapal order creation failed: %s", exc)
-        return JsonResponse({"success": False, "message": str(exc)}, status=500)
-
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
+    except Tour.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Tour not found'
+        }, status=404)
+    except Exception as e:
+        logger.error(f"Error creating Pesapal order: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred while processing your payment'
+        }, status=500)
 
 @csrf_exempt
 @require_POST
