@@ -25,11 +25,9 @@ from .models import (
     ContactMessage, Trip, PaymentStatus
 )
 from .services import PesaPalService, MpesaSTKPush
-from .pesapal_utils import create_pesapal_order
 from .forms import GuestCheckoutForm
 
 logger = logging.getLogger(__name__)
-
 
 # =============================================================================
 # UTILITIES & DECORATORS
@@ -162,19 +160,17 @@ def tour_payment(request, tour_id):
     Handles checkout form and Pesapal payment iframe for a specific tour.
 
     GET: Display checkout form.
-    POST: Create Payment object and initialize Pesapal order.
+    POST: Create Payment object and return necessary data for Pesapal JavaScript.
 
     Args:
         request: HttpRequest object.
         tour_id (int): ID of the Tour being booked.
 
     Returns:
-        HttpResponse: Renders tour_payment.html with payment form and iframe.
+        HttpResponse: Renders tour_payment.html with payment form and Pesapal credentials.
     """
     tour = get_object_or_404(Tour, id=tour_id)
-    iframe_url = None
     payment = None
-    show_payment_options = False
     is_guest_payment = request.session.get("pending_payment_id") is not None
 
     if request.method == "POST":
@@ -189,6 +185,7 @@ def tour_payment(request, tour_id):
             total_amount = tour.price_per_person * (adults + children)
 
             with transaction.atomic():
+                # Check if there's already a pending payment for this tour and email
                 payment = Payment.objects.filter(
                     tour=tour,
                     guest_email=email,
@@ -197,9 +194,11 @@ def tour_payment(request, tour_id):
 
                 if payment:
                     messages.info(request, "You already have a pending payment for this tour.")
-                    iframe_url = payment.pesapal_iframe_url
-                    show_payment_options = True
+                    request.session["pending_payment_id"] = str(payment.pk)
+                    request.session["guest_email"] = email
+                    request.session["guest_phone"] = phone
                 else:
+                    # Create a new payment record
                     payment = Payment.objects.create(
                         tour=tour,
                         amount=total_amount,
@@ -214,30 +213,10 @@ def tour_payment(request, tour_id):
                         travel_date=travel_date,
                         description=f"Tour {tour.title} booking",
                     )
-                    try:
-                        iframe_url, order_ref, tracking_id = create_pesapal_order(
-                            order_id=f"TOUR-{payment.id}",
-                            amount=total_amount,
-                            description=f"Tour {tour.title}",
-                            email=email,
-                            phone=phone,
-                            first_name=full_name.split()[0],
-                            last_name=" ".join(full_name.split()[1:]) or "Guest",
-                        )
-                        payment.transaction_id = order_ref
-                        payment.pesapal_reference = tracking_id
-                        payment.pesapal_iframe_url = iframe_url
-                        payment.save()
-                        request.session["pending_payment_id"] = str(payment.pk)
-                        request.session["guest_email"] = email
-                        request.session["guest_phone"] = phone
-                        show_payment_options = True
-                        logger.info(f"Pesapal order created for payment {payment.id}")
-                    except Exception as e:
-                        logger.exception(f"Pesapal initialization failed: {e}")
-                        messages.error(request, "Payment service unavailable. Please try again later.")
-                        payment.status = PaymentStatus.FAILED
-                        payment.save()
+                    request.session["pending_payment_id"] = str(payment.pk)
+                    request.session["guest_email"] = email
+                    request.session["guest_phone"] = phone
+                    logger.info(f"Payment record created for {email} - {payment.id}")
         else:
             messages.error(request, "Please correct the errors below.")
             logger.warning(f"Tour payment form invalid: {form.errors}")
@@ -248,9 +227,10 @@ def tour_payment(request, tour_id):
             try:
                 payment_id = uuid.UUID(payment_id_str)
                 payment = Payment.objects.get(id=payment_id, tour_id=tour_id)
-                if payment.status == PaymentStatus.PENDING:
-                    iframe_url = payment.pesapal_iframe_url
-                    show_payment_options = bool(iframe_url)
+                if payment.status != PaymentStatus.PENDING:
+                    # If payment is no longer pending, clear session
+                    request.session.pop("pending_payment_id", None)
+                    messages.info(request, "Your previous payment session has expired.")
             except (Payment.DoesNotExist, ValueError) as exc:
                 logger.warning(f"Invalid pending payment session: {exc}")
                 request.session.pop("pending_payment_id", None)
@@ -263,23 +243,12 @@ def tour_payment(request, tour_id):
             "tour": tour,
             "form": form,
             "payment": payment,
-            "pesapal_iframe_url": iframe_url,
-            "show_payment_options": show_payment_options,
+            "merchant_key": settings.PESAPAL_CONSUMER_KEY,
+            "callback_url": settings.PESAPAL_CALLBACK_URL,
             "is_guest_payment": is_guest_payment,
+            "today": timezone.now().date(),
         },
     )
-
-def get_pesapal_iframe_url(payment: Payment) -> Optional[str]:
-    """
-    Safely return the Pesapal iframe URL for a payment.
-
-    Args:
-        payment (Payment): Payment instance.
-
-    Returns:
-        Optional[str]: URL string if present, else None.
-    """
-    return getattr(payment, "pesapal_iframe_url", None)
 
 
 @require_GET
@@ -288,26 +257,48 @@ def pesapal_redirect(request):
     Handle redirect from Pesapal after user completes payment.
 
     Retrieves status from query params and updates Payment record.
-    Redirects user to receipt page.
+    Redirects user to success page.
     """
-    tracking_id = request.GET.get("OrderTrackingId")
-    if not tracking_id:
+    tracking_id = request.GET.get("pesapal_transaction_id")
+    merchant_reference = request.GET.get("pesapal_merchant_reference")
+
+    if not tracking_id or not merchant_reference:
         messages.error(request, "Invalid payment callback.")
         return redirect("home")
+
     try:
-        payment = Payment.objects.get(pesapal_reference=tracking_id)
-        status = request.GET.get("PaymentStatus", "FAILED").upper()
-        payment.status = status
-        if status == "COMPLETED":
-            payment.amount_paid = payment.amount
-            payment.paid_at = timezone.now()
+        # Extract payment ID from merchant reference
+        payment_id = merchant_reference.split('-')[1] if '-' in merchant_reference else None
+
+        if not payment_id:
+            logger.error(f"Could not extract payment ID from merchant reference: {merchant_reference}")
+            messages.error(request, "Invalid payment reference.")
+            return redirect("home")
+
+        payment = get_object_or_404(Payment, id=payment_id)
+
+        # Update payment with Pesapal details
+        payment.pesapal_reference = tracking_id
+        payment.transaction_id = tracking_id
+        payment.status = PaymentStatus.PENDING  # Will be updated by IPN
         payment.save()
+
+        # Clear session
         request.session.pop("pending_payment_id", None)
-        return redirect("receipt", pk=payment.pk)
-    except Payment.DoesNotExist:
-        logger.error(f"Payment not found for tracking ID: {tracking_id}")
+
+        return redirect("payment_success", pk=payment.pk)
+
+    except (Payment.DoesNotExist, ValueError) as exc:
+        logger.error(f"Payment not found for tracking ID: {tracking_id} - {exc}")
         messages.error(request, "Payment not found.")
         return redirect("home")
+
+
+@require_GET
+def payment_success(request, pk):
+    """Display success page for a payment."""
+    payment = get_object_or_404(Payment, pk=pk)
+    return render(request, "payments/success.html", {"payment": payment})
 
 
 @require_GET
@@ -334,39 +325,40 @@ def pesapal_ipn(request):
     Updates payment status accordingly.
     """
     try:
-        payload = json.loads(request.body)
+        # Parse the request body
+        if request.content_type == 'application/json':
+            payload = json.loads(request.body)
+        else:
+            # Handle form data
+            payload = {
+                'OrderTrackingId': request.POST.get('OrderTrackingId'),
+                'OrderMerchantReference': request.POST.get('OrderMerchantReference'),
+                'PaymentStatus': request.POST.get('PaymentStatus'),
+            }
+
         tracking_id = payload.get("OrderTrackingId") or payload.get("order_tracking_id") or payload.get(
-            "transaction_tracking_id")
+            "pesapal_transaction_id")
+        merchant_reference = payload.get("OrderMerchantReference") or payload.get("merchant_reference")
+
         if not tracking_id:
             logger.error(f"IPN missing tracking ID: {payload}")
             return HttpResponse("Missing tracking ID", status=400)
-        payment = get_object_or_404(Payment, pesapal_reference=tracking_id)
-        return _update_pesapal_status_and_redirect(payment)
-    except Exception as exc:
-        logger.exception("Pesapal IPN processing failed: %s", exc)
-        return HttpResponse("Server error", status=500)
 
+        # Extract payment ID from merchant reference
+        payment_id = None
+        if merchant_reference and '-' in merchant_reference:
+            payment_id = merchant_reference.split('-')[1]
 
-def _update_pesapal_status_and_redirect(payment: Payment):
-    """
-    Internal helper to query Pesapal API, update Payment model, and redirect to receipt.
+        if not payment_id:
+            logger.error(f"Could not extract payment ID from merchant reference: {merchant_reference}")
+            return HttpResponse("Invalid merchant reference", status=400)
 
-    Args:
-        payment (Payment): Payment instance to update.
+        payment = get_object_or_404(Payment, id=payment_id)
 
-    Returns:
-        HttpResponseRedirect: Redirect to receipt page.
-    """
-    try:
-        access_token = PesaPalService.get_token()
-        res = requests.get(
-            f"{settings.PESAPAL_BASE_URL}/v3/api/Transactions/GetTransactionStatus",
-            params={"orderTrackingId": payment.pesapal_reference},
-            headers={"Authorization": f"Bearer {access_token}"},
-            timeout=10,
-        )
-        res.raise_for_status()
-        data = res.json()
+        # Update payment status
+        status = payload.get("PaymentStatus", payload.get("status", "FAILED")).upper()
+
+        # Map Pesapal status to our PaymentStatus
         STATUS_MAP = {
             "COMPLETED": PaymentStatus.SUCCESS,
             "FAILED": PaymentStatus.FAILED,
@@ -374,24 +366,30 @@ def _update_pesapal_status_and_redirect(payment: Payment):
             "CANCELLED": PaymentStatus.CANCELLED,
             "REFUNDED": PaymentStatus.REFUNDED,
         }
-        new_status = STATUS_MAP.get(data.get("status", "").upper(), PaymentStatus.PENDING)
+
+        new_status = STATUS_MAP.get(status, PaymentStatus.PENDING)
+
         with transaction.atomic():
-            if payment.status != new_status:
-                payment.status = new_status
-                if new_status == PaymentStatus.SUCCESS:
-                    payment.amount_paid = Decimal(data.get("amount", payment.amount))
-                    payment.paid_on = timezone.now()
-                    if not payment.confirmation_sent:
-                        send_payment_confirmation_email(payment)
-                        payment.confirmation_sent = True
-                payment.transaction_id = data.get("confirmation_code", payment.transaction_id)
-                payment.method = data.get("payment_method", payment.method)
-                payment.updated_at = timezone.now()
-                payment.save()
-        return redirect("receipt", pk=payment.id)
+            payment.status = new_status
+            payment.pesapal_reference = tracking_id
+
+            if new_status == PaymentStatus.SUCCESS:
+                payment.amount_paid = payment.amount
+                payment.paid_at = timezone.now()
+
+                # Send confirmation email if not already sent
+                if not payment.confirmation_sent:
+                    send_payment_confirmation_email(payment)
+                    payment.confirmation_sent = True
+
+            payment.save()
+            logger.info(f"Updated payment {payment.id} status to {new_status}")
+
+        return HttpResponse("OK", status=200)
+
     except Exception as exc:
-        logger.exception("Failed to update Pesapal payment status: %s", exc)
-        return redirect("receipt", pk=payment.id)
+        logger.exception("Pesapal IPN processing failed: %s", exc)
+        return HttpResponse("Server error", status=500)
 
 
 # =============================================================================
@@ -549,22 +547,115 @@ def guest_payment_page(request, payment_id: str):
 
 
 @csrf_exempt
-@require_POST
+@require_http_methods(["POST"])
 def process_guest_info(request):
     """
-    AJAX endpoint to save guest email and phone to session.
-
-    Returns:
-        JsonResponse indicating success or failure.
+    Process guest information via AJAX and return booking details for Pesapal payment.
     """
-    email = request.POST.get("email")
-    phone = request.POST.get("phone")
-    if not email or not phone:
-        return JsonResponse({"success": False, "message": "Email and phone required."}, status=400)
-    request.session["guest_email"] = email
-    request.session["guest_phone"] = phone
-    logger.info(f"Guest info saved to session: {email}")
-    return JsonResponse({"success": True})
+    logger.info(f"=== PROCESS GUEST INFO START ===")
+    logger.info(f"Request method: {request.method}")
+    logger.info(f"Request content type: {request.content_type}")
+    logger.info(f"Request POST data: {request.POST}")
+    logger.info(f"Request body: {request.body}")
+
+    try:
+        # Get form data
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        adults = request.POST.get('adults', 1)
+        children = request.POST.get('children', 0)
+        days = request.POST.get('days', 1)
+        travel_date = request.POST.get('travel_date')
+        tour_id = request.POST.get('tour_id')
+        total_amount = request.POST.get('total_amount')
+
+        logger.info(
+            f"Extracted data: full_name={full_name}, email={email}, phone={phone}, tour_id={tour_id}, total_amount={total_amount}")
+
+        # Validate required fields
+        required_fields = [full_name, email, phone, tour_id, total_amount]
+        if not all(required_fields):
+            missing = []
+            if not full_name: missing.append('full_name')
+            if not email: missing.append('email')
+            if not phone: missing.append('phone')
+            if not tour_id: missing.append('tour_id')
+            if not total_amount: missing.append('total_amount')
+
+            logger.error(f"Missing required fields: {missing}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Missing required fields: {", ".join(missing)}'
+            }, status=400)
+
+        # Get tour
+        try:
+            tour = Tour.objects.get(id=tour_id)
+            logger.info(f"Found tour: {tour.title}")
+        except Tour.DoesNotExist:
+            logger.error(f"Tour not found with ID: {tour_id}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Tour not found'
+            }, status=404)
+
+        # Create or update payment record
+        with transaction.atomic():
+            # Check if there's already a pending payment for this tour and email
+            payment = Payment.objects.filter(
+                tour=tour,
+                guest_email=email,
+                status=PaymentStatus.PENDING
+            ).first()
+
+            if payment:
+                logger.info(f"Found existing payment: {payment.id}")
+            else:
+                # Create a new payment record
+                payment = Payment.objects.create(
+                    tour=tour,
+                    amount=total_amount,
+                    currency="KES",
+                    provider="PESAPAL",
+                    status=PaymentStatus.PENDING,
+                    guest_full_name=full_name,
+                    guest_email=email,
+                    guest_phone=phone,
+                    adults=adults,
+                    children=children,
+                    travel_date=travel_date,
+                    description=f"Tour {tour.title} booking",
+                )
+                logger.info(f"Created new payment: {payment.id}")
+
+            # Generate a unique booking ID
+            booking_id = f"BOOK-{payment.id}-{uuid.uuid4().hex[:6]}"
+
+            # Update session
+            request.session["pending_payment_id"] = str(payment.pk)
+            request.session["guest_email"] = email
+            request.session["guest_phone"] = phone
+            request.session.save()  # Explicitly save the session
+
+            logger.info(f"Updated session with payment_id: {payment.pk}")
+            logger.info(f"Generated booking_id: {booking_id}")
+
+            response_data = {
+                'success': True,
+                'booking_id': booking_id,
+                'message': 'Guest information processed successfully'
+            }
+            logger.info(f"Returning response: {response_data}")
+            logger.info(f"=== PROCESS GUEST INFO END ===")
+            return JsonResponse(response_data)
+
+    except Exception as e:
+        logger.exception(f"Error processing guest info: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
 
 
 @csrf_exempt
@@ -579,29 +670,98 @@ def create_guest_pesapal_order(request):
         JsonResponse with redirect_url or error.
     """
     try:
-        payload = json.loads(request.body)
-        amount = Decimal(payload["amount"])
+        # Log the incoming request for debugging
+        logger.info(f"Request content type: {request.content_type}")
+        logger.info(f"Request body: {request.body}")
+        logger.info(f"Request POST data: {request.POST}")
+
+        # Try to parse JSON from request body
+        payload = {}
+        if request.content_type == 'application/json':
+            try:
+                if request.body:
+                    payload = json.loads(request.body)
+                    logger.info(f"JSON payload: {payload}")
+            except json.JSONDecodeError:
+                logger.error("Invalid JSON format")
+                return JsonResponse({"success": False, "message": "Invalid JSON format"}, status=400)
+        else:
+            # If not JSON, get data from POST
+            payload = {
+                "amount": request.POST.get("amount"),
+                "description": request.POST.get("description", "Tour booking"),
+                "guest_info": {
+                    "email": request.POST.get("email"),
+                    "phone": request.POST.get("phone"),
+                    "full_name": request.POST.get("full_name"),
+                }
+            }
+            logger.info(f"Form payload: {payload}")
+
+        # Get amount with better error handling
+        try:
+            amount_str = payload.get("amount", "0")
+            logger.info(f"Amount string: {amount_str}")
+            amount = Decimal(str(amount_str))
+            if not amount or amount <= 0:
+                logger.error(f"Invalid amount: {amount}")
+                return JsonResponse({"error": "Valid amount is required"}, status=400)
+        except (ValueError, TypeError, InvalidOperation) as e:
+            logger.error(f"Amount parsing error: {e}")
+            return JsonResponse({"error": "Invalid amount format"}, status=400)
+
         description = payload.get("description", "Tour booking")
         guest_info = payload.get("guest_info", {})
 
+        # Get guest info from session or payload
         email = request.session.get("guest_email", guest_info.get("email"))
         phone = normalize_phone_number(request.session.get("guest_phone", guest_info.get("phone")))
 
+        logger.info(f"Guest info - Email: {email}, Phone: {phone}")
+
         if not email or not phone:
+            logger.warning(
+                f"Missing guest info. Session email: {request.session.get('guest_email')}, Session phone: {request.session.get('guest_phone')}, Payload email: {guest_info.get('email')}, Payload phone: {guest_info.get('phone')}")
             return JsonResponse({"success": False, "message": "Missing guest info."}, status=400)
 
+        # Generate unique order ID
         order_id = f"GUEST-{uuid.uuid4().hex[:10]}"
-        redirect_url, merchant_ref, tracking_id = create_pesapal_order(
-            order_id=order_id,
-            amount=amount,
-            description=description,
-            email=email,
-            phone=phone,
-            first_name=guest_info.get("full_name", "Guest").split()[0],
-            last_name=" ".join(guest_info.get("full_name", "Guest").split()[1:]) or "User",
-        )
+        logger.info(f"Generated order ID: {order_id}")
 
-        # Create or update payment record
+        # Use PesaPalService to create order
+        pesapal_service = PesaPalService()
+
+        try:
+            payment_result = pesapal_service.initiate_payment(
+                amount=amount,
+                description=description,
+                callback_url=settings.PESAPAL_CALLBACK_URL,
+                email=email,
+                phone=phone,
+                first_name=guest_info.get("full_name", "Guest").split()[0],
+                last_name=" ".join(guest_info.get("full_name", "Guest").split()[1:]) or "User"
+            )
+
+            logger.info(f"Pesapal payment result: {payment_result}")
+
+            if not payment_result or "order_tracking_id" not in payment_result:
+                logger.error("Invalid payment result from Pesapal")
+                return JsonResponse({"success": False, "message": "Failed to create Pesapal order"}, status=500)
+
+            redirect_url = payment_result.get("iframe_url") or payment_result.get("redirect_url")
+            tracking_id = payment_result.get("order_tracking_id")
+            merchant_ref = order_id  # We'll use our order ID as merchant reference
+
+            if not redirect_url or not tracking_id:
+                logger.error(f"Missing required fields in payment result: {payment_result}")
+                return JsonResponse({"success": False, "message": "Invalid Pesapal response"}, status=500)
+
+            logger.info(f"Pesapal order created - Redirect URL: {redirect_url}, Tracking ID: {tracking_id}")
+        except Exception as e:
+            logger.exception(f"Error creating Pesapal order: {e}")
+            return JsonResponse({"success": False, "message": f"Failed to create Pesapal order: {str(e)}"}, status=500)
+
+        # Update payment record if exists
         payment_id = request.session.get("pending_payment_id")
         if payment_id:
             try:
@@ -609,13 +769,21 @@ def create_guest_pesapal_order(request):
                 payment.pesapal_merchant_ref = merchant_ref
                 payment.pesapal_tracking_id = tracking_id
                 payment.save()
+                logger.info(f"Updated payment {payment_id} with Pesapal details")
             except Payment.DoesNotExist:
                 logger.warning(f"Payment not found for ID: {payment_id}")
+        else:
+            logger.warning("No pending payment ID in session")
 
+        # Update session with tracking info
         request.session.update({
             "guest_order_tracking_id": tracking_id,
             "guest_order_merchant_ref": merchant_ref,
+            "payment_initiated_at": timezone.now().isoformat(),  # For expiration check
         })
+
+        # Explicitly save session
+        request.session.save()
 
         logger.info(f"Guest Pesapal order created, tracking_id={tracking_id}")
         return JsonResponse({"success": True, "redirect_url": redirect_url})
@@ -640,15 +808,28 @@ def guest_pesapal_callback(request):
         tracking_id = payload.get("order_tracking_id")
         status = payload.get("status", "").upper()
 
+        # Validate session
+        if not validate_payment_session(request):
+            return JsonResponse({"success": False, "message": "Session expired or invalid"}, status=400)
+
+        # Verify tracking ID matches session
         if tracking_id != request.session.get("guest_order_tracking_id"):
             return JsonResponse({"success": False, "message": "Order not found"}, status=404)
 
+        # Update payment record
         payment = Payment.objects.get(pesapal_tracking_id=tracking_id)
         payment.status = status
         if status == "COMPLETED":
             payment.amount_paid = payment.amount
+            payment.paid_at = timezone.now()
         payment.save()
+
+        # Update session with payment status
         request.session["guest_payment_status"] = status
+        request.session["payment_updated_at"] = timezone.now().isoformat()
+
+        # Explicitly save session
+        request.session.save()
 
         logger.info(f"Guest payment updated: {tracking_id} -> {status}")
         return JsonResponse({"success": True})
@@ -668,42 +849,108 @@ def guest_payment_return(request):
     Returns:
         HttpResponseRedirect to success or failed page based on status.
     """
+    # Validate session
+    if not validate_payment_session(request):
+        clear_payment_session(request)
+        return redirect("payment_failed")
+
     tracking_id = request.session.get("guest_order_tracking_id")
     if not tracking_id:
+        clear_payment_session(request)
         return redirect("payment_failed")
+
     try:
         payment = Payment.objects.get(pesapal_tracking_id=tracking_id)
+
+        # Clear session after processing
+        clear_payment_session(request)
+
         if payment.status == "COMPLETED":
             return redirect("guest_payment_success")
         return redirect("guest_payment_failed")
     except Payment.DoesNotExist:
         logger.warning(f"Guest payment return: Payment not found {tracking_id}")
+        clear_payment_session(request)
         return redirect("payment_failed")
 
 
 @require_GET
 def guest_payment_success(request):
     """
-    Render guest payment success or failed page depending on payment status.
+    Render guest payment success page.
     """
+    # Get payment info before clearing session
     payment_id = request.session.get("pending_payment_id")
     status = request.session.get("guest_payment_status", "")
-    if payment_id and not status:
+
+    # Clear session after use
+    clear_payment_session(request)
+
+    # Try to get payment details if available
+    payment = None
+    if payment_id:
         try:
             payment = Payment.objects.get(id=payment_id)
-            status = payment.status
+            if not status:
+                status = payment.status
         except Payment.DoesNotExist:
-            status = ""
-    template = "payments/guest_success.html" if status == "COMPLETED" else "payments/guest_failed.html"
-    return render(request, template)
+            pass
+
+    context = {"payment": payment, "status": status}
+    return render(request, "payments/guest_success.html", context)
 
 
 @require_GET
 def guest_payment_failed(request):
     """Render guest payment failure page."""
+    # Clear any remaining session data
+    clear_payment_session(request)
     return render(request, "payments/guest_failed.html")
 
 
+# Helper functions for session management
+def validate_payment_session(request):
+    """
+    Validate that the payment session is still valid (not expired).
+
+    Returns:
+        bool: True if session is valid, False otherwise.
+    """
+    # Check if payment was initiated recently (within 30 minutes)
+    initiated_at = request.session.get("payment_initiated_at")
+    if initiated_at:
+        try:
+            initiated_time = timezone.datetime.fromisoformat(initiated_at)
+            if timezone.now() - initiated_time > timezone.timedelta(minutes=30):
+                return False
+        except (ValueError, TypeError):
+            return False
+
+    # Check if we have the required session keys
+    required_keys = ["guest_email", "guest_phone", "pending_payment_id"]
+    return all(key in request.session for key in required_keys)
+
+
+def clear_payment_session(request):
+    """
+    Clear all payment-related session keys.
+    """
+    payment_keys = [
+        "pending_payment_id",
+        "guest_email",
+        "guest_phone",
+        "guest_order_tracking_id",
+        "guest_order_merchant_ref",
+        "guest_payment_status",
+        "payment_initiated_at",
+        "payment_updated_at",
+    ]
+
+    for key in payment_keys:
+        request.session.pop(key, None)
+
+    # Explicitly save session
+    request.session.save()
 # =============================================================================
 # DRIVER DASHBOARD
 # =============================================================================

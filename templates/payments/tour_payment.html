@@ -10,7 +10,6 @@
 
   <!-- Tailwind CSS v3 -->
   <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- FontAwesome 6.4.0 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
@@ -29,6 +28,8 @@
       --success: #10b981;
       --danger: #ef4444;
       --warning: #f59e0b;
+      --safari-green: #2e7d32;
+      --safari-accent: #8bc34a;
     }
 
     * {
@@ -39,14 +40,14 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      background: linear-gradient(135deg, #f8fafc 0%, #e8f5e9 100%);
       color: #334155;
       line-height: 1.6;
       min-height: 100vh;
     }
 
-    .gradient-bg {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    .safari-bg {
+      background: linear-gradient(135deg, var(--safari-green) 0%, var(--safari-accent) 100%);
     }
 
     .card {
@@ -64,7 +65,7 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      background: linear-gradient(135deg, var(--safari-green) 0%, var(--safari-accent) 100%);
       color: white;
       font-weight: 600;
       padding: 14px 28px;
@@ -77,12 +78,12 @@
       justify-content: center;
       gap: 10px;
       font-size: 16px;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+      box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
     }
 
     .btn-primary:disabled {
@@ -103,8 +104,8 @@
 
     .input-field:focus {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      border-color: var(--safari-green);
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
     }
 
     .section-title {
@@ -118,12 +119,12 @@
     }
 
     .section-title i {
-      color: var(--primary);
+      color: var(--safari-green);
       font-size: 1.5rem;
     }
 
     .payment-container {
-      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
       border-radius: 20px;
       padding: 2rem;
       position: relative;
@@ -137,7 +138,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23818cf8' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232e7d32' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
       opacity: 0.5;
       pointer-events: none;
     }
@@ -161,7 +162,7 @@
       height: 56px;
       border-radius: 16px;
       background: var(--light);
-      color: var(--primary);
+      color: var(--safari-green);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -184,7 +185,7 @@
     }
 
     .feature-card:hover .feature-icon {
-      background: var(--primary);
+      background: var(--safari-green);
       color: white;
     }
 
@@ -195,7 +196,7 @@
     }
 
     .faq-item:hover {
-      background: rgba(79, 70, 229, 0.03);
+      background: rgba(46, 125, 50, 0.03);
       margin: 0 -1rem;
       padding: 1.25rem 1rem;
       border-radius: 12px;
@@ -233,7 +234,7 @@
       align-items: center;
       gap: 8px;
       background: var(--light);
-      color: var(--primary);
+      color: var(--safari-green);
       padding: 8px 16px;
       border-radius: 30px;
       font-size: 0.875rem;
@@ -241,11 +242,11 @@
     }
 
     .order-summary {
-      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+      background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
       border-radius: 20px;
       padding: 2rem;
       margin-bottom: 2rem;
-      border: 1px solid rgba(129, 140, 248, 0.2);
+      border: 1px solid rgba(139, 195, 74, 0.2);
     }
 
     .order-line {
@@ -271,7 +272,7 @@
     }
 
     .order-total .value {
-      color: var(--primary);
+      color: var(--safari-green);
       font-size: 1.5rem;
       font-weight: 700;
     }
@@ -327,7 +328,7 @@
       width: 80px;
       height: 80px;
       border: 8px solid #f3f4f6;
-      border-top: 8px solid var(--primary);
+      border-top: 8px solid var(--safari-green);
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 2rem;
@@ -353,7 +354,7 @@
       transform: translateY(100px);
       opacity: 0;
       transition: all 0.3s ease;
-      border-left: 4px solid var(--primary);
+      border-left: 4px solid var(--safari-green);
     }
 
     .toast-notification.show {
@@ -392,13 +393,13 @@
     }
 
     .payment-method-card:hover {
-      border-color: var(--primary);
+      border-color: var(--safari-green);
       transform: translateY(-2px);
     }
 
     .payment-method-card.active {
-      border-color: var(--primary);
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(129, 140, 248, 0.1) 100%);
+      border-color: var(--safari-green);
+      background: linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(139, 195, 74, 0.1) 100%);
     }
 
     .loading-skeleton {
@@ -422,7 +423,7 @@
 </head>
 <body>
   <!-- Header -->
-  <header class="gradient-bg text-white py-6 px-4 md:px-8">
+  <header class="safari-bg text-white py-6 px-4 md:px-8">
     <div class="container mx-auto">
       <div class="flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center">
@@ -528,14 +529,14 @@
           <!-- Modern Guest Summary -->
           <div class="order-summary mb-8">
             <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-              <i class="fas fa-receipt mr-3 text-indigo-600"></i> Booking Summary
+              <i class="fas fa-receipt mr-3 text-green-600"></i> Booking Summary
             </h3>
 
             <div class="bg-white rounded-xl p-6 shadow-sm">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-user text-indigo-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-green-600"></i>
                   </div>
                   <div>
                     <p class="text-sm text-gray-500">Traveler</p>
@@ -544,8 +545,8 @@
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-envelope text-indigo-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-envelope text-green-600"></i>
                   </div>
                   <div>
                     <p class="text-sm text-gray-500">Email</p>
@@ -554,8 +555,8 @@
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-phone text-indigo-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-phone text-green-600"></i>
                   </div>
                   <div>
                     <p class="text-sm text-gray-500">Phone</p>
@@ -564,8 +565,8 @@
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-calendar text-indigo-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-calendar text-green-600"></i>
                   </div>
                   <div>
                     <p class="text-sm text-gray-500">Travel Date</p>
@@ -574,8 +575,8 @@
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-users text-indigo-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-users text-green-600"></i>
                   </div>
                   <div>
                     <p class="text-sm text-gray-500">Travelers</p>
@@ -584,8 +585,8 @@
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-clock text-indigo-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-clock text-green-600"></i>
                   </div>
                   <div>
                     <p class="text-sm text-gray-500">Duration</p>
@@ -605,7 +606,7 @@
                 </div>
                 <div class="flex justify-between items-center pt-3 mt-3 border-t border-gray-200">
                   <span class="text-lg font-bold text-gray-800">Total Amount</span>
-                  <span class="text-xl font-bold text-indigo-600" id="summary-total">-</span>
+                  <span class="text-xl font-bold text-green-600" id="summary-total">-</span>
                 </div>
               </div>
             </div>
@@ -617,8 +618,8 @@
             <div class="payment-method-card active">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                  <div class="w-14 h-14 rounded-xl bg-indigo-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-credit-card text-indigo-600 text-2xl"></i>
+                  <div class="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-credit-card text-green-600 text-2xl"></i>
                   </div>
                   <div>
                     <h4 class="font-semibold text-gray-800 text-lg">PesaPal</h4>
@@ -651,13 +652,10 @@
                 <p class="text-gray-500 text-sm mt-2">Please wait while we connect to PesaPal</p>
               </div>
 
-              <!-- PesaPal iframe (hidden initially) -->
-              <iframe
-                id="pesapal-iframe"
-                class="pesapal-iframe hidden"
-                title="PesaPal Payment Form"
-                loading="lazy">
-              </iframe>
+              <!-- PesaPal iframe container (hidden initially) -->
+              <div id="pesapal-iframe-container" class="hidden">
+                <!-- PesaPal iframe will be loaded here -->
+              </div>
 
               <!-- Error state (hidden initially) -->
               <div id="pesapal-error" class="hidden p-8 bg-red-50 rounded-xl text-center">
@@ -703,14 +701,14 @@
           <!-- FAQ -->
           <div class="card p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <i class="fas fa-question-circle mr-2 text-indigo-600"></i>
+              <i class="fas fa-question-circle mr-2 text-green-600"></i>
               Frequently Asked Questions
             </h3>
 
             <div class="faq-item">
               <div class="faq-question">
                 <span>What is included in the safari package?</span>
-                <i class="fas fa-chevron-down text-indigo-600"></i>
+                <i class="fas fa-chevron-down text-green-600"></i>
               </div>
               <div class="faq-answer hidden">
                 <p>Accommodation, meals, game drives, park entry fees, professional guide services, and transportation. Some packages may include cultural visits and activities.</p>
@@ -720,7 +718,7 @@
             <div class="faq-item">
               <div class="faq-question">
                 <span>What is the cancellation policy?</span>
-                <i class="fas fa-chevron-down text-indigo-600"></i>
+                <i class="fas fa-chevron-down text-green-600"></i>
               </div>
               <div class="faq-answer hidden">
                 <p>30+ days: full refund. 15–29 days: 50% refund. Within 14 days: no refund.</p>
@@ -730,7 +728,7 @@
             <div class="faq-item">
               <div class="faq-question">
                 <span>What should I pack for the safari?</span>
-                <i class="fas fa-chevron-down text-indigo-600"></i>
+                <i class="fas fa-chevron-down text-green-600"></i>
               </div>
               <div class="faq-answer hidden">
                 <p>Neutral clothing, hat, sunscreen, binoculars, camera, comfortable shoes, and a light jacket for early drives.</p>
@@ -803,23 +801,23 @@
           </h2>
 
           <div class="space-y-4">
-            <div class="flex items-center p-3 bg-indigo-50 rounded-lg">
-              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                <i class="fas fa-phone text-indigo-600"></i>
+            <div class="flex items-center p-3 bg-green-50 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <i class="fas fa-phone text-green-600"></i>
               </div>
-              <a href="tel:+254700123456" class="text-gray-700 hover:text-indigo-600">+254 700 123456</a>
+              <a href="tel:+254700123456" class="text-gray-700 hover:text-green-600">+254 700 123456</a>
             </div>
 
-            <div class="flex items-center p-3 bg-indigo-50 rounded-lg">
-              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                <i class="fas fa-envelope text-indigo-600"></i>
+            <div class="flex items-center p-3 bg-green-50 rounded-lg">
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <i class="fas fa-envelope text-green-600"></i>
               </div>
-              <a href="mailto:support@safariadventures.com" class="text-gray-700 hover:text-indigo-600">support@safariadventures.com</a>
+              <a href="mailto:support@safariadventures.com" class="text-gray-700 hover:text-green-600">support@safariadventures.com</a>
             </div>
 
-            <div class="flex items-center p-3 bg-indigo-50 rounded-lg cursor-pointer hover:bg-indigo-100">
-              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                <i class="fas fa-comments text-indigo-600"></i>
+            <div class="flex items-center p-3 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100">
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <i class="fas fa-comments text-green-600"></i>
               </div>
               <span class="text-gray-700">Live Chat</span>
             </div>
@@ -835,8 +833,8 @@
 
           <div class="space-y-4">
             <div class="flex items-center">
-              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                <i class="fas fa-lock text-indigo-600"></i>
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <i class="fas fa-lock text-green-600"></i>
               </div>
               <div>
                 <h4 class="font-medium text-gray-800">256-bit SSL Encryption</h4>
@@ -845,8 +843,8 @@
             </div>
 
             <div class="flex items-center">
-              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                <i class="fas fa-shield-alt text-indigo-600"></i>
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <i class="fas fa-shield-alt text-green-600"></i>
               </div>
               <div>
                 <h4 class="font-medium text-gray-800">PCI DSS Compliant</h4>
@@ -855,8 +853,8 @@
             </div>
 
             <div class="flex items-center">
-              <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                <i class="fas fa-user-shield text-indigo-600"></i>
+              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <i class="fas fa-user-shield text-green-600"></i>
               </div>
               <div>
                 <h4 class="font-medium text-gray-800">Privacy Protected</h4>
@@ -918,7 +916,7 @@
           <form class="flex">
             <input type="email" placeholder="Your email"
               class="px-4 py-2 rounded-l-lg text-gray-800 w-full focus:outline-none" />
-            <button class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700">
+            <button class="bg-green-600 text-white px-4 py-2 rounded-r-lg hover:bg-green-700">
               <i class="fas fa-paper-plane"></i>
             </button>
           </form>
@@ -930,6 +928,9 @@
         <div class="mt-2">
           <a href="#" class="mx-2 hover:text-white">Privacy Policy</a>
           <a href="#" class="mx-2 hover:text-white">Terms of Service</a>
+        </div>
+        <div class="mt-4 text-gray-500">
+          <p>Developed by <a href="https://brytechltd.com" target="_blank" class="text-green-500 hover:text-green-400">Brytech Ltd</a></p>
         </div>
       </div>
     </div>
@@ -967,7 +968,8 @@
     </div>
   </div>
 
-<!-- Scripts -->
+
+<<!-- Scripts -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   // Elements
@@ -976,9 +978,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const paymentSection = document.getElementById('payment-section');
   const guestFormSection = document.getElementById('guest-form');
   const toast = document.getElementById('toast');
-  const pesapalContainer = document.getElementById('pesapal-container');
   const pesapalLoading = document.getElementById('pesapal-loading');
-  const pesapalIframe = document.getElementById('pesapal-iframe');
+  const pesapalIframeContainer = document.getElementById('pesapal-iframe-container');
   const pesapalError = document.getElementById('pesapal-error');
   const retryPaymentBtn = document.getElementById('retry-payment');
 
@@ -1051,125 +1052,72 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el) el.addEventListener('input', recalc);
   });
 
-  // Function to load PesaPal iframe
-  function loadPesapalIframe() {
-    // Show loading state
+  // Function to embed Pesapal iframe
+  function createPesapalIframe(redirectUrl) {
+    const iframeContainer = document.getElementById('pesapal-iframe-container');
+    iframeContainer.innerHTML = '';
+
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '600px';
+    iframe.style.border = 'none';
+    iframe.style.borderRadius = '16px';
+    iframe.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
+    iframe.style.background = 'white';
+    iframe.src = redirectUrl;
+
+    iframeContainer.appendChild(iframe);
+
+    pesapalLoading.classList.add('hidden');
+    pesapalIframeContainer.classList.remove('hidden');
+
+    console.log('Pesapal iframe created with URL:', redirectUrl);
+  }
+
+  // Function to initialize Pesapal payment
+  function initializePesapalPayment() {
     pesapalLoading.classList.remove('hidden');
-    pesapalIframe.classList.add('hidden');
+    pesapalIframeContainer.classList.add('hidden');
     pesapalError.classList.add('hidden');
 
-    // Get form data
-    const formData = new FormData(guestForm);
-    const data = {
-      full_name: formData.get('full_name'),
-      email: formData.get('email'),
-      phone: formData.get('phone'),
-      country_code: formData.get('country_code'),
-      adults: formData.get('adults'),
-      children: formData.get('children'),
-      days: formData.get('days'),
-      travel_date: formData.get('travel_date')
+    const payload = {
+      full_name: nameInput.value,
+      email: emailInput.value,
+      phone: phoneInput.value,
+      country_code: codeInput.value,
+      adults: parseInt(adultsInput.value || '0', 10),
+      children: parseInt(childrenInput.value || '0', 10),
+      days: parseInt(daysInput.value || '0', 10),
+      travel_date: travelDateInput.value,
     };
 
-    // Calculate total amount
-    const adults = parseInt(data.adults || '0', 10);
-    const children = parseInt(data.children || '0', 10);
-    const days = parseInt(data.days || '0', 10);
-
-    const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
-    const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
-    const childrenCost = children * dailyRate * 0.5 * days;
-    const adultsCost = firstAdultCost + additionalAdultsCost;
-    const total = Math.round(adultsCost + childrenCost);
-
-    console.log('Processing payment with data:', data, 'Total amount:', total);
-
-    // First, process guest info
-    fetch('/process-guest-info/', {
+    fetch('/create-guest-pesapal-order/', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
         'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
       },
-      body: new URLSearchParams({
-        email: data.email,
-        phone: data.country_code + data.phone
-      })
+      body: JSON.stringify(payload)
     })
     .then(response => {
-      console.log('Process guest info response status:', response.status);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       return response.json();
     })
     .then(result => {
-      console.log('Process guest info result:', result);
-      if (result.success) {
-        // Now create the PesaPal order
-        return fetch('/create-guest-pesapal-order/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          },
-          body: JSON.stringify({
-            amount: total,
-            description: `Tour booking for {{ tour.title }}`,
-            guest_info: {
-              full_name: data.full_name,
-              email: data.email,
-              phone: data.country_code + data.phone,
-              adults: data.adults,
-              children: data.children,
-              days: data.days,
-              travel_date: data.travel_date
-            }
-          })
-        });
-      } else {
-        throw new Error(result.message || 'Failed to process guest information');
-      }
-    })
-    .then(response => {
-      console.log('Create Pesapal order response status:', response.status);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(result => {
-      console.log('Create Pesapal order result:', result);
-      if (result.success && result.redirect_url) {
-        // Load PesaPal iframe
-        pesapalIframe.src = result.redirect_url;
-        pesapalIframe.onload = () => {
-          console.log('PesaPal iframe loaded successfully');
-          // Hide loading, show iframe
-          pesapalLoading.classList.add('hidden');
-          pesapalIframe.classList.remove('hidden');
-        };
+      console.log('Pesapal order response:', result);
 
-        // Set a timeout in case the iframe doesn't load
-        setTimeout(() => {
-          if (pesapalLoading.classList.contains('hidden') === false) {
-            console.log('PesaPal iframe loading timeout');
-            pesapalLoading.classList.add('hidden');
-            pesapalError.classList.remove('hidden');
-          }
-        }, 10000); // 10 seconds timeout
+      if (result.success && result.redirect_url) {
+        createPesapalIframe(result.redirect_url);
       } else {
-        throw new Error(result.message || 'Failed to initialize payment');
+        throw new Error(result.message || 'Failed to get Pesapal redirect URL');
       }
     })
     .catch(error => {
       console.error('Payment initialization error:', error);
 
-      // Show error state
       pesapalLoading.classList.add('hidden');
       pesapalError.classList.remove('hidden');
 
-      // Show error message
       showToast('error', 'Payment Error', error.message || 'Failed to initialize payment. Please try again.');
     });
   }
@@ -1179,86 +1127,58 @@ document.addEventListener('DOMContentLoaded', () => {
     guestForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      console.log("Form submitted!");
-
-      // Simple validation
       if (!nameInput.value || !emailInput.value || !phoneInput.value) {
-        console.log("Validation failed");
         showToast('error', 'Validation Error', 'Please fill in all required fields');
         return;
       }
 
-      // Validate adults
       const adults = parseInt(adultsInput.value || '0', 10);
       if (adults < 1) {
-        console.log("Adults validation failed");
         showToast('error', 'Validation Error', 'At least one adult is required');
         return;
       }
 
-      console.log("Validation passed");
-
-      // Show loading state on button
       continueBtn.disabled = true;
       continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
 
-      // Calculate and display summary
       recalc();
 
-      // Show payment section
       guestFormSection.classList.add('hidden');
       paymentSection.classList.remove('hidden');
-
-      // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // Load PesaPal iframe
       setTimeout(() => {
-        console.log("About to load PesaPal iframe");
-        loadPesapalIframe();
-
-        // Reset button
+        initializePesapalPayment();
         continueBtn.disabled = false;
         continueBtn.innerHTML = '<span>Continue to Payment</span> <i class="fas fa-arrow-right"></i>';
       }, 500);
     });
   }
 
-  // Retry payment button handler
+  // Retry payment
   if (retryPaymentBtn) {
     retryPaymentBtn.addEventListener('click', () => {
-      loadPesapalIframe();
+      initializePesapalPayment();
     });
   }
 
-  // Toast notification function
+  // Toast notification
   function showToast(type, title, message) {
     const toastEl = document.getElementById('toast');
     const toastIcon = toastEl.querySelector('.toast-icon');
     const toastTitle = toastEl.querySelector('.toast-title');
     const toastMessage = toastEl.querySelector('.toast-message');
 
-    // Set toast content
     toastTitle.textContent = title;
     toastMessage.textContent = message;
 
-    // Set toast type
     toastEl.className = 'toast-notification ' + type;
+    toastIcon.className = type === 'success'
+      ? 'toast-icon fas fa-check-circle'
+      : 'toast-icon fas fa-exclamation-circle';
 
-    // Set icon based on type
-    if (type === 'success') {
-      toastIcon.className = 'toast-icon fas fa-check-circle';
-    } else if (type === 'error') {
-      toastIcon.className = 'toast-icon fas fa-exclamation-circle';
-    }
-
-    // Show toast
     toastEl.classList.add('show');
-
-    // Hide toast after 5 seconds
-    setTimeout(() => {
-      toastEl.classList.remove('show');
-    }, 5000);
+    setTimeout(() => toastEl.classList.remove('show'), 5000);
   }
 
   // FAQ toggles
@@ -1266,7 +1186,6 @@ document.addEventListener('DOMContentLoaded', () => {
     question.addEventListener('click', () => {
       const answer = question.nextElementSibling;
       const icon = question.querySelector('i');
-
       answer.classList.toggle('hidden');
       icon.classList.toggle('fa-chevron-down');
       icon.classList.toggle('fa-chevron-up');
@@ -1277,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', () => {
   recalc();
 
   // Countdown timer
-  let timeLeft = 15 * 60; // 15 minutes in seconds
+  let timeLeft = 15 * 60;
   const countdownElement = document.getElementById('countdown-timer');
 
   const countdown = setInterval(() => {
@@ -1289,10 +1208,11 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(countdown);
       countdownElement.textContent = "Expired";
     }
-
     timeLeft--;
   }, 1000);
 });
 </script>
+
+
 </body>
 </html>

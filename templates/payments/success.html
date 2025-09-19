@@ -1,8 +1,48 @@
 {% extends "base.html" %}
+
+{% block title %}Payment Successful{% endblock %}
+
 {% block content %}
-<div class="container text-center py-5">
-    <h2 class="text-success">✅ Payment Successful</h2>
-    <p>Thank you! Your payment was processed successfully.</p>
-    <a href="{% url 'tours' %}" class="btn btn-primary mt-3">Back to Tours</a>
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-check text-green-500 text-2xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800 mb-4">Payment Successful!</h1>
+      <p class="text-gray-600 mb-6">Thank you for your payment. Your booking has been confirmed.</p>
+
+      <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Payment Details</h2>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Transaction ID:</span>
+            <span class="font-medium">{{ payment.transaction_id }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Amount Paid:</span>
+            <span class="font-medium">KES {{ payment.amount|intcomma }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Tour:</span>
+            <span class="font-medium">{{ payment.tour.title }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Payment Date:</span>
+            <span class="font-medium">{{ payment.paid_at|date:"d M Y, H:i" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="{% url 'tour_detail' payment.tour.id %}" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+          View Tour Details
+        </a>
+        <a href="{% url 'receipt' payment.pk %}" class="inline-block bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition">
+          View Receipt
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

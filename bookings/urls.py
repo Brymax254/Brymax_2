@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from bookings import views
 from .views import ReceiptView
 
 urlpatterns = [
@@ -26,13 +26,13 @@ urlpatterns = [
     # ===============================
     # Payment Result Pages
     # ===============================
-    path("payments/success/", views.payment_success, name="payment_success"),
+    path('success/<uuid:pk>/', views.payment_success, name='payment_success'),
     path("payments/failed/", views.payment_failed, name="payment_failed"),
 
     # ===============================
     # 🔗 Pesapal Integration (with aliases to match Pesapal responses)
     # ===============================
-    path("pesapal/create-order/", views.create_pesapal_order, name="create_pesapal_order"),
+    path("create-guest-pesapal-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
     path("pesapal/callback/", views.pesapal_redirect, name="pesapal_callback"),
     path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
     path("payments/callback/", views.pesapal_redirect, name="payments_callback"),
@@ -42,9 +42,8 @@ urlpatterns = [
     # 👤 Guest Checkout (Non-logged-in Users)
     # ===============================
     path("guest/checkout/<int:tour_id>/", views.guest_checkout, name="guest_checkout"),
-    path("guest/process-info/", views.process_guest_info, name="process_guest_info"),
-    path("guest/create-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
-    path("guest/callback/", views.guest_pesapal_callback, name="guest_payment_callback"),
+    path("process-guest-info/", views.process_guest_info, name="process_guest_info"),
+    path("create-guest-pesapal-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
     path("guest/success/", views.guest_payment_page, name="guest_payment_success"),
     path("guest/failed/", views.guest_payment_failed, name="guest_payment_failed"),
 

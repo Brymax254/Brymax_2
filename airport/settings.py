@@ -30,20 +30,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-'django.contrib.humanize',
+    'django.contrib.humanize',
 
     # Project apps
     "bookings",
     "payments",
     'cloudinary',
     'cloudinary_storage',
-'admin_tools',
+    'admin_tools',
     'admin_tools.dashboard',
     'admin_tools.theming',
     'admin_tools.menu',
     'plotly',
 ]
-
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
@@ -52,6 +51,7 @@ CLOUDINARY_STORAGE = {
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 # ==============================
 # MIDDLEWARE
 # ==============================
@@ -136,31 +136,32 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ==============================
 # PESAPAL PAYMENT CONFIGURATION
 # ==============================
-PESAPAL_CONSUMER_KEY = config("PESAPAL_CONSUMER_KEY", default="")
-PESAPAL_CONSUMER_SECRET = config("PESAPAL_CONSUMER_SECRET", default="")
-PESAPAL_DEMO = config("PESAPAL_DEMO", default=True, cast=bool)
-PESAPAL_IPN_URL = config("PESAPAL_IPN_URL", default="")
+# Required credentials - no defaults to ensure they are explicitly set
+PESAPAL_CONSUMER_KEY = config("PESAPAL_CONSUMER_KEY")
+PESAPAL_CONSUMER_SECRET = config("PESAPAL_CONSUMER_SECRET")
+PESAPAL_NOTIFICATION_ID = config("PESAPAL_NOTIFICATION_ID")
 
-# Use correct base URL depending on environment
-if PESAPAL_DEMO:
-    PESAPAL_BASE_URL = "https://pay.pesapal.com/v3"
-else:
-    PESAPAL_BASE_URL = "https://pay.pesapal.com/v3"
+# Base URL for Pesapal API
+PESAPAL_BASE_URL = "https://api.pesapal.com/v3"
 
+# Force live mode - no demo mode option
+PESAPAL_DEMO = False
+
+# API endpoints
+PESAPAL_PAYMENT_URL = f"{PESAPAL_BASE_URL}/Transactions/SubmitOrderRequest"
+PESAPAL_TOKEN_URL = f"{PESAPAL_BASE_URL}/auth/RequestToken"
 
 # ============================
 # 🌍 Site + Pesapal Integration
 # ============================
+# Must be HTTPS for production
 SITE_URL = config("SITE_URL", default="https://brymax.xyz")
 
 # Callback URL (where Pesapal redirects browser after payment)
 PESAPAL_CALLBACK_URL = f"{SITE_URL}/payments/callback/"
 
-# IPN Notification ID (from Pesapal dashboard after registering IPN URL)
-PESAPAL_NOTIFICATION_ID = config(
-    "PESAPAL_NOTIFICATION_ID",
-    default="23fb05db-5452-4053-b234-db53d9528675"  # replace with real ID
-)
+# IPN URL (where Pesapal sends payment status notifications)
+PESAPAL_IPN_URL = config("PESAPAL_IPN_URL", default=f"{SITE_URL}/payments/ipn/")
 
 # ==============================
 # M-PESA CONFIGURATION
@@ -171,6 +172,9 @@ MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET", default="your_consumer_s
 MPESA_PASSKEY = config("MPESA_PASSKEY", default="your_lipa_na_mpesa_online_passkey")
 MPESA_SHORTCODE = config("MPESA_SHORTCODE", default="174379")  # test shortcode
 
+# ==============================
+# CLOUDINARY CONFIGURATION
+# ==============================
 import cloudinary
 
 cloudinary.config(
@@ -180,7 +184,9 @@ cloudinary.config(
     secure=True
 )
 
-
+# ==============================
+# EMAIL CONFIGURATION
+# ==============================
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -189,11 +195,12 @@ EMAIL_HOST_USER = "francisbrymax@gmail.com"
 EMAIL_HOST_PASSWORD = "btlydfhstlbdsguz"  # Remove spaces
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# ==============================
+# ADMIN TOOLS CONFIGURATION
+# ==============================
 ADMIN_TOOLS_MENU = 'airport.dashboard.CustomMenu'
 ADMIN_TOOLS_INDEX_DASHBOARD = 'airport.dashboard.CustomIndexDashboard'
 ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'admin_tools.dashboard.apps.DefaultAppIndexDashboard'
-ADMIN_TOOLS_INDEX_DASHBOARD = 'myproject.dashboard.CustomIndexDashboard'
-
 
 # Email settings
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="francisbrymax@gmail.com")
