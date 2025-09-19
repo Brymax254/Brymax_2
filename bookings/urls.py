@@ -1,6 +1,9 @@
+# =============================================================================
+# URLS
+# =============================================================================
 from django.urls import path
 from bookings import views
-from .views import ReceiptView
+from .views import ReceiptView, pesapal_ipn, pesapal_return
 
 urlpatterns = [
     # ===============================
@@ -19,7 +22,7 @@ urlpatterns = [
     path("book/excursions/", views.excursions, name="excursions"),
     path("tours-and-safaris/", views.tours, name="tours"),
 
-    # FIXED: Added base URL for tour payment
+    # Payment initiation for tours
     path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_base"),
     path("book-tour/<int:tour_id>/", views.tour_payment, name="tour_payment"),
     path("payments/tour/<int:tour_id>/pay/", views.tour_payment, name="tour_payment_page"),
@@ -28,21 +31,24 @@ urlpatterns = [
     # ===============================
     # Payment Result Pages
     # ===============================
-    path('success/<uuid:pk>/', views.payment_success, name='payment_success'),
+    path("success/<uuid:pk>/", views.payment_success, name="payment_success"),
     path("payments/failed/", views.payment_failed, name="payment_failed"),
 
     # ===============================
-    # 🔗 Pesapal Integration (with aliases to match Pesapal responses)
+    # 🔗 Pesapal Integration
     # ===============================
     path("create-guest-pesapal-order/", views.create_guest_pesapal_order, name="create_guest_pesapal_order"),
-    path("pesapal/callback/", views.pesapal_redirect, name="pesapal_callback"),
-    path("pesapal/ipn/", views.pesapal_ipn, name="pesapal_ipn"),
-    # Aliases for backward compatibility
-    path("payments/callback/", views.pesapal_redirect, name="payments_callback"),
-    path("payments/ipn/", views.pesapal_ipn, name="payments_ipn"),
+
+    # ✅ IPN (Server-to-Server, Silent DB Update)
+    path("pesapal/ipn/", pesapal_ipn, name="pesapal_ipn"),
+    path("payments/ipn/", pesapal_ipn, name="payments_ipn"),
+
+    # ✅ Return URL (DB Update + Receipt)
+    path("pesapal/return/", pesapal_return, name="pesapal_return"),
+    path("payments/return/", pesapal_return, name="payments_return"),
 
     # ===============================
-    # 👤 Guest Checkout (Non-logged-in Users)
+    # 👤 Guest Checkout
     # ===============================
     path("guest/checkout/<int:tour_id>/", views.guest_checkout, name="guest_checkout"),
     path("process-guest-info/", views.process_guest_info, name="process_guest_info"),
@@ -59,7 +65,7 @@ urlpatterns = [
     path("driver/tour/<int:tour_id>/delete/", views.delete_tour, name="delete_tour"),
 
     # ===============================
-    # 📡 Pesapal IPN registration
+    # 📡 Pesapal IPN Registration
     # ===============================
     path("pesapal/register-ipn/", views.register_pesapal_ipn, name="register_pesapal_ipn"),
 

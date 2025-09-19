@@ -105,8 +105,13 @@ class PesaPalService:
                 "currency": "KES",
                 "amount": str(order_data.get('amount', 0)),
                 "description": order_data.get('description', 'Safari Booking'),
-                "callback_url": settings.PESAPAL_IPN_URL,
+
+                # ✅ FIX: use RETURN URL here
+                "callback_url": settings.PESAPAL_RETURN_URL,
+
+                # ✅ still needed for silent IPN updates
                 "notification_id": settings.PESAPAL_NOTIFICATION_ID,
+
                 "billing_address": {
                     "email_address": order_data.get('email', 'guest@brymax.xyz'),
                     "phone_number": normalized_phone,

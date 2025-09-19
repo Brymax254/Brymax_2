@@ -1,10 +1,18 @@
+# =============================================================================
+# IMPORTS
+# =============================================================================
+
+# Standard library
 import json
 import uuid
 import logging
 from decimal import Decimal, InvalidOperation
 from typing import Optional
 
+# Third-party
 import requests
+
+# Django
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -12,7 +20,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -20,14 +28,23 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.views.generic import DetailView
 
+# Local apps
 from .models import (
-    Tour, Destination, Video, Booking, Payment,
-    ContactMessage, Trip, PaymentStatus
+    Tour,
+    Destination,
+    Video,
+    Booking,
+    Payment,
+    ContactMessage,
+    Trip,
+    PaymentStatus,
 )
 from .services import PesaPalService, MpesaSTKPush
 from .forms import GuestCheckoutForm
 
+# Logger
 logger = logging.getLogger(__name__)
+
 
 # =============================================================================
 # UTILITIES & DECORATORS
@@ -252,49 +269,6 @@ def tour_payment(request, tour_id):
 
 
 @require_GET
-def pesapal_redirect(request):
-    """
-    Handle redirect from Pesapal after user completes payment.
-
-    Retrieves status from query params and updates Payment record.
-    Redirects user to success page.
-    """
-    tracking_id = request.GET.get("pesapal_transaction_id")
-    merchant_reference = request.GET.get("pesapal_merchant_reference")
-
-    if not tracking_id or not merchant_reference:
-        messages.error(request, "Invalid payment callback.")
-        return redirect("home")
-
-    try:
-        # Extract payment ID from merchant reference
-        payment_id = merchant_reference.split('-')[1] if '-' in merchant_reference else None
-
-        if not payment_id:
-            logger.error(f"Could not extract payment ID from merchant reference: {merchant_reference}")
-            messages.error(request, "Invalid payment reference.")
-            return redirect("home")
-
-        payment = get_object_or_404(Payment, id=payment_id)
-
-        # Update payment with Pesapal details
-        payment.pesapal_reference = tracking_id
-        payment.transaction_id = tracking_id
-        payment.status = PaymentStatus.PENDING  # Will be updated by IPN
-        payment.save()
-
-        # Clear session
-        request.session.pop("pending_payment_id", None)
-
-        return redirect("payment_success", pk=payment.pk)
-
-    except (Payment.DoesNotExist, ValueError) as exc:
-        logger.error(f"Payment not found for tracking ID: {tracking_id} - {exc}")
-        messages.error(request, "Payment not found.")
-        return redirect("home")
-
-
-@require_GET
 def payment_success(request, pk):
     """Display success page for a payment."""
     payment = get_object_or_404(Payment, pk=pk)
@@ -313,83 +287,6 @@ def receipt(request, pk):
 def pesapal_health(request):
     """Simple health check endpoint for Pesapal IPN."""
     return HttpResponse("OK", status=200)
-
-
-@csrf_exempt
-@require_POST
-def pesapal_ipn(request):
-    """
-    Handle Pesapal server-to-server IPN notifications.
-
-    Expects JSON with a transaction tracking ID.
-    Updates payment status accordingly.
-    """
-    try:
-        # Parse the request body
-        if request.content_type == 'application/json':
-            payload = json.loads(request.body)
-        else:
-            # Handle form data
-            payload = {
-                'OrderTrackingId': request.POST.get('OrderTrackingId'),
-                'OrderMerchantReference': request.POST.get('OrderMerchantReference'),
-                'PaymentStatus': request.POST.get('PaymentStatus'),
-            }
-
-        tracking_id = payload.get("OrderTrackingId") or payload.get("order_tracking_id") or payload.get(
-            "pesapal_transaction_id")
-        merchant_reference = payload.get("OrderMerchantReference") or payload.get("merchant_reference")
-
-        if not tracking_id:
-            logger.error(f"IPN missing tracking ID: {payload}")
-            return HttpResponse("Missing tracking ID", status=400)
-
-        # Extract payment ID from merchant reference
-        payment_id = None
-        if merchant_reference and '-' in merchant_reference:
-            payment_id = merchant_reference.split('-')[1]
-
-        if not payment_id:
-            logger.error(f"Could not extract payment ID from merchant reference: {merchant_reference}")
-            return HttpResponse("Invalid merchant reference", status=400)
-
-        payment = get_object_or_404(Payment, id=payment_id)
-
-        # Update payment status
-        status = payload.get("PaymentStatus", payload.get("status", "FAILED")).upper()
-
-        # Map Pesapal status to our PaymentStatus
-        STATUS_MAP = {
-            "COMPLETED": PaymentStatus.SUCCESS,
-            "FAILED": PaymentStatus.FAILED,
-            "PENDING": PaymentStatus.PENDING,
-            "CANCELLED": PaymentStatus.CANCELLED,
-            "REFUNDED": PaymentStatus.REFUNDED,
-        }
-
-        new_status = STATUS_MAP.get(status, PaymentStatus.PENDING)
-
-        with transaction.atomic():
-            payment.status = new_status
-            payment.pesapal_reference = tracking_id
-
-            if new_status == PaymentStatus.SUCCESS:
-                payment.amount_paid = payment.amount
-                payment.paid_at = timezone.now()
-
-                # Send confirmation email if not already sent
-                if not payment.confirmation_sent:
-                    send_payment_confirmation_email(payment)
-                    payment.confirmation_sent = True
-
-            payment.save()
-            logger.info(f"Updated payment {payment.id} status to {new_status}")
-
-        return HttpResponse("OK", status=200)
-
-    except Exception as exc:
-        logger.exception("Pesapal IPN processing failed: %s", exc)
-        return HttpResponse("Server error", status=500)
 
 
 # =============================================================================
@@ -727,6 +624,8 @@ def create_guest_pesapal_order(request):
             'phone': f"{country_code}{phone}",
             'first_name': full_name.split(' ')[0],
             'last_name': ' '.join(full_name.split(' ')[1:]) if ' ' in full_name else '',
+            'callback_url': request.build_absolute_uri(reverse("pesapal_return")),  # Browser redirect after payment
+            'notification_id': request.build_absolute_uri(reverse("pesapal_ipn")),  # Silent IPN update
         }
 
         # Initialize Pesapal service
@@ -764,6 +663,7 @@ def create_guest_pesapal_order(request):
             'success': False,
             'error': 'An error occurred while processing your payment'
         }, status=500)
+
 
 @csrf_exempt
 @require_POST
@@ -917,6 +817,8 @@ def clear_payment_session(request):
         "guest_payment_status",
         "payment_initiated_at",
         "payment_updated_at",
+
+
     ]
 
     for key in payment_keys:
@@ -924,6 +826,8 @@ def clear_payment_session(request):
 
     # Explicitly save session
     request.session.save()
+
+
 # =============================================================================
 # DRIVER DASHBOARD
 # =============================================================================
@@ -1145,9 +1049,108 @@ class ReceiptView(DetailView):
         return context
 
 
+# =============================================================================
+# ADDITIONAL VIEWS
+# =============================================================================
+
 @staff_member_required
 def modern_admin_dashboard(request):
     """
     Render modern admin dashboard for staff at /brymax-admin/.
     """
     return render(request, "admin/brymax_dashboard.html")
+
+
+# =============================================================================
+# PESAPAL INTEGRATION - SHARED UPDATE LOGIC
+# =============================================================================
+
+def update_payment_status(tracking_id: str, merchant_ref: str) -> tuple[Payment, dict]:
+    """
+    Fetch payment, check status from Pesapal, and update DB.
+    Returns (payment, status_data).
+    """
+    payment = get_object_or_404(Payment, pesapal_tracking_id=tracking_id)
+
+    service = PesaPalService()
+    try:
+        status_data = service.check_payment_status(tracking_id)
+        payment.status = status_data.get("status", payment.status)
+        payment.pesapal_tracking_id = tracking_id
+        payment.session_id = merchant_ref  # if you're storing session/merchant ref
+        payment.save(update_fields=["status", "pesapal_tracking_id", "session_id"])
+    except Exception as e:
+        logger.error(f"Pesapal status update failed: {e}")
+        status_data = {"status": "error", "detail": str(e)}
+
+    return payment, status_data
+
+# =============================================================================
+# PESAPAL IPN (Server-to-Server, Silent)
+# =============================================================================
+@csrf_exempt
+def pesapal_ipn(request):
+    """
+    Handle Pesapal IPN notifications.
+    Must always return 200 OK to Pesapal, even on error.
+    """
+    tracking_id = None
+    merchant_ref = None
+
+    if request.method in ["GET", "POST"]:
+        if request.method == "GET":
+            tracking_id = request.GET.get("OrderTrackingId")
+            merchant_ref = request.GET.get("OrderMerchantReference")
+        else:  # POST
+            if request.content_type == 'application/json':
+                try:
+                    data = json.loads(request.body)
+                except json.JSONDecodeError:
+                    data = {}
+            else:
+                data = request.POST
+            tracking_id = data.get("OrderTrackingId") or data.get("order_tracking_id") or data.get("pesapal_transaction_id")
+            merchant_ref = data.get("OrderMerchantReference") or data.get("merchant_reference")
+
+        if tracking_id and merchant_ref:
+            try:
+                update_payment_status(tracking_id, merchant_ref)
+            except Exception as e:
+                logger.exception(f"IPN update failed: {e}")
+                # Still return OK to Pesapal
+                return HttpResponse("OK")
+
+    # Always return OK no matter what
+    return HttpResponse("OK")
+
+# =============================================================================
+# PESAPAL RETURN URL (User-Facing, Receipt Page)
+# =============================================================================
+@csrf_exempt
+def pesapal_return(request):
+    """
+    Handle return from Pesapal payment page.
+    Updates DB and shows receipt.html.
+    """
+    if request.method not in ["GET", "HEAD"]:
+        return HttpResponseNotAllowed(["GET", "HEAD"])
+
+    tracking_id = request.GET.get("OrderTrackingId")
+    merchant_ref = request.GET.get("OrderMerchantReference")
+
+    if not tracking_id or not merchant_ref:
+        return HttpResponse("Missing parameters", status=400)
+
+    try:
+        payment, status_data = update_payment_status(tracking_id, merchant_ref)
+        return render(
+            request,
+            "payments/receipt.html",
+            {"payment": payment, "status_data": status_data},
+        )
+    except Payment.DoesNotExist:
+        logger.error(f"Payment not found for tracking_id={tracking_id}, merchant_ref={merchant_ref}")
+        return redirect("payment_failed")
+    except Exception as e:
+        logger.exception(f"Return URL processing failed: {e}")
+        return redirect("payment_failed")

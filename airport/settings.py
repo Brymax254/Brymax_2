@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django.contrib.humanize',
+    "django_extensions",
 
     # Project apps
     "bookings",
@@ -173,6 +174,9 @@ PESAPAL_CALLBACK_URL = f"{SITE_URL}/payments/callback/"
 
 # IPN URL (where Pesapal sends payment status notifications)
 PESAPAL_IPN_URL = config("PESAPAL_IPN_URL", default=f"{SITE_URL}/payments/ipn/")
+
+# Where the user is redirected after payment (user-facing receipt page)
+PESAPAL_RETURN_URL = f"{SITE_URL}/payments/return/"
 
 # ==============================
 # M-PESA CONFIGURATION
