@@ -3,18 +3,30 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="description" content="Premium Airport Transfers, Tours & Destinations from Nairobi. Book online for reliable and professional travel services.">
-  <meta name="keywords" content="Nairobi Airport Transfers, Kenya Tours, Safaris, Excursions, Premium Travel Services">
-  <meta name="author" content="Airport & Destinations">
+  <meta name="description" content="Premium Airport Transfers, Tours & Destinations from Nairobi. Book online for reliable and professional travel services."/>
+  <meta name="keywords" content="Nairobi Airport Transfers, Kenya Tours, Safaris, Excursions, Premium Travel Services"/>
+  <meta name="author" content="Airport & Destinations"/>
   <title>Airport & Destinations | Premium Travel Services</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <style>
     :root {
+      /* Safari/Travel Theme Colors */
+      --safari-gold: #c6a350;
+      --safari-dark: #2b2a28;
+      --safari-light: #f8f7f3;
+      --safari-accent: #8b7355;
+      --safari-green: #2e7d32;
+      --safari-cream: #f5f1e6;
+      --safari-brown: #795548;
+      --safari-orange: #e65100;
+      --safari-sand: #f5e9c8;
+
+      /* Original Colors */
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
       --secondary: #f59e0b;
@@ -42,15 +54,30 @@
     body {
       font-family: 'Poppins', sans-serif;
       line-height: 1.6;
-      color: var(--dark);
-      background-color: var(--light);
+      color: var(--safari-dark);
+      background-color: var(--safari-light);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      position: relative;
+    }
+
+    /* Safari pattern background */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c6a350' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+      z-index: -1;
+      pointer-events: none;
     }
 
     .container {
-      width: 1200%;
+      width: 100%;
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 1.5rem;
@@ -58,12 +85,13 @@
 
     /* Header Styles */
     .header {
-      background-color: coral;
+      background-color: white;
       box-shadow: var(--shadow-sm);
       position: sticky;
       top: 0;
       z-index: 300;
       padding: 1rem 0;
+      border-bottom: 3px solid var(--safari-gold);
     }
 
     .header .container {
@@ -81,15 +109,21 @@
     .brand a {
       font-family: 'Montserrat', sans-serif;
       font-weight: 800;
-      font-size: 1.5rem;
-      color: var(--primary);
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      color: var(--safari-green);
       text-decoration: none;
       display: flex;
       align-items: center;
+      transition: var(--transition);
+    }
+
+    .brand a:hover {
+      transform: translateY(-2px);
     }
 
     .brand i {
-      font-size: 1.75rem;
+      font-size: clamp(1.5rem, 3vw, 1.75rem);
+      color: var(--safari-gold);
     }
 
     .nav {
@@ -99,16 +133,17 @@
     }
 
     .nav a {
-      color: var(--dark);
+      color: var(--safari-dark);
       text-decoration: none;
       font-weight: 500;
       padding: 0.5rem 0;
       position: relative;
       transition: var(--transition);
+      font-size: clamp(0.9rem, 1.2vw, 1rem);
     }
 
     .nav a:hover {
-      color: var(--primary);
+      color: var(--safari-green);
     }
 
     .nav a::after {
@@ -118,7 +153,7 @@
       left: 0;
       width: 0;
       height: 2px;
-      background-color: var(--primary);
+      background-color: var(--safari-gold);
       transition: var(--transition);
     }
 
@@ -126,40 +161,76 @@
       width: 100%;
     }
 
+    .nav .btn {
+      background-color: var(--safari-green);
+      color: white;
+      border-radius: var(--rounded);
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+    }
+
+    .nav .btn:hover {
+      background-color: var(--safari-accent);
+    }
+
     .mobile-menu-btn {
       display: none;
-      background: none;
+      background: var(--safari-gold);
       border: none;
+      color: white;
       font-size: 1.5rem;
-      color: var(--dark);
       cursor: pointer;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--safari-accent);
+      transform: scale(1.05);
     }
 
     /* Hero Section */
     .hero {
-      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
-                  url('https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
       background-size: cover;
       background-position: center;
+      background-attachment: fixed;
       color: white;
       text-align: center;
-      padding: 5rem 1.5rem;
+      padding: clamp(3rem, 10vw, 5rem) 1.5rem;
       border-radius: var(--rounded-lg);
       margin: 2rem 0;
       position: relative;
       overflow: hidden;
     }
 
+    .hero::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(to top, var(--safari-light), transparent);
+    }
+
     .hero h1 {
       font-family: 'Montserrat', sans-serif;
-      font-size: 2.5rem;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
       margin-bottom: 1rem;
       line-height: 1.2;
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .hero p {
-      font-size: 1.25rem;
+      font-size: clamp(1rem, 2vw, 1.25rem);
       max-width: 700px;
       margin: 0 auto 2rem;
       text-shadow: 0 1px 2px rgba(0,0,0,0.3);
@@ -173,9 +244,11 @@
     }
 
     .btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       padding: 0.75rem 1.5rem;
-      background-color: var(--primary);
+      background-color: var(--safari-green);
       color: white;
       border: none;
       border-radius: var(--rounded);
@@ -183,12 +256,21 @@
       text-decoration: none;
       cursor: pointer;
       transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(46, 125, 50, 0.3);
     }
 
     .btn:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
+      background-color: var(--safari-accent);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(139, 115, 85, 0.3);
+    }
+
+    .btn i {
+      transition: transform 0.3s ease;
+    }
+
+    .btn:hover i {
+      transform: translateX(3px);
     }
 
     .btn-outline {
@@ -199,7 +281,6 @@
 
     .btn-outline:hover {
       background-color: rgba(255,255,255,0.1);
-      transform: translateY(-2px);
     }
 
     /* Cards Section */
@@ -211,7 +292,7 @@
     }
 
     .card {
-      background: turquoise;
+      background: white;
       border-radius: var(--rounded-lg);
       overflow: hidden;
       box-shadow: var(--shadow);
@@ -219,11 +300,25 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      border-top: 4px solid var(--safari-gold);
     }
 
     .card:hover {
       transform: translateY(-10px);
       box-shadow: var(--shadow-md);
+    }
+
+    .card-icon {
+      background-color: var(--safari-cream);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-icon i {
+      font-size: 3rem;
+      color: var(--safari-green);
     }
 
     .card-content {
@@ -236,7 +331,7 @@
     .card h3 {
       font-size: 1.5rem;
       margin-bottom: 0.75rem;
-      color: var(--primary);
+      color: var(--safari-dark);
     }
 
     .card p {
@@ -248,15 +343,14 @@
     .link {
       display: inline-flex;
       align-items: center;
-      color: var(--primary);
+      color: var(--safari-green);
       font-weight: 600;
       text-decoration: none;
       transition: var(--transition);
     }
 
     .link:hover {
-      color: var(--primary-dark);
-      gap: 0.5rem;
+      color: var(--safari-accent);
     }
 
     .link i {
@@ -280,42 +374,71 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      padding: 1.5rem;
+      background: white;
+      border-radius: var(--rounded-lg);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
     }
 
     .feature-icon {
       width: 80px;
       height: 80px;
-      background-color: rgba(37, 99, 235, 0.1);
+      background-color: rgba(46, 125, 50, 0.1);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .feature:hover .feature-icon {
+      background-color: rgba(46, 125, 50, 0.2);
     }
 
     .feature-icon i {
       font-size: 2rem;
-      color: var(--primary);
+      color: var(--safari-green);
     }
 
     .feature h3 {
       font-size: 1.25rem;
       margin-bottom: 0.5rem;
+      color: var(--safari-dark);
     }
 
     /* Testimonials */
     .testimonials {
-      background-color: rgba(37, 99, 235, 0.05);
+      background-color: var(--safari-cream);
       padding: 4rem 0;
       margin: 4rem 0;
       border-radius: var(--rounded-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .testimonials::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--safari-gold);
     }
 
     .testimonials h2 {
       text-align: center;
       margin-bottom: 2rem;
       font-family: 'Montserrat', sans-serif;
-      color: var(--primary);
+      color: var(--safari-green);
+      font-size: clamp(1.5rem, 3vw, 2rem);
     }
 
     .testimonial-grid {
@@ -329,6 +452,17 @@
       padding: 1.5rem;
       border-radius: var(--rounded-lg);
       box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .testimonial::before {
+      content: """;
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      font-size: 3rem;
+      color: rgba(198, 163, 80, 0.2);
+      font-family: Georgia, serif;
     }
 
     .testimonial-content {
@@ -336,16 +470,6 @@
       padding-bottom: 1.5rem;
       margin-bottom: 1.5rem;
       border-bottom: 1px solid var(--light-gray);
-    }
-
-    .testimonial-content:before {
-      content: """;
-      position: absolute;
-      top: -15px;
-      left: -10px;
-      font-size: 4rem;
-      color: rgba(37, 99, 235, 0.1);
-      font-family: Georgia, serif;
     }
 
     .client {
@@ -358,15 +482,17 @@
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      background-color: var(--light-gray);
+      background-color: var(--safari-sand);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      color: var(--safari-accent);
     }
 
     .client-info h4 {
       margin-bottom: 0.25rem;
+      color: var(--safari-dark);
     }
 
     .client-info p {
@@ -376,36 +502,56 @@
 
     /* CTA Section */
     .cta {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      background: linear-gradient(135deg, var(--safari-green), var(--safari-accent));
       color: white;
       text-align: center;
       padding: 4rem 2rem;
       border-radius: var(--rounded-lg);
       margin: 4rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.3;
     }
 
     .cta h2 {
       font-family: 'Montserrat', sans-serif;
-      font-size: 2rem;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
       margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
     }
 
     .cta p {
       max-width: 700px;
       margin: 0 auto 2rem;
-      font-size: 1.1rem;
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      position: relative;
+      z-index: 1;
     }
 
     .cta .btn {
       background-color: white;
-      color: var(--primary);
+      color: var(--safari-green);
       font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 1;
     }
 
     .cta .btn:hover {
-      background-color: var(--light);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
+      background-color: var(--safari-light);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
 
     /* Main Content */
@@ -416,10 +562,21 @@
 
     /* Footer Styles */
     .footer {
-      background-color: var(--dark);
+      background: linear-gradient(135deg, var(--safari-dark), var(--safari-brown));
       color: white;
       padding: 2rem 0;
       margin-top: auto;
+      position: relative;
+    }
+
+    .footer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--safari-gold);
     }
 
     .footer .container {
@@ -427,10 +584,13 @@
       flex-direction: column;
       align-items: center;
       gap: 1.5rem;
+      position: relative;
+      z-index: 1;
     }
 
     .footer p {
-      color: var(--light-gray);
+      color: var(--safari-sand);
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
     }
 
     .social-links {
@@ -448,11 +608,13 @@
       background-color: rgba(255, 255, 255, 0.1);
       color: white;
       transition: var(--transition);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .social-link:hover {
-      background-color: var(--primary);
-      transform: translateY(-2px);
+      background-color: var(--safari-gold);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 
     /* Mobile Styles */
@@ -466,10 +628,13 @@
         flex-direction: column;
         gap: 0;
         padding: 1rem 0;
-        box-shadow: var(--shadow);
+        box-shadow: var(--shadow-md);
+        border-radius: 0 0 1rem 1rem;
         transform: translateY(-150%);
         transition: var(--transition);
         z-index: 99;
+        max-height: calc(100vh - 75px);
+        overflow-y: auto;
       }
 
       .nav.active {
@@ -479,33 +644,111 @@
       .nav a {
         width: 100%;
         padding: 1rem 1.5rem;
+        border-top: 1px solid var(--safari-sand);
+        display: flex;
+        align-items: center;
       }
 
       .nav a:hover {
-        background-color: var(--light-gray);
+        background-color: var(--safari-sand);
       }
 
       .nav a::after {
         display: none;
       }
 
-      .mobile-menu-btn {
-        display: block;
+      .nav .btn {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+        justify-content: center;
       }
-      
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .hero {
+        background-attachment: scroll;
+      }
+
       .hero h1 {
         font-size: 2rem;
       }
-      
+
       .hero p {
         font-size: 1.1rem;
       }
-      
+
       .actions {
         flex-direction: column;
         align-items: center;
       }
+
+      .cards {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .testimonial-grid {
+        grid-template-columns: 1fr;
+      }
     }
+
+    /* Tablet Styles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .features {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .testimonial-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Large Screens */
+    @media (min-width: 1200px) {
+      .container {
+        padding: 0 2%;
+      }
+    }
+
+    /* Accessibility */
+    a:focus,
+    button:focus,
+    input:focus,
+    textarea:focus {
+      outline: 2px solid var(--safari-gold);
+      outline-offset: 2px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card,
+    .feature,
+    .testimonial {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .feature:nth-child(2) { animation-delay: 0.1s; }
+    .feature:nth-child(3) { animation-delay: 0.2s; }
+    .feature:nth-child(4) { animation-delay: 0.3s; }
+    .testimonial:nth-child(2) { animation-delay: 0.1s; }
+    .testimonial:nth-child(3) { animation-delay: 0.2s; }
   </style>
 </head>
 <body>
@@ -514,19 +757,39 @@
     <div class="container">
       <div class="brand">
         <a href="/" aria-label="Home">
-          <i class="fas fa-plane-departure" aria-hidden="true"></i>
+          <i class="fas fa-globe-africa" aria-hidden="true"></i>
           Airport & Destinations
         </a>
       </div>
       <nav class="nav" id="mainNav" aria-label="Main Navigation">
-        <a href="/">Home</a>
-          <a class="btn" href="/tours-and-safaris/">Tours & Safaris</a>
-        <a href="/book-online/">Book Online</a>
-        <a href="/nairobi-airport-transfers-and-taxis/">Airport Transfers</a>
-        <a href="/book/excursions/">Excursions</a>
-
-        <a href="/about/">About</a>
-        <a href="/contact/">Contact</a>
+        <a href="/" aria-label="Home">
+          <i class="fas fa-home"></i>
+          Home
+        </a>
+        <a class="btn" href="/tours-and-safaris/" aria-label="Tours & Safaris">
+          <i class="fas fa-binoculars"></i>
+          Tours & Safaris
+        </a>
+        <a href="/book-online/" aria-label="Book Online">
+          <i class="fas fa-book"></i>
+          Book Online
+        </a>
+        <a href="/nairobi-airport-transfers-and-taxis/" aria-label="Airport Transfers">
+          <i class="fas fa-plane-arrival"></i>
+          Airport Transfers
+        </a>
+        <a href="/book/excursions/" aria-label="Excursions">
+          <i class="fas fa-hiking"></i>
+          Excursions
+        </a>
+        <a href="/about/" aria-label="About">
+          <i class="fas fa-info-circle"></i>
+          About
+        </a>
+        <a href="/contact/" aria-label="Contact">
+          <i class="fas fa-envelope"></i>
+          Contact
+        </a>
       </nav>
       <button class="mobile-menu-btn" id="menuToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainNav">
         <i class="fas fa-bars" aria-hidden="true"></i>
@@ -540,44 +803,62 @@
       <h1>Reliable Nairobi Airport Transfers, Tours & Excursions</h1>
       <p>Instant WhatsApp booking. No payments on the website.</p>
       <div class="actions">
-        <a class="btn" href="/book-online/">Book Online</a>
-          <a class="btn" href="/tours-and-safaris/">Tours & Safaris</a>
-        <a class="btn" href="/nairobi-airport-transfers-and-taxis/">Airport Transfers</a>
+        <a class="btn" href="/book-online/" aria-label="Book Online">
+          <i class="fas fa-calendar-check"></i>
+          Book Online
+        </a>
+        <a class="btn" href="/tours-and-safaris/" aria-label="Tours & Safaris">
+          <i class="fas fa-binoculars"></i>
+          Tours & Safaris
+        </a>
+        <a class="btn" href="/nairobi-airport-transfers-and-taxis/" aria-label="Airport Transfers">
+          <i class="fas fa-plane-arrival"></i>
+          Airport Transfers
+        </a>
       </div>
     </section>
 
     <section class="cards">
       <article class="card">
+        <div class="card-icon">
+          <i class="fas fa-plane-arrival"></i>
+        </div>
         <div class="card-content">
           <h3>Airport Transfers & Taxis</h3>
           <p>Meet-and-greet, luggage assistance, and safe rides to any destination.</p>
-          <a class="link" href="/nairobi-airport-transfers-and-taxis/">
+          <a class="link" href="/nairobi-airport-transfers-and-taxis/" aria-label="See airport transfer details">
             See details <i class="fas fa-arrow-right"></i>
           </a>
         </div>
       </article>
-      
+
       <article class="card">
+        <div class="card-icon">
+          <i class="fas fa-hiking"></i>
+        </div>
         <div class="card-content">
           <h3>Excursions</h3>
           <p>Half-day and full-day city tours, Nairobi National Park, Giraffe Centre & more.</p>
-          <a class="link" href="/book/excursions/">
+          <a class="link" href="/book/excursions/" aria-label="Explore excursions">
             Explore excursions <i class="fas fa-arrow-right"></i>
           </a>
         </div>
       </article>
-      
+
       <article class="card">
+        <div class="card-icon">
+          <i class="fas fa-binoculars"></i>
+        </div>
         <div class="card-content">
           <h3>Tours & Safaris</h3>
           <p>Custom itineraries to Maasai Mara, Amboseli, Naivasha, and beyond.</p>
-          <a class="link" href="/tours-and-safaris/">
+          <a class="link" href="/tours-and-safaris/" aria-label="View tours">
             View tours <i class="fas fa-arrow-right"></i>
           </a>
         </div>
       </article>
     </section>
-    
+
     <section class="features">
       <div class="feature">
         <div class="feature-icon">
@@ -586,7 +867,7 @@
         <h3>Safety First</h3>
         <p>Certified drivers and well-maintained vehicles for your peace of mind.</p>
       </div>
-      
+
       <div class="feature">
         <div class="feature-icon">
           <i class="fas fa-clock"></i>
@@ -594,7 +875,7 @@
         <h3>24/7 Availability</h3>
         <p>We're available round the clock to serve your travel needs.</p>
       </div>
-      
+
       <div class="feature">
         <div class="feature-icon">
           <i class="fas fa-tag"></i>
@@ -602,7 +883,7 @@
         <h3>Best Prices</h3>
         <p>Competitive pricing without compromising on quality.</p>
       </div>
-      
+
       <div class="feature">
         <div class="feature-icon">
           <i class="fas fa-headset"></i>
@@ -611,7 +892,7 @@
         <p>Dedicated support team to assist you throughout your journey.</p>
       </div>
     </section>
-    
+
     <section class="testimonials">
       <h2>What Our Clients Say</h2>
       <div class="testimonial-grid">
@@ -629,7 +910,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="testimonial">
           <div class="testimonial-content">
             <p>"Our safari to Maasai Mara was unforgettable. The guide was knowledgeable and the accommodations were perfect."</p>
@@ -644,7 +925,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="testimonial">
           <div class="testimonial-content">
             <p>"The Nairobi city tour was excellent. We covered all the major attractions and learned so much about Kenya's history."</p>
@@ -661,23 +942,34 @@
         </div>
       </div>
     </section>
-    
+
     <section class="cta">
       <h2>Ready for Your Kenyan Adventure?</h2>
       <p>Book your transfers, tours, and safaris today with our easy online reservation system</p>
-      <a href="/book-online/" class="btn">Book Now</a>
+      <a href="/book-online/" class="btn" aria-label="Book now">
+        <i class="fas fa-calendar-check"></i>
+        Book Now
+      </a>
     </section>
   </main>
 
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
-      <p>© 2025 Airport & Destinations  DEV BRYTEC LTD • Nairobi, Kenya</p>
+      <p>© 2025 Airport & Destinations • DEV BRYTEC LTD • Nairobi, Kenya</p>
       <div class="social-links" role="navigation" aria-label="Social media">
-        <a href="https://facebook.com" class="social-link" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://twitter.com" class="social-link" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-        <a href="https://instagram.com" class="social-link" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="https://wa.me/254759234580" class="social-link" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://facebook.com" class="social-link" target="_blank" aria-label="Facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://twitter.com" class="social-link" target="_blank" aria-label="Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="https://instagram.com" class="social-link" target="_blank" aria-label="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://wa.me/254759234580" class="social-link" target="_blank" aria-label="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
       </div>
     </div>
   </footer>
@@ -690,8 +982,16 @@
       menuToggle.addEventListener('click', () => {
         const isOpen = mainNav.classList.toggle('active');
         menuToggle.setAttribute('aria-expanded', isOpen);
-        menuToggle.querySelector('i').classList.toggle('fa-bars');
-        menuToggle.querySelector('i').classList.toggle('fa-times');
+
+        // Toggle icon between bars and times
+        const icon = menuToggle.querySelector('i');
+        if (isOpen) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
       });
 
       // Close menu when clicking outside
@@ -699,8 +999,37 @@
         if (!mainNav.contains(e.target) && !menuToggle.contains(e.target) && mainNav.classList.contains('active')) {
           mainNav.classList.remove('active');
           menuToggle.setAttribute('aria-expanded', false);
-          menuToggle.querySelector('i').classList.add('fa-bars');
-          menuToggle.querySelector('i').classList.remove('fa-times');
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+
+      // Close menu when window is resized above mobile breakpoint
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+
+      // Add keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mainNav.classList.contains('active')) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
         }
       });
     });

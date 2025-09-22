@@ -16,3 +16,1176 @@ Internal Server Error: /create-guest-pesapal-order/
 "POST /create-guest-pesapal-order/ HTTP/1.1" 500 86
 Internal Server Error: /create-guest-pesapal-order/
 "POST /create-guest-pesapal-order/ HTTP/1.1" 500 86
+Internal Server Error: /payments/tour/6/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 257, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/6/ HTTP/1.1" 500 139399
+Internal Server Error: /payments/tour/6/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 257, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/6/ HTTP/1.1" 500 139399
+Internal Server Error: /payments/tour/6/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 257, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/6/ HTTP/1.1" 500 139399
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 140060
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 140060
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 140191
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 140191
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_page' not found. 'tour_payment_page' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 140191
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_base' not found. 'tour_payment_base' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 139087
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_base' not found. 'tour_payment_base' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 139090
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 387, in tour_payment
+    return render(
+           ^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'tour_payment_base' not found. 'tour_payment_base' is not a valid view function or pattern name.
+"GET /payments/tour/9/ HTTP/1.1" 500 139090
+Internal Server Error: /payments/callback/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 581, in paystack_callback
+    return redirect("payment_failed")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 49, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 180, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'payment_failed' not found. 'payment_failed' is not a valid view function or pattern name.
+"GET /payments/callback/?reference=PAY-1758551042785-872448019 HTTP/1.1" 500 110351
+Internal Server Error: /payments/callback/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 581, in paystack_callback
+    return redirect("payment_failed")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 49, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 180, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'payment_failed' not found. 'payment_failed' is not a valid view function or pattern name.
+"GET /payments/callback/?reference=PAY-1758551042785-872448019 HTTP/1.1" 500 110751
+Internal Server Error: /payments/callback/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 601, in paystack_callback
+    return redirect("payment_failed")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 49, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 180, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'payment_failed' not found. 'payment_failed' is not a valid view function or pattern name.
+"GET /payments/callback/?reference=PAY-1758551042785-872448019 HTTP/1.1" 500 110778
+Internal Server Error: /tours-and-safaris/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 440, in tours
+    return render(request, "tours.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 198, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1549, in execute_sql
+    sql, params = self.as_sql()
+                  ^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 736, in as_sql
+    extra_select, order_by, group_by = self.pre_sql_setup(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 84, in pre_sql_setup
+    self.setup_query(with_col_aliases=with_col_aliases)
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 73, in setup_query
+    self.select, self.klass_info, self.annotation_col_map = self.get_select(
+                                                            ^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 279, in get_select
+    related_klass_infos = self.get_related_selections(select, select_mask)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1367, in get_related_selections
+    raise FieldError(
+django.core.exceptions.FieldError: Invalid field name(s) given in select_related: 'destination'. Choices are: created_by, approved_by
+"GET /tours-and-safaris/ HTTP/1.1" 500 201816
+Internal Server Error: /tours-and-safaris/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 440, in tours
+    return render(request, "tours.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 198, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1930, in _fetch_all
+    self._prefetch_related_objects()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1320, in _prefetch_related_objects
+    prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 2356, in prefetch_related_objects
+    raise AttributeError(
+AttributeError: Cannot find 'images' on Tour object, 'images' is an invalid parameter to prefetch_related()
+"GET /tours-and-safaris/ HTTP/1.1" 500 173729
+Internal Server Error: /tours-and-safaris/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 440, in tours
+    return render(request, "tours.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 198, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1930, in _fetch_all
+    self._prefetch_related_objects()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1320, in _prefetch_related_objects
+    prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 2356, in prefetch_related_objects
+    raise AttributeError(
+AttributeError: Cannot find 'images' on Tour object, 'images' is an invalid parameter to prefetch_related()
+"GET /tours-and-safaris/ HTTP/1.1" 500 173000
+Internal Server Error: /tours-and-safaris/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 440, in tours
+    return render(request, "tours.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 198, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1930, in _fetch_all
+    self._prefetch_related_objects()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1320, in _prefetch_related_objects
+    prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 2356, in prefetch_related_objects
+    raise AttributeError(
+AttributeError: Cannot find 'images' on Tour object, 'images' is an invalid parameter to prefetch_related()
+"GET /tours-and-safaris/ HTTP/1.1" 500 173000
+Internal Server Error: /tours-and-safaris/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 439, in tours
+    return render(request, "tours.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 198, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1549, in execute_sql
+    sql, params = self.as_sql()
+                  ^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 736, in as_sql
+    extra_select, order_by, group_by = self.pre_sql_setup(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 84, in pre_sql_setup
+    self.setup_query(with_col_aliases=with_col_aliases)
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 73, in setup_query
+    self.select, self.klass_info, self.annotation_col_map = self.get_select(
+                                                            ^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 279, in get_select
+    related_klass_infos = self.get_related_selections(select, select_mask)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1367, in get_related_selections
+    raise FieldError(
+django.core.exceptions.FieldError: Invalid field name(s) given in select_related: 'destination'. Choices are: created_by, approved_by
+"GET /tours-and-safaris/ HTTP/1.1" 500 207345
+Internal Server Error: /tours-and-safaris/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 439, in tours
+    return render(request, "tours.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/base.py", line 961, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 198, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1549, in execute_sql
+    sql, params = self.as_sql()
+                  ^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 736, in as_sql
+    extra_select, order_by, group_by = self.pre_sql_setup(
+                                       ^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 84, in pre_sql_setup
+    self.setup_query(with_col_aliases=with_col_aliases)
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 73, in setup_query
+    self.select, self.klass_info, self.annotation_col_map = self.get_select(
+                                                            ^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 279, in get_select
+    related_klass_infos = self.get_related_selections(select, select_mask)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1367, in get_related_selections
+    raise FieldError(
+django.core.exceptions.FieldError: Invalid field name(s) given in select_related: 'destination'. Choices are: created_by, approved_by
+"GET /tours-and-safaris/ HTTP/1.1" 500 207345
+Internal Server Error: /payments/callback/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 968, in paystack_callback
+    return redirect("payment_failed")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 49, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 180, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'payment_failed' not found. 'payment_failed' is not a valid view function or pattern name.
+"GET /payments/callback/?reference=PAY-1758567019514-372719145 HTTP/1.1" 500 110379
+Internal Server Error: /payments/tour/9/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 619, in tour_payment
+    "is_guest_payment": session_manager.has_pending_payment(),
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'PaymentSessionManager' object has no attribute 'has_pending_payment'. Did you mean: 'get_pending_payment'?
+"GET /payments/tour/9/ HTTP/1.1" 500 83849
+Internal Server Error: /payments/callback/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 939, in paystack_callback
+    return redirect("payment_failed")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 49, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 180, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'payment_failed' not found. 'payment_failed' is not a valid view function or pattern name.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/views.py", line 983, in paystack_callback
+    return redirect("payment_failed")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 49, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 180, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'payment_failed' not found. 'payment_failed' is not a valid view function or pattern name.
+"GET /payments/callback/?reference=PAY-1758570894240-947488408 HTTP/1.1" 500 142668
+Internal Server Error: /admin/bookings/payment/add/
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/forms/forms.py", line 349, in _clean_form
+    cleaned_data = self.clean()
+                   ^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/bookings/admin.py", line 217, in clean
+    raise forms.ValidationError({field: f"{field.replace('_', ' ').title()} is required."})
+django.core.exceptions.ValidationError: {'currency': ['Currency is required.']}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 716, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/utils/decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/utils/decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 240, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1945, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/utils/decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/utils/decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/utils/decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1804, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1849, in _changeform_view
+    form_validated = form.is_valid()
+                     ^^^^^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/forms/forms.py", line 197, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/forms/forms.py", line 192, in errors
+    self.full_clean()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/forms/forms.py", line 328, in full_clean
+    self._clean_form()
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/forms/forms.py", line 351, in _clean_form
+    self.add_error(None, e)
+  File "/home/brymax/Documents/airport_destinations/.venv/lib/python3.12/site-packages/django/forms/forms.py", line 294, in add_error
+    raise ValueError(
+ValueError: 'PaymentForm' has no field named 'currency'.
+"POST /admin/bookings/payment/add/ HTTP/1.1" 500 167082

@@ -136,56 +136,41 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ==============================
-# PESAPAL PAYMENT CONFIGURATION
+# PAYSTACK PAYMENT CONFIGURATION
 # ==============================
 # Required credentials - no defaults to ensure they are explicitly set
-PESAPAL_CONSUMER_KEY = config("PESAPAL_CONSUMER_KEY")
-PESAPAL_CONSUMER_SECRET = config("PESAPAL_CONSUMER_SECRET")
-PESAPAL_NOTIFICATION_ID = config("PESAPAL_NOTIFICATION_ID")
+PAYSTACK_SECRET_KEY = config("PAYSTACK_SECRET_KEY")
+PAYSTACK_PUBLIC_KEY = config("PAYSTACK_PUBLIC_KEY")
 
-# Production (live) PesaPal v3 API
-PESAPAL_BASE_URL = config(
-    "PESAPAL_BASE_URL",
-    default="https://pay.pesapal.com/v3"
+# Production (live) Paystack API
+PAYSTACK_BASE_URL = config(
+    "PAYSTACK_BASE_URL",
+    default="https://api.paystack.co"
 )
 
 # (Optional) you can also expose a SANDBOX flag and switch dynamically:
-USE_PESAPAL_SANDBOX = config("USE_PESAPAL_SANDBOX", default=False, cast=bool)
-if USE_PESAPAL_SANDBOX:
-    PESAPAL_BASE_URL = config(
-        "PESAPAL_SANDBOX_BASE_URL",
-        default="https://cybqa.pesapal.com/pesapalv3"
+USE_PAYSTACK_SANDBOX = config("USE_PAYSTACK_SANDBOX", default=False, cast=bool)
+if USE_PAYSTACK_SANDBOX:
+    PAYSTACK_BASE_URL = config(
+        "PAYSTACK_SANDBOX_BASE_URL",
+        default="https://api.paystack.co"
     )
-# Force live mode - no demo mode option
-PESAPAL_DEMO = False
 
 # API endpoints
-PESAPAL_PAYMENT_URL = f"{PESAPAL_BASE_URL}/Transactions/SubmitOrderRequest"
-PESAPAL_TOKEN_URL = f"{PESAPAL_BASE_URL}/auth/RequestToken"
+PAYSTACK_PAYMENT_URL = f"{PAYSTACK_BASE_URL}/transaction/initialize"
+PAYSTACK_VERIFICATION_URL = f"{PAYSTACK_BASE_URL}/transaction/verify/"
 
 # ============================
-# 🌍 Site + Pesapal Integration
+# 🌍 Site + Paystack Integration
 # ============================
 # Must be HTTPS for production
 SITE_URL = config("SITE_URL", default="https://brymax.xyz")
 
-# Callback URL (where Pesapal redirects browser after payment)
-PESAPAL_CALLBACK_URL = f"{SITE_URL}/payments/callback/"
+# Callback URL (where Paystack redirects browser after payment)
+PAYSTACK_CALLBACK_URL = f"{SITE_URL}/paystack/callback/"
 
-# IPN URL (where Pesapal sends payment status notifications)
-PESAPAL_IPN_URL = config("PESAPAL_IPN_URL", default=f"{SITE_URL}/payments/ipn/")
-
-# Where the user is redirected after payment (user-facing receipt page)
-PESAPAL_RETURN_URL = f"{SITE_URL}/payments/return/"
-
-# ==============================
-# M-PESA CONFIGURATION
-# ==============================
-MPESA_ENV = config("MPESA_ENV", default="sandbox")  # sandbox or production
-MPESA_CONSUMER_KEY = config("MPESA_CONSUMER_KEY", default="your_consumer_key")
-MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET", default="your_consumer_secret")
-MPESA_PASSKEY = config("MPESA_PASSKEY", default="your_lipa_na_mpesa_online_passkey")
-MPESA_SHORTCODE = config("MPESA_SHORTCODE", default="174379")  # test shortcode
+# Webhook URL (where Paystack sends payment status notifications)
+PAYSTACK_WEBHOOK_URL = f"{SITE_URL}/paystack/webhook/"
 
 # ==============================
 # CLOUDINARY CONFIGURATION
@@ -221,7 +206,9 @@ ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'admin_tools.dashboard.apps.DefaultAppIndexDas
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="francisbrymax@gmail.com")
 ADMIN_EMAIL = config("ADMIN_EMAIL", default="francisbrymax@gmail.com")
 
-
+# ==============================
+# LOGGING
+# ==============================
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -239,4 +226,14 @@ LOGGING = {
             'propagate': True,
         },
     },
+}
+
+# ==============================
+# PAYSTACK CONFIGURATION
+# ==============================
+PAYSTACK = {
+    "SECRET_KEY": os.getenv("PAYSTACK_SECRET_KEY"),
+    "PUBLIC_KEY": os.getenv("PAYSTACK_PUBLIC_KEY"),
+    'CALLBACK_URL': 'https://www.brymax.xyz/paystack/callback',
+    'WEBHOOK_URL': 'https://www.brymax.xyz/paystack/webhook',
 }
