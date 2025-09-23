@@ -1,0 +1,102 @@
+<!-- =================================================== -->
+<!-- guest_receipt.html -->
+<!-- Shows receipt for guest OR registered user payments -->
+<!-- =================================================== -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+
+        <!-- Card Wrapper -->
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header bg-success text-white text-center rounded-top-4">
+                <h3 class="mb-0">Payment Successful</h3>
+            </div>
+
+            <div class="card-body">
+                <p class="text-center text-muted">
+                    Thank you for your payment! Below are your transaction details:
+                </p>
+
+                <!-- Payment Details -->
+                <table class="table table-bordered mt-4">
+                    <tbody>
+                        <!-- Name (user or guest) -->
+                        <tr>
+                            <th scope="row">Full Name</th>
+                            <td>
+                                {% if payment.user %}
+                                    {{ payment.user.get_full_name|default:payment.user.username }}
+                                {% else %}
+                                    Guest User
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- Email -->
+                        <tr>
+                            <th scope="row">Email</th>
+                            <td>
+                                {% if payment.user %}
+                                    {{ payment.user.email }}
+                                {% else %}
+                                    {{ request.session.guest_email }}
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- Phone -->
+                        <tr>
+                            <th scope="row">Phone Number</th>
+                            <td>
+                                {% if payment.user %}
+                                    {{ payment.phone_number }}
+                                {% else %}
+                                    {{ request.session.guest_phone }}
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- Tour -->
+                        <tr>
+                            <th scope="row">Tour Package</th>
+                            <td>{{ payment.tour.name }}</td>
+                        </tr>
+
+                        <!-- Amount -->
+                        <tr>
+                            <th scope="row">Amount Paid</th>
+                            <td>KES {{ payment.amount }}</td>
+                        </tr>
+
+                        <!-- Transaction ID -->
+                        <tr>
+                            <th scope="row">Transaction ID</th>
+                            <td>{{ payment.transaction_id }}</td>
+                        </tr>
+
+                        <!-- Date -->
+                        <tr>
+                            <th scope="row">Date</th>
+                            <td>{{ payment.date|date:"F j, Y, g:i a" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer text-center">
+                <a href="{% url 'home' %}" class="btn btn-primary">Back to Home</a>
+                <button onclick="window.print()" class="btn btn-outline-secondary">Print Receipt</button>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

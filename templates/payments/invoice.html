@@ -1,0 +1,35 @@
+<!-- templates/payments/invoice.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice - {{ payment.reference }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        .invoice-box { border: 1px solid #eee; padding: 20px; }
+        h2 { text-align: center; }
+        .details { margin-bottom: 20px; }
+        .footer { text-align: center; font-size: 12px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+<div class="invoice-box">
+    <h2>Payment Invoice</h2>
+    <hr>
+    <div class="details">
+        <p><strong>Reference:</strong> {{ payment.reference }}</p>
+        <p><strong>Customer:</strong> {{ payment.user.get_full_name }}</p>
+        <p><strong>Amount:</strong> KES {{ payment.amount }}</p>
+        <p><strong>Status:</strong> {{ payment.status }}</p>
+        <p><strong>Payment Method:</strong> {{ payment.method }}</p>
+        <p><strong>Date:</strong> {{ payment.created_at|date:"M d, Y H:i" }}</p>
+    </div>
+
+    <p>Thank you for your payment. Please keep this invoice for your records.</p>
+
+    <div class="footer">
+        &copy; {{ now|date:"Y" }} Airport Destinations | Powered by Brymax
+    </div>
+</div>
+</body>
+</html>

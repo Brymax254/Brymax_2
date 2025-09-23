@@ -1,0 +1,466 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="Premium Airport Transfers, Tours & Destinations from Nairobi. Book online for reliable and professional travel services."/>
+  <meta name="keywords" content="Nairobi Airport Transfers, Kenya Tours, Safaris, Excursions, Premium Travel Services"/>
+  <meta name="author" content="2025 Airport & Destinations"/>
+  <title>{% block title %}Airport & Destinations | Premium Travel Services{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet"/>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+  <!-- Styles -->
+  <style>
+    :root {
+      /* Safari/Travel Theme Colors */
+      --safari-gold: #c6a350;
+      --safari-dark: #2b2a28;
+      --safari-light: #f8f7f3;
+      --safari-accent: #8b7355;
+      --safari-green: #2e7d32;
+      --safari-cream: #f5f1e6;
+      --safari-brown: #795548;
+      --safari-orange: #e65100;
+      --safari-sand: #f5e9c8;
+
+      /* Original Colors */
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --error: #ef4444;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --rounded: 0.5rem;
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      background: var(--safari-light);
+      color: var(--safari-dark);
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 5%;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 0;
+      border-bottom: 3px solid var(--safari-gold);
+    }
+
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand a {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      color: var(--safari-gold);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: var(--transition);
+    }
+
+    .brand a:hover {
+      color: var(--safari-accent);
+      transform: translateY(-2px);
+    }
+
+    .brand i {
+      font-size: clamp(1.5rem, 3vw, 1.75rem);
+      margin-right: 0.5rem;
+      color: var(--safari-green);
+    }
+
+    .nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      transition: var(--transition);
+    }
+
+    .nav a {
+      color: var(--safari-dark);
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+      padding: 0.5rem 0;
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+    }
+
+    .nav a:hover {
+      color: var(--safari-green);
+    }
+
+    .nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--safari-gold);
+      transition: width 0.3s ease;
+    }
+
+    .nav a:hover::after {
+      width: 100%;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: var(--safari-gold);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--safari-accent);
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    .footer {
+      background: linear-gradient(135deg, var(--safari-dark), var(--safari-brown));
+      color: white;
+      padding: 3rem 0 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--safari-gold);
+    }
+
+    .footer-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer p {
+      margin-bottom: 1rem;
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .social-link {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      transition: var(--transition);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .social-link:hover {
+      background: var(--safari-gold);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Mobile menu */
+    @media (max-width: 768px) {
+      .nav {
+        position: fixed;
+        top: 75px;
+        left: 0;
+        width: 100%;
+        background: white;
+        flex-direction: column;
+        gap: 0;
+        padding: 1rem 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-radius: 0 0 1rem 1rem;
+        transform: translateY(-150%);
+        transition: var(--transition);
+        z-index: 99;
+        max-height: calc(100vh - 75px);
+        overflow-y: auto;
+      }
+
+      .nav.active {
+        transform: translateY(0);
+      }
+
+      .nav a {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--safari-sand);
+        display: flex;
+        align-items: center;
+      }
+
+      .nav a:hover {
+        background: var(--safari-sand);
+        color: var(--safari-green);
+      }
+
+      .nav a::after {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .header {
+        padding: 0.8rem 0;
+      }
+    }
+
+    /* Tablet styles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .nav {
+        gap: 1rem;
+      }
+
+      .nav a {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Large screens */
+    @media (min-width: 1200px) {
+      .container {
+        padding: 0 2%;
+      }
+    }
+
+    /* Accessibility improvements */
+    .nav a:focus,
+    .mobile-menu-btn:focus,
+    .social-link:focus {
+      outline: 2px solid var(--safari-gold);
+      outline-offset: 2px;
+    }
+
+    /* Smooth hover effects */
+    a, button {
+      transition: var(--transition);
+    }
+
+    /* Safari theme decorative elements */
+    .safari-pattern {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c6a350' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Animation for mobile menu button */
+    @keyframes menuIconTransform {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(180deg); }
+    }
+
+    .mobile-menu-btn i {
+      transition: transform 0.3s ease;
+    }
+
+    .mobile-menu-btn.active i {
+      transform: rotate(180deg);
+    }
+  </style>
+</head>
+<body>
+  <!-- Safari pattern background -->
+  <div class="safari-pattern"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="brand">
+        <a href="/" aria-label="Home">
+          <i class="fas fa-globe-africa"></i>
+          Airport & Destinations
+        </a>
+      </div>
+      <nav class="nav" id="mainNav" aria-label="Main Navigation">
+        <a href="/" aria-label="Home">
+          <i class="fas fa-home"></i>
+          Home
+        </a>
+        <a href="/book-online/" aria-label="Book Online">
+          <i class="fas fa-book"></i>
+          Book Online
+        </a>
+        <a href="/nairobi-airport-transfers-and-taxis/" aria-label="Airport Transfers">
+          <i class="fas fa-plane-arrival"></i>
+          Airport Transfers
+        </a>
+        <a href="/book/excursions/" aria-label="Excursions">
+          <i class="fas fa-hiking"></i>
+          Excursions
+        </a>
+        <a href="/tours-and-safaris/" aria-label="Tours & Safaris">
+          <i class="fas fa-binoculars"></i>
+          Tours & Safaris
+        </a>
+        <a href="/about/" aria-label="About">
+          <i class="fas fa-info-circle"></i>
+          About
+        </a>
+        <a href="/contact/" aria-label="Contact">
+          <i class="fas fa-envelope"></i>
+          Contact
+        </a>
+      </nav>
+      <button class="mobile-menu-btn" id="menuToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainNav">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container py-12">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>© {% now "Y" %} Airport & Destinations • DEV BRYTEC LTD • Nairobi, Kenya</p>
+      <div class="social-links">
+        <a href="https://facebook.com" class="social-link" target="_blank" aria-label="Facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://twitter.com" class="social-link" target="_blank" aria-label="Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="https://instagram.com" class="social-link" target="_blank" aria-label="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://wa.me/254759234580" class="social-link" target="_blank" aria-label="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuToggle = document.getElementById('menuToggle');
+      const mainNav = document.getElementById('mainNav');
+
+      menuToggle.addEventListener('click', () => {
+        const isOpen = mainNav.classList.toggle('active');
+        menuToggle.setAttribute('aria-expanded', isOpen);
+        menuToggle.classList.toggle('active');
+
+        // Toggle icon between bars and times
+        const icon = menuToggle.querySelector('i');
+        if (isOpen) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mainNav.contains(e.target) && !menuToggle.contains(e.target)) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+          menuToggle.classList.remove('active');
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+
+      // Close menu when window is resized above mobile breakpoint
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+          menuToggle.classList.remove('active');
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+
+      // Add keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mainNav.classList.contains('active')) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+          menuToggle.classList.remove('active');
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

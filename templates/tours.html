@@ -1,0 +1,1098 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  :root {
+    --safari-gold: #c6a350;
+    --safari-dark: #2b2a28;
+    --safari-light: #f8f7f3;
+    --safari-accent: #8b7355;
+    --safari-green: #2e7d32;
+    --safari-cream: #f5f1e6;
+    --safari-brown: #795548;
+    --safari-orange: #e65100;
+    --safari-blue: #1976d2;
+    --safari-red: #d32f2f;
+    --safari-purple: #7b1fa2;
+  }
+
+  body {
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background: var(--safari-light);
+    margin: 0;
+    padding: 0;
+    color: var(--safari-dark);
+  }
+
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                url('https://images.unsplash.com/photo-1516426122078-c23e76319801?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    padding: 120px 20px;
+    text-align: center;
+    color: white;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.6);
+    position: relative;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(to top, var(--safari-light), transparent);
+  }
+
+  .hero-section h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+
+  .hero-section p {
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* Stats Section */
+  .stats-section {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 40px auto;
+    width: 100%;
+    padding: 0 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    min-width: 200px;
+    flex: 1;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--safari-gold);
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    color: var(--safari-accent);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 30px auto;
+    width: 100%;
+    padding: 0 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+  }
+
+  .filter-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--safari-accent);
+  }
+
+  .filters select,
+  .filters input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    font-size: 16px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .filters select:focus,
+  .filters input:focus {
+    outline: none;
+    border-color: var(--safari-gold);
+    box-shadow: 0 0 0 3px rgba(198, 163, 80, 0.2);
+  }
+
+  /* Category Pills */
+  .category-pills {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px auto;
+    width: 100%;
+    padding: 0 20px;
+    flex-wrap: wrap;
+  }
+
+  .category-pill {
+    background: white;
+    color: var(--safari-accent);
+    border: 1px solid #ddd;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .category-pill:hover {
+    background: var(--safari-cream);
+    border-color: var(--safari-accent);
+  }
+
+  .category-pill.active {
+    background: var(--safari-gold);
+    color: white;
+    border-color: var(--safari-gold);
+  }
+
+  .category-pill i {
+    font-size: 0.8rem;
+  }
+
+  /* Tours Container - Horizontal Scroll */
+  .tours-container-wrapper {
+    position: relative;
+    margin: 40px auto;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .tours-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+    padding: 0 20px 20px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--safari-gold) var(--safari-cream);
+  }
+
+  .tours-container::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .tours-container::-webkit-scrollbar-track {
+    background: var(--safari-cream);
+    border-radius: 10px;
+  }
+
+  .tours-container::-webkit-scrollbar-thumb {
+    background: var(--safari-gold);
+    border-radius: 10px;
+  }
+
+  .tours-container::-webkit-scrollbar-thumb:hover {
+    background: var(--safari-accent);
+  }
+
+  /* Tour Card - Modern Design */
+  .tour-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 300px;
+    max-width: 350px;
+    flex: 0 0 auto;
+  }
+
+  .tour-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  }
+
+  .tour-image-container {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+  }
+
+  .tour-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .tour-card:hover .tour-image {
+    transform: scale(1.05);
+  }
+
+  /* Tour Badges - Enhanced */
+  .tour-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 2;
+  }
+
+  .tour-badge.featured {
+    background: var(--safari-orange);
+    color: white;
+  }
+
+  .tour-badge.new {
+    background: var(--safari-green);
+    color: white;
+  }
+
+  .tour-badge.discount {
+    background: var(--safari-red);
+    color: white;
+  }
+
+  .tour-badge.budget {
+    background: var(--safari-blue);
+    color: white;
+  }
+
+  .tour-badge.value {
+    background: var(--safari-purple);
+    color: white;
+  }
+
+  .tour-badge.premium {
+    background: var(--safari-gold);
+    color: white;
+  }
+
+  .tour-badge.luxury {
+    background: linear-gradient(135deg, #8e44ad, #3498db);
+    color: white;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  .tour-content {
+    padding: 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tour-category {
+    color: var(--safari-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .tour-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--safari-dark);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .tour-description {
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    flex-grow: 1;
+  }
+
+  .tour-highlights {
+    margin-bottom: 20px;
+  }
+
+  .tour-highlight {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .tour-highlight i {
+    color: var(--safari-gold);
+    margin-right: 8px;
+    font-size: 0.8rem;
+  }
+
+  .tour-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .tour-price {
+    color: var(--safari-green);
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+
+  .tour-price .original-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1rem;
+    margin-right: 5px;
+  }
+
+  .tour-duration {
+    display: flex;
+    align-items: center;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .tour-duration i {
+    margin-right: 5px;
+    color: var(--safari-accent);
+  }
+
+  .tour-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .tour-rating i {
+    color: var(--safari-gold);
+    font-size: 0.9rem;
+  }
+
+  .tour-rating span {
+    margin-left: 5px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .tour-booking {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+
+  .tour-ref {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .btn-book {
+    background: var(--safari-gold);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(198, 163, 80, 0.3);
+    display: flex;
+    align-items: center;
+  }
+
+  .btn-book:hover {
+    background: var(--safari-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(139, 115, 85, 0.3);
+  }
+
+  .btn-book i {
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+  }
+
+  .btn-book:hover i {
+    transform: translateX(3px);
+  }
+
+  .btn-wishlist {
+    background: transparent;
+    border: 1px solid #ddd;
+    color: var(--safari-accent);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-wishlist:hover {
+    background: var(--safari-cream);
+    border-color: var(--safari-accent);
+  }
+
+  .btn-wishlist.active {
+    background: var(--safari-red);
+    border-color: var(--safari-red);
+    color: white;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    width: 100%;
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    color: var(--safari-accent);
+    margin-bottom: 20px;
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: var(--safari-dark);
+  }
+
+  /* Newsletter Section */
+  .newsletter-section {
+    background: var(--safari-cream);
+    padding: 40px 20px;
+    text-align: center;
+    margin: 60px auto 0;
+    width: 100%;
+  }
+
+  .newsletter-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .newsletter-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--safari-dark);
+    margin-bottom: 15px;
+  }
+
+  .newsletter-description {
+    color: #666;
+    margin-bottom: 25px;
+  }
+
+  .newsletter-form {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .newsletter-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 50px 0 0 50px;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .newsletter-input:focus {
+    border-color: var(--safari-gold);
+  }
+
+  .newsletter-button {
+    background: var(--safari-gold);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 0 50px 50px 0;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .newsletter-button:hover {
+    background: var(--safari-accent);
+  }
+
+  /* Tour Image Popup */
+  .tour-image-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .tour-image-popup.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .tour-image-popup img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+  }
+
+  .tour-image-popup.active img {
+    transform: scale(1);
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .popup-close:hover {
+    transform: rotate(90deg);
+  }
+
+  /* Scroll buttons */
+  .scroll-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--safari-dark);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  .scroll-button:hover {
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .scroll-button.prev {
+    left: 10px;
+  }
+
+  .scroll-button.next {
+    right: 10px;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 80px 15px;
+    }
+
+    .stats-section {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-card {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .filters {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .filter-group {
+      max-width: 100%;
+    }
+
+    .category-pills {
+      justify-content: flex-start;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .tours-container {
+      padding: 0 10px 20px;
+    }
+
+    .tour-card {
+      min-width: 280px;
+    }
+
+    .newsletter-form {
+      flex-direction: column;
+    }
+
+    .newsletter-input {
+      border-radius: 50px;
+      margin-bottom: 10px;
+    }
+
+    .newsletter-button {
+      border-radius: 50px;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .tours-container {
+      padding: 0 15px 20px;
+    }
+  }
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section">
+  <h1>Explore Our Tours & Safaris</h1>
+  <p>Discover breathtaking destinations and unforgettable experiences</p>
+</div>
+
+<!-- Stats Section -->
+<div class="stats-section">
+  <div class="stat-card">
+    <div class="stat-number">50+</div>
+    <div class="stat-label">Tour Packages</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">15+</div>
+    <div class="stat-label">Years Experience</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">10,000+</div>
+    <div class="stat-label">Happy Travelers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number"> excellent</div>
+    <div class="stat-label">Satisfaction Rate</div>
+  </div>
+</div>
+
+<!-- Category Pills -->
+<div class="category-pills">
+  <div class="category-pill active" data-category="all">
+    <i class="fas fa-globe"></i> All Tours
+  </div>
+  <div class="category-pill" data-category="safari">
+    <i class="fas fa-binoculars"></i> Safari
+  </div>
+  <div class="category-pill" data-category="adventure">
+    <i class="fas fa-mountain"></i> Adventure
+  </div>
+  <div class="category-pill" data-category="cultural">
+    <i class="fas fa-landmark"></i> Cultural
+  </div>
+  <div class="category-pill" data-category="beach">
+    <i class="fas fa-umbrella-beach"></i> Beach
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filters">
+  <div class="filter-group">
+    <i class="fas fa-filter filter-icon"></i>
+    <select id="filter-category" onchange="filterTours()">
+      <option value="all">All Categories</option>
+      <option value="safari">Safari</option>
+      <option value="adventure">Adventure</option>
+      <option value="cultural">Cultural</option>
+      <option value="beach">Beach</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <i class="fas fa-search filter-icon"></i>
+    <input type="text" id="search-box" placeholder="Search tours..." onkeyup="filterTours()">
+  </div>
+
+  <div class="filter-group">
+    <i class="fas fa-sort filter-icon"></i>
+    <select id="sort-option" onchange="sortTours()">
+      <option value="default">Default</option>
+      <option value="price-low">Price: Low to High</option>
+      <option value="price-high">Price: High to Low</option>
+      <option value="duration">Duration</option>
+      <option value="rating">Rating</option>
+    </select>
+  </div>
+</div>
+
+<!-- Tours Container with Horizontal Scroll -->
+<div class="tours-container-wrapper">
+  <button class="scroll-button prev" onclick="scrollTours('prev')">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <button class="scroll-button next" onclick="scrollTours('next')">
+    <i class="fas fa-chevron-right"></i>
+  </button>
+
+  <div id="tours-container" class="tours-container">
+    {% for tour in tours %}
+    <div class="tour-card" data-category="{{ tour.category }}" data-title="{{ tour.title }}" data-price="{{ tour.price_per_person }}" data-duration="{{ tour.duration_days }}" data-rating="{{ tour.rating|default:4.5 }}">
+      <div class="tour-image-container">
+        {% if tour.get_image_src %}
+          <img src="{{ tour.get_image_src }}" alt="{{ tour.title }}" class="tour-image" id="tour-image-{{ tour.id }}">
+        {% else %}
+          <img src="{% static 'images/default-tour.jpg' %}" alt="{{ tour.title }}" class="tour-image" id="tour-image-{{ tour.id }}">
+        {% endif %}
+
+        {% if tour.is_featured %}
+        <div class="tour-badge featured">Featured</div>
+        {% elif tour.is_new %}
+        <div class="tour-badge new">New</div>
+        {% elif tour.has_discount %}
+        <div class="tour-badge discount">Sale</div>
+        {% else %}
+          {% if tour.price_per_person < 10000 %}
+          <div class="tour-badge budget">Budget Friendly</div>
+          {% elif tour.price_per_person < 25000 %}
+          <div class="tour-badge value">Best Value</div>
+          {% elif tour.price_per_person < 50000 %}
+          <div class="tour-badge premium">Premium</div>
+          {% else %}
+          <div class="tour-badge luxury">Luxury</div>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <div class="tour-content">
+        <div class="tour-category">{{ tour.category|title }}</div>
+        <h3 class="tour-title">{{ tour.title }}</h3>
+        <p class="tour-description">{{ tour.description|truncatewords:20 }}</p>
+
+        <div class="tour-highlights">
+          {% for highlight in tour.highlights|slice:":3" %}
+          <div class="tour-highlight">
+            <i class="fas fa-check"></i>
+            <span>{{ highlight }}</span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="tour-rating">
+          {% for i in "12345"|make_list %}
+            {% if i <= tour.rating|default:4.5 %}
+              <i class="fas fa-star"></i>
+            {% else %}
+              <i class="far fa-star"></i>
+            {% endif %}
+          {% endfor %}
+          <span>({{ tour.reviews|default:24 }} reviews)</span>
+        </div>
+
+        <div class="tour-meta">
+          <div class="tour-price">
+            {% if tour.has_discount %}
+            <span class="original-price">KES {{ tour.original_price|default:tour.price_per_person }}</span>
+            KES {{ tour.price_per_person }}
+            {% else %}
+            KES {{ tour.price_per_person }}
+            {% endif %}
+          </div>
+          <div class="tour-duration">
+            <i class="fas fa-clock"></i>
+            {{ tour.duration_days }} days
+          </div>
+        </div>
+
+        <div class="tour-booking">
+          <div class="tour-ref">
+            <strong>Booking Ref:</strong>
+            AIRTOURS{{ tour.id|stringformat:"04d" }}/{% now "Y" %}
+          </div>
+          <div class="tour-actions">
+            <button class="btn-wishlist" onclick="toggleWishlist(this, '{{ tour.id }}')" aria-label="Add to wishlist">
+              <i class="far fa-heart"></i>
+            </button>
+            <button class="btn-book" onclick="showTourImagePopup('{{ tour.id }}')" aria-label="Book {{ tour.title }}">
+              Book Now <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <i class="fas fa-map-marked-alt"></i>
+      <h3>No tours available</h3>
+      <p>Check back later for new safari adventures</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Newsletter Section -->
+<div class="newsletter-section">
+  <div class="newsletter-container">
+    <h2 class="newsletter-title">Subscribe to Our Newsletter</h2>
+    <p class="newsletter-description">Get the latest updates on new tours, special offers, and travel tips</p>
+    <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+      <input type="email" class="newsletter-input" placeholder="Your email address" required>
+      <button type="submit" class="newsletter-button">Subscribe</button>
+    </form>
+  </div>
+</div>
+
+<!-- Tour Image Popup -->
+<div id="tour-image-popup" class="tour-image-popup">
+  <span class="popup-close" onclick="closeTourImagePopup()">&times;</span>
+  <img id="popup-image" src="" alt="">
+</div>
+
+<script>
+// Initialize wishlist
+let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+// Check if tour is in wishlist
+document.addEventListener('DOMContentLoaded', function() {
+  wishlist.forEach(tourId => {
+    const wishlistButton = document.querySelector(`.btn-wishlist[onclick*="${tourId}"]`);
+    if (wishlistButton) {
+      wishlistButton.classList.add('active');
+      wishlistButton.innerHTML = '<i class="fas fa-heart"></i>';
+    }
+  });
+
+  // Initialize filters
+  filterTours();
+});
+
+// Toggle wishlist
+function toggleWishlist(button, tourId) {
+  const index = wishlist.indexOf(tourId);
+
+  if (index > -1) {
+    // Remove from wishlist
+    wishlist.splice(index, 1);
+    button.classList.remove('active');
+    button.innerHTML = '<i class="far fa-heart"></i>';
+    showToast('Removed from wishlist', 'info');
+  } else {
+    // Add to wishlist
+    wishlist.push(tourId);
+    button.classList.add('active');
+    button.innerHTML = '<i class="fas fa-heart"></i>';
+    showToast('Added to wishlist', 'success');
+  }
+
+  // Save to localStorage
+  localStorage.setItem('wishlist', JSON.stringify(wishlist));
+}
+
+// Category pills
+document.querySelectorAll('.category-pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    // Update active state
+    document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+
+    // Update filter dropdown and apply filter
+    const category = this.getAttribute('data-category');
+    document.getElementById('filter-category').value = category;
+    filterTours();
+  });
+});
+
+// Show tour image popup and redirect
+function showTourImagePopup(tourId) {
+  const tourImage = document.getElementById(`tour-image-${tourId}`);
+  const popup = document.getElementById('tour-image-popup');
+  const popupImage = document.getElementById('popup-image');
+
+  if (tourImage) {
+    popupImage.src = tourImage.src;
+    popupImage.alt = tourImage.alt;
+    popup.classList.add('active');
+
+    // Automatically redirect after a short delay
+    setTimeout(() => {
+      closeTourImagePopup();
+      window.location.href = `/payments/tour/${tourId}/`;
+    }, 800);
+  }
+}
+
+// Close tour image popup
+function closeTourImagePopup() {
+  const popup = document.getElementById('tour-image-popup');
+  popup.classList.remove('active');
+}
+
+// Scroll tours horizontally
+function scrollTours(direction) {
+  const container = document.getElementById('tours-container');
+  const scrollAmount = 320; // Approximate width of one card + gap
+
+  if (direction === 'prev') {
+    container.scrollLeft -= scrollAmount;
+  } else {
+    container.scrollLeft += scrollAmount;
+  }
+}
+
+// Filter tours
+function filterTours() {
+  const category = document.getElementById("filter-category").value.toLowerCase();
+  const search = document.getElementById("search-box").value.toLowerCase();
+  const tours = document.querySelectorAll(".tour-card");
+  const container = document.getElementById("tours-container");
+
+  let visibleCount = 0;
+  tours.forEach(tour => {
+    const tourCategory = tour.getAttribute("data-category").toLowerCase();
+    const tourTitle = tour.getAttribute("data-title").toLowerCase();
+    const matchesCategory = category === "all" || tourCategory === category;
+    const matchesSearch = tourTitle.includes(search);
+
+    if (matchesCategory && matchesSearch) {
+      tour.style.display = "flex";
+      visibleCount++;
+    } else {
+      tour.style.display = "none";
+    }
+  });
+
+  // Show empty state if no tours match
+  if (visibleCount === 0) {
+    if (!document.querySelector('.empty-state')) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-search"></i>
+          <h3>No tours match your search</h3>
+          <p>Try different filters or check back later</p>
+        </div>
+      `;
+    }
+  } else {
+    // Remove empty state if it exists
+    const emptyState = container.querySelector('.empty-state');
+    if (emptyState) {
+      emptyState.remove();
+    }
+  }
+}
+
+// Sort tours
+function sortTours() {
+  const sortOption = document.getElementById("sort-option").value;
+  const container = document.getElementById("tours-container");
+  const tours = Array.from(container.querySelectorAll(".tour-card"));
+
+  tours.sort((a, b) => {
+    switch(sortOption) {
+      case "price-low":
+        return parseFloat(a.getAttribute("data-price")) - parseFloat(b.getAttribute("data-price"));
+      case "price-high":
+        return parseFloat(b.getAttribute("data-price")) - parseFloat(a.getAttribute("data-price"));
+      case "duration":
+        return parseInt(b.getAttribute("data-duration")) - parseInt(a.getAttribute("data-duration"));
+      case "rating":
+        return parseFloat(b.getAttribute("data-rating")) - parseFloat(b.getAttribute("data-rating"));
+      default:
+        return 0;
+    }
+  });
+
+  // Re-append sorted tours
+  tours.forEach(tour => container.appendChild(tour));
+}
+
+// Newsletter subscription
+function subscribeNewsletter(event) {
+  event.preventDefault();
+  const email = event.target.querySelector('.newsletter-input').value;
+
+  // In a real application, you would send this to your server
+  showToast('Thank you for subscribing!', 'success');
+  event.target.reset();
+}
+
+// Toast notification
+function showToast(message, type = 'info') {
+  // Create toast element
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+
+  // Add styles
+  toast.style.position = 'fixed';
+  toast.style.bottom = '20px';
+  toast.style.right = '20px';
+  toast.style.background = type === 'success' ? 'var(--safari-green)' : 'var(--safari-blue)';
+  toast.style.color = 'white';
+  toast.style.padding = '12px 20px';
+  toast.style.borderRadius = '8px';
+  toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  toast.style.zIndex = '1000';
+  toast.style.opacity = '0';
+  toast.style.transform = 'translateY(20px)';
+  toast.style.transition = 'all 0.003s ease';
+
+  // Add to DOM
+  document.body.appendChild(toast);
+
+  // Animate in
+  setTimeout(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  }, 10);
+
+  // Remove after 3 seconds
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 300);
+  }, 3000);
+}
+</script>
+{% endblock %}

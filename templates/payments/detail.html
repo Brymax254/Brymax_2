@@ -1,0 +1,20 @@
+<!-- templates/payments/detail.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Payment Details</h2>
+    <div class="card p-3">
+        <p><strong>Reference:</strong> {{ payment.reference }}</p>
+        <p><strong>Amount:</strong> KES {{ payment.amount }}</p>
+        <p><strong>Status:</strong> {{ payment.status }}</p>
+        <p><strong>Method:</strong> {{ payment.method }}</p>
+        <p><strong>Date:</strong> {{ payment.created_at|date:"M d, Y H:i" }}</p>
+        <p><strong>Booking:</strong> {{ payment.booking }}</p>
+    </div>
+
+    <div class="mt-3">
+        <a href="{% url 'payment_invoice' payment.id %}" class="btn btn-success">Download Invoice</a>
+        <a href="{% url 'payment_list' %}" class="btn btn-secondary">Back to History</a>
+    </div>
+</div>
+{% endblock %}

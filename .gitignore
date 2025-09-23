@@ -1,0 +1,37 @@
+# ======================
+# Python / Django
+# ======================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local database (never push)
+*.sqlite3
+db.sqlite3
+
+# Media & static (generated files)
+media/
+staticfiles/
+
+# ======================
+# Environments
+# ======================
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# ======================
+# IDE / Editor settings
+# ======================
+.vscode/
+.idea/
+
+# ======================
+# OS generated files
+# ======================
+.DS_Store
+Thumbs.db
+django_errors.log

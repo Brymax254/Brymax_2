@@ -1,0 +1,2294 @@
+{% load static humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token }}" />
+  <meta name="theme-color" content="#2d5016" />
+  <title>Secure Payment - SafariAdventures</title>
+
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 6.4.0 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts: Poppins & Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+--primary: #2d5016; /* Forest Green */
+--primary-dark: #1a3009;
+--secondary: #8b4513; /* Earth Brown */
+--accent: #d4af37; /* Safari Gold */
+--light: #f5f1e6; /* Safari Cream */
+--dark: #333333;
+--gray: #666666;
+--success: #4caf50;
+--danger: #f44336;
+--warning: #ff9800;
+--safari-green: #166534;
+--safari-accent: #84cc16;
+--grass-green: #16a34a;
+--earth-brown: #92400e;
+--safari-gold: #c6a350;
+--safari-dark: #2b2a28;
+--safari-light: #f8f7f3;
+--safari-cream: #f5f1e6;
+--safari-brown: #795548;
+--safari-orange: #e65100;
+--safari-blue: #1976d2;
+--safari-red: #d32f2f;
+--safari-purple: #7b1fa2;
+}
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: 'Roboto', sans-serif;
+background-color: var(--light);
+color: var(--dark);
+line-height: 1.6;
+min-height: 100vh;
+position: relative;
+overflow-x: hidden;
+}
+
+/* Safari-inspired background */
+.safari-bg {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(rgba(245, 241, 230, 0.9), rgba(245, 241, 230, 0.9)),
+url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232d5016' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+background-size: 200px 200px;
+z-index: -1;
+}
+
+/* Safari leaf decorations */
+.safari-leaf {
+position: absolute;
+width: 80px;
+height: 80px;
+background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232d5016' fill-opacity='0.1'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+background-size: contain;
+z-index: -1;
+animation: float 8s ease-in-out infinite;
+}
+
+.leaf-1 {
+top: 10%;
+left: 5%;
+animation-delay: 0s;
+transform: rotate(15deg);
+}
+
+.leaf-2 {
+top: 20%;
+right: 8%;
+animation-delay: 1s;
+transform: scale(0.8) rotate(-10deg);
+}
+
+.leaf-3 {
+bottom: 30%;
+left: 7%;
+animation-delay: 2s;
+transform: scale(1.2) rotate(5deg);
+}
+
+@keyframes float {
+0% { transform: translateY(0) rotate(0); }
+50% { transform: translateY(-15px) rotate(5deg); }
+100% { transform: translateY(0) rotate(0); }
+}
+
+/* Modern navbar styles */
+.navbar {
+background: rgba(245, 241, 230, 0.95);
+backdrop-filter: blur(10px);
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+position: sticky;
+top: 0;
+z-index: 1000;
+transition: all 0.3s ease;
+border-bottom: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.navbar-brand {
+font-family: 'Poppins', sans-serif;
+font-weight: 700;
+font-size: 1.8rem;
+color: var(--primary);
+display: flex;
+align-items: center;
+}
+
+.navbar-brand i {
+color: var(--accent);
+margin-right: 0.5rem;
+}
+
+.navbar-brand span {
+color: var(--secondary);
+}
+
+.nav-link {
+color: var(--gray);
+font-weight: 500;
+margin: 0 0.5rem;
+transition: all 0.3s ease;
+position: relative;
+}
+
+.nav-link:hover {
+color: var(--primary);
+}
+
+.nav-link::after {
+content: '';
+position: absolute;
+bottom: -5px;
+left: 0;
+width: 0;
+height: 2px;
+background: var(--primary);
+transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+width: 100%;
+}
+
+/* Modern card styles */
+.card {
+background: white;
+border-radius: 16px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+overflow: hidden;
+transition: all 0.3s ease;
+border: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.card:hover {
+box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
+transform: translateY(-2px);
+}
+
+/* Button styles */
+.btn {
+padding: 12px 24px;
+border-radius: 10px;
+font-weight: 600;
+transition: all 0.3s ease;
+border: none;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+font-size: 16px;
+position: relative;
+overflow: hidden;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+color: white;
+box-shadow: 0 4px 10px rgba(45, 80, 22, 0.25);
+}
+
+.btn-primary::before {
+content: "";
+position: absolute;
+top: 0;
+left: -100%;
+width: 100%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+left: 100%;
+}
+
+.btn-primary:hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 15px rgba(45, 80, 22, 0.35);
+}
+
+.btn-primary:disabled {
+opacity: 0.7;
+cursor: not-allowed;
+transform: none;
+}
+
+/* Paystack-specific button */
+.paystack-button {
+background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+color: white;
+font-weight: 600;
+padding: 16px 24px;
+border-radius: 12px;
+transition: all 0.3s ease;
+border: none;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 12px;
+font-size: 18px;
+box-shadow: 0 4px 15px rgba(45, 80, 22, 0.3);
+position: relative;
+overflow: hidden;
+width: 100%;
+}
+
+.paystack-button::before {
+content: "";
+position: absolute;
+top: 0;
+left: -100%;
+width: 100%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+transition: left 0.5s;
+}
+
+.paystack-button:hover::before {
+left: 100%;
+}
+
+.paystack-button:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 25px rgba(45, 80, 22, 0.4);
+}
+
+.paystack-button:disabled {
+opacity: 0.7;
+cursor: not-allowed;
+transform: none;
+}
+
+/* Form input styles */
+.input-field {
+width: 100%;
+padding: 14px 16px;
+border: 2px solid #e0e0e0;
+border-radius: 10px;
+font-size: 16px;
+transition: all 0.3s ease;
+background: white;
+}
+
+.input-field:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.15);
+}
+
+/* Section title */
+.section-title {
+font-size: 1.8rem;
+font-weight: 700;
+color: var(--primary);
+margin-bottom: 1.25rem;
+display: flex;
+align-items: center;
+gap: 10px;
+font-family: 'Poppins', sans-serif;
+}
+
+.section-title i {
+color: var(--accent);
+font-size: 1.5rem;
+}
+
+/* Payment container */
+.payment-container {
+background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e9 100%);
+border-radius: 16px;
+padding: 1.5rem;
+position: relative;
+overflow: hidden;
+border: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+/* Order summary */
+.order-summary {
+background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e9 100%);
+border-radius: 16px;
+padding: 1.5rem;
+margin-bottom: 1.5rem;
+border: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.order-line {
+display: flex;
+justify-content: space-between;
+padding: 0.5rem 0;
+}
+
+.order-line .label {
+color: var(--gray);
+font-weight: 500;
+}
+
+.order-line .value {
+font-weight: 600;
+color: var(--dark);
+}
+
+.order-total {
+border-top: 1px solid rgba(45, 80, 22, 0.2);
+padding-top: 1rem;
+margin-top: 1rem;
+}
+
+.order-total .value {
+color: var(--primary);
+font-size: 1.5rem;
+font-weight: 700;
+}
+
+/* Security badge */
+.security-badge {
+display: flex;
+align-items: center;
+gap: 8px;
+background: rgba(45, 80, 22, 0.1);
+padding: 8px 16px;
+border-radius: 24px;
+font-size: 0.875rem;
+color: var(--primary);
+backdrop-filter: blur(10px);
+}
+
+.security-badge i {
+color: var(--primary);
+}
+
+/* Payment status */
+.payment-status {
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 12px;
+border-radius: 8px;
+margin-bottom: 1rem;
+font-weight: 500;
+}
+
+.payment-status.success {
+background-color: rgba(76, 175, 80, 0.1);
+color: var(--success);
+border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.payment-status.error {
+background-color: rgba(244, 67, 54, 0.1);
+color: var(--danger);
+border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.payment-status.processing {
+background-color: rgba(255, 152, 0, 0.1);
+color: var(--warning);
+border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+/* Progress bar */
+.progress-bar {
+height: 6px;
+background-color: #e0e0e0;
+border-radius: 3px;
+overflow: hidden;
+margin-top: 1rem;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--primary), var(--safari-green));
+border-radius: 3px;
+width: 0%;
+transition: width 0.3s ease;
+}
+
+/* Payment processing overlay */
+.payment-processing {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(255, 255, 255, 0.95);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+backdrop-filter: blur(5px);
+}
+
+.processing-content {
+text-align: center;
+max-width: 500px;
+padding: 1.5rem;
+}
+
+.processing-spinner {
+width: 60px;
+height: 60px;
+border: 6px solid #f0f0f0;
+border-top: 6px solid var(--primary);
+border-radius: 50%;
+animation: spin 1s linear infinite;
+margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+/* Toast notification */
+.toast-notification {
+position: fixed;
+bottom: 20px;
+right: 20px;
+padding: 12px 20px;
+background: white;
+border-radius: 10px;
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+display: flex;
+align-items: center;
+gap: 10px;
+z-index: 1000;
+transform: translateY(100px);
+opacity: 0;
+transition: all 0.3s ease;
+border-left: 4px solid var(--primary);
+max-width: 350px;
+}
+
+.toast-notification.show {
+transform: translateY(0);
+opacity: 1;
+}
+
+.toast-notification.success {
+border-left-color: var(--success);
+}
+
+.toast-notification.error {
+border-left-color: var(--danger);
+}
+
+.toast-icon {
+font-size: 20px;
+}
+
+.toast-notification.success .toast-icon {
+color: var(--success);
+}
+
+.toast-notification.error .toast-icon {
+color: var(--danger);
+}
+
+/* Promo code section */
+.promo-code-section {
+margin-bottom: 1.5rem;
+}
+
+.promo-code-input-group {
+display: flex;
+gap: 0.5rem;
+}
+
+.promo-code-input {
+flex: 1;
+padding: 12px 16px;
+border: 2px solid #e0e0e0;
+border-radius: 10px 0 0 10px;
+font-size: 16px;
+transition: all 0.3s ease;
+background: white;
+}
+
+.promo-code-input:focus {
+outline: none;
+border-color: var(--primary);
+}
+
+.promo-code-btn {
+padding: 12px 20px;
+background: var(--primary);
+color: white;
+border: none;
+border-radius: 0 10px 10px 0;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.promo-code-btn:hover {
+background: var(--primary-dark);
+}
+
+/* Security features */
+.security-features {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 1rem;
+margin-bottom: 1.5rem;
+}
+
+.security-feature {
+display: flex;
+align-items: center;
+padding: 0.75rem;
+background: white;
+border-radius: 10px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+border: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.security-icon {
+width: 36px;
+height: 36px;
+border-radius: 8px;
+background: rgba(45, 80, 22, 0.1);
+color: var(--primary);
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 0.75rem;
+}
+
+.security-info {
+display: flex;
+flex-direction: column;
+}
+
+.security-title {
+font-weight: 600;
+font-size: 0.875rem;
+color: var(--dark);
+}
+
+.security-desc {
+font-size: 0.75rem;
+color: var(--gray);
+}
+
+/* Countdown */
+.countdown {
+background: rgba(45, 80, 22, 0.1);
+padding: 8px 16px;
+border-radius: 24px;
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 8px;
+backdrop-filter: blur(10px);
+position: relative;
+overflow: hidden;
+color: var(--primary);
+}
+
+.countdown::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(45, 80, 22, 0.1), transparent);
+animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+0% { transform: translateX(-100%); }
+100% { transform: translateX(100%); }
+}
+
+/* Tour cards */
+.tour-card {
+background: white;
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+transition: all 0.3s ease;
+height: 100%;
+display: flex;
+flex-direction: column;
+position: relative;
+border: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.tour-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 25px rgba(45, 80, 22, 0.1);
+}
+
+.tour-image-container {
+position: relative;
+height: 180px;
+overflow: hidden;
+}
+
+.tour-image {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: transform 0.5s ease;
+}
+
+.tour-card:hover .tour-image {
+transform: scale(1.05);
+}
+
+.tour-badge {
+position: absolute;
+top: 15px;
+right: 15px;
+background: var(--primary);
+color: white;
+padding: 5px 12px;
+border-radius: 20px;
+font-size: 0.8rem;
+font-weight: 600;
+box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+z-index: 2;
+}
+
+.tour-badge.featured {
+background: var(--accent);
+}
+
+.tour-badge.new {
+background: var(--safari-green);
+}
+
+.tour-badge.discount {
+background: var(--safari-red);
+}
+
+.tour-content {
+padding: 1.25rem;
+flex-grow: 1;
+display: flex;
+flex-direction: column;
+}
+
+.tour-category {
+color: var(--primary);
+font-size: 0.85rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 8px;
+}
+
+.tour-title {
+font-size: 1.125rem;
+font-weight: 700;
+color: var(--dark);
+margin-bottom: 0.5rem;
+line-height: 1.3;
+font-family: 'Poppins', sans-serif;
+}
+
+.tour-description {
+color: var(--gray);
+margin-bottom: 1rem;
+line-height: 1.6;
+flex-grow: 1;
+}
+
+.tour-highlights {
+margin-bottom: 1rem;
+}
+
+.tour-highlight {
+display: flex;
+align-items: center;
+margin-bottom: 8px;
+font-size: 0.9rem;
+color: var(--gray);
+}
+
+.tour-highlight i {
+color: var(--primary);
+margin-right: 8px;
+font-size: 0.8rem;
+}
+
+.tour-meta {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 1rem;
+}
+
+.tour-price {
+color: var(--primary);
+font-weight: 700;
+font-size: 1.125rem;
+}
+
+.tour-price .original-price {
+text-decoration: line-through;
+color: var(--gray);
+font-size: 1rem;
+margin-right: 5px;
+}
+
+.tour-duration {
+display: flex;
+align-items: center;
+color: var(--gray);
+font-size: 0.9rem;
+}
+
+.tour-duration i {
+margin-right: 5px;
+color: var(--primary);
+}
+
+.tour-rating {
+display: flex;
+align-items: center;
+margin-bottom: 1rem;
+}
+
+.tour-rating i {
+color: var(--accent);
+font-size: 0.9rem;
+}
+
+.tour-rating span {
+margin-left: 5px;
+font-size: 0.9rem;
+color: var(--gray);
+}
+
+.tour-actions {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: auto;
+}
+
+.tour-ref {
+font-size: 0.85rem;
+color: var(--gray);
+}
+
+.btn-wishlist {
+background: transparent;
+border: 1px solid #e0e0e0;
+color: var(--primary);
+width: 40px;
+height: 40px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.btn-wishlist:hover {
+background: rgba(45, 80, 22, 0.1);
+border-color: var(--primary);
+}
+
+.btn-wishlist.active {
+background: var(--safari-red);
+border-color: var(--safari-red);
+color: white;
+}
+
+/* Category Pills */
+.category-pills {
+display: flex;
+justify-content: center;
+gap: 10px;
+margin: 20px auto;
+flex-wrap: wrap;
+padding: 0 20px;
+max-width: 1000px;
+}
+
+.category-pill {
+background: white;
+color: var(--primary);
+border: 1px solid rgba(45, 80, 22, 0.2);
+border-radius: 50px;
+padding: 8px 16px;
+font-size: 0.9rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+gap: 5px;
+}
+
+.category-pill:hover {
+background: rgba(45, 80, 22, 0.05);
+border-color: var(--primary);
+}
+
+.category-pill.active {
+background: var(--primary);
+color: white;
+border-color: var(--primary);
+}
+
+.category-pill i {
+font-size: 0.8rem;
+}
+
+/* Stats Section */
+.stats-section {
+display: flex;
+justify-content: center;
+gap: 15px;
+margin: 20px auto;
+max-width: 1000px;
+padding: 0 15px;
+flex-wrap: wrap;
+}
+
+.stat-card {
+background: white;
+border-radius: 12px;
+padding: 15px;
+text-align: center;
+box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+min-width: 150px;
+flex: 1;
+border: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.stat-number {
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--primary);
+margin-bottom: 5px;
+font-family: 'Poppins', sans-serif;
+}
+
+.stat-label {
+color: var(--primary);
+font-size: 0.8rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+/* Modern form steps */
+.form-steps {
+display: flex;
+justify-content: space-between;
+margin-bottom: 2rem;
+position: relative;
+}
+
+.form-steps::before {
+content: "";
+position: absolute;
+top: 20px;
+left: 0;
+right: 0;
+height: 2px;
+background-color: #e0e0e0;
+z-index: 1;
+}
+
+.form-step {
+position: relative;
+z-index: 2;
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 100px;
+}
+
+.step-circle {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background-color: #e0e0e0;
+color: #999;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 600;
+margin-bottom: 0.5rem;
+transition: all 0.3s ease;
+}
+
+.form-step.active .step-circle {
+background-color: var(--primary);
+color: white;
+}
+
+.form-step.completed .step-circle {
+background-color: var(--success);
+color: white;
+}
+
+.step-label {
+font-size: 0.875rem;
+color: #999;
+text-align: center;
+}
+
+.form-step.active .step-label {
+color: var(--dark);
+font-weight: 600;
+}
+
+/* Tour details card */
+.tour-details-card {
+background: white;
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+border: 1px solid rgba(45, 80, 22, 0.1);
+margin-bottom: 1.5rem;
+}
+
+.tour-details-header {
+background: linear-gradient(135deg, var(--primary) 0%, var(--safari-green) 100%);
+padding: 1.5rem;
+color: white;
+}
+
+.tour-details-title {
+font-size: 1.25rem;
+font-weight: 700;
+margin-bottom: 0.5rem;
+font-family: 'Poppins', sans-serif;
+}
+
+.tour-details-subtitle {
+font-size: 0.9rem;
+opacity: 0.9;
+}
+
+.tour-details-content {
+padding: 1.5rem;
+}
+
+.tour-details-item {
+display: flex;
+justify-content: space-between;
+padding: 0.75rem 0;
+border-bottom: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.tour-details-item:last-child {
+border-bottom: none;
+}
+
+.tour-details-label {
+color: var(--gray);
+font-weight: 500;
+}
+
+.tour-details-value {
+font-weight: 600;
+color: var(--dark);
+}
+
+/* Support card */
+.support-card {
+background: white;
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+border: 1px solid rgba(45, 80, 22, 0.1);
+margin-bottom: 1.5rem;
+}
+
+.support-header {
+background: linear-gradient(135deg, var(--secondary) 0%, var(--earth-brown) 100%);
+padding: 1.5rem;
+color: white;
+}
+
+.support-title {
+font-size: 1.25rem;
+font-weight: 700;
+margin-bottom: 0.5rem;
+font-family: 'Poppins', sans-serif;
+}
+
+.support-content {
+padding: 1.5rem;
+}
+
+.support-item {
+display: flex;
+align-items: center;
+padding: 0.75rem;
+border-radius: 8px;
+margin-bottom: 0.75rem;
+transition: all 0.3s ease;
+}
+
+.support-item:hover {
+background: rgba(45, 80, 22, 0.05);
+}
+
+.support-icon {
+width: 40px;
+height: 40px;
+border-radius: 8px;
+background: rgba(139, 69, 19, 0.1);
+color: var(--secondary);
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 1rem;
+}
+
+.support-text {
+color: var(--dark);
+font-weight: 500;
+}
+
+/* Security card */
+.security-card {
+background: white;
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+border: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.security-header {
+background: linear-gradient(135deg, var(--safari-blue) 0%, var(--safari-purple) 100%);
+padding: 1.5rem;
+color: white;
+}
+
+.security-title {
+font-size: 1.25rem;
+font-weight: 700;
+margin-bottom: 0.5rem;
+font-family: 'Poppins', sans-serif;
+}
+
+.security-content {
+padding: 1.5rem;
+}
+
+.security-item {
+display: flex;
+align-items: center;
+padding: 0.75rem;
+border-radius: 8px;
+margin-bottom: 0.75rem;
+transition: all 0.3s ease;
+}
+
+.security-item:hover {
+background: rgba(45, 80, 22, 0.05);
+}
+
+.security-item-icon {
+width: 40px;
+height: 40px;
+border-radius: 8px;
+background: rgba(25, 118, 210, 0.1);
+color: var(--safari-blue);
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 1rem;
+}
+
+.security-item-content {
+flex: 1;
+}
+
+.security-item-title {
+font-weight: 600;
+color: var(--dark);
+margin-bottom: 0.25rem;
+}
+
+.security-item-desc {
+font-size: 0.875rem;
+color: var(--gray);
+}
+
+/* Footer */
+footer {
+background: var(--primary);
+color: white;
+border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+.security-features {
+grid-template-columns: 1fr;
+}
+
+.stats-section {
+flex-direction: column;
+align-items: center;
+}
+
+.stat-card {
+width: 100%;
+max-width: 300px;
+}
+
+.category-pills {
+justify-content: flex-start;
+overflow-x: auto;
+padding-bottom: 10px;
+}
+
+.form-steps {
+justify-content: space-around;
+}
+}
+  </style>
+</head>
+<body>
+  <!-- Safari-inspired Background -->
+  <div class="safari-bg"></div>
+  <div class="safari-leaf leaf-1"></div>
+  <div class="safari-leaf leaf-2"></div>
+  <div class="safari-leaf leaf-3"></div>
+
+  <!-- Modern Navbar -->
+  <nav class="navbar py-4 px-4 md:px-8">
+    <div class="container mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="navbar-brand mb-4 md:mb-0">
+          <i class="fas fa-mountain"></i>
+          Safari<span>Adventures</span>
+        </div>
+
+        <div class="flex flex-col md:flex-row items-center gap-4">
+          <div class="hidden md:flex space-x-6">
+            <a href="{% url 'bookings:home' %}" class="nav-link">Home</a>
+            <a href="{% url 'bookings:tours' %}" class="nav-link">Tours</a>
+            <a href="{% url 'bookings:about' %}" class="nav-link">About</a>
+            <a href="{% url 'bookings:contact' %}" class="nav-link">Contact</a>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="countdown">
+              <i class="fas fa-clock"></i>
+              <span id="countdown-timer">15:00</span>
+            </div>
+            <div class="security-badge">
+              <i class="fas fa-lock"></i>
+              <span>Secure Payment</span>
+            </div>
+            <button class="md:hidden text-gray-600" id="mobile-menu-button">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div class="hidden mt-4 pb-4 border-t border-gray-200" id="mobile-menu">
+        <div class="flex flex-col space-y-3 mt-3">
+          <a href="{% url 'bookings:home' %}" class="nav-link">Home</a>
+          <a href="{% url 'bookings:tours' %}" class="nav-link">Tours</a>
+          <a href="{% url 'bookings:about' %}" class="nav-link">About</a>
+          <a href="{% url 'bookings:contact' %}" class="nav-link">Contact</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="py-12 px-4 md:px-8">
+    <div class="container mx-auto max-w-6xl text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4" style="font-family: 'Poppins', sans-serif; color: var(--primary);">
+        Complete Your <span style="color: var(--secondary);">Safari Adventure</span> Booking
+      </h1>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-number">50+</div>
+      <div class="stat-label">Tour Packages</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">15+</div>
+      <div class="stat-label">Years Experience</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">10,000+</div>
+      <div class="stat-label">Happy Travelers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">excellent</div>
+      <div class="stat-label">Satisfaction Rate</div>
+    </div>
+  </div>
+
+  <!-- Category Pills -->
+  <div class="category-pills">
+    <div class="category-pill active" data-category="all">
+      <i class="fas fa-globe"></i> All Tours
+    </div>
+    <div class="category-pill" data-category="safari">
+      <i class="fas fa-binoculars"></i> Safari
+    </div>
+    <div class="category-pill" data-category="adventure">
+      <i class="fas fa-mountain"></i> Adventure
+    </div>
+    <div class="category-pill" data-category="cultural">
+      <i class="fas fa-landmark"></i> Cultural
+    </div>
+    <div class="category-pill" data-category="beach">
+      <i class="fas fa-umbrella-beach"></i> Beach
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-6 max-w-6xl">
+    <!-- Form Steps Progress -->
+    <div class="form-steps mb-10">
+      <div class="form-step active" id="step-1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Traveler Info</div>
+      </div>
+      <div class="form-step" id="step-2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Payment</div>
+      </div>
+      <div class="form-step" id="step-3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Confirmation</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column: Payment Form -->
+      <div class="lg:col-span-2">
+        <!-- Guest Information -->
+        <div id="guest-form" class="card mb-8 p-6 md:p-8">
+          <h2 class="section-title">
+            <i class="fas fa-user-circle"></i>
+            Traveler Information
+          </h2>
+          <p class="text-gray-600 mb-6">Please provide your details to complete the booking</p>
+
+          <form id="guest-info-form" method="POST" action="{% url 'bookings:tour_payment' tour.id %}">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
+                <input type="text" id="full-name" name="full_name" required
+                  class="input-field" placeholder="John Doe" />
+                <span class="text-red-500 text-sm hidden" id="name-error">Please enter your full name</span>
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Email Address *</label>
+                <input type="email" id="guest-email" name="email" required
+                  class="input-field" placeholder="john@example.com" />
+                <span class="text-red-500 text-sm hidden" id="email-error">Please enter a valid email</span>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
+              <div class="flex">
+                <select id="country-code" name="country_code" class="input-field w-1/3 rounded-r-none">
+                  <option value="+254">+254 (KE)</option>
+                  <option value="+255">+255 (TZ)</option>
+                  <option value="+256">+256 (UG)</option>
+                </select>
+                <input type="tel" id="phone" name="phone" required
+                  class="input-field flex-1 rounded-l-none" placeholder="712 345 678" />
+              </div>
+              <span class="text-red-500 text-sm hidden" id="phone-error">Please enter a valid phone number</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Adults *</label>
+                <input type="number" id="adults" name="adults" min="1" required
+                  class="input-field" value="1" />
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Children</label>
+                <input type="number" id="children" name="children" min="0"
+                  class="input-field" value="0" />
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Days *</label>
+                <input type="number" id="days" name="days" min="1"
+                  class="input-field" value="{{ tour.duration_days }}" />
+              </div>
+            </div>
+
+            <div class="mb-8">
+              <label class="block text-gray-700 font-medium mb-2">Travel Date *</label>
+              <input type="date" id="travel-date" name="travel_date" required
+                min="{{ today|date:'Y-m-d' }}" class="input-field" />
+              <span class="text-red-500 text-sm hidden" id="date-error">Please select a future date</span>
+            </div>
+
+            <button type="submit" id="continue-btn" class="btn-primary w-full">
+              <span>Continue to Payment</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Payment Section -->
+        <div id="payment-section" class="card p-6 md:p-8 hidden">
+          <h2 class="section-title">
+            <i class="fas fa-credit-card"></i>
+            Complete Your Payment
+          </h2>
+
+          <!-- Modern Guest Summary -->
+          <div class="order-summary mb-8">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+              <i class="fas fa-receipt mr-3 text-green-600"></i> Booking Summary
+            </h3>
+
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-green-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Traveler</p>
+                    <p class="font-medium text-gray-800" id="summary-name">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-envelope text-green-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Email</p>
+                    <p class="font-medium text-gray-800" id="summary-email">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-phone text-green-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Phone</p>
+                    <p class="font-medium text-gray-800" id="summary-phone">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-calendar text-green-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Travel Date</p>
+                    <p class="font-medium text-gray-800" id="summary-date">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-users text-green-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Travelers</p>
+                    <p class="font-medium text-gray-800" id="summary-travelers">-</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center">
+                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-clock text-green-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Duration</p>
+                    <p class="font-medium text-gray-800" id="summary-days">-</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-200 pt-6 mt-6">
+                <div class="flex justify-between items-center mb-3">
+                  <span class="text-gray-600">Adult Cost</span>
+                  <span class="font-medium" id="summary-adults-cost">-</span>
+                </div>
+                <div class="flex justify-between items-center mb-3">
+                  <span class="text-gray-600">Children Cost</span>
+                  <span class="font-medium" id="summary-children-cost">-</span>
+                </div>
+                <div id="discount-row" class="flex justify-between items-center mb-3 hidden">
+                  <span class="text-gray-600">Discount</span>
+                  <span class="font-medium text-green-600" id="discount-amount">-</span>
+                </div>
+                <div class="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
+                  <span class="text-lg font-bold text-gray-800">Total Amount</span>
+                  <span class="text-xl font-bold text-green-600" id="summary-total">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Promo Code Section -->
+          <div class="promo-code-section mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Promo Code</h3>
+            <div class="promo-code-input-group">
+              <input type="text" id="promo-code" class="promo-code-input" placeholder="Enter promo code">
+              <button type="button" id="apply-promo" class="promo-code-btn">Apply</button>
+            </div>
+            <div id="promo-message" class="mt-2 text-sm hidden"></div>
+          </div>
+
+          <!-- Payment Method Details -->
+          <div class="mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Payment Method</h3>
+            <div class="payment-method-card active">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center mr-4">
+                    <i class="fas fa-credit-card text-green-600 text-2xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-800 text-lg">Paystack</h4>
+                    <p class="text-sm text-gray-600">Secure online payment</p>
+                  </div>
+                </div>
+                <div class="flex space-x-3">
+                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-visa text-gray-700 text-xl"></i>
+                  </div>
+                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-mastercard text-gray-700 text-xl"></i>
+                  </div>
+                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-amex text-gray-700 text-xl"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paystack Payment Container -->
+          <div class="payment-container mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Enter Payment Details</h3>
+
+            <!-- Payment Status -->
+            <div class="payment-status processing" id="payment-status">
+              <i class="fas fa-spinner fa-spin mr-2"></i>
+              <span>Preparing secure payment...</span>
+            </div>
+
+            <div id="paystack-container">
+              <!-- Loading state -->
+              <div id="paystack-loading" class="flex flex-col items-center justify-center h-64">
+                <div class="processing-spinner mb-4"></div>
+                <p class="text-gray-600 font-medium">Initializing secure payment...</p>
+                <p class="text-gray-500 text-sm mt-2">Please wait while we connect to Paystack</p>
+                <div class="progress-bar w-full max-w-md mt-4">
+                  <div class="progress-fill" id="progress-fill"></div>
+                </div>
+              </div>
+
+              <!-- Paystack Payment Button (hidden initially) -->
+              <div id="paystack-button-container" class="hidden">
+                <button id="paystack-payment-button" class="paystack-button">
+                  <i class="fas fa-lock"></i>
+                  <span>Pay Securely with Paystack</span>
+                  <span id="paystack-amount" class="font-bold"></span>
+                </button>
+              </div>
+
+              <!-- Error state (hidden initially) -->
+              <div id="paystack-error" class="hidden p-8 bg-red-50 rounded-xl text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-red-800 mb-2">Payment Error</h3>
+                <p class="text-red-600 mb-4">We couldn't initialize the payment. Please try again.</p>
+                <button id="retry-payment" class="btn-primary">
+                  <span>Try Again</span>
+                  <i class="fas fa-redo"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security Features -->
+          <div class="security-features mb-8">
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">SSL Encryption</div>
+                <div class="security-desc">256-bit security</div>
+              </div>
+            </div>
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-lock"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">Data Protection</div>
+                <div class="security-desc">PCI DSS compliant</div>
+              </div>
+            </div>
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-user-shield"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">Privacy</div>
+                <div class="security-desc">Your data is safe</div>
+              </div>
+            </div>
+            <div class="security-feature">
+              <div class="security-icon">
+                <i class="fas fa-money-check-alt"></i>
+              </div>
+              <div class="security-info">
+                <div class="security-title">Refund Policy</div>
+                <div class="security-desc">30-day guarantee</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Tour Details -->
+      <div class="lg:col-span-1">
+        <!-- Tour Details Card -->
+        <div class="tour-details-card">
+          <div class="tour-details-header">
+            <h3 class="tour-details-title">Tour Details</h3>
+            <p class="tour-details-subtitle">The Ark Lodge</p>
+          </div>
+          <div class="tour-details-content">
+            <p class="text-gray-600 mb-4">
+              Set in the heart of the Aberdare National Park, iconic and yes, quirky. The Ark overlooks a floodlit waterhole and salt lick, which attracts a host of wildlife.
+            </p>
+            <div class="tour-details-item">
+              <span class="tour-details-label">Duration:</span>
+              <span class="tour-details-value">1 days</span>
+            </div>
+            <div class="tour-details-item">
+              <span class="tour-details-label">Price per person:</span>
+              <span class="tour-details-value">KES 20,000.00</span>
+            </div>
+            <div class="tour-details-item">
+              <span class="tour-details-label">Category:</span>
+              <span class="tour-details-value">Wildlife</span>
+            </div>
+            <div class="tour-details-item">
+              <span class="tour-details-label">Booking Ref:</span>
+              <span class="tour-details-value">AIRTOURS0008/2025</span>
+            </div>
+            <div class="mt-4">
+              <h4 class="font-semibold text-gray-800 mb-2">What's Included</h4>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                  <span>Accommodation at The Ark Lodge</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                  <span>All meals during the stay</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                  <span>Game drives with experienced guides</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                  <span>Park entrance fees</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+    <!-- Other Tours Section -->
+    <div class="mt-12">
+      <h2 class="section-title">
+        <i class="fas fa-map-marked-alt"></i>
+        Other Popular Tours
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for other_tour in other_tours %}
+        <!-- Tour Card -->
+        <div class="tour-card">
+          <div class="relative">
+            {% if other_tour.get_image_src %}
+              <img src="{{ other_tour.get_image_src }}" alt="{{ other_tour.title }}" class="tour-image">
+            {% else %}
+              <img src="{% static 'images/default-tour.jpg' %}" alt="{{ other_tour.title }}" class="tour-image">
+            {% endif %}
+
+            {% if other_tour.is_featured %}
+            <span class="tour-badge featured">Featured</span>
+            {% elif other_tour.is_new %}
+            <span class="tour-badge new">New</span>
+            {% elif other_tour.has_discount %}
+            <span class="tour-badge discount">Sale</span>
+            {% else %}
+              {% if other_tour.price_per_person < 10000 %}
+              <span class="tour-badge budget">Budget Friendly</span>
+              {% elif other_tour.price_per_person < 25000 %}
+              <span class="tour-badge value">Best Value</span>
+              {% elif other_tour.price_per_person < 50000 %}
+              <span class="tour-badge premium">Premium</span>
+              {% else %}
+              <span class="tour-badge luxury">Luxury</span>
+              {% endif %}
+            {% endif %}
+          </div>
+          <div class="tour-content">
+            <div class="tour-category">{{ other_tour.category|title }}</div>
+            <h3 class="tour-title">{{ other_tour.title }}</h3>
+            <p class="tour-description">{{ other_tour.description|truncatewords:20 }}</p>
+
+            <div class="tour-highlights">
+              {% for highlight in other_tour.highlights|slice:":3" %}
+              <div class="tour-highlight">
+                <i class="fas fa-check"></i>
+                <span>{{ highlight }}</span>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="tour-rating">
+              {% for i in "12345"|make_list %}
+                {% if i <= other_tour.rating|default:4.5 %}
+                  <i class="fas fa-star"></i>
+                {% else %}
+                  <i class="far fa-star"></i>
+                {% endif %}
+              {% endfor %}
+              <span>({{ other_tour.reviews|default:24 }} reviews)</span>
+            </div>
+
+            <div class="tour-meta">
+              <div class="tour-price">
+                {% if other_tour.has_discount %}
+                <span class="original-price">KES {{ other_tour.original_price|default:other_tour.price_per_person }}</span>
+                KES {{ other_tour.price_per_person }}
+                {% else %}
+                KES {{ other_tour.price_per_person }}
+                {% endif %}
+              </div>
+              <div class="tour-duration">
+                <i class="fas fa-clock"></i>
+                {{ other_tour.duration_days }} days
+              </div>
+            </div>
+
+            <div class="tour-actions">
+              <div class="tour-ref">
+                <strong>Booking Ref:</strong>
+                AIRTOURS{{ other_tour.id|stringformat:"04d" }}/{% now "Y" %}
+              </div>
+              <div>
+                <button class="btn-wishlist" onclick="toggleWishlist(this, '{{ other_tour.id }}')" aria-label="Add to wishlist">
+                  <i class="far fa-heart"></i>
+                </button>
+                <button class="btn-primary" onclick="window.location.href='{% url 'bookings:tour_payment' other_tour.id %}'" aria-label="Book {{ other_tour.title }}">
+                  Book Now <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-span-2 text-center py-8">
+          <i class="fas fa-map-marked-alt text-4xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-600 mb-2">No other tours available</h3>
+          <p class="text-gray-500">Check back later for more safari adventures</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-12 px-4 mt-16">
+    <div class="container mx-auto max-w-6xl">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-xl font-bold text-white mb-4">Safari<span class="text-yellow-500">Adventures</span></h3>
+          <p class="mb-4">Creating unforgettable wildlife experiences since 2005.</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold text-white mb-4">Quick Links</h4>
+          <ul class="space-y-2">
+            <li><a href="{% url 'bookings:about' %}" class="hover:text-white">About Us</a></li>
+            <li><a href="{% url 'bookings:tours' %}" class="hover:text-white">Safari Packages</a></li>
+            <li><a href="#" class="hover:text-white">Testimonials</a></li>
+            <li><a href="#" class="hover:text-white">Gallery</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold text-white mb-4">Contact Info</h4>
+          <ul class="space-y-2">
+            <li class="flex items-start">
+              <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+              <span>Nairobi, Kenya</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-phone mr-2"></i>
+              <span>+254 700 123456</span>
+            </li>
+            <li class="flex items-center">
+              <i class="fas fa-envelope mr-2"></i>
+              <span>info@safariadventures.com</span>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold text-white mb-4">Newsletter</h4>
+          <p class="mb-4">Subscribe for special offers and safari tips</p>
+          <form class="flex">
+            <input type="email" placeholder="Your email"
+              class="px-4 py-2 rounded-l-lg text-gray-800 w-full focus:outline-none" />
+            <button class="bg-green-600 text-white px-4 py-2 rounded-r-lg hover:bg-green-700">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
+        <p>&copy; {% now "Y" %} SafariAdventures. All rights reserved.</p>
+        <div class="mt-2">
+          <a href="#" class="mx-2 hover:text-white">Privacy Policy</a>
+          <a href="{% url 'bookings:terms' %}" class="mx-2 hover:text-white">Terms of Service</a>
+        </div>
+        <div class="mt-4 text-gray-500">
+          <p>Developed by <a href="https://brytechltd.com" target="_blank" class="text-green-500 hover:text-green-400">Brytech Ltd</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Payment Processing Overlay -->
+  <div id="payment-processing" class="payment-processing hidden">
+    <div class="processing-content">
+      <div class="processing-spinner"></div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">Processing Your Payment</h3>
+      <p class="text-gray-600 mb-6">Please wait while we initialize your secure payment with Paystack.</p>
+      <div class="bg-gray-100 p-4 rounded-lg text-left">
+        <div class="flex items-center mb-3">
+          <i class="fas fa-check-circle text-green-500 mr-2"></i>
+          <span>Verifying your information</span>
+        </div>
+        <div class="flex items-center mb-3">
+          <i class="fas fa-check-circle text-green-500 mr-2"></i>
+          <span>Creating your booking</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-5 h-5 rounded-full border-2 border-gray-300 mr-2"></div>
+          <span>Initializing Paystack payment</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-notification">
+    <i class="toast-icon"></i>
+    <div>
+      <div class="toast-title font-medium"></div>
+      <div class="toast-message text-sm text-gray-600"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Elements
+      const guestForm = document.getElementById('guest-info-form');
+      const continueBtn = document.getElementById('continue-btn');
+      const paymentSection = document.getElementById('payment-section');
+      const guestFormSection = document.getElementById('guest-form');
+      const toast = document.getElementById('toast');
+      const paystackLoading = document.getElementById('paystack-loading');
+      const paystackButtonContainer = document.getElementById('paystack-button-container');
+      const paystackError = document.getElementById('paystack-error');
+      const retryPaymentBtn = document.getElementById('retry-payment');
+      const paymentStatus = document.getElementById('payment-status');
+      const progressFill = document.getElementById('progress-fill');
+      const paystackPaymentButton = document.getElementById('paystack-payment-button');
+      const paystackAmount = document.getElementById('paystack-amount');
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      // Form steps
+      const step1 = document.getElementById('step-1');
+      const step2 = document.getElementById('step-2');
+      const step3 = document.getElementById('step-3');
+
+      // Promo code elements
+      const promoCodeInput = document.getElementById('promo-code');
+      const applyPromoBtn = document.getElementById('apply-promo');
+      const promoMessage = document.getElementById('promo-message');
+      const discountRow = document.getElementById('discount-row');
+      const discountAmount = document.getElementById('discount-amount');
+
+      // Form inputs
+      const nameInput = document.getElementById('full-name');
+      const emailInput = document.getElementById('guest-email');
+      const phoneInput = document.getElementById('phone');
+      const codeInput = document.getElementById('country-code');
+      const adultsInput = document.getElementById('adults');
+      const childrenInput = document.getElementById('children');
+      const daysInput = document.getElementById('days');
+      const travelDateInput = document.getElementById('travel-date');
+
+      // Error elements
+      const nameError = document.getElementById('name-error');
+      const emailError = document.getElementById('email-error');
+      const phoneError = document.getElementById('phone-error');
+      const dateError = document.getElementById('date-error');
+
+      // Summary elements
+      const sName = document.getElementById('summary-name');
+      const sEmail = document.getElementById('summary-email');
+      const sPhone = document.getElementById('summary-phone');
+      const sDate = document.getElementById('summary-date');
+      const sTrav = document.getElementById('summary-travelers');
+      const sDays = document.getElementById('summary-days');
+      const sAdultsCost = document.getElementById('summary-adults-cost');
+      const sChildrenCost = document.getElementById('summary-children-cost');
+      const sTotal = document.getElementById('summary-total');
+
+      // Pricing
+      const pricePerPerson = Number('{{ tour.price_per_person|floatformat:2 }}');
+      const durationDays = Number('{{ tour.duration_days }}');
+      const dailyRate = durationDays > 0 ? (pricePerPerson / durationDays) : 0;
+
+      // State variables
+      let discountPercentage = 0;
+      let discountCode = '';
+
+      // Mobile menu toggle
+      if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+      }
+
+      // Format currency
+      function formatKES(amount) {
+        try {
+          return new Intl.NumberFormat('en-KE', {
+            style: 'currency',
+            currency: 'KES',
+            minimumFractionDigits: 0
+          }).format(Math.round(amount));
+        } catch (e) {
+          return `KES ${Math.round(amount).toLocaleString('en-KE')}`;
+        }
+      }
+
+      // Calculate order summary
+      function recalc() {
+        const adults = Math.max(parseInt(adultsInput.value || '0', 10), 0);
+        const children = Math.max(parseInt(childrenInput.value || '0', 10), 0);
+        const days = Math.max(parseInt(daysInput.value || '0', 10), 0);
+
+        // Pricing logic
+        const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
+        const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
+        const childrenCost = children * dailyRate * 0.5 * days;
+        const adultsCost = firstAdultCost + additionalAdultsCost;
+        const subtotal = adultsCost + childrenCost;
+
+        // Apply discount if any
+        const discountAmountValue = subtotal * (discountPercentage / 100);
+        const total = subtotal - discountAmountValue;
+
+        // Update summary
+        sName.textContent = nameInput.value || '-';
+        sEmail.textContent = emailInput.value || '-';
+        sPhone.textContent = phoneInput.value ? `${codeInput.value} ${phoneInput.value}` : '-';
+        sDate.textContent = travelDateInput.value || '-';
+        sTrav.textContent = `${adults} Adults, ${children} Children`;
+        sDays.textContent = `${days} Days`;
+        sAdultsCost.textContent = formatKES(adultsCost);
+        sChildrenCost.textContent = formatKES(childrenCost);
+        sTotal.textContent = formatKES(total);
+
+        // Show discount if applied
+        if (discountPercentage > 0) {
+          discountRow.classList.remove('hidden');
+          discountAmount.textContent = `-${formatKES(discountAmountValue)}`;
+        } else {
+          discountRow.classList.add('hidden');
+        }
+
+        return total;
+      }
+
+      // Add input listeners
+      [nameInput, emailInput, phoneInput, codeInput, adultsInput, childrenInput, daysInput, travelDateInput].forEach(el => {
+        if (el) el.addEventListener('input', recalc);
+      });
+
+      // Promo code handling
+      if (applyPromoBtn && promoCodeInput) {
+        applyPromoBtn.addEventListener('click', () => {
+          const code = promoCodeInput.value.trim().toUpperCase();
+
+          // Simple validation - in a real app, this would be validated server-side
+          if (code === 'SAFARI10') {
+            discountPercentage = 10;
+            discountCode = code;
+            promoMessage.textContent = 'Promo code applied! 10% discount.';
+            promoMessage.className = 'mt-2 text-sm text-green-600';
+            promoMessage.classList.remove('hidden');
+            applyPromoBtn.disabled = true;
+            applyPromoBtn.textContent = 'Applied';
+            recalc();
+          } else if (code === 'WELCOME15') {
+            discountPercentage = 15;
+            discountCode = code;
+            promoMessage.textContent = 'Promo code applied! 15% discount.';
+            promoMessage.className = 'mt-2 text-sm text-green-600';
+            promoMessage.classList.remove('hidden');
+            applyPromoBtn.disabled = true;
+            applyPromoBtn.textContent = 'Applied';
+            recalc();
+          } else if (code === '') {
+            promoMessage.textContent = 'Please enter a promo code.';
+            promoMessage.className = 'mt-2 text-sm text-red-600';
+            promoMessage.classList.remove('hidden');
+          } else {
+            promoMessage.textContent = 'Invalid promo code.';
+            promoMessage.className = 'mt-2 text-sm text-red-600';
+            promoMessage.classList.remove('hidden');
+          }
+        });
+      }
+
+      // Function to initialize Paystack payment
+      function initializePaystackPayment() {
+        if (paystackLoading) {
+          paystackLoading.classList.remove('hidden');
+        }
+        if (paystackButtonContainer) {
+          paystackButtonContainer.classList.add('hidden');
+        }
+        if (paystackError) {
+          paystackError.classList.add('hidden');
+        }
+
+        // Reset payment status
+        if (paymentStatus) {
+          paymentStatus.className = 'payment-status processing';
+          paymentStatus.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Initializing secure payment...</span>';
+        }
+
+        // Simulate progress
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += 10;
+          if (progressFill) {
+            progressFill.style.width = `${progress}%`;
+          }
+
+          if (progress >= 100) {
+            clearInterval(progressInterval);
+
+            // After progress completes, show the Paystack button
+            setTimeout(() => {
+              if (paystackLoading) {
+                paystackLoading.classList.add('hidden');
+              }
+              if (paystackButtonContainer) {
+                paystackButtonContainer.classList.remove('hidden');
+              }
+              if (paymentStatus) {
+                paymentStatus.className = 'payment-status success';
+                paymentStatus.innerHTML = '<i class="fas fa-check-circle mr-2"></i><span>Ready for secure payment</span>';
+              }
+            }, 500);
+          }
+        }, 200);
+
+        // Calculate the total amount
+        const adults = parseInt(adultsInput.value || '0', 10);
+        const children = parseInt(childrenInput.value || '0', 10);
+        const days = parseInt(daysInput.value || '0', 10);
+
+        // Pricing logic
+        const firstAdultCost = adults >= 1 ? (dailyRate * days) : 0;
+        const additionalAdultsCost = adults > 1 ? ((adults - 1) * dailyRate * 0.9 * days) : 0;
+        const childrenCost = children * dailyRate * 0.5 * days;
+        const adultsCost = firstAdultCost + additionalAdultsCost;
+        const subtotal = adultsCost + childrenCost;
+
+        // Apply discount if any
+        const discountAmountValue = subtotal * (discountPercentage / 100);
+        const total = subtotal - discountAmountValue;
+
+        // Update Paystack button amount
+        if (paystackAmount) {
+          paystackAmount.textContent = formatKES(total);
+        }
+
+        // Set up Paystack payment handler
+        if (paystackPaymentButton) {
+          paystackPaymentButton.onclick = function() {
+            const handler = PaystackPop.setup({
+              key: '{{ public_key }}',
+              email: emailInput.value,
+              amount: total * 100, // Convert to kobo
+              currency: 'KES',
+              ref: `PAY-${Date.now()}-${Math.floor(Math.random() * 1000000000)}`,
+              callback: function(response) {
+                // Update form steps
+                if (step2) step2.classList.add('completed');
+                if (step3) step3.classList.add('active');
+
+                // Redirect to verification page
+                window.location.href = '{% url "bookings:paystack_callback" %}?reference=' + response.reference;
+              },
+              onClose: function() {
+                showToast('info', 'Payment Cancelled', 'You have cancelled the payment process.');
+              }
+            });
+            handler.openIframe();
+          };
+        }
+      }
+
+      // Form validation
+      function validateForm() {
+        let isValid = true;
+
+        // Validate name
+        if (!nameInput.value.trim()) {
+          if (nameError) nameError.classList.remove('hidden');
+          isValid = false;
+        } else {
+          if (nameError) nameError.classList.add('hidden');
+        }
+
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailInput.value)) {
+          if (emailError) emailError.classList.remove('hidden');
+          isValid = false;
+        } else {
+          if (emailError) emailError.classList.add('hidden');
+        }
+
+        // Validate phone
+        if (!phoneInput.value.trim() || phoneInput.value.length < 6) {
+          if (phoneError) phoneError.classList.remove('hidden');
+          isValid = false;
+        } else {
+          if (phoneError) phoneError.classList.add('hidden');
+        }
+
+        // Validate date
+        const selectedDate = new Date(travelDateInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (!travelDateInput.value || selectedDate < today) {
+          if (dateError) dateError.classList.remove('hidden');
+          isValid = false;
+        } else {
+          if (dateError) dateError.classList.add('hidden');
+        }
+
+        return isValid;
+      }
+
+      // Form submission handler
+      if (guestForm) {
+        guestForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          if (!validateForm()) {
+            showToast('error', 'Validation Error', 'Please correct the errors in the form');
+            return;
+          }
+
+          const adults = parseInt(adultsInput.value || '0', 10);
+          if (adults < 1) {
+            showToast('error', 'Validation Error', 'At least one adult is required');
+            return;
+          }
+
+          if (continueBtn) {
+            continueBtn.disabled = true;
+            continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+          }
+
+          recalc();
+
+          if (guestFormSection) {
+            guestFormSection.classList.add('hidden');
+          }
+          if (paymentSection) {
+            paymentSection.classList.remove('hidden');
+          }
+
+          // Update form steps
+          if (step1) step1.classList.add('completed');
+          if (step2) step2.classList.add('active');
+
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+
+          setTimeout(() => {
+            initializePaystackPayment();
+            if (continueBtn) {
+              continueBtn.disabled = false;
+              continueBtn.innerHTML = '<span>Continue to Payment</span> <i class="fas fa-arrow-right"></i>';
+            }
+          }, 500);
+        });
+      }
+
+      // Retry payment
+      if (retryPaymentBtn) {
+        retryPaymentBtn.addEventListener('click', () => {
+          initializePaystackPayment();
+        });
+      }
+
+      // Toast notification
+      function showToast(type, title, message) {
+        const toastEl = document.getElementById('toast');
+        if (!toastEl) return;
+
+        const toastIcon = toastEl.querySelector('.toast-icon');
+        const toastTitle = toastEl.querySelector('.toast-title');
+        const toastMessage = toastEl.querySelector('.toast-message');
+
+        if (toastTitle) toastTitle.textContent = title;
+        if (toastMessage) toastMessage.textContent = message;
+
+        toastEl.className = 'toast-notification ' + type;
+        if (toastIcon) {
+          toastIcon.className = type === 'success' || type === 'info'
+            ? 'toast-icon fas fa-check-circle'
+            : 'toast-icon fas fa-exclamation-circle';
+        }
+
+        toastEl.classList.add('show');
+        setTimeout(() => toastEl.classList.remove('show'), 5000);
+      }
+
+      // Initialize summary
+      recalc();
+
+      // Countdown timer
+      let timeLeft = 15 * 60;
+      const countdownElement = document.getElementById('countdown-timer');
+
+      if (countdownElement) {
+        const countdown = setInterval(() => {
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          countdownElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+          if (timeLeft <= 0) {
+            clearInterval(countdown);
+            countdownElement.textContent = "Expired";
+
+            // Show session expired message
+            showToast('error', 'Session Expired', 'Your payment session has expired. Please refresh the page to start again.');
+
+            // Disable form
+            if (guestForm) {
+              guestForm.querySelectorAll('input, button').forEach(el => {
+                el.disabled = true;
+              });
+            }
+          }
+          timeLeft--;
+        }, 1000);
+      }
+    });
+
+    // Wishlist functionality
+    function toggleWishlist(button, tourId) {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+      const index = wishlist.indexOf(tourId);
+
+      if (index > -1) {
+        // Remove from wishlist
+        wishlist.splice(index, 1);
+        button.classList.remove('active');
+        button.innerHTML = '<i class="far fa-heart"></i>';
+        showToast('info', 'Removed from wishlist', 'Tour removed from your wishlist');
+      } else {
+        // Add to wishlist
+        wishlist.push(tourId);
+        button.classList.add('active');
+        button.innerHTML = '<i class="fas fa-heart"></i>';
+        showToast('success', 'Added to wishlist', 'Tour added to your wishlist');
+      }
+
+      // Save to localStorage
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    }
+
+    // Initialize wishlist state
+    document.addEventListener('DOMContentLoaded', function() {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+      wishlist.forEach(tourId => {
+        const wishlistButton = document.querySelector(`.btn-wishlist[onclick*="${tourId}"]`);
+        if (wishlistButton) {
+          wishlistButton.classList.add('active');
+          wishlistButton.innerHTML = '<i class="fas fa-heart"></i>';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

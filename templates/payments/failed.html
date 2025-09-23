@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Failed{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+        <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-times-circle text-red-500 text-4xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Payment Failed</h1>
+        <p class="text-gray-600 mb-6">We're sorry, but your payment could not be processed. Please try again or contact support.</p>
+
+        {% if messages %}
+            <div class="mb-6">
+                {% for message in messages %}
+                    <div class="bg-red-50 text-red-700 p-4 rounded-lg">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            {% if tour_id %}
+                <a href="{% url 'bookings:tour_payment' tour_id %}" class="btn-primary">
+                    <i class="fas fa-redo mr-2"></i> Try Again
+                </a>
+            {% endif %}
+            <a href="{% url 'bookings:contact' %}" class="btn-outline">
+                <i class="fas fa-headset mr-2"></i> Contact Support
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
