@@ -41,10 +41,10 @@ urlpatterns = [
     # 🔗 Paystack Integration
     # ===============================
     path("payments/create-guest-order/", views.create_guest_paystack_order, name="create_guest_paystack_order"),
-    path("payments/callback/", views.paystack_callback, name="paystack_callback"),
     path("paystack/callback/", views.paystack_callback, name="paystack_callback_legacy"),
-    path("payments/webhook/", views.paystack_webhook, name="paystack_webhook"),
+    path("payments/callback/", views.paystack_callback, name="paystack_callback"),
     path("paystack/webhook/", views.paystack_webhook, name="paystack_webhook_legacy"),
+    path("payments/webhook/", views.paystack_webhook, name="paystack_webhook"),
 
     # ===============================
     # 👤 Guest Checkout Flow

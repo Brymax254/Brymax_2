@@ -820,26 +820,32 @@ def paystack_callback(request):
         return redirect("receipt", pk=payment.pk)
     return redirect("bookings:payment_failed")
 
-
-
 @csrf_exempt
 @require_POST
 def paystack_webhook(request):
-    """Handle Paystack webhook events (charge.success, charge.failed)."""
+    """
+    Handle Paystack webhook events securely (charge.success, charge.failed).
+    Ensures idempotent processing using database transaction.
+    """
     signature = request.headers.get("x-paystack-signature")
     if not signature:
-        return HttpResponse("Invalid signature", status=400)
+        return HttpResponse("Missing signature", status=400)
 
     body = request.body
-    calc_sig = hmac.new(
-        settings.PAYSTACK['SECRET_KEY'].encode(),
-        body,
-        hashlib.sha512
+    computed_sig = hmac.new(
+        key=settings.PAYSTACK['SECRET_KEY'].encode(),
+        msg=body,
+        digestmod=hashlib.sha512
     ).hexdigest()
-    if not hmac.compare_digest(signature, calc_sig):
+
+    if not hmac.compare_digest(signature, computed_sig):
         return HttpResponse("Invalid signature", status=400)
 
-    payload = json.loads(body.decode())
+    try:
+        payload = json.loads(body.decode())
+    except json.JSONDecodeError:
+        return HttpResponse("Invalid JSON payload", status=400)
+
     event = payload.get("event")
     data = payload.get("data", {})
     reference = data.get("reference")
@@ -848,17 +854,26 @@ def paystack_webhook(request):
 
     try:
         with transaction.atomic():
+            # Lock the payment row for update to prevent race conditions
             payment = Payment.objects.select_for_update().get(reference=reference)
+
             if event == "charge.success":
                 _update_payment_from_paystack(payment, data, payload=payload, from_webhook=True)
             elif event == "charge.failed":
                 _update_payment_from_paystack(payment, {"status": "failed", **data}, payload=payload, from_webhook=True)
+            else:
+                # Optional: log unknown event types
+                pass
     except Payment.DoesNotExist:
         return HttpResponse("Payment not found", status=404)
+    except Exception as e:
+        # Log unexpected errors
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception(f"Webhook processing error: {e}")
+        return HttpResponse("Internal server error", status=500)
 
     return HttpResponse("Webhook processed", status=200)
-
-
 # =============================================================================
 # PAYMENT RESULT VIEWS
 # =============================================================================
