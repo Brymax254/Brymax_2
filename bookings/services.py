@@ -1,88 +1,126 @@
-import uuid
-import hmac
-import hashlib
-import base64
-import json
-import time
+# =============================================================================
+# IMPORTS
+# =============================================================================
 import logging
-import requests
-from requests.auth import HTTPBasicAuth
+from datetime import date, timedelta
+import uuid
 from django.conf import settings
 from django.utils import timezone
-from airport.utils import normalize_phone_number  # your helper for phone formatting
+import requests
+from .models import Tour, Booking, Payment, BookingCustomer
 
+# Logger
 logger = logging.getLogger(__name__)
+
 
 # =============================================================================
 # PAYSTACK SERVICE
 # =============================================================================
 class PaystackService:
-    """
-    Handles Paystack API calls for transaction initialization, verification, and refunds.
-    """
+    """Service class for handling Paystack payment operations."""
 
-    base_url = "https://api.paystack.co"
-
-    def initialize_transaction(self, payment, callback_url, metadata=None):
-        """Initialize a Paystack transaction."""
+    @staticmethod
+    def initialize_transaction(payment, callback_url, metadata=None):
+        """
+        Initialize a Paystack transaction and save reference to DB.
+        """
         try:
-            reference = f"PY-{uuid.uuid4().hex[:10]}"
-            payload = {
-                "email": payment.guest_email,
-                "amount": int(payment.amount * 100),  # convert KES to cents
-                "reference": reference,
-                "callback_url": callback_url,
-                "metadata": metadata or {}
-            }
-
+            url = "https://api.paystack.co/transaction/initialize"
             headers = {
                 "Authorization": f"Bearer {settings.PAYSTACK['SECRET_KEY']}",
                 "Content-Type": "application/json"
             }
 
-            response = requests.post(
-                f"{self.base_url}/transaction/initialize",
-                headers=headers,
-                json=payload,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json(), reference
+            # Ensure reference exists
+            if not payment.reference:
+                payment.reference = f"PAY-{payment.id}-{uuid.uuid4().hex[:6]}"
+                payment.save(update_fields=["reference"])
 
-        except requests.exceptions.RequestException as e:
-            logger.error("Paystack initialization error: %s", e, exc_info=True)
+            # Prepare customer data (fallback to placeholder if empty)
+            customer_email = payment.guest_email or (
+                payment.booking.booking_customer.email
+                if payment.booking and payment.booking.booking_customer else "test@example.com"
+            )
+            customer_name = payment.guest_full_name or (
+                payment.booking.booking_customer.full_name
+                if payment.booking and payment.booking.booking_customer else "Guest User"
+            )
+            customer_phone = payment.guest_phone or (
+                payment.booking.booking_customer.phone_number
+                if payment.booking and payment.booking.booking_customer else ""
+            )
+
+            # Prepare metadata
+            transaction_metadata = {
+                "payment_id": str(payment.id),
+                "tour_id": str(payment.tour.id) if payment.tour else None,
+                "booking_id": str(payment.booking.id) if payment.booking else None,
+                "customer_name": customer_name,
+                "customer_email": customer_email,
+                "customer_phone": customer_phone,
+            }
+
+            if metadata:
+                transaction_metadata.update(metadata)
+
+            # Payload
+            payload = {
+                "amount": int(payment.amount * 100),  # KES -> kobo
+                "email": customer_email,
+                "reference": payment.reference,
+                "callback_url": callback_url,
+                "metadata": transaction_metadata,
+            }
+
+            response = requests.post(url, json=payload, headers=headers, timeout=30)
+            response_data = response.json()
+
+            if response_data.get("status"):
+                logger.info(f"Paystack init successful: {response_data}")
+                return response_data, payment.reference
+            else:
+                logger.error(f"Paystack init failed: {response_data}")
+                return response_data, None
+
+        except Exception as e:
+            logger.exception(f"Error initializing Paystack transaction: {e}")
             return {"status": False, "message": str(e)}, None
 
-    def verify_transaction(self, reference):
-        """Verify a Paystack transaction."""
+    @staticmethod
+    def verify_transaction(reference):
+        """
+        Verify a Paystack transaction and update DB.
+        """
         try:
-            headers = {"Authorization": f"Bearer {settings.PAYSTACK['SECRET_KEY']}"}
-            response = requests.get(
-                f"{self.base_url}/transaction/verify/{reference}",
-                headers=headers,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logger.error("Paystack verification error: %s", e, exc_info=True)
-            return {"status": False, "message": str(e)}
+            url = f"https://api.paystack.co/transaction/verify/{reference}"
+            headers = {
+                "Authorization": f"Bearer {settings.PAYSTACK['SECRET_KEY']}"
+            }
 
-    def initiate_refund(self, reference, amount=None, reason="Refund"):
-        """Initiate a refund on a successful transaction."""
-        try:
-            headers = {"Authorization": f"Bearer {settings.PAYSTACK['SECRET_KEY']}"}
-            payload = {"transaction": reference, "amount": int(amount * 100) if amount else None, "reason": reason}
-            response = requests.post(
-                f"{self.base_url}/refund",
-                headers=headers,
-                json=payload,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logger.error("Paystack refund error: %s", e, exc_info=True)
+            response = requests.get(url, headers=headers, timeout=30)
+            data = response.json()
+
+            # Update payment in DB if it exists
+            try:
+                payment = Payment.objects.get(reference=reference)
+            except Payment.DoesNotExist:
+                logger.error(f"No payment found for reference {reference}")
+                return data
+
+            if data.get("status") and data["data"]["status"] == "success":
+                payment.status = "SUCCESS"
+                payment.paid_at = timezone.now()
+                payment.save(update_fields=["status", "paid_at"])
+                logger.info(f"Payment {reference} marked as SUCCESS")
+            else:
+                payment.status = "FAILED"
+                payment.save(update_fields=["status"])
+                logger.warning(f"Payment {reference} marked as FAILED")
+
+            return data
+
+        except Exception as e:
+            logger.exception(f"Error verifying Paystack transaction: {e}")
             return {"status": False, "message": str(e)}
 
 
@@ -90,122 +128,182 @@ class PaystackService:
 # PAYMENT SESSION MANAGER
 # =============================================================================
 class PaymentSessionManager:
-    """
-    Manage pending payments in Django sessions.
-    """
-
-    SESSION_KEY = "pending_payment_id"
+    """Service class for managing payment sessions."""
 
     def __init__(self, session):
         self.session = session
 
     def set_pending_payment(self, payment):
-        self.session[self.SESSION_KEY] = str(payment.id)
+        """Store a pending payment in the session."""
+        self.session['pending_payment_id'] = str(payment.id)
         self.session.modified = True
 
     def get_pending_payment(self):
-        from .models import Payment
-        payment_id = self.session.get(self.SESSION_KEY)
+        """Retrieve the pending payment from session, if it exists."""
+        payment_id = self.session.get('pending_payment_id')
         if payment_id:
             try:
                 return Payment.objects.get(id=payment_id)
             except Payment.DoesNotExist:
-                return None
+                self.clear_payment_session()
         return None
 
     def clear_payment_session(self):
-        self.session.pop(self.SESSION_KEY, None)
-        self.session.modified = True
+        """Remove any pending payment from the session."""
+        if 'pending_payment_id' in self.session:
+            del self.session['pending_payment_id']
+            self.session.modified = True
 
     def has_pending_payment(self):
-        """Return True if there is a pending payment in session."""
-        payment = self.get_pending_payment()
-        return payment is not None and payment.status in ["pending", "failed"]
+        """Check if a valid pending payment exists in session."""
+        return self.get_pending_payment() is not None
 
 
 # =============================================================================
-# M-PESA STK PUSH (Optional)
+# TOUR AVAILABILITY SERVICE
 # =============================================================================
-class MpesaSTKPush:
-    """Handle M-PESA STK Push integration."""
+class TourAvailabilityService:
+    """Service class for checking tour availability."""
 
-    def __init__(self):
-        self.consumer_key = settings.MPESA_CONSUMER_KEY
-        self.consumer_secret = settings.MPESA_CONSUMER_SECRET
-        self.shortcode = settings.MPESA_SHORTCODE
-        self.passkey = settings.MPESA_PASSKEY
-        self.callback_url = settings.MPESA_CALLBACK_URL
-        self.token = None
-        self.token_expiry = None
+    @staticmethod
+    def get_available_dates(tour, months_ahead=6):
+        """
+        Get available dates for a tour within the given timeframe.
+        """
+        available_dates = []
+        start_date = date.today()
+        end_date = start_date + timedelta(days=30 * months_ahead)
 
-        if settings.MPESA_ENV == "production":
-            self.auth_url = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-            self.stk_url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-            self.query_url = "https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query"
+        bookings = Booking.objects.filter(
+            tour=tour,
+            status__in=['CONFIRMED', 'PENDING'],
+            travel_date__gte=start_date,
+            travel_date__lte=end_date
+        )
+
+        booked_dates = {}
+        for booking in bookings:
+            date_str = booking.travel_date.isoformat()
+            # Use correct field names for adults and children
+            booked_dates[date_str] = booked_dates.get(date_str, 0) + booking.adults + booking.children
+
+        current_date = start_date
+        while current_date <= end_date:
+            date_str = current_date.isoformat()
+
+            if current_date < date.today():
+                current_date += timedelta(days=1)
+                continue
+
+            days_ahead = (current_date - date.today()).days
+            if hasattr(tour, 'max_advance_booking_days') and days_ahead > tour.max_advance_booking_days:
+                current_date += timedelta(days=1)
+                continue
+
+            booked_passengers = booked_dates.get(date_str, 0)
+            if hasattr(tour, 'max_group_size') and booked_passengers < tour.max_group_size:
+                available_dates.append({
+                    'date': current_date.isoformat(),
+                    'formatted_date': current_date.strftime('%A, %B %d, %Y'),
+                    'available_spots': tour.max_group_size - booked_passengers,
+                    'is_fully_booked': booked_passengers >= tour.max_group_size,
+                    'has_limited_availability': (tour.max_group_size - booked_passengers) <= 2
+                })
+
+            current_date += timedelta(days=1)
+
+        return available_dates
+
+    @staticmethod
+    def check_availability(tour, travel_date, adults=1, children=0):
+        """
+        Check if a tour is available on a specific date.
+        """
+        if travel_date < date.today():
+            return {'is_available': False, 'reason': 'Date is in the past'}
+
+        days_ahead = (travel_date - date.today()).days
+        if hasattr(tour, 'max_advance_booking_days') and days_ahead > tour.max_advance_booking_days:
+            return {
+                'is_available': False,
+                'reason': f'Bookings can only be made up to {tour.max_advance_booking_days} days in advance'
+            }
+
+        bookings = Booking.objects.filter(
+            tour=tour,
+            status__in=['CONFIRMED', 'PENDING'],
+            travel_date=travel_date
+        )
+
+        # Use correct field names for adults and children
+        total_booked = sum(b.adults + b.children for b in bookings)
+        total_passengers = adults + children
+
+        if hasattr(tour, 'max_group_size') and total_booked + total_passengers > tour.max_group_size:
+            return {
+                'is_available': False,
+                'reason': f'Only {tour.max_group_size - total_booked} spots available',
+                'available_spots': tour.max_group_size - total_booked,
+                'total_booked': total_booked
+            }
+
+        if hasattr(tour, 'min_group_size') and total_passengers < tour.min_group_size:
+            return {
+                'is_available': True,
+                'warning': f'Minimum group size is {tour.min_group_size}',
+                'available_spots': tour.max_group_size - total_booked,
+                'total_booked': total_booked
+            }
+
+        return {
+            'is_available': True,
+            'available_spots': tour.max_group_size - total_booked if hasattr(tour, 'max_group_size') else 100,
+            # Default if not set
+            'total_booked': total_booked
+        }
+
+    @staticmethod
+    def get_tour_pricing(tour, adults=1, children=0):
+        """
+        Get pricing information for a tour.
+        """
+        base_price = tour.price_per_person
+        discount_price = getattr(tour, 'discount_price', None)
+        has_discount = getattr(tour, 'has_discount', False)
+        discount_percentage = getattr(tour, 'discount_percentage', 0)
+
+        total_passengers = adults + children
+        total_base_price = base_price * total_passengers
+
+        if has_discount and discount_price:
+            total_discount_price = discount_price * total_passengers
         else:
-            self.auth_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-            self.stk_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-            self.query_url = "https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query"
+            total_discount_price = None
+            discount_percentage = 0
 
-    def _get_auth_token(self):
-        if self.token and self.token_expiry and self.token_expiry > timezone.now():
-            return self.token
-        try:
-            response = requests.get(
-                self.auth_url,
-                auth=HTTPBasicAuth(self.consumer_key, self.consumer_secret),
-                timeout=30
-            )
-            response.raise_for_status()
-            token_data = response.json()
-            self.token = token_data.get("access_token")
-            self.token_expiry = timezone.now() + timezone.timedelta(minutes=55)
-            return self.token
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Failed to get M-Pesa auth token: {str(e)}")
+        group_discount_threshold = 5
+        group_discount_percentage = 10
 
-    def _generate_timestamp(self):
-        return time.strftime("%Y%m%d%H%M%S")
+        if total_passengers >= group_discount_threshold:
+            if total_discount_price:
+                group_discount_amount = total_discount_price * (group_discount_percentage / 100)
+                final_price = total_discount_price - group_discount_amount
+                total_discount_percentage += group_discount_percentage
+            else:
+                group_discount_amount = total_base_price * (group_discount_percentage / 100)
+                final_price = total_base_price - group_discount_amount
+                total_discount_percentage = group_discount_percentage
+        else:
+            final_price = total_discount_price if total_discount_price else total_base_price
 
-    def _generate_password(self, timestamp):
-        data = f"{self.shortcode}{self.passkey}{timestamp}"
-        return base64.b64encode(data.encode()).decode()
-
-    def stk_push(self, phone_number, amount, account_reference, transaction_desc):
-        normalized_phone = normalize_phone_number(phone_number).lstrip('+')
-        token = self._get_auth_token()
-        timestamp = self._generate_timestamp()
-        password = self._generate_password(timestamp)
-
-        payload = {
-            "BusinessShortCode": self.shortcode,
-            "Password": password,
-            "Timestamp": timestamp,
-            "TransactionType": "CustomerPayBillOnline",
-            "Amount": amount,
-            "PartyA": normalized_phone,
-            "PartyB": self.shortcode,
-            "PhoneNumber": normalized_phone,
-            "CallBackURL": self.callback_url,
-            "AccountReference": account_reference,
-            "TransactionDesc": transaction_desc
+        return {
+            'base_price_per_person': float(base_price),
+            'discount_price_per_person': float(discount_price) if discount_price else None,
+            'total_base_price': float(total_base_price),
+            'total_discount_price': float(total_discount_price) if total_discount_price else None,
+            'final_price': float(final_price),
+            'discount_percentage': discount_percentage,
+            'group_discount_applied': total_passengers >= group_discount_threshold,
+            'total_passengers': total_passengers,
+            'currency': 'KES'
         }
-        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-        response = requests.post(self.stk_url, json=payload, headers=headers, timeout=30)
-        response.raise_for_status()
-        return response.json()
-
-    def check_stk_status(self, checkout_request_id):
-        token = self._get_auth_token()
-        timestamp = self._generate_timestamp()
-        password = self._generate_password(timestamp)
-        payload = {
-            "BusinessShortCode": self.shortcode,
-            "Password": password,
-            "Timestamp": timestamp,
-            "CheckoutRequestID": checkout_request_id
-        }
-        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-        response = requests.post(self.query_url, json=payload, headers=headers, timeout=30)
-        response.raise_for_status()
-        return response.json()

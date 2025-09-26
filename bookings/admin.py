@@ -8,8 +8,8 @@ from django.urls import reverse, path
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import (
-    Destination, Customer, Booking, Payment, PaymentStatus,
-    ContactMessage, Tour, Driver, Video, Trip
+    Driver, BookingCustomer, Vehicle, Destination, TourCategory, Tour,
+    Booking, Trip, Payment, PaymentStatus, Review, ContactMessage
 )
 
 
@@ -18,8 +18,9 @@ from .models import (
 # =====================================================
 @admin.register(Destination)
 class DestinationAdmin(admin.ModelAdmin):
-    list_display = ("name", "location", "price_per_person", "destination_type", "is_active", "created_at")
-    list_filter = ("destination_type", "is_active", "created_at")
+    list_display = ("name", "location", "price_per_person", "destination_type", "is_active", "is_featured",
+                    "created_at")
+    list_filter = ("destination_type", "is_active", "is_featured", "created_at")
     search_fields = ("name", "location", "description")
     ordering = ("name",)
     date_hierarchy = "created_at"
@@ -27,13 +28,25 @@ class DestinationAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     fieldsets = (
         (None, {
-            "fields": ("name", "slug", "destination_type", "is_active")
+            "fields": ("name", "slug", "destination_type", "is_active", "is_featured")
         }),
         ("Details", {
-            "fields": ("description", "location", "price_per_person")
+            "fields": ("description", "location", "price_per_person", "currency")
+        }),
+        ("Location", {
+            "fields": ("latitude", "longitude")
         }),
         ("Media", {
-            "fields": ("image", "video")
+            "fields": ("image", "video", "image_url", "gallery_images")
+        }),
+        ("Sustainability", {
+            "fields": ("eco_friendly", "carbon_footprint_per_visit", "sustainability_certifications")
+        }),
+        ("Accessibility", {
+            "fields": ("wheelchair_accessible", "accessibility_features")
+        }),
+        ("Health & Safety", {
+            "fields": ("health_safety_measures", "covid19_protocols")
         }),
         ("Timestamps", {
             "classes": ("collapse",),
@@ -43,22 +56,23 @@ class DestinationAdmin(admin.ModelAdmin):
 
 
 # =====================================================
-# CUSTOMER ADMIN
+# TOUR CATEGORY ADMIN
 # =====================================================
-@admin.register(Customer)
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "email", "normalized_phone", "is_active", "created_at")
+@admin.register(TourCategory)
+class TourCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "is_active", "created_at")
     list_filter = ("is_active", "created_at")
-    search_fields = ("first_name", "last_name", "email", "phone_number")
-    ordering = ("-created_at",)
+    search_fields = ("name", "description")
+    ordering = ("name",)
     date_hierarchy = "created_at"
-    readonly_fields = ("normalized_phone", "created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
+    prepopulated_fields = {"slug": ("name",)}
     fieldsets = (
         (None, {
-            "fields": ("first_name", "last_name", "email", "is_active")
+            "fields": ("name", "slug", "is_active")
         }),
-        ("Contact Information", {
-            "fields": ("phone_number", "normalized_phone")
+        ("Details", {
+            "fields": ("description", "image")
         }),
         ("Timestamps", {
             "classes": ("collapse",),
@@ -72,30 +86,84 @@ class CustomerAdmin(admin.ModelAdmin):
 # =====================================================
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "price_per_person", "duration_days",
-                    "available", "is_approved", "created_by", "created_at")
-    list_filter = ("category", "available", "is_approved", "created_at", "created_by")
+    list_display = ("title", "category", "price_per_person", "current_price", "duration_days",
+                    "available", "is_approved", "is_popular", "featured", "created_by", "created_at")
+    list_filter = ("category", "available", "is_approved", "is_popular", "featured", "created_at", "created_by")
     search_fields = ("title", "description", "created_by__username")
     ordering = ("-created_at",)
-    autocomplete_fields = ("created_by",)
+    autocomplete_fields = ("created_by", "category", "destinations")
     date_hierarchy = "created_at"
     readonly_fields = ("created_at", "updated_at")
     prepopulated_fields = {"slug": ("title",)}
     fieldsets = (
         (None, {
-            "fields": ("title", "slug", "category", "is_approved", "available", "featured")
+            "fields": ("title", "slug", "category", "is_approved", "available", "featured", "is_popular")
         }),
         ("Details", {
-            "fields": ("description", "itinerary", "price_per_person", "duration_days")
+            "fields": ("tagline", "description", "highlights", "itinerary", "inclusions", "exclusions")
         }),
-        ("Group Settings", {
-            "fields": ("min_group_size", "max_group_size", "difficulty")
+        ("Pricing", {
+            "fields": ("price_per_person", "discount_price", "currency")
+        }),
+        ("Duration & Group", {
+            "fields": ("duration_days", "duration_nights", "min_group_size", "max_group_size")
+        }),
+        ("Other Details", {
+            "fields": ("difficulty", "max_advance_booking_days")
+        }),
+        ("Location", {
+            "fields": ("departure_point", "destinations_visited", "destinations")
         }),
         ("Media", {
-            "fields": ("image", "video", "image_url")
+            "fields": ("image", "video", "image_url", "gallery_images")
+        }),
+        ("Sustainability", {
+            "fields": ("eco_friendly", "carbon_footprint_per_person", "sustainability_certifications")
+        }),
+        ("Accessibility", {
+            "fields": ("wheelchair_accessible", "accessibility_features")
+        }),
+        ("Health & Safety", {
+            "fields": ("health_safety_measures", "covid19_protocols")
         }),
         ("Creator", {
-            "fields": ("created_by",)
+            "fields": ("created_by", "approved_by", "approved_at")
+        }),
+        ("Timestamps", {
+            "classes": ("collapse",),
+            "fields": ("created_at", "updated_at")
+        }),
+    )
+
+
+# =====================================================
+# VEHICLE ADMIN
+# =====================================================
+@admin.register(Vehicle)
+class VehicleAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "vehicle_type", "fuel_type", "capacity", "is_active", "insurance_status",
+                    "inspection_status")
+    list_filter = ("vehicle_type", "fuel_type", "is_active", "created_at")
+    search_fields = ("make", "model", "license_plate")
+    ordering = ("license_plate",)
+    date_hierarchy = "created_at"
+    readonly_fields = ("created_at", "updated_at")
+    fieldsets = (
+        (None, {
+            "fields": ("make", "model", "year", "color", "license_plate", "vehicle_type", "fuel_type", "capacity",
+                       "is_active")
+        }),
+        ("Features", {
+            "fields": ("features", "accessibility_features")
+        }),
+        ("Documents", {
+            "fields": ("logbook_copy", "insurance_copy", "inspection_certificate")
+        }),
+        ("Expiry Dates", {
+            "fields": ("insurance_expiry", "inspection_expiry")
+        }),
+        ("Environmental", {
+            "fields": ("carbon_footprint_per_km",)
         }),
         ("Timestamps", {
             "classes": ("collapse",),
@@ -109,24 +177,41 @@ class TourAdmin(admin.ModelAdmin):
 # =====================================================
 @admin.register(Driver)
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ("name", "normalized_phone", "license_number",
-                    "available", "is_active", "rating", "created_at")
-    list_filter = ("available", "is_active", "experience_years")
-    search_fields = ("name", "phone_number", "license_number", "vehicle")
-    ordering = ("name",)
-    readonly_fields = ("normalized_phone", "created_at", "updated_at")
+    list_display = ("full_name", "normalized_phone", "license_number", "license_type",
+                    "available", "rating", "total_trips", "created_at")
+    list_filter = ("available", "license_type", "experience_years", "created_at")
+    search_fields = ("full_name", "phone_number", "license_number", "vehicle__license_plate")
+    ordering = ("user__first_name", "user__last_name")
+    autocomplete_fields = ("user", "vehicle")
+    date_hierarchy = "created_at"
+    readonly_fields = ("normalized_phone", "created_at", "updated_at", "total_trips", "total_earnings")
     fieldsets = (
         (None, {
-            "fields": ("name", "user", "license_number", "available", "is_active")
+            "fields": ("user", "full_name", "license_number", "license_type", "available", "is_verified")
         }),
         ("Contact Information", {
-            "fields": ("phone_number", "normalized_phone")
+            "fields": ("phone_number", "normalized_phone", "email")
         }),
-        ("Vehicle Information", {
-            "fields": ("vehicle", "vehicle_plate")
+        ("Personal Details", {
+            "fields": ("gender", "date_of_birth", "nationality", "profile_picture", "bio")
         }),
-        ("Profile", {
-            "fields": ("profile_picture", "experience_years", "bio", "rating")
+        ("License", {
+            "fields": ("license_expiry", "driver_license_copy")
+        }),
+        ("Vehicle", {
+            "fields": ("vehicle",)
+        }),
+        ("Experience & Stats", {
+            "fields": ("experience_years", "rating", "total_trips", "total_earnings")
+        }),
+        ("Documents", {
+            "fields": ("police_clearance", "verification_document")
+        }),
+        ("Bank Details", {
+            "fields": ("bank_name", "bank_account", "bank_branch")
+        }),
+        ("Payment Preferences", {
+            "fields": ("payment_methods",)
         }),
         ("Timestamps", {
             "classes": ("collapse",),
@@ -141,38 +226,56 @@ class DriverAdmin(admin.ModelAdmin):
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
-        "customer",
-        "destination",
+        "booking_reference",
+        "booking_customer",
+        "service_name",
         "booking_type",
-        "num_passengers_field",  # Changed from "num_passengers"
+        "total_passengers",
         "travel_date",
+        "travel_time",
         "total_price",
-        "status",
         "colored_status",
         "is_paid",
         "driver",
         "created_at",
     )
-    list_filter = ("booking_type", "status", "is_paid", "travel_date")
-    search_fields = ("customer__first_name", "customer__last_name",
-                     "customer__email", "destination__name", "driver__name")
+    list_filter = ("booking_type", "status", "is_paid", "travel_date", "carbon_offset_option")
+    search_fields = ("booking_reference", "booking_customer__full_name", "booking_customer__email",
+                     "destination__name", "tour__title", "driver__full_name")
     ordering = ("-booking_date",)
     date_hierarchy = "travel_date"
-    autocomplete_fields = ("customer", "destination", "driver")
-    readonly_fields = ("created_at", "updated_at")
+    autocomplete_fields = ("booking_customer", "destination", "tour", "driver", "vehicle")
+    readonly_fields = ("created_at", "updated_at", "booking_reference")
     fieldsets = (
         (None, {
-            "fields": ("customer", "destination", "booking_type", "status")
+            "fields": ("booking_reference", "booking_customer", "booking_type", "status")
         }),
-        ("Trip Details", {
-            "fields": ("num_passengers", "travel_date", "travel_time", "pickup_location", "dropoff_location")
+        ("Service", {
+            "fields": ("destination", "tour")
+        }),
+        ("Passengers", {
+            "fields": ("num_adults", "num_children", "num_infants")
+        }),
+        ("Dates & Times", {
+            "fields": ("travel_date", "travel_time", "return_date", "return_time")
+        }),
+        ("Locations", {
+            "fields": ("pickup_location", "dropoff_location")
+        }),
+        ("Coordinates", {
+            "fields": ("pickup_latitude", "pickup_longitude", "dropoff_latitude", "dropoff_longitude")
         }),
         ("Pricing", {
-            "fields": ("total_price", "is_paid")
+            "fields": ("total_price", "currency", "carbon_offset_option", "carbon_offset_amount")
+        }),
+        ("Payment", {
+            "fields": ("is_paid",)
+        }),
+        ("Assignment", {
+            "fields": ("driver", "vehicle")
         }),
         ("Additional Information", {
-            "fields": ("special_requests", "driver")
+            "fields": ("special_requests", "notes", "cancellation_reason")
         }),
         ("Timestamps", {
             "classes": ("collapse",),
@@ -180,21 +283,55 @@ class BookingAdmin(admin.ModelAdmin):
         }),
     )
 
-    def num_passengers_field(self, obj):
-        return obj.num_passengers
-    num_passengers_field.short_description = "Passengers"
-
     def colored_status(self, obj):
         color_map = {
             'PENDING': 'orange',
             'CONFIRMED': 'blue',
             'CANCELLED': 'red',
             'COMPLETED': 'green',
+            'IN_PROGRESS': 'purple',
+            'NO_SHOW': 'gray',
         }
         color = color_map.get(obj.status, "black")
         return format_html('<span style="color: {}; font-weight: bold;">{}</span>', color, obj.status)
 
     colored_status.short_description = "Status"
+
+
+# =============================================================================
+# TRIP ADMIN
+# =============================================================================
+@admin.register(Trip)
+class TripAdmin(admin.ModelAdmin):
+    list_display = ('destination', 'driver', 'date', 'start_time', 'status', 'earnings')
+    list_filter = ('status', 'date')
+    search_fields = ('destination', 'driver__full_name', 'booking__booking_reference')
+    autocomplete_fields = ['driver', 'vehicle', 'booking']
+    readonly_fields = ('duration', 'fuel_efficiency')
+
+    fieldsets = (
+        ('Trip Information', {
+            'fields': ('driver', 'booking', 'vehicle', 'destination', 'status')
+        }),
+        ('Schedule', {
+            'fields': ('date', 'start_time', 'end_time')
+        }),
+        ('Metrics', {
+            'fields': ('earnings', 'distance', 'fuel_consumed', 'carbon_emissions')
+        }),
+        ('Feedback', {
+            'fields': ('customer_rating', 'customer_feedback')
+        }),
+        ('Additional', {
+            'fields': ('notes',)
+        }),
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset().select_related(
+            'driver', 'vehicle', 'booking', 'booking__booking_customer'
+        )
+
 
 
 # =====================================================
@@ -272,41 +409,27 @@ Safari Adventures Kenya Team
     messages.success(request, f"Confirmation emails resent for {sent_count} payment(s).")
 
 
-# =====================================================
+# =============================================================================
 # PAYMENT ADMIN
-# =====================================================
+# =============================================================================
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     form = PaymentAdminForm
+    list_display = ('id', 'guest_full_name', 'guest_email', 'tour', 'amount', 'status', 'paid_on')
+    list_filter = ('status', 'provider', 'created_at', 'paid_on')
+    search_fields = ('reference', 'guest_full_name', 'guest_email', 'tour__title')
+    readonly_fields = ('amount_paid', 'is_successful', 'payer_email')
     actions = [mark_as_completed, resend_confirmation_emails]
 
-    list_display = (
-        "id",
-        "get_customer_name",
-        "tour",
-        "guest_full_name_safe",
-        "guest_email_safe",
-        "guest_phone_safe",
-        "get_adults",
-        "get_children",
-        "get_days",
-        "amount",
-        "currency",
-        "provider",
-        "get_method",
-        "colored_status",
-        "reference",
-        "paystack_transaction_id",
-        "webhook_verified_status",
-        "description",
-        "paid_on",
-        "created_at",
-    )
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'tour', 'booking', 'user', 'booking__booking_customer'
+        )
 
     # --- Safe list_display methods ---
     def get_customer_name(self, obj):
-        if obj.user:
-            return obj.user.get_full_name()
+        if obj.booking and obj.booking.booking_customer:
+            return obj.booking.booking_customer.full_name
         return obj.guest_full_name or "Guest"
 
     get_customer_name.short_description = "Customer"
@@ -424,13 +547,14 @@ This notification was generated automatically by the admin panel.
         response = super().changelist_view(request, extra_context)
 
         # Add custom buttons
-        response.context_data['custom_buttons'] = [
-            {
-                'url': reverse('admin:sync_payments'),
-                'label': 'Sync with Paystack',
-                'css_class': 'btn btn-primary',
-            }
-        ]
+        if hasattr(response, "context_data"):
+            response.context_data['custom_buttons'] = [
+                {
+                    'url': reverse('admin:sync_payments'),
+                    'label': 'Sync with Paystack',
+                    'css_class': 'btn btn-primary',
+                }
+            ]
 
         return response
 
@@ -446,16 +570,12 @@ This notification was generated automatically by the admin panel.
     # --- Custom views ---
     def sync_payments(self, request):
         """Sync payment statuses with Paystack"""
-        import requests
-
-        # Get all pending payments
         pending_payments = Payment.objects.filter(status=PaymentStatus.PENDING)
         updated_count = 0
 
         for payment in pending_payments:
             if payment.reference:
                 try:
-                    # Verify transaction with Paystack
                     headers = {
                         "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
                     }
@@ -500,10 +620,13 @@ This notification was generated automatically by the admin panel.
             "fields": ("id", "status", "provider", "amount", "amount_paid")
         }),
         ("Customer Information", {
-            "fields": ("user", "guest_full_name", "guest_email", "guest_phone")
+            "fields": ("user", "booking_customer", "guest_full_name", "guest_email", "guest_phone")
         }),
         ("Booking/Tour Information", {
             "fields": ("booking", "tour", "travel_date")
+        }),
+        ("Passenger Details", {
+            "fields": ("adults", "children", "days")
         }),
         ("Transaction Details", {
             "fields": ("reference", "paystack_transaction_id", "transaction_id", "authorization_code")
@@ -514,101 +637,105 @@ This notification was generated automatically by the admin panel.
         ("Webhook Information", {
             "fields": ("webhook_verified", "webhook_received_at", "raw_response")
         }),
+        ("Refund Information", {
+            "fields": ("refund_reference", "refund_amount", "refund_reason", "refunded_on")
+        }),
         ("Timestamps", {
             "classes": ("collapse",),
             "fields": ("paid_on", "created_at", "updated_at")
         }),
     )
 
+# =============================================================================
+# REVIEW ADMIN
+# =============================================================================
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('get_booking_customer', 'review_target_name', 'rating', 'is_public', 'is_verified', 'created_at')
+    list_filter = ('rating', 'is_public', 'is_verified', 'created_at')
+    search_fields = ('booking_customer__full_name', 'title', 'comment')
+    readonly_fields = ('average_detailed_rating', 'review_target', 'review_target_name')
 
-# =====================================================
+    fieldsets = (
+        ('Review Information', {
+            'fields': ('booking', 'tour', 'driver', 'rating', 'title', 'comment')
+        }),
+        ('Detailed Ratings', {
+            'fields': ('safety_rating', 'cleanliness_rating', 'value_rating', 'comfort_rating', 'punctuality_rating')
+        }),
+        ('Status', {
+            'fields': ('is_public', 'is_verified', 'verified_at')
+        }),
+        ('Response', {
+            'fields': ('response', 'responded_at', 'responded_by')
+        }),
+    )
+
+    def get_booking_customer(self, obj):
+        return obj.booking.booking_customer.full_name if obj.booking and obj.booking.booking_customer else "Unknown"
+
+    get_booking_customer.short_description = "Booking Customer"
+
+    def get_queryset(self, request):
+        return super().get_queryset().select_related(
+            'booking', 'booking__booking_customer', 'tour', 'driver'
+        )
+
+    actions = ["mark_as_verified"]
+
+    def mark_as_verified(self, request, queryset):
+        count = queryset.update(is_verified=True, verified_at=timezone.now())
+        self.message_user(request, f"{count} reviews marked as verified.")
+
+    mark_as_verified.short_description = "Mark selected reviews as verified"
+
+
+# =============================================================================
 # CONTACT MESSAGE ADMIN
-# =====================================================
+# =============================================================================
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "subject", "is_resolved", "created_at")
-    list_filter = ("is_resolved", "created_at")
-    search_fields = ("name", "email", "subject", "message")
-    ordering = ("-created_at",)
-    date_hierarchy = "created_at"
-    readonly_fields = ("created_at", "updated_at")
-    actions = ["mark_as_resolved"]
+    list_display = ('name', 'email', 'inquiry_type', 'priority', 'is_resolved', 'created_at')
+    list_filter = ('inquiry_type', 'priority', 'is_resolved', 'assigned_to')
+    search_fields = ('name', 'email', 'subject', 'message')
+    readonly_fields = ('is_assigned', 'is_overdue')
+
     fieldsets = (
-        (None, {
-            "fields": ("name", "email", "phone", "subject", "is_resolved")
+        ('Message Information', {
+            'fields': ('name', 'email', 'phone', 'inquiry_type', 'subject', 'message')
         }),
-        ("Message", {
-            "fields": ("message",)
+        ('Status', {
+            'fields': ('priority', 'is_resolved', 'assigned_to', 'resolved_by', 'resolved_at')
         }),
-        ("Resolution", {
-            "fields": ("resolved_by", "resolved_at")
-        }),
-        ("Timestamps", {
-            "classes": ("collapse",),
-            "fields": ("created_at", "updated_at")
+        ('Additional', {
+            'fields': ('ip_address', 'created_at')
         }),
     )
 
     def mark_as_resolved(self, request, queryset):
-        queryset.update(is_resolved=True)
-        self.message_user(request, "Selected messages marked as resolved.")
+        updated = queryset.update(is_resolved=True, resolved_by=request.user, resolved_at=timezone.now())
+        self.message_user(request, f"{updated} messages marked as resolved.")
 
     mark_as_resolved.short_description = "Mark selected messages as resolved"
 
+    def assign_to_me(self, request, queryset):
+        updated = queryset.update(assigned_to=request.user)
+        self.message_user(request, f"{updated} messages assigned to you.")
 
-# =====================================================
-# VIDEO ADMIN
-# =====================================================
-@admin.register(Video)
-class VideoAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "is_featured", "is_active", "created_at")
-    list_filter = ("category", "is_featured", "is_active", "created_at")
-    search_fields = ("title", "description")
-    ordering = ("-created_at",)
-    date_hierarchy = "created_at"
-    readonly_fields = ("created_at", "updated_at")
-    prepopulated_fields = {"slug": ("title",)}
-    fieldsets = (
-        (None, {
-            "fields": ("title", "slug", "category", "is_featured", "is_active")
-        }),
-        ("Details", {
-            "fields": ("description", "price")
-        }),
-        ("Media", {
-            "fields": ("file", "thumbnail")
-        }),
-        ("Timestamps", {
-            "classes": ("collapse",),
-            "fields": ("created_at", "updated_at")
-        }),
-    )
+    assign_to_me.short_description = "Assign selected messages to me"
+
+    def is_assigned(self, obj):
+        return bool(obj.assigned_to)
+
+    is_assigned.boolean = True
+    is_assigned.short_description = "Assigned"
 
 
-# =====================================================
-# TRIP ADMIN
-# =====================================================
-@admin.register(Trip)
-class TripAdmin(admin.ModelAdmin):
-    list_display = ("driver", "destination", "date", "status", "earnings", "created_at")
-    list_filter = ("status", "date", "created_at")
-    search_fields = ("driver__name", "destination")
-    ordering = ("-date", "-created_at")
-    date_hierarchy = "date"
-    autocomplete_fields = ("driver",)
-    readonly_fields = ("created_at", "updated_at")
-    fieldsets = (
-        (None, {
-            "fields": ("driver", "destination", "date", "status")
-        }),
-        ("Schedule", {
-            "fields": ("start_time", "end_time")
-        }),
-        ("Details", {
-            "fields": ("earnings", "distance", "notes")
-        }),
-        ("Timestamps", {
-            "classes": ("collapse",),
-            "fields": ("created_at", "updated_at")
-        }),
-    )
+# =============================================================================
+# BOOKING CUSTOMER ADMIN
+# =============================================================================
+@admin.register(BookingCustomer)
+class BookingCustomerAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'normalized_phone', 'travel_date', 'created_at')
+    list_filter = ('country_code', 'created_at')
+    search_fields = ('full_name', 'email', 'normalized_phone')

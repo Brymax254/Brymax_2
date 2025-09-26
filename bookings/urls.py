@@ -3,7 +3,6 @@
 # =============================================================================
 from django.urls import path
 from . import views
-from .views import receipt
 
 app_name = 'bookings'  # App namespace
 
@@ -34,9 +33,9 @@ urlpatterns = [
     # 📋 Payment Result Pages
     # ===============================
     path("payments/success/<uuid:pk>/", views.payment_success_detail, name="payment_success_detail"),
-    path("payments/success/", views.payment_success_general, name="payment_success_general"),
+    path("payment/success/", views.payment_success, name="payment_success"),
     path("payment/pending/", views.payment_pending, name="payment_pending"),
-    path("payment/failed/", views.payment_failed, name="payment_failed"),
+    path("payments/failed/", views.payment_failed, name="payment_failed"),
 
     # ===============================
     # 🔗 Paystack Integration
@@ -55,7 +54,6 @@ urlpatterns = [
     path("guest/payment/<uuid:payment_id>/", views.guest_payment_page, name="guest_payment_page"),
     path("guest/payment/return/", views.guest_payment_return, name="guest_payment_return"),
     path("guest/payment/success/", views.guest_payment_success, name="guest_payment_success"),
-    path("guest/payment/failed/", views.guest_payment_failed, name="guest_payment_failed"),
 
     # ===============================
     # 🚖 Driver Authentication & Dashboard
@@ -69,7 +67,7 @@ urlpatterns = [
     # ===============================
     # 🧾 Receipt Page
     # ===============================
-    path("receipt/<int:pk>/", receipt, name="receipt"),
+    path("receipt/<uuid:pk>/", views.receipt, name="receipt"),
 
     # ===============================
     # 🛠️ Custom Modern Admin Dashboard
