@@ -7,36 +7,88 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #0d4f3c;
+            --primary-dark: #093d2e;
+            --secondary: #d35400;
+            --accent: #f1c40f;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --safari-green: #16a085;
+            --safari-accent: #f1c40f;
+            --grass-green: #27ae60;
+            --earth-brown: #a0522d;
+            --safari-gold: #d4af37;
+            --safari-dark: #2c3e50;
+            --safari-light: #ecf0f1;
+            --safari-cream: #fef9e7;
+            --safari-brown: #8b4513;
+            --safari-orange: #e67e22;
+            --safari-blue: #3498db;
+            --safari-red: #e74c3c;
+            --safari-purple: #9b59b6;
+        }
+
         * {
             font-family: 'Inter', sans-serif;
         }
-        
+
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--safari-green) 100%);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .gradient-bg::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.2;
+        }
+
         .card-shadow {
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        
+
         .hover-scale {
             transition: transform 0.3s ease;
         }
-        
+
         .hover-scale:hover {
             transform: scale(1.03);
         }
-        
+
         .status-badge {
-            background: linear-gradient(90deg, #10b981, #059669);
+            background: linear-gradient(90deg, var(--success), var(--grass-green));
         }
-        
+
         .receipt-header {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            background: linear-gradient(90deg, var(--primary), var(--safari-green));
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .receipt-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.2;
+        }
+
         @media print {
             body {
                 background: white !important;
@@ -54,26 +106,187 @@
                 border: 1px solid #e5e7eb;
             }
         }
-        
+
         .feature-card {
             transition: all 0.3s ease;
+            border-left: 4px solid transparent;
         }
-        
+
         .feature-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-left: 4px solid var(--primary);
         }
-        
+
         .dashboard-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(13, 79, 60, 0.35);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(13, 79, 60, 0.25);
+        }
+
+        .safari-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(248, 249, 250, 0.92), rgba(248, 249, 250, 0.92)),
+            url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%230d4f3c' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+            z-index: -1;
+        }
+
+        .safari-leaf {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230d4f3c' fill-opacity='0.1'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+            z-index: -1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .leaf-1 {
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+            transform: rotate(15deg);
+        }
+
+        .leaf-2 {
+            top: 20%;
+            right: 8%;
+            animation-delay: 1s;
+            transform: scale(0.8) rotate(-10deg);
+        }
+
+        .leaf-3 {
+            bottom: 30%;
+            left: 7%;
+            animation-delay: 2s;
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0); }
+        }
+
+        .payment-row {
+            position: relative;
+        }
+
+        .payment-row::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(13, 79, 60, 0.2), transparent);
+        }
+
+        .payment-row:last-child::after {
+            display: none;
+        }
+
+        .total-row {
+            background: linear-gradient(90deg, rgba(13, 79, 60, 0.05), rgba(13, 79, 60, 0.1));
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 79, 60, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(13, 79, 60, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 79, 60, 0);
+            }
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- Safari-inspired Background -->
+    <div class="safari-bg"></div>
+    <div class="safari-leaf leaf-1"></div>
+    <div class="safari-leaf leaf-2"></div>
+    <div class="safari-leaf leaf-3"></div>
+
     <!-- Dashboard Header -->
-    <header class="receipt-header text-white py-6 px-6 shadow-lg">
+    <header class="receipt-header text-white py-6 px-6 shadow-lg relative z-10">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
             <div class="flex items-center mb-4 md:mb-0">
                 <div class="bg-white bg-opacity-20 p-3 rounded-lg mr-4">
@@ -81,26 +294,32 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold">Trip Receipt Dashboard</h1>
-                    <p class="text-purple-200">Safari Adventures Kenya</p>
+                    <p class="text-green-100">Safari Adventures Kenya</p>
                 </div>
             </div>
             <div class="text-right">
-                <p class="text-sm text-purple-200">Receipt Date</p>
-                <p class="font-semibold">{{ payment.paid_at|date:"F d, Y" }}</p>
+                <p class="text-sm text-green-100">Receipt Date</p>
+                <p class="font-semibold">{{ payment.paid_on|date:"F d, Y"|default:"N/A" }}</p>
             </div>
         </div>
     </header>
 
     <!-- Main Dashboard Content -->
-    <main class="max-w-6xl mx-auto p-6">
+    <main class="max-w-6xl mx-auto p-6 relative z-10">
         <!-- Hero Section -->
-        <div class="gradient-bg rounded-2xl p-8 mb-8 text-white card-shadow">
+        <div class="gradient-bg rounded-2xl p-8 mb-8 text-white card-shadow relative">
             <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 mb-6 md:mb-0">
-                    <h2 class="text-3xl font-bold mb-2">{{ payment.tour.title }}</h2>
-                    <p class="text-purple-200 mb-4">Your adventure is confirmed!</p>
+                <div class="md:w-1/2 mb-6 md:mb-0 relative z-10">
+                    <h2 class="text-3xl font-bold mb-2">
+                        {% if payment.tour %}
+                            {{ payment.tour.name|default:"Tour Booking" }}
+                        {% else %}
+                            Tour Booking
+                        {% endif %}
+                    </h2>
+                    <p class="text-green-100 mb-4">Your adventure is confirmed!</p>
                     <div class="flex items-center">
-                        <div class="status-badge text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center">
+                        <div class="status-badge text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center pulse-animation">
                             <i class="fas fa-check-circle mr-2"></i>
                             Payment Confirmed
                         </div>
@@ -108,16 +327,16 @@
                 </div>
                 <div class="md:w-1/2 flex justify-center">
                     <div class="relative">
-                        {% if payment.tour.hero_image %}
-                            <img src="{{ payment.tour.hero_image.url }}" 
-                                 alt="{{ payment.tour.title }}" 
+                        {% if payment.tour and payment.tour.hero_image %}
+                            <img src="{{ payment.tour.hero_image.url }}"
+                                 alt="{{ payment.tour.name }}"
                                  class="rounded-xl shadow-xl w-80 h-56 object-cover">
                         {% else %}
-                            <div class="w-80 h-56 bg-purple-300 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-mountain text-6xl text-purple-700"></i>
+                            <div class="w-80 h-56 bg-green-300 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-mountain text-6xl text-green-700"></i>
                             </div>
                         {% endif %}
-                        <div class="absolute -bottom-4 -right-4 bg-white text-purple-700 rounded-full p-3 shadow-lg">
+                        <div class="absolute -bottom-4 -right-4 bg-white text-green-700 rounded-full p-3 shadow-lg">
                             <i class="fas fa-camera text-xl"></i>
                         </div>
                     </div>
@@ -130,13 +349,13 @@
             <!-- Traveler Info Card -->
             <div class="dashboard-card rounded-2xl p-6 card-shadow">
                 <div class="flex items-center mb-4">
-                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-user text-blue-600 text-xl"></i>
+                    <div class="icon-circle bg-blue-100 text-blue-600 mr-4">
+                        <i class="fas fa-user"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-800">Traveler Details</h3>
                 </div>
                 <div class="space-y-3">
-                    <div class="flex justify-between">
+                    <div class="flex justify-between payment-row pb-3">
                         <span class="text-gray-500">Name</span>
                         <span class="font-medium">
                             {% if payment.guest_full_name %}
@@ -148,7 +367,7 @@
                             {% endif %}
                         </span>
                     </div>
-                    <div class="flex justify-between">
+                    <div class="flex justify-between payment-row pb-3">
                         <span class="text-gray-500">Email</span>
                         <span class="font-medium">{{ payment.guest_email|default:"N/A" }}</span>
                     </div>
@@ -162,23 +381,29 @@
             <!-- Booking Info Card -->
             <div class="dashboard-card rounded-2xl p-6 card-shadow">
                 <div class="flex items-center mb-4">
-                    <div class="bg-green-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-calendar-check text-green-600 text-xl"></i>
+                    <div class="icon-circle bg-green-100 text-green-600 mr-4">
+                        <i class="fas fa-calendar-check"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-800">Booking Details</h3>
                 </div>
                 <div class="space-y-3">
-                    <div class="flex justify-between">
+                    <div class="flex justify-between payment-row pb-3">
                         <span class="text-gray-500">Travel Date</span>
-                        <span class="font-medium">{{ payment.travel_date|date:"M d, Y" }}</span>
+                        <span class="font-medium">{{ payment.travel_date|date:"M d, Y"|default:"N/A" }}</span>
                     </div>
-                    <div class="flex justify-between">
+                    <div class="flex justify-between payment-row pb-3">
                         <span class="text-gray-500">Duration</span>
-                        <span class="font-medium">{{ days }} days</span>
+                        <span class="font-medium">{{ payment.days|default:1 }} day{{ payment.days|default:1|pluralize }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-500">Tour</span>
-                        <span class="font-medium">{{ payment.tour.title }}</span>
+                        <span class="font-medium">
+                            {% if payment.tour %}
+                                {{ payment.tour.name }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -186,23 +411,23 @@
             <!-- Participants Card -->
             <div class="dashboard-card rounded-2xl p-6 card-shadow">
                 <div class="flex items-center mb-4">
-                    <div class="bg-yellow-100 p-3 rounded-lg mr-4">
-                        <i class="fas fa-users text-yellow-600 text-xl"></i>
+                    <div class="icon-circle bg-yellow-100 text-yellow-600 mr-4">
+                        <i class="fas fa-users"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-800">Participants</h3>
                 </div>
                 <div class="space-y-3">
-                    <div class="flex justify-between">
+                    <div class="flex justify-between payment-row pb-3">
                         <span class="text-gray-500">Adults</span>
-                        <span class="font-medium">{{ adults|default:0 }}</span>
+                        <span class="font-medium">{{ payment.adults|default:1 }}</span>
                     </div>
-                    <div class="flex justify-between">
+                    <div class="flex justify-between payment-row pb-3">
                         <span class="text-gray-500">Children</span>
-                        <span class="font-medium">{{ children|default:0 }}</span>
+                        <span class="font-medium">{{ payment.children|default:0 }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-500">Total</span>
-                        <span class="font-medium">{{ adults|default:0|add:children|default:0 }}</span>
+                        <span class="font-medium">{{ payment.adults|default:1|add:payment.children|default:0 }}</span>
                     </div>
                 </div>
             </div>
@@ -211,8 +436,8 @@
         <!-- Payment Breakdown Card -->
         <div class="dashboard-card rounded-2xl p-6 mb-8 card-shadow">
             <div class="flex items-center mb-6">
-                <div class="bg-purple-100 p-3 rounded-lg mr-4">
-                    <i class="fas fa-money-check-alt text-purple-600 text-xl"></i>
+                <div class="icon-circle bg-green-100 text-green-600 mr-4">
+                    <i class="fas fa-money-check-alt"></i>
                 </div>
                 <h3 class="text-xl font-semibold text-gray-800">Payment Breakdown</h3>
             </div>
@@ -225,26 +450,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border-b">
+                        {% if payment.tour %}
+                        <tr class="payment-row pb-3">
                             <td class="py-3">Base Price per Person</td>
-                            <td class="py-3 text-right">KES {{ payment.tour.price_per_person|floatformat:0 }}</td>
+                            <td class="py-3 text-right">KES {{ payment.tour.price_per_person|floatformat:0|default:"0" }}</td>
                         </tr>
-                        <tr class="border-b">
-                            <td class="py-3">Adults ({{ adults|default:0 }})</td>
+                        <tr class="payment-row pb-3">
+                            <td class="py-3">Adults ({{ payment.adults|default:1 }})</td>
                             <td class="py-3 text-right">
-                                KES {{ adults|default:0|mul:payment.tour.price_per_person }}
+                                KES {% widthratio payment.tour.price_per_person|default:0 1 payment.adults|default:1 %}
                             </td>
                         </tr>
-                        <tr class="border-b">
-                            <td class="py-3">Children ({{ children|default:0 }})</td>
+                        <tr class="payment-row pb-3">
+                            <td class="py-3">Children ({{ payment.children|default:0 }})</td>
                             <td class="py-3 text-right">
-                                KES {{ children|default:0|mul:payment.tour.price_per_person|div:2 }}
+                                KES {% widthratio payment.tour.price_per_person|default:0 2 payment.children|default:0 %}
                             </td>
                         </tr>
-                        <tr class="font-bold text-lg">
-                            <td class="py-4">Total Paid</td>
-                            <td class="py-4 text-right text-purple-700">
-                                KES {{ amount_paid|default:payment.amount|floatformat:0 }}
+                        {% endif %}
+                        <tr class="total-row font-bold text-lg">
+                            <td class="py-4 pl-4">Total Paid</td>
+                            <td class="py-4 pr-4 text-right text-green-700">
+                                KES {{ payment.amount_paid|default:payment.amount|floatformat:0 }}
                             </td>
                         </tr>
                     </tbody>
@@ -252,7 +479,7 @@
             </div>
             <div class="mt-4 flex justify-between items-center">
                 <p class="text-sm text-gray-500">
-                    Reference: {{ payment.pesapal_reference|default:payment.reference }}
+                    Reference: {{ payment.reference }}
                 </p>
                 <div class="flex items-center">
                     <i class="fas fa-shield-alt text-green-500 mr-2"></i>
@@ -264,45 +491,73 @@
         <!-- Trip Features Section -->
         <div class="dashboard-card rounded-2xl p-6 mb-8 card-shadow">
             <div class="flex items-center mb-6">
-                <div class="bg-indigo-100 p-3 rounded-lg mr-4">
-                    <i class="fas fa-star text-indigo-600 text-xl"></i>
+                <div class="icon-circle bg-indigo-100 text-indigo-600 mr-4">
+                    <i class="fas fa-star"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800">Trip Features</h3>
+                <h3 class="text-xl font-semibold text-gray-800">Trip Information</h3>
             </div>
-            
-            {% if payment.tour.features.all %}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {% for feature in payment.tour.features.all %}
-                        <div class="feature-card bg-gray-50 p-4 rounded-xl border border-gray-200">
-                            <div class="flex items-start">
-                                <div class="bg-indigo-100 p-2 rounded-lg mr-3">
-                                    <i class="fas fa-check text-indigo-600"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-medium text-gray-800">{{ feature.name }}</h4>
-                                    <p class="text-sm text-gray-600 mt-1">{{ feature.description }}</p>
-                                </div>
+
+            {% if payment.tour %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% if payment.tour.description %}
+                    <div class="feature-card bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div class="flex items-start">
+                            <div class="feature-icon bg-indigo-100 p-2 rounded-lg mr-3">
+                                <i class="fas fa-info-circle text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Tour Description</h4>
+                                <p class="text-sm text-gray-600 mt-1">{{ payment.tour.description }}</p>
                             </div>
                         </div>
-                    {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if payment.tour.duration %}
+                    <div class="feature-card bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div class="flex items-start">
+                            <div class="feature-icon bg-green-100 p-2 rounded-lg mr-3">
+                                <i class="fas fa-clock text-green-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Duration</h4>
+                                <p class="text-sm text-gray-600 mt-1">{{ payment.tour.duration }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if payment.tour.difficulty %}
+                    <div class="feature-card bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div class="flex items-start">
+                            <div class="feature-icon bg-yellow-100 p-2 rounded-lg mr-3">
+                                <i class="fas fa-mountain text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-800">Difficulty Level</h4>
+                                <p class="text-sm text-gray-600 mt-1">{{ payment.tour.difficulty }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             {% else %}
                 <div class="text-center py-10 bg-gray-50 rounded-xl">
                     <i class="fas fa-info-circle text-gray-400 text-4xl mb-3"></i>
-                    <p class="text-gray-500">No special features added to this trip.</p>
+                    <p class="text-gray-500">No tour information available.</p>
                 </div>
             {% endif %}
         </div>
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10 no-print">
-            <button onclick="window.print()" 
-                    class="flex items-center justify-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-4 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition shadow-lg">
+            <button onclick="window.print()"
+                    class="btn-primary flex items-center justify-center px-8 py-4 rounded-xl shadow-lg">
                 <i class="fas fa-print mr-3"></i>
                 Download Receipt
             </button>
-            <a href="{% url 'tours' %}" 
-               class="flex items-center justify-center bg-white text-purple-600 border border-purple-600 px-8 py-4 rounded-xl hover:bg-purple-50 transition shadow">
+            <a href="{% url 'bookings:tours' %}"
+               class="btn-secondary flex items-center justify-center px-8 py-4 rounded-xl shadow">
                 <i class="fas fa-safari mr-3"></i>
                 Browse More Tours
             </a>
@@ -312,7 +567,7 @@
         <div class="text-center py-8 border-t border-gray-200">
             <h3 class="font-semibold text-gray-700 mb-2">Explore More Safaris</h3>
             <p class="text-gray-600 mb-4">Discover other amazing adventures we offer</p>
-            <a href="{% url 'tours' %}" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium">
+            <a href="{% url 'bookings:tours' %}" class="inline-flex items-center text-green-600 hover:text-green-700 font-medium">
                 View all packages
                 <i class="fas fa-arrow-right ml-2"></i>
             </a>
@@ -337,12 +592,35 @@
                     card.style.opacity = '0';
                     card.style.transform = 'translateY(20px)';
                     card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    
+
                     setTimeout(() => {
                         card.style.opacity = '1';
                         card.style.transform = 'translateY(0)';
                     }, 100);
                 }, index * 100);
+            });
+
+            // Add ripple effect to buttons
+            const buttons = document.querySelectorAll('button, .btn-secondary');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+
+                    this.appendChild(ripple);
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
             });
         });
     </script>

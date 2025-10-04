@@ -1,10 +1,10 @@
 # =============================================================================
-# URLS
+# URLS – Bookings App
 # =============================================================================
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
-app_name = 'bookings'  # App namespace
+app_name = "bookings"  # App namespace
 
 urlpatterns = [
     # ===============================
@@ -16,35 +16,40 @@ urlpatterns = [
     path("terms/", views.terms, name="terms"),
 
     # ===============================
-    # Tours & Bookings
+    # 🚌 Tours & Bookings
     # ===============================
     path("book-online/", views.book_online, name="book_online"),
-    path("nairobi-airport-transfers-and-taxis/", views.nairobi_transfers, name="nairobi_transfers"),
-    path("book/excursions/", views.excursions, name="excursions"),
+    path("airport-transfers/", views.nairobi_transfers, name="airport_transfers"),
+    path("excursions/", views.excursions, name="excursions"),
     path("tours-and-safaris/", views.tours, name="tours"),
-
+    path("tour/<slug:tour_slug>/", views.TourDetailView.as_view(), name="tour_detail"),
+path("nairobi-airport-transfers-and-taxis/", views.nairobi_airport_transfers, name="nairobi_airport_transfers"),
     # ===============================
-    # 💳 Payment Initiation for Tours (Paystack)
+    # 💳 Tour Payments (Paystack)
     # ===============================
-    path("book-tour/<int:tour_id>/", views.tour_payment, name="tour_payment"),
-    path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_base"),
+    path("tour/<int:tour_id>/pay/", views.tour_payment, name="tour_payment"),
+    path("book-tour/<int:tour_id>/", views.tour_payment, name="tour_payment_legacy"),
+    # Added missing pattern for payments/tour/<tour_id>/
+    path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_alt"),
 
     # ===============================
     # 📋 Payment Result Pages
     # ===============================
     path("payments/success/<uuid:pk>/", views.payment_success_detail, name="payment_success_detail"),
-    path("payment/success/", views.payment_success, name="payment_success"),
-    path("payment/pending/", views.payment_pending, name="payment_pending"),
+    path("payments/success/", views.payment_success, name="payment_success"),
+    path("payments/pending/", views.payment_pending, name="payment_pending"),
     path("payments/failed/", views.payment_failed, name="payment_failed"),
+    path("payments/retry/<uuid:payment_id>/", views.retry_payment, name="retry_payment"),
 
     # ===============================
     # 🔗 Paystack Integration
     # ===============================
     path("payments/create-guest-order/", views.create_guest_paystack_order, name="create_guest_paystack_order"),
-    path("paystack/callback/", views.paystack_callback, name="paystack_callback_legacy"),
     path("payments/callback/", views.paystack_callback, name="paystack_callback"),
-    path("paystack/webhook/", views.paystack_webhook, name="paystack_webhook_legacy"),
     path("payments/webhook/", views.paystack_webhook, name="paystack_webhook"),
+    # Legacy aliases (for backwards compatibility)
+    path("paystack/callback/", views.paystack_callback, name="paystack_callback_legacy"),
+    path("paystack/webhook/", views.paystack_webhook, name="paystack_webhook_legacy"),
 
     # ===============================
     # 👤 Guest Checkout Flow
@@ -54,42 +59,47 @@ urlpatterns = [
     path("guest/payment/<uuid:payment_id>/", views.guest_payment_page, name="guest_payment_page"),
     path("guest/payment/return/", views.guest_payment_return, name="guest_payment_return"),
     path("guest/payment/success/", views.guest_payment_success, name="guest_payment_success"),
+    path("guest/payment/failed/", views.guest_payment_failed, name="guest_payment_failed"),
 
     # ===============================
     # 🚖 Driver Authentication & Dashboard
     # ===============================
     path("driver/login/", views.driver_login, name="driver_login"),
+    path("driver/logout/", views.driver_logout, name="driver_logout"),
     path("driver/dashboard/", views.driver_dashboard, name="driver_dashboard"),
     path("driver/tour/add/", views.create_tour, name="create_tour"),
     path("driver/tour/<int:tour_id>/edit/", views.edit_tour, name="edit_tour"),
     path("driver/tour/<int:tour_id>/delete/", views.delete_tour, name="delete_tour"),
 
     # ===============================
-    # 🧾 Receipt Page
+    # 🧾 Receipts
     # ===============================
     path("receipt/<uuid:pk>/", views.receipt, name="receipt"),
 
     # ===============================
-    # 🛠️ Custom Modern Admin Dashboard
+    # 🛠️ Custom Admin Dashboard
     # ===============================
     path("brymax-admin/", views.modern_admin_dashboard, name="modern_admin_dashboard"),
+    path("brymax-admin/tour-approval/", views.admin_tour_approval, name="admin_tour_approval"),
+    path("brymax-admin/tour-approval/approve/<int:tour_id>/", views.approve_tour, name="approve_tour"),
+    path("brymax-admin/tour-approval/reject/<int:tour_id>/", views.reject_tour, name="reject_tour"),
+    path("brymax-admin/payments/", views.payment_admin_list, name="payment_admin_list"),
+    path("brymax-admin/payments/<uuid:payment_id>/", views.payment_admin_detail, name="payment_admin_detail"),
+    path("brymax-admin/payments/<uuid:payment_id>/refund/", views.payment_admin_refund, name="payment_admin_refund"),
 
     # ===============================
     # 📊 API Endpoints
     # ===============================
-    path("api/tour-price/<int:tour_id>/", views.tour_price_api, name="tour_price_api"),
-    path("api/tour-availability/<int:tour_id>/", views.tour_availability_api, name="tour_availability_api"),
-    path("api/payment-status/<uuid:payment_id>/", views.check_payment_status, name="check_payment_status"),
-
-    # ===============================
-    # 🔁 Payment Retry
-    # ===============================
-    path("payment/retry/<uuid:payment_id>/", views.retry_payment, name="retry_payment"),
+    path("api/tour/<int:tour_id>/price/", views.tour_price_api, name="tour_price_api"),
+    path("api/tour/<int:tour_id>/availability/", views.tour_availability_api, name="tour_availability_api"),
+    path("api/tours/", views.tours_api, name="tours_api"),
+    path("api/payment/<uuid:payment_id>/status/", views.check_payment_status, name="check_payment_status"),
 
     # ===============================
     # 📧 Contact Form
     # ===============================
     path("contact/submit/", views.contact_submit, name="contact_submit"),
+    path('api/vehicles/', views.vehicles_api, name='vehicles_api'),
 
     # ===============================
     # 🏥 Health Check

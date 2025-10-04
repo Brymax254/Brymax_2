@@ -3,78 +3,75 @@
 # =============================================================================
 
 # Standard library
+import calendar
+import hashlib
+import hmac
 import json
 import logging
-import hmac
-import hashlib
 import re
 import uuid
+from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
-from datetime import timedelta, datetime, date
-from typing import Optional, Dict, Any
-
-# Django core
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.forms import AuthenticationForm
-from django.core.exceptions import ImproperlyConfigured
-from django.core.mail import send_mail
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db import models, transaction
-from django.http import (
-    HttpResponse,
-    JsonResponse,
-    HttpResponseNotAllowed
-)
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import (
-    require_GET,
-    require_POST,
-    require_http_methods
-)
-from django.views.generic import DetailView
+from typing import Any, Dict, Optional, Union
 
 # Third-party
 import requests
 from requests.exceptions import RequestException
 
-# Local apps - Models & Forms
+# Django core
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ImproperlyConfigured
+from django.core.mail import send_mail
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db import models, transaction
+from django.db.models import Avg, Count, Q, Sum
+from django.db.models.functions import TruncMonth
+from django.http import Http404, HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
+from django.views.generic import DetailView
+
+# Local apps - Models
 from .models import (
-    Tour, Destination, Booking, Payment, ContactMessage, Trip,
-    PaymentStatus, Driver, TourCategory, BookingCustomer
+    Booking, BookingCustomer, ContactMessage, Driver, Destination, Payment,
+    PaymentProvider, PaymentStatus, Review, Tour, TourCategory, Trip
 )
-from .forms import ContactForm
+
+# Local apps - Serializers
+from api.serializers import (
+    BookingSerializer, DestinationSerializer, DriverSerializer, PaymentSerializer,
+    ReviewSerializer, TourCategorySerializer, TourSerializer, TripSerializer,
+    VehicleSerializer
+)
+
+# Local apps - Forms
+from .forms import ContactForm, GuestCheckoutForm, TourForm
 
 # Local apps - Services
 from bookings.services import (
-    PaystackService,
-    PaymentSessionManager,
-    TourAvailabilityService
+    PaystackService, PaymentSessionManager, TourAvailabilityService
 )
 
 # Local apps - Utils
 from .utils import (
-    normalize_phone_number,
-    get_client_ip,
-    mask_email,
-    mask_phone,
-    log_payment_event,
-    create_error_response,
-    create_success_response,
-    send_payment_confirmation_email,
-    validate_payment_data,
-    create_payment_record,
-    get_tour_pricing,
-    check_tour_availability,
-    validate_paystack_config,
-    cleanup_expired_payments,
+    check_tour_availability, cleanup_expired_payments, create_error_response,
+    create_payment_record, create_success_response, get_client_ip,
+    get_tour_pricing, log_payment_event, mask_email, mask_phone,
+    normalize_phone_number, send_payment_confirmation_email,
+    validate_paystack_config, validate_payment_data
 )
+
+# Local apps - Decorators
+from .decorators import driver_required
 
 # Logger
 logger = logging.getLogger(__name__)
@@ -93,20 +90,51 @@ except ImproperlyConfigured as e:
 
 
 # =============================================================================
-# DECORATORS
+# AUTHENTICATION VIEWS
 # =============================================================================
 
-def driver_required(view_func):
-    """Decorator to ensure user is logged in and has a driver profile."""
+@sensitive_post_parameters('password')
+def driver_login(request):
+    """Handle driver login. All users must have a valid driver profile."""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
 
-    @login_required
-    def _wrapped(request, *args, **kwargs):
-        if not hasattr(request.user, "driver"):
-            messages.error(request, "You must log in as a driver.")
-            return redirect("driver_login")
-        return view_func(request, *args, **kwargs)
+            if user is not None:
+                # Check if the user has a driver profile and it's valid
+                if hasattr(user, 'driver_profile'):
+                    driver = user.driver_profile
+                    if driver.is_verified and driver.available:
+                        login(request, user)
+                        return redirect('bookings:driver_dashboard')
+                    else:
+                        if not driver.is_verified:
+                            messages.error(request, "Your driver account is not verified yet.")
+                        elif not driver.available:
+                            messages.error(request, "Your driver account is currently unavailable.")
+                        return redirect('bookings:driver_login')
+                else:
+                    # User doesn't have a driver profile
+                    messages.error(request, "You are not registered as a driver.")
+                    return redirect('bookings:driver_login')
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
 
-    return _wrapped
+    return render(request, 'drivers/login.html', {'form': form})
+
+
+def driver_logout(request):
+    """Handle driver logout."""
+    logout(request)
+    messages.success(request, "You have been successfully logged out.")
+    return redirect("bookings:driver_login")
 
 
 # =============================================================================
@@ -114,7 +142,7 @@ def driver_required(view_func):
 # =============================================================================
 
 def home(request):
-    """Render homepage."""
+    """Render homepage with featured tours and destinations."""
     featured_tours = Tour.objects.filter(
         featured=True,
         is_approved=True,
@@ -137,7 +165,7 @@ def home(request):
 
 
 def book_online(request):
-    """Render Book Online landing page."""
+    """Render Book Online landing page with filtering options."""
     # Get filter parameters
     category = request.GET.get('category')
     destination = request.GET.get('destination')
@@ -325,7 +353,6 @@ class TourDetailView(DetailView):
         context = super().get_context_data(**kwargs)
 
         # Add form
-        from .forms import GuestCheckoutForm
         context['form'] = GuestCheckoutForm()
 
         # Add Paystack public key
@@ -361,7 +388,6 @@ def tour_payment(request, tour_id):
     paystack_service = PaystackService()
 
     if request.method == "POST":
-        from .forms import GuestCheckoutForm
         form = GuestCheckoutForm(request.POST)
 
         if form.is_valid():
@@ -468,7 +494,6 @@ def tour_payment(request, tour_id):
             )
 
     # GET request - render form
-    from .forms import GuestCheckoutForm
     form = GuestCheckoutForm()
     payment = session_manager.get_pending_payment()
 
@@ -626,12 +651,9 @@ def process_guest_info(request):
 
 
 # =============================================================================
-# PAYSTACK INTEGRATION VIEWS (FULLY UPDATED)
+# PAYSTACK INTEGRATION VIEWS
 # =============================================================================
 
-# =============================================================================
-# CREATE / RETRY PAYMENT
-# =============================================================================
 @csrf_exempt
 @require_POST
 def create_guest_paystack_order(request):
@@ -739,8 +761,9 @@ def retry_payment(request, payment_id):
 
 
 # =============================================================================
-# CALLBACK + WEBHOOK (Unified flow)
+# PAYSTACK CALLBACK & WEBHOOK VIEWS
 # =============================================================================
+
 def _update_payment_from_paystack(payment, data, payload=None, from_webhook=False):
     """Helper to sync payment + create booking if needed."""
     status = data.get("status")
@@ -749,40 +772,58 @@ def _update_payment_from_paystack(payment, data, payload=None, from_webhook=Fals
         payment.amount_paid = Decimal(str(data.get("amount", 0))) / 100
         payment.paid_on = timezone.now()
         payment.paystack_transaction_id = str(data.get("id"))
+        payment.payment_channel = data.get("channel", "")
+        payment.ip_address = data.get("ip_address", "")
+        payment.authorization_code = data.get("authorization", {}).get("authorization_code", "")
         payment.raw_response = payload or data
+
         if from_webhook:
             payment.webhook_verified = True
             payment.webhook_received_at = timezone.now()
+
         payment.save()
 
         # Ensure booking exists
-        if not Booking.objects.filter(payment=payment).exists():
-            booking_customer = BookingCustomer.objects.create(
-                full_name=payment.guest_full_name,
-                email=payment.guest_email,
-                phone_number=payment.guest_phone,
-                adults=payment.adults,
-                children=payment.children,
-                travel_date=payment.travel_date,
-                days=payment.days,
-            )
-            booking = Booking.objects.create(
-                tour=payment.tour,
-                booking_customer=booking_customer,
-                travel_date=payment.travel_date,
-                adults=payment.adults,
-                children=payment.children,
-                total_amount=payment.amount,
-                payment=payment,
-                status="CONFIRMED",
-            )
-            payment.booking = booking
-            payment.save()
+        if not payment.booking:
+            try:
+                # Create booking customer
+                booking_customer = BookingCustomer.objects.create(
+                    full_name=payment.guest_full_name or "Guest Customer",
+                    email=payment.guest_email or data.get("customer", {}).get("email", ""),
+                    phone_number=payment.guest_phone or "",
+                    adults=payment.adults or 1,
+                    children=payment.children or 0,
+                    travel_date=payment.travel_date or timezone.now().date(),
+                    days=payment.days or 1,
+                )
+
+                # Create booking
+                booking = Booking.objects.create(
+                    booking_customer=booking_customer,
+                    tour=payment.tour,
+                    travel_date=payment.travel_date or timezone.now().date(),
+                    num_adults=payment.adults or 1,
+                    num_children=payment.children or 0,
+                    total_price=payment.amount,
+                    status="CONFIRMED",
+                )
+
+                # Now link the payment to the booking
+                payment.booking = booking
+                payment.save()
+
+                logger.info(f"Created booking {booking.id} and linked to payment {payment.id}")
+
+            except Exception as e:
+                logger.error(f"Error creating booking for payment {payment.id}: {e}")
 
     else:
         payment.status = PaymentStatus.FAILED
         payment.failure_reason = data.get("gateway_response", "Payment failed")
         payment.raw_response = payload or data
+        if from_webhook:
+            payment.webhook_verified = True
+            payment.webhook_received_at = timezone.now()
         payment.save()
 
 
@@ -803,29 +844,53 @@ def paystack_callback(request):
         messages.error(request, f"Error verifying transaction: {e}")
         return redirect("bookings:payment_failed")
 
-
     if not response_data.get("status"):
         messages.error(request, "Payment verification failed.")
         return redirect("bookings:payment_failed")
 
     try:
+        # Try to get existing payment first
         payment = Payment.objects.get(reference=reference)
     except Payment.DoesNotExist:
-        messages.error(request, "Payment record not found.")
-        return redirect("bookings:payment_failed")
+        # Create payment if it doesn't exist
+        data = response_data["data"]
+        customer_data = data.get("customer", {})
 
+        # Extract guest info from Paystack data
+        guest_email = customer_data.get("email", "")
+        guest_full_name = customer_data.get("first_name", "") + " " + customer_data.get("last_name", "")
+        guest_full_name = guest_full_name.strip() or "Guest Customer"
 
+        payment = Payment.objects.create(
+            reference=reference,
+            amount=Decimal(str(data.get("amount", 0))) / 100,
+            status=PaymentStatus.PENDING,
+            guest_email=guest_email,
+            guest_full_name=guest_full_name,
+            provider=PaymentProvider.PAYSTACK,
+            method=PaymentProvider.PAYSTACK,
+            currency=data.get("currency", "KES"),
+            paystack_transaction_id=str(data.get("id")),
+            payment_channel=data.get("channel", ""),
+            ip_address=data.get("ip_address", ""),
+            authorization_code=data.get("authorization", {}).get("authorization_code", ""),
+            raw_response=data,
+        )
+
+    # Update payment with verification data
     _update_payment_from_paystack(payment, response_data["data"], payload=response_data)
+
     if payment.status == PaymentStatus.SUCCESS:
-        return redirect("receipt", pk=payment.pk)
+        return redirect("bookings:receipt", pk=payment.pk)
     return redirect("bookings:payment_failed")
+
 
 @csrf_exempt
 @require_POST
 def paystack_webhook(request):
     """
     Handle Paystack webhook events securely (charge.success, charge.failed).
-    Ensures idempotent processing using database transaction.
+    Creates payment if it doesn't exist.
     """
     signature = request.headers.get("x-paystack-signature")
     if not signature:
@@ -854,29 +919,43 @@ def paystack_webhook(request):
 
     try:
         with transaction.atomic():
-            # Lock the payment row for update to prevent race conditions
-            payment = Payment.objects.select_for_update().get(reference=reference)
+            # Try to get existing payment or create a new one
+            payment, created = Payment.objects.select_for_update().get_or_create(
+                reference=reference,
+                defaults={
+                    'amount': Decimal(data.get('amount', 0)) / 100,
+                    'status': PaymentStatus.PENDING,
+                    'guest_email': data.get('customer', {}).get('email', ''),
+                    'guest_full_name': f"{data.get('customer', {}).get('first_name', '')} {data.get('customer', {}).get('last_name', '')}".strip() or "Guest Customer",
+                    'provider': PaymentProvider.PAYSTACK,
+                    'method': PaymentProvider.PAYSTACK,
+                    'currency': data.get('currency', 'KES'),
+                    'paystack_transaction_id': str(data.get('id')),
+                    'payment_channel': data.get('channel', ''),
+                    'ip_address': data.get('ip_address', ''),
+                    'authorization_code': data.get('authorization', {}).get('authorization_code', ''),
+                    'raw_response': data,
+                }
+            )
 
             if event == "charge.success":
                 _update_payment_from_paystack(payment, data, payload=payload, from_webhook=True)
             elif event == "charge.failed":
                 _update_payment_from_paystack(payment, {"status": "failed", **data}, payload=payload, from_webhook=True)
             else:
-                # Optional: log unknown event types
-                pass
-    except Payment.DoesNotExist:
-        return HttpResponse("Payment not found", status=404)
+                logger.info(f"Received unhandled webhook event: {event}")
+
     except Exception as e:
-        # Log unexpected errors
-        import logging
-        logger = logging.getLogger(__name__)
         logger.exception(f"Webhook processing error: {e}")
         return HttpResponse("Internal server error", status=500)
 
     return HttpResponse("Webhook processed", status=200)
+
+
 # =============================================================================
 # PAYMENT RESULT VIEWS
 # =============================================================================
+
 @require_GET
 def payment_success_detail(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
@@ -909,11 +988,12 @@ def receipt(request, pk):
 # =============================================================================
 # GUEST PAYMENT VIEWS
 # =============================================================================
+
 @require_GET
 def guest_payment_page(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id)
     if payment.status == PaymentStatus.SUCCESS:
-        return redirect("receipt", pk=payment.pk)
+        return redirect("bookings:receipt", pk=payment.pk)
     elif payment.status == PaymentStatus.FAILED:
         return redirect("bookings:payment_failed")
 
@@ -932,7 +1012,7 @@ def guest_payment_success(request):
     payment = session_manager.get_pending_payment()
     if not payment or payment.status != PaymentStatus.SUCCESS:
         return redirect("home")
-    return redirect("receipt", pk=payment.pk)
+    return redirect("bookings:receipt", pk=payment.pk)
 
 
 @require_GET
@@ -945,6 +1025,7 @@ def guest_payment_failed(request):
 # =============================================================================
 # PAYMENT UTILITY VIEWS
 # =============================================================================
+
 @require_GET
 def check_payment_status(request, payment_id):
     try:
@@ -975,113 +1056,252 @@ def check_payment_status(request, payment_id):
 # DRIVER VIEWS
 # =============================================================================
 
-def driver_login(request):
-    """Driver login view."""
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-
-            if user is not None and hasattr(user, 'driver'):
-                login(request, user)
-                messages.success(request, f"Welcome back, {user.driver.name}!")
-                return redirect("driver_dashboard")
-            else:
-                messages.error(request, "Invalid username or password, or you're not registered as a driver.")
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'drivers/login.html', {'form': form})
-
-
 @driver_required
 def driver_dashboard(request):
-    """Driver dashboard view."""
-    driver = request.user.driver
-
-    # Get driver's trips
+    """Enhanced driver dashboard with ALL sections in one template."""
+    driver = request.user.driver_profile
     today = timezone.now().date()
+    current_month = today.replace(day=1)
+
+    # ==================== DASHBOARD DATA ====================
+    today_trips = Trip.objects.filter(
+        driver=driver,
+        date=today,
+        status__in=["SCHEDULED", "IN_PROGRESS"]
+    ).order_by("start_time")
+
     upcoming_trips = Trip.objects.filter(
         driver=driver,
-        date__gte=today
-    ).order_by('date')[:5]
+        date__gt=today,
+        status="SCHEDULED"
+    ).order_by("date")[:10]
 
     completed_trips = Trip.objects.filter(
         driver=driver,
-        status='COMPLETED'
-    ).order_by('-date')[:10]
+        status="COMPLETED"
+    ).order_by("-date", "-end_time")[:5]
 
-    # Calculate statistics
-    total_earnings = Trip.objects.filter(driver=driver, status='COMPLETED').aggregate(
-        total=models.Sum('earnings'))['total'] or 0
+    trip_stats = Trip.objects.filter(driver=driver).aggregate(
+        total_earnings=Sum("earnings"),
+        total_trips=Count("id"),
+        completed_trips=Count("id", filter=Q(status="COMPLETED")),
+        cancelled_trips=Count("id", filter=Q(status="CANCELLED")),
+    )
 
-    total_trips = Trip.objects.filter(driver=driver).count()
+    monthly_earnings = Trip.objects.filter(
+        driver=driver,
+        status="COMPLETED",
+        date__year=current_month.year,
+        date__month=current_month.month,
+    ).aggregate(total=Sum("earnings"))["total"] or 0
 
-    # Get recent payments for driver's tours
-    recent_payments = Payment.objects.filter(
+    week_ago = today - timedelta(days=7)
+    weekly_earnings = Trip.objects.filter(
+        driver=driver,
+        status="COMPLETED",
+        date__gte=week_ago,
+    ).aggregate(total=Sum("earnings"))["total"] or 0
+
+    tour_stats = Tour.objects.filter(created_by=request.user).aggregate(
+        total_tours=Count("id"),
+        approved_tours=Count("id", filter=Q(is_approved=True)),
+        active_tours=Count("id", filter=Q(available=True, is_approved=True)),
+    )
+
+    recent_bookings = Booking.objects.filter(
         tour__created_by=request.user,
-        status=PaymentStatus.SUCCESS
-    ).order_by('-paid_on')[:5]
+        payment__status=PaymentStatus.SUCCESS,
+    ).select_related("tour", "payment", "booking_customer").order_by("-created_at")[:5]
 
-    context = {
-        'driver': driver,
-        'upcoming_trips': upcoming_trips,
-        'completed_trips': completed_trips,
-        'total_earnings': total_earnings,
-        'total_trips': total_trips,
-        'recent_payments': recent_payments,
-        'today': today,
+    upcoming_bookings = Booking.objects.filter(
+        tour__created_by=request.user,
+        travel_date__gte=today,
+        payment__status=PaymentStatus.SUCCESS,
+    ).select_related("tour", "booking_customer").order_by("travel_date")[:5]
+
+    vehicle_status = None
+    if hasattr(driver, "vehicle") and driver.vehicle:
+        vehicle = driver.vehicle
+        vehicle_status = {
+            "name": f"{vehicle.make} {vehicle.model}",
+            "plate": vehicle.license_plate,
+            "status": vehicle.status,
+            "next_maintenance": vehicle.next_maintenance_date,
+            "maintenance_due": vehicle.next_maintenance_date
+                               and vehicle.next_maintenance_date <= today + timedelta(days=7),
+        }
+
+    # ==================== EARNINGS DATA ====================
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    earnings_trips = Trip.objects.filter(driver=driver, status="COMPLETED")
+    if start_date:
+        earnings_trips = earnings_trips.filter(date__gte=start_date)
+    if end_date:
+        earnings_trips = earnings_trips.filter(date__lte=end_date)
+
+    monthly_earnings_data = earnings_trips.annotate(
+        month=TruncMonth("date")
+    ).values("month").annotate(
+        total_earnings=Sum("earnings"),
+        trip_count=Count("id"),
+    ).order_by("month")
+
+    total_stats = earnings_trips.aggregate(
+        total_earnings=Sum("earnings"),
+        total_trips=Count("id"),
+        avg_earnings=Avg("earnings"),
+    )
+
+    # ==================== SCHEDULE DATA ====================
+    year = int(request.GET.get("year", today.year))
+    month = int(request.GET.get("month", today.month))
+
+    prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+
+    schedule_trips = Trip.objects.filter(
+        driver=driver, date__year=year, date__month=month
+    ).order_by("date", "start_time")
+
+    trips_by_date = {}
+    for trip in schedule_trips:
+        trips_by_date.setdefault(trip.date.isoformat(), []).append(trip)
+
+    cal = calendar.monthcalendar(year, month)
+    month_name = calendar.month_name[month]
+    week_days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+    # ==================== TOURS DATA ====================
+    tours = (
+        Tour.objects.filter(created_by=request.user)
+        .select_related("category")  # only FK fields here
+        .prefetch_related("features", "destinations")  # M2M fields here
+        .order_by("-created_at")
+    )
+
+    tours_stats = {
+        "total": tours.count(),
+        "approved": tours.filter(is_approved=True).count(),
+        "pending": tours.filter(is_approved=False).count(),
+        "active": tours.filter(available=True, is_approved=True).count(),
     }
 
-    return render(request, 'drivers/dashboard.html', context)
+    # ==================== RATINGS DATA ====================
+    # Base queryset for the driver's reviews
+    reviews_qs = Review.objects.filter(booking__driver=driver).select_related(
+        "customer", "booking"
+    )
+
+    # Aggregate ratings (do this first, without slicing)
+    rating_distribution = (
+        reviews_qs.values("rating")
+        .annotate(count=Count("id"))
+        .order_by("rating")
+    )
+
+    # Get latest 10 reviews
+    reviews = reviews_qs.order_by("-created_at")[:10]  # now `reviews` exists
+
+    performance_metrics = {
+        "completion_rate": (trip_stats["completed_trips"] / trip_stats["total_trips"] * 100)
+        if trip_stats["total_trips"] > 0
+        else 0,
+        "avg_rating": getattr(driver, "rating", 0) or 0,
+        "response_time": "15 min",
+    }
+
+    # ==================== CONTEXT ====================
+    context = {
+        "driver": driver,
+        "today_trips": today_trips,
+        "upcoming_trips": upcoming_trips,
+        "completed_trips": completed_trips,
+        "recent_bookings": recent_bookings,
+        "upcoming_bookings": upcoming_bookings,
+        "vehicle_status": vehicle_status,
+        "total_earnings": trip_stats["total_earnings"] or 0,
+        "total_trips": trip_stats["total_trips"],
+        "completed_trips_count": trip_stats["completed_trips"],
+        "cancelled_trips_count": trip_stats["cancelled_trips"],
+        "monthly_earnings": monthly_earnings,
+        "weekly_earnings": weekly_earnings,
+        "total_tours": tour_stats["total_tours"],
+        "approved_tours": tour_stats["approved_tours"],
+        "active_tours": tour_stats["active_tours"],
+        "performance_metrics": performance_metrics,
+        "today": today,
+        "current_month": current_month,
+        "monthly_earnings_data": monthly_earnings_data,
+        "total_stats": total_stats,
+        "start_date": start_date,
+        "end_date": end_date,
+        "calendar": cal,
+        "month_name": month_name,
+        "year": year,
+        "month": month,
+        "prev_year": prev_year,
+        "prev_month": prev_month,
+        "next_year": next_year,
+        "next_month": next_month,
+        "trips_by_date": trips_by_date,
+        "week_days": week_days,
+        "tours": tours[:10],
+        "tour_stats": tours_stats,
+        "reviews": reviews,
+        "rating_distribution": rating_distribution,
+        "total_reviews": reviews.count(),
+        "view_mode": "dashboard",
+    }
+
+    return render(request, "drivers/dashboard.html", context)
 
 
-def driver_logout(request):
-    """Driver logout view."""
-    logout(request)
-    messages.success(request, "You have been logged out successfully.")
-    return redirect("driver_login")
-
+# =============================================================================
+# TOUR MANAGEMENT VIEWS
+# =============================================================================
 
 @driver_required
 def create_tour(request):
     """Create a new tour."""
-    from .forms import TourForm
-
-    if request.method == 'POST':
+    if request.method == "POST":
         form = TourForm(request.POST, request.FILES)
         if form.is_valid():
             tour = form.save(commit=False)
             tour.created_by = request.user
+            tour.is_approved = False  # 🔒 New tours must be approved first
             tour.save()
-            form.save_m2m()  # Save many-to-many relationships
-            messages.success(request, "Tour created successfully! It's pending approval.")
-            return redirect("driver_dashboard")
+            messages.success(request, "✅ Tour created successfully! Pending approval.")
+            return redirect("bookings:driver_dashboard")
+        else:
+            messages.error(request, "❌ Please correct the errors below.")
     else:
         form = TourForm()
 
-    return render(request, 'drivers/tour_form.html', {'form': form, 'title': 'Create Tour'})
+    return render(request, "tours/create_tour.html", {"form": form})
 
 
 @driver_required
 def edit_tour(request, tour_id):
     """Edit an existing tour."""
-    from .forms import TourForm
-
     tour = get_object_or_404(Tour, id=tour_id, created_by=request.user)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = TourForm(request.POST, request.FILES, instance=tour)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Tour updated successfully!")
-            return redirect("driver_dashboard")
+            tour = form.save(commit=False)
+            # ⚡ Optional: reset approval after edits
+            tour.is_approved = False
+            tour.save()
+            messages.success(request, "✏️ Tour updated successfully! Awaiting approval.")
+            return redirect("bookings:driver_dashboard")
+        else:
+            messages.error(request, "❌ Please fix the errors below.")
     else:
         form = TourForm(instance=tour)
 
-    return render(request, 'drivers/tour_form.html', {'form': form, 'title': 'Edit Tour', 'tour': tour})
+    return render(request, "tours/edit_tour.html", {"form": form, "tour": tour})
 
 
 @driver_required
@@ -1089,68 +1309,12 @@ def delete_tour(request, tour_id):
     """Delete a tour."""
     tour = get_object_or_404(Tour, id=tour_id, created_by=request.user)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         tour.delete()
-        messages.success(request, "Tour deleted successfully!")
-        return redirect("driver_dashboard")
+        messages.success(request, "🗑️ Tour deleted successfully.")
+        return redirect("bookings:driver_dashboard")
 
-    return render(request, 'drivers/tour_confirm_delete.html', {'tour': tour})
-
-
-@driver_required
-def driver_tours(request):
-    """List all tours created by the driver."""
-    tours = Tour.objects.filter(
-        created_by=request.user
-    ).select_related('destination', 'category').order_by('-created_at')
-
-    # Filter by status if provided
-    status_filter = request.GET.get('status')
-    if status_filter == 'approved':
-        tours = tours.filter(is_approved=True)
-    elif status_filter == 'pending':
-        tours = tours.filter(is_approved=False)
-    elif status_filter == 'available':
-        tours = tours.filter(available=True)
-    elif status_filter == 'unavailable':
-        tours = tours.filter(available=False)
-
-    # Pagination
-    page = request.GET.get('page', 1)
-    paginator = Paginator(tours, 10)
-
-    try:
-        tours = paginator.page(page)
-    except PageNotAnInteger:
-        tours = paginator.page(1)
-    except EmptyPage:
-        tours = paginator.page(paginator.num_pages)
-
-    context = {
-        'tours': tours,
-        'status_filter': status_filter,
-    }
-
-    return render(request, 'drivers/tours.html', context)
-
-
-@driver_required
-def driver_tour_detail(request, tour_id):
-    """View details of a specific tour created by the driver."""
-    tour = get_object_or_404(Tour, id=tour_id, created_by=request.user)
-
-    # Get bookings for this tour
-    bookings = Booking.objects.filter(
-        tour=tour
-    ).select_related('payment').order_by('-created_at')
-
-    context = {
-        'tour': tour,
-        'bookings': bookings,
-    }
-
-    return render(request, 'drivers/tour_detail.html', context)
-
+    return render(request, "tours/confirm_delete_tour.html", {"tour": tour})
 
 # =============================================================================
 # ADMIN VIEWS
@@ -1464,13 +1628,10 @@ def payment_success(request):
     return render(request, "payments/success.html")
 
 
-def payment_failed(request):
-    return render(request, "payments/failed.html")
-
-
 # =============================================================================
 # API ENDPOINTS
 # =============================================================================
+
 @require_GET
 def tour_price_api(request, tour_id):
     """API endpoint to get tour pricing information."""
@@ -1494,7 +1655,7 @@ def tour_price_api(request, tour_id):
 
         # Apply any discounts (example: group discount)
         discount = 0
-        if total_participants >= 4:  # ✅ fixed typo here
+        if total_participants >= 4:
             discount = base_price * 0.1  # 10% discount
 
         final_price = base_price - discount
@@ -1566,13 +1727,13 @@ def tours_api(request):
         tours = Tour.objects.filter(
             is_approved=True,
             available=True
-        ).select_related('destination', 'category').order_by('id')
+        ).select_related('category').prefetch_related('destinations').order_by('id')
 
         # Apply filters
         if category:
             tours = tours.filter(category__slug=category)
         if destination:
-            tours = tours.filter(destination__slug=destination)
+            tours = tours.filter(destinations__slug=destination)
         if min_price:
             try:
                 min_price = float(min_price)
@@ -1589,7 +1750,7 @@ def tours_api(request):
             tours = tours.filter(
                 models.Q(title__icontains=search) |
                 models.Q(description__icontains=search) |
-                models.Q(destination__name__icontains=search)
+                models.Q(destinations__name__icontains=search)
             )
         if featured and featured.lower() == 'true':
             tours = tours.filter(featured=True)
@@ -1609,6 +1770,9 @@ def tours_api(request):
         # Serialize tours
         tours_data = []
         for tour in tours:
+            # Get the primary destination (first one in the many-to-many relationship)
+            primary_destination = tour.destinations.first() if tour.destinations.exists() else None
+
             tour_data = {
                 'id': tour.id,
                 'title': tour.title,
@@ -1617,10 +1781,10 @@ def tours_api(request):
                 'price_per_person': float(tour.price_per_person),
                 'duration': f"{getattr(tour, 'duration_days', 0)} days, {getattr(tour, 'duration_nights', 0)} nights",
                 'destination': {
-                    'id': tour.destination.id,
-                    'name': tour.destination.name,
-                    'slug': tour.destination.slug,
-                } if tour.destination else None,
+                    'id': primary_destination.id,
+                    'name': primary_destination.name,
+                    'slug': primary_destination.slug,
+                } if primary_destination else None,
                 'category': {
                     'id': tour.category.id,
                     'name': tour.category.name,
@@ -1646,7 +1810,6 @@ def tours_api(request):
     except Exception as e:
         logger.exception(f"Tours API error: {e}")
         return create_error_response("Error fetching tours", status=500)
-
 
 # =============================================================================
 # ERROR HANDLER VIEWS
@@ -1707,12 +1870,98 @@ def health_check(request):
             'timestamp': timezone.now().isoformat()
         }, status=503)
 
-def payment_failed(request):
-    """Render payment failed page."""
-    return render(request, "payments/failed.html")
-
-
 
 def guest_payment_return(request):
-    # Handle guest payment return logic
+    """Handle guest payment return logic."""
     return render(request, "payments/guest_payment_return.html")
+
+def nairobi_airport_transfers(request):
+    return render(request, "nairobi_transfers.html")
+
+
+@require_GET
+def vehicles_api(request):
+    """API endpoint to get vehicles with filtering and pagination."""
+    try:
+        # Get filter parameters
+        vehicle_type = request.GET.get('type')
+        min_capacity = request.GET.get('min_capacity')
+        available = request.GET.get('available')
+
+        # Import Vehicle model - add this at the top of your views.py
+        from .models import Vehicle
+
+        # Start with all vehicles (ordered for stable pagination)
+        vehicles = Vehicle.objects.all().order_by('id')
+
+        # Apply filters
+        if vehicle_type:
+            vehicles = vehicles.filter(vehicle_type__icontains=vehicle_type)
+        if min_capacity:
+            try:
+                min_capacity = int(min_capacity)
+                vehicles = vehicles.filter(capacity__gte=min_capacity)
+            except ValueError:
+                pass
+        if available and available.lower() == 'true':
+            vehicles = vehicles.filter(is_active=True)
+
+        # Pagination
+        page = request.GET.get('page', 1)
+        per_page = int(request.GET.get('per_page', 12))
+        paginator = Paginator(vehicles, per_page)
+
+        try:
+            vehicles = paginator.page(page)
+        except PageNotAnInteger:
+            vehicles = paginator.page(1)
+        except EmptyPage:
+            vehicles = paginator.page(paginator.num_pages)
+
+        # Serialize vehicles
+        vehicles_data = []
+        for vehicle in vehicles:
+            # Handle image URL - check multiple possible attributes
+            image_url = None
+            if hasattr(vehicle, 'image') and vehicle.image:
+                image_url = vehicle.image.url if hasattr(vehicle.image, 'url') else str(vehicle.image)
+            elif hasattr(vehicle, 'photo') and vehicle.photo:
+                image_url = vehicle.photo.url if hasattr(vehicle.photo, 'url') else str(vehicle.photo)
+            elif hasattr(vehicle, 'image_url') and vehicle.image_url:
+                image_url = vehicle.image_url
+
+            vehicle_data = {
+                'id': vehicle.id,
+                'make': vehicle.make,
+                'model': vehicle.model,
+                'year': vehicle.year,
+                'color': getattr(vehicle, 'color', 'Standard'),
+                'fuel_type': getattr(vehicle, 'fuel_type', 'Petrol'),
+                'capacity': vehicle.capacity,
+                'vehicle_type': vehicle.vehicle_type,
+                'license_plate': getattr(vehicle, 'license_plate', ''),
+                'price_per_day': float(getattr(vehicle, 'price_per_day', 0)),
+                'is_active': getattr(vehicle, 'is_active', True),
+                'features': getattr(vehicle, 'features', []),
+                'accessibility_features': getattr(vehicle, 'accessibility_features', []),
+                'image_url': image_url,
+                'image': image_url,  # Include both for compatibility
+                'photo': image_url,  # Include both for compatibility
+            }
+            vehicles_data.append(vehicle_data)
+
+        response_data = {
+            'vehicles': vehicles_data,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            }
+        }
+
+        return create_success_response(response_data)
+
+    except Exception as e:
+        logger.exception(f"Vehicles API error: {e}")
+        return create_error_response("Error fetching vehicles", status=500)

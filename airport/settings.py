@@ -12,6 +12,8 @@ from airport.utils import normalize_phone_number
 # ==============================
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")  # Load .env for local dev
+LOGIN_URL = "bookings:driver_login"   # redirect for @login_required
+LOGOUT_REDIRECT_URL = "bookings:home"
 
 # ==============================
 # SECURITY
@@ -53,7 +55,7 @@ CLOUDINARY_STORAGE = {
     "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
     "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
 }
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+#DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ==============================
 # MIDDLEWARE

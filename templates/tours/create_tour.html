@@ -1,0 +1,542 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Tour | Safari Adventures Kenya</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --safari-green: #1a6d4c;
+            --safari-sand: #fdf3e7;
+            --safari-accent: #d4a574;
+            --safari-sky: #0ea5e9;
+            --safari-earth: #8b4513;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa, #e9f5f1);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .form-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, var(--safari-green), var(--safari-earth));
+            color: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .form-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section-card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .section-header i {
+            font-size: 1.5rem;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            color: white;
+        }
+
+        .basic-info .section-header i {
+            background: linear-gradient(135deg, var(--safari-green), #2a8c5f);
+        }
+
+        .itinerary .section-header i {
+            background: linear-gradient(135deg, var(--safari-sky), #38bdf8);
+        }
+
+        .pricing .section-header i {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .duration .section-header i {
+            background: linear-gradient(135deg, var(--safari-accent), #e6b88a);
+        }
+
+        .group-size .section-header i {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+        }
+
+        .media .section-header i {
+            background: linear-gradient(135deg, #4b5563, #6b7280);
+        }
+
+        .location .section-header i {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+
+        .sustainability .section-header i {
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+        }
+
+        .accessibility .section-header i {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        .health-safety .section-header i {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .section-body {
+            padding: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: var(--transition);
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--safari-green);
+            box-shadow: 0 0 0 0.25rem rgba(26, 109, 76, 0.25);
+            outline: none;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--safari-green);
+            border-color: var(--safari-green);
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--safari-green), var(--safari-earth));
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 2rem;
+            box-shadow: 0 4px 15px rgba(26, 109, 76, 0.3);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 2.5rem auto 0;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(26, 109, 76, 0.4);
+        }
+
+        .json-field {
+            position: relative;
+        }
+
+        .json-field .form-control {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .json-hint {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .image-upload {
+            position: relative;
+        }
+
+        .image-upload .form-control {
+            padding-left: 3rem;
+        }
+
+        .image-upload::before {
+            content: "\f03e";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .form-header {
+                padding: 2rem 1.5rem;
+            }
+
+            .form-header h1 {
+                font-size: 2rem;
+            }
+
+            .section-header {
+                padding: 1rem;
+            }
+
+            .section-body {
+                padding: 1rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Create a New Safari Tour</h1>
+            <p>Design an unforgettable experience for your guests with our comprehensive tour creation tool</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <!-- Basic Info -->
+            <div class="section-card basic-info">
+                <div class="section-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3 class="section-title">Basic Information</h3>
+                </div>
+                <div class="section-body">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Tour Title</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Tagline</label>
+                        {{ form.tagline }}
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        {{ form.category }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itinerary & Highlights -->
+            <div class="section-card itinerary">
+                <div class="section-header">
+                    <i class="fas fa-route"></i>
+                    <h3 class="section-title">Itinerary Details</h3>
+                </div>
+                <div class="section-body">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Tour Highlights</label>
+                        {{ form.highlights }}
+                    </div>
+                    <div class="form-group mb-4 json-field">
+                        <label class="form-label">Itinerary (JSON format)</label>
+                        {{ form.itinerary }}
+                        <div class="json-hint">Format: [{"day": 1, "title": "Day 1", "description": "Activities..."}]</div>
+                    </div>
+                    <div class="form-group mb-4 json-field">
+                        <label class="form-label">Inclusions (JSON format)</label>
+                        {{ form.inclusions }}
+                        <div class="json-hint">Format: ["Accommodation", "Meals", "Transport"]</div>
+                    </div>
+                    <div class="form-group json-field">
+                        <label class="form-label">Exclusions (JSON format)</label>
+                        {{ form.exclusions }}
+                        <div class="json-hint">Format: ["International flights", "Travel insurance"]</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Pricing -->
+                <div class="section-card pricing">
+                    <div class="section-header">
+                        <i class="fas fa-tag"></i>
+                        <h3 class="section-title">Pricing</h3>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Price per Person</label>
+                            {{ form.price_per_person }}
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Discount Price</label>
+                            {{ form.discount_price }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Currency</label>
+                            {{ form.currency }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duration -->
+                <div class="section-card duration">
+                    <div class="section-header">
+                        <i class="fas fa-clock"></i>
+                        <h3 class="section-title">Duration</h3>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Days</label>
+                            {{ form.duration_days }}
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Nights</label>
+                            {{ form.duration_nights }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Difficulty Level</label>
+                            {{ form.difficulty }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Group Size -->
+                <div class="section-card group-size">
+                    <div class="section-header">
+                        <i class="fas fa-users"></i>
+                        <h3 class="section-title">Group Size</h3>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-group mb-4">
+                            <label class="form-label">Minimum Group Size</label>
+                            {{ form.min_group_size }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Maximum Group Size</label>
+                            {{ form.max_group_size }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media -->
+                <div class="section-card media">
+                    <div class="section-header">
+                        <i class="fas fa-images"></i>
+                        <h3 class="section-title">Media</h3>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-group mb-4 image-upload">
+                            <label class="form-label">Main Image</label>
+                            {{ form.image }}
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Video URL</label>
+                            {{ form.video }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">External Image URL</label>
+                            {{ form.image_url }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="section-card location">
+                <div class="section-header">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3 class="section-title">Location</h3>
+                </div>
+                <div class="section-body">
+                    <div class="form-group mb-4">
+                        <label class="form-label">Departure Point</label>
+                        {{ form.departure_point }}
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="form-label">Destinations Visited</label>
+                        {{ form.destinations_visited }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Destinations (Multi-select)</label>
+                        {{ form.destinations }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Sustainability -->
+                <div class="section-card sustainability">
+                    <div class="section-header">
+                        <i class="fas fa-leaf"></i>
+                        <h3 class="section-title">Sustainability</h3>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-check mb-4">
+                            {{ form.eco_friendly }}
+                            <label class="form-check-label" for="{{ form.eco_friendly.id_for_label }}">Eco Friendly Tour</label>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="form-label">Carbon Footprint per Person (kg CO2)</label>
+                            {{ form.carbon_footprint_per_person }}
+                        </div>
+                        <div class="form-group json-field">
+                            <label class="form-label">Sustainability Certifications (JSON format)</label>
+                            {{ form.sustainability_certifications }}
+                            <div class="json-hint">Format: ["Certification Name", "Year"]</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accessibility -->
+                <div class="section-card accessibility">
+                    <div class="section-header">
+                        <i class="fas fa-universal-access"></i>
+                        <h3 class="section-title">Accessibility</h3>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-check mb-4">
+                            {{ form.wheelchair_accessible }}
+                            <label class="form-check-label" for="{{ form.wheelchair_accessible.id_for_label }}">Wheelchair Accessible</label>
+                        </div>
+                        <div class="form-group json-field">
+                            <label class="form-label">Accessibility Features (JSON format)</label>
+                            {{ form.accessibility_features }}
+                            <div class="json-hint">Format: ["Ramp access", "Accessible restrooms"]</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health & Safety -->
+            <div class="section-card health-safety">
+                <div class="section-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3 class="section-title">Health & Safety</h3>
+                </div>
+                <div class="section-body">
+                    <div class="form-group mb-4 json-field">
+                        <label class="form-label">Health & Safety Measures (JSON format)</label>
+                        {{ form.health_safety_measures }}
+                        <div class="json-hint">Format: ["First aid trained guides", "Emergency protocols"]</div>
+                    </div>
+                    <div class="form-group json-field">
+                        <label class="form-label">COVID-19 Protocols (JSON format)</label>
+                        {{ form.covid19_protocols }}
+                        <div class="json-hint">Format: ["Sanitized vehicles", "Social distancing"]</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i>
+                    Save Tour
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

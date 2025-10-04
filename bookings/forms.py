@@ -1,6 +1,6 @@
 from django import forms
 from django.utils import timezone
-from .models import Tour, PaymentStatus
+from .models import Tour, PaymentStatus, Driver
 
 
 class GuestCheckoutForm(forms.Form):
@@ -139,14 +139,24 @@ class GuestCheckoutForm(forms.Form):
 
 class TourForm(forms.ModelForm):
     """Form for creating and editing tours."""
-
     class Meta:
         model = Tour
         fields = [
-            'title', 'description', 'itinerary', 'price_per_person',
-            'duration_days', 'max_group_size', 'min_group_size',
-            'difficulty', 'category', 'available', 'featured',
-            'image', 'video', 'image_url'
+            'title',
+            'description',
+            'itinerary',
+            'price_per_person',
+            'duration_days',
+            'duration_nights',
+            'max_group_size',
+            'min_group_size',
+            'difficulty',
+            'category',
+            'available',
+            'featured',
+            'image',
+            'video',
+            'image_url'
         ]
         widgets = {
             'title': forms.TextInput(attrs={
@@ -173,6 +183,11 @@ class TourForm(forms.ModelForm):
                 'class': 'form-control',
                 'min': '1',
                 'placeholder': 'Number of days'
+            }),
+            'duration_nights': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'placeholder': 'Number of nights'
             }),
             'max_group_size': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -457,3 +472,100 @@ class DriverProfileForm(forms.Form):
                     "Please enter a valid Kenyan phone number (e.g., 0712345678 or +254712345678)"
                 )
         return phone
+
+
+class DriverForm(forms.ModelForm):
+    """Form for driver profile management."""
+    class Meta:
+        model = Driver
+        fields = [
+            'phone_number',
+            'gender',
+            'date_of_birth',
+            'nationality',
+            'profile_picture',
+            'bio',
+            'preferred_language',
+            'license_number',
+            'license_type',
+            'license_expiry',
+            'available',
+            'experience_years',
+            'bank_name',
+            'bank_account',
+            'bank_branch',
+            'payment_methods',
+        ]
+        widgets = {
+            'phone_number': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': '+254 XXX XXX XXX'
+            }),
+            'gender': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'type': 'date'
+            }),
+            'nationality': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'e.g., Kenyan'
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'Tell customers about yourself...',
+                'rows': 4
+            }),
+            'preferred_language': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+            }),
+            'license_number': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'Driver License Number'
+            }),
+            'license_type': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+            }),
+            'license_expiry': forms.DateInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'type': 'date'
+            }),
+            'experience_years': forms.NumberInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'min': 0
+            }),
+            'bank_name': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'e.g., Equity Bank'
+            }),
+            'bank_account': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'Account Number'
+            }),
+            'bank_branch': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'Branch Name'
+            }),
+            'payment_methods': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
+            }),
+        }
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number and not phone_number.startswith('+'):
+            raise forms.ValidationError("Phone number must include country code (e.g., +254...)")
+        return phone_number
+
+    def clean_license_number(self):
+        license_number = self.cleaned_data.get('license_number')
+        if license_number and len(license_number) < 5:
+            raise forms.ValidationError("License number must be at least 5 characters long.")
+        return license_number
+
+    def clean_license_expiry(self):
+        license_expiry = self.cleaned_data.get('license_expiry')
+        if license_expiry and license_expiry < timezone.now().date():
+            raise forms.ValidationError("License has expired. Please update your license.")
+        return license_expiry

@@ -5,1273 +5,1426 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="csrf-token" content="{{ csrf_token }}" />
-  <meta name="theme-color" content="#2d5016" />
-  <title>Secure Payment - SafariAdventures</title>
+  <meta name="theme-color" content="#008000" />
+  <title>Secure Payment - Airport & Destinations</title>
 
   <!-- Tailwind CSS v3 -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome 6.4.0 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Google Fonts: Poppins & Roboto -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <!-- Google Fonts: Poppins, Montserrat & Playfair Display -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
 
   <style>
     :root {
---primary: #2d5016; /* Forest Green */
---primary-dark: #1a3009;
---secondary: #8b4513; /* Earth Brown */
---accent: #d4af37; /* Safari Gold */
---light: #f5f1e6; /* Safari Cream */
---dark: #333333;
---gray: #666666;
---success: #4caf50;
---danger: #f44336;
---warning: #ff9800;
---safari-green: #166534;
---safari-accent: #84cc16;
---grass-green: #16a34a;
---earth-brown: #92400e;
---safari-gold: #c6a350;
---safari-dark: #2b2a28;
---safari-light: #f8f7f3;
---safari-cream: #f5f1e6;
---safari-brown: #795548;
---safari-orange: #e65100;
---safari-blue: #1976d2;
---safari-red: #d32f2f;
---safari-purple: #7b1fa2;
-}
-
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-}
-
-body {
-font-family: 'Roboto', sans-serif;
-background-color: var(--light);
-color: var(--dark);
-line-height: 1.6;
-min-height: 100vh;
-position: relative;
-overflow-x: hidden;
-}
-
-/* Safari-inspired background */
-.safari-bg {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: linear-gradient(rgba(245, 241, 230, 0.9), rgba(245, 241, 230, 0.9)),
-url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%232d5016' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-background-size: 200px 200px;
-z-index: -1;
-}
-
-/* Safari leaf decorations */
-.safari-leaf {
-position: absolute;
-width: 80px;
-height: 80px;
-background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232d5016' fill-opacity='0.1'%3E%3Cpath d='M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z'%3E%3C/path%3E%3C/svg%3E") no-repeat center;
-background-size: contain;
-z-index: -1;
-animation: float 8s ease-in-out infinite;
-}
-
-.leaf-1 {
-top: 10%;
-left: 5%;
-animation-delay: 0s;
-transform: rotate(15deg);
-}
-
-.leaf-2 {
-top: 20%;
-right: 8%;
-animation-delay: 1s;
-transform: scale(0.8) rotate(-10deg);
-}
-
-.leaf-3 {
-bottom: 30%;
-left: 7%;
-animation-delay: 2s;
-transform: scale(1.2) rotate(5deg);
-}
-
-@keyframes float {
-0% { transform: translateY(0) rotate(0); }
-50% { transform: translateY(-15px) rotate(5deg); }
-100% { transform: translateY(0) rotate(0); }
-}
-
-/* Modern navbar styles */
-.navbar {
-background: rgba(245, 241, 230, 0.95);
-backdrop-filter: blur(10px);
-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-position: sticky;
-top: 0;
-z-index: 1000;
-transition: all 0.3s ease;
-border-bottom: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.navbar-brand {
-font-family: 'Poppins', sans-serif;
-font-weight: 700;
-font-size: 1.8rem;
-color: var(--primary);
-display: flex;
-align-items: center;
-}
-
-.navbar-brand i {
-color: var(--accent);
-margin-right: 0.5rem;
-}
-
-.navbar-brand span {
-color: var(--secondary);
-}
-
-.nav-link {
-color: var(--gray);
-font-weight: 500;
-margin: 0 0.5rem;
-transition: all 0.3s ease;
-position: relative;
-}
-
-.nav-link:hover {
-color: var(--primary);
-}
-
-.nav-link::after {
-content: '';
-position: absolute;
-bottom: -5px;
-left: 0;
-width: 0;
-height: 2px;
-background: var(--primary);
-transition: width 0.3s ease;
-}
-
-.nav-link:hover::after {
-width: 100%;
-}
-
-/* Modern card styles */
-.card {
-background: white;
-border-radius: 16px;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-overflow: hidden;
-transition: all 0.3s ease;
-border: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.card:hover {
-box-shadow: 0 8px 25px rgba(45, 80, 22, 0.1);
-transform: translateY(-2px);
-}
-
-/* Button styles */
-.btn {
-padding: 12px 24px;
-border-radius: 10px;
-font-weight: 600;
-transition: all 0.3s ease;
-border: none;
-cursor: pointer;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-gap: 8px;
-font-size: 16px;
-position: relative;
-overflow: hidden;
-}
-
-.btn-primary {
-background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-color: white;
-box-shadow: 0 4px 10px rgba(45, 80, 22, 0.25);
-}
-
-.btn-primary::before {
-content: "";
-position: absolute;
-top: 0;
-left: -100%;
-width: 100%;
-height: 100%;
-background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-transition: left 0.5s;
-}
-
-.btn-primary:hover::before {
-left: 100%;
-}
-
-.btn-primary:hover {
-transform: translateY(-2px);
-box-shadow: 0 6px 15px rgba(45, 80, 22, 0.35);
-}
-
-.btn-primary:disabled {
-opacity: 0.7;
-cursor: not-allowed;
-transform: none;
-}
-
-/* Paystack-specific button */
-.paystack-button {
-background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-color: white;
-font-weight: 600;
-padding: 16px 24px;
-border-radius: 12px;
-transition: all 0.3s ease;
-border: none;
-cursor: pointer;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-gap: 12px;
-font-size: 18px;
-box-shadow: 0 4px 15px rgba(45, 80, 22, 0.3);
-position: relative;
-overflow: hidden;
-width: 100%;
-}
-
-.paystack-button::before {
-content: "";
-position: absolute;
-top: 0;
-left: -100%;
-width: 100%;
-height: 100%;
-background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-transition: left 0.5s;
-}
-
-.paystack-button:hover::before {
-left: 100%;
-}
-
-.paystack-button:hover {
-transform: translateY(-3px);
-box-shadow: 0 8px 25px rgba(45, 80, 22, 0.4);
-}
-
-.paystack-button:disabled {
-opacity: 0.7;
-cursor: not-allowed;
-transform: none;
-}
-
-/* Form input styles */
-.input-field {
-width: 100%;
-padding: 14px 16px;
-border: 2px solid #e0e0e0;
-border-radius: 10px;
-font-size: 16px;
-transition: all 0.3s ease;
-background: white;
-}
-
-.input-field:focus {
-outline: none;
-border-color: var(--primary);
-box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.15);
-}
-
-/* Section title */
-.section-title {
-font-size: 1.8rem;
-font-weight: 700;
-color: var(--primary);
-margin-bottom: 1.25rem;
-display: flex;
-align-items: center;
-gap: 10px;
-font-family: 'Poppins', sans-serif;
-}
-
-.section-title i {
-color: var(--accent);
-font-size: 1.5rem;
-}
-
-/* Payment container */
-.payment-container {
-background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e9 100%);
-border-radius: 16px;
-padding: 1.5rem;
-position: relative;
-overflow: hidden;
-border: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-/* Order summary */
-.order-summary {
-background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e9 100%);
-border-radius: 16px;
-padding: 1.5rem;
-margin-bottom: 1.5rem;
-border: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.order-line {
-display: flex;
-justify-content: space-between;
-padding: 0.5rem 0;
-}
-
-.order-line .label {
-color: var(--gray);
-font-weight: 500;
-}
-
-.order-line .value {
-font-weight: 600;
-color: var(--dark);
-}
-
-.order-total {
-border-top: 1px solid rgba(45, 80, 22, 0.2);
-padding-top: 1rem;
-margin-top: 1rem;
-}
-
-.order-total .value {
-color: var(--primary);
-font-size: 1.5rem;
-font-weight: 700;
-}
-
-/* Security badge */
-.security-badge {
-display: flex;
-align-items: center;
-gap: 8px;
-background: rgba(45, 80, 22, 0.1);
-padding: 8px 16px;
-border-radius: 24px;
-font-size: 0.875rem;
-color: var(--primary);
-backdrop-filter: blur(10px);
-}
-
-.security-badge i {
-color: var(--primary);
-}
-
-/* Payment status */
-.payment-status {
-display: flex;
-align-items: center;
-justify-content: center;
-padding: 12px;
-border-radius: 8px;
-margin-bottom: 1rem;
-font-weight: 500;
-}
-
-.payment-status.success {
-background-color: rgba(76, 175, 80, 0.1);
-color: var(--success);
-border: 1px solid rgba(76, 175, 80, 0.3);
-}
-
-.payment-status.error {
-background-color: rgba(244, 67, 54, 0.1);
-color: var(--danger);
-border: 1px solid rgba(244, 67, 54, 0.3);
-}
-
-.payment-status.processing {
-background-color: rgba(255, 152, 0, 0.1);
-color: var(--warning);
-border: 1px solid rgba(255, 152, 0, 0.3);
-}
-
-/* Progress bar */
-.progress-bar {
-height: 6px;
-background-color: #e0e0e0;
-border-radius: 3px;
-overflow: hidden;
-margin-top: 1rem;
-}
-
-.progress-fill {
-height: 100%;
-background: linear-gradient(90deg, var(--primary), var(--safari-green));
-border-radius: 3px;
-width: 0%;
-transition: width 0.3s ease;
-}
-
-/* Payment processing overlay */
-.payment-processing {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(255, 255, 255, 0.95);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-z-index: 9999;
-backdrop-filter: blur(5px);
-}
-
-.processing-content {
-text-align: center;
-max-width: 500px;
-padding: 1.5rem;
-}
-
-.processing-spinner {
-width: 60px;
-height: 60px;
-border: 6px solid #f0f0f0;
-border-top: 6px solid var(--primary);
-border-radius: 50%;
-animation: spin 1s linear infinite;
-margin: 0 auto 1.5rem;
-}
-
-@keyframes spin {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
-}
-
-/* Toast notification */
-.toast-notification {
-position: fixed;
-bottom: 20px;
-right: 20px;
-padding: 12px 20px;
-background: white;
-border-radius: 10px;
-box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-display: flex;
-align-items: center;
-gap: 10px;
-z-index: 1000;
-transform: translateY(100px);
-opacity: 0;
-transition: all 0.3s ease;
-border-left: 4px solid var(--primary);
-max-width: 350px;
-}
-
-.toast-notification.show {
-transform: translateY(0);
-opacity: 1;
-}
-
-.toast-notification.success {
-border-left-color: var(--success);
-}
-
-.toast-notification.error {
-border-left-color: var(--danger);
-}
-
-.toast-icon {
-font-size: 20px;
-}
-
-.toast-notification.success .toast-icon {
-color: var(--success);
-}
-
-.toast-notification.error .toast-icon {
-color: var(--danger);
-}
-
-/* Promo code section */
-.promo-code-section {
-margin-bottom: 1.5rem;
-}
-
-.promo-code-input-group {
-display: flex;
-gap: 0.5rem;
-}
-
-.promo-code-input {
-flex: 1;
-padding: 12px 16px;
-border: 2px solid #e0e0e0;
-border-radius: 10px 0 0 10px;
-font-size: 16px;
-transition: all 0.3s ease;
-background: white;
-}
-
-.promo-code-input:focus {
-outline: none;
-border-color: var(--primary);
-}
-
-.promo-code-btn {
-padding: 12px 20px;
-background: var(--primary);
-color: white;
-border: none;
-border-radius: 0 10px 10px 0;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s ease;
-}
-
-.promo-code-btn:hover {
-background: var(--primary-dark);
-}
-
-/* Security features */
-.security-features {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 1rem;
-margin-bottom: 1.5rem;
-}
-
-.security-feature {
-display: flex;
-align-items: center;
-padding: 0.75rem;
-background: white;
-border-radius: 10px;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-border: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.security-icon {
-width: 36px;
-height: 36px;
-border-radius: 8px;
-background: rgba(45, 80, 22, 0.1);
-color: var(--primary);
-display: flex;
-align-items: center;
-justify-content: center;
-margin-right: 0.75rem;
-}
-
-.security-info {
-display: flex;
-flex-direction: column;
-}
-
-.security-title {
-font-weight: 600;
-font-size: 0.875rem;
-color: var(--dark);
-}
-
-.security-desc {
-font-size: 0.75rem;
-color: var(--gray);
-}
-
-/* Countdown */
-.countdown {
-background: rgba(45, 80, 22, 0.1);
-padding: 8px 16px;
-border-radius: 24px;
-font-weight: 600;
-display: flex;
-align-items: center;
-gap: 8px;
-backdrop-filter: blur(10px);
-position: relative;
-overflow: hidden;
-color: var(--primary);
-}
-
-.countdown::before {
-content: "";
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: linear-gradient(90deg, transparent, rgba(45, 80, 22, 0.1), transparent);
-animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-0% { transform: translateX(-100%); }
-100% { transform: translateX(100%); }
-}
-
-/* Tour cards */
-.tour-card {
-background: white;
-border-radius: 16px;
-overflow: hidden;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-transition: all 0.3s ease;
-height: 100%;
-display: flex;
-flex-direction: column;
-position: relative;
-border: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.tour-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 10px 25px rgba(45, 80, 22, 0.1);
-}
-
-.tour-image-container {
-position: relative;
-height: 180px;
-overflow: hidden;
-}
-
-.tour-image {
-width: 100%;
-height: 100%;
-object-fit: cover;
-transition: transform 0.5s ease;
-}
-
-.tour-card:hover .tour-image {
-transform: scale(1.05);
-}
-
-.tour-badge {
-position: absolute;
-top: 15px;
-right: 15px;
-background: var(--primary);
-color: white;
-padding: 5px 12px;
-border-radius: 20px;
-font-size: 0.8rem;
-font-weight: 600;
-box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-z-index: 2;
-}
-
-.tour-badge.featured {
-background: var(--accent);
-}
-
-.tour-badge.new {
-background: var(--safari-green);
-}
-
-.tour-badge.discount {
-background: var(--safari-red);
-}
-
-.tour-content {
-padding: 1.25rem;
-flex-grow: 1;
-display: flex;
-flex-direction: column;
-}
-
-.tour-category {
-color: var(--primary);
-font-size: 0.85rem;
-font-weight: 600;
-text-transform: uppercase;
-letter-spacing: 1px;
-margin-bottom: 8px;
-}
-
-.tour-title {
-font-size: 1.125rem;
-font-weight: 700;
-color: var(--dark);
-margin-bottom: 0.5rem;
-line-height: 1.3;
-font-family: 'Poppins', sans-serif;
-}
-
-.tour-description {
-color: var(--gray);
-margin-bottom: 1rem;
-line-height: 1.6;
-flex-grow: 1;
-}
-
-.tour-highlights {
-margin-bottom: 1rem;
-}
-
-.tour-highlight {
-display: flex;
-align-items: center;
-margin-bottom: 8px;
-font-size: 0.9rem;
-color: var(--gray);
-}
-
-.tour-highlight i {
-color: var(--primary);
-margin-right: 8px;
-font-size: 0.8rem;
-}
-
-.tour-meta {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 1rem;
-}
-
-.tour-price {
-color: var(--primary);
-font-weight: 700;
-font-size: 1.125rem;
-}
-
-.tour-price .original-price {
-text-decoration: line-through;
-color: var(--gray);
-font-size: 1rem;
-margin-right: 5px;
-}
-
-.tour-duration {
-display: flex;
-align-items: center;
-color: var(--gray);
-font-size: 0.9rem;
-}
-
-.tour-duration i {
-margin-right: 5px;
-color: var(--primary);
-}
-
-.tour-rating {
-display: flex;
-align-items: center;
-margin-bottom: 1rem;
-}
-
-.tour-rating i {
-color: var(--accent);
-font-size: 0.9rem;
-}
-
-.tour-rating span {
-margin-left: 5px;
-font-size: 0.9rem;
-color: var(--gray);
-}
-
-.tour-actions {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-top: auto;
-}
-
-.tour-ref {
-font-size: 0.85rem;
-color: var(--gray);
-}
-
-.btn-wishlist {
-background: transparent;
-border: 1px solid #e0e0e0;
-color: var(--primary);
-width: 40px;
-height: 40px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-transition: all 0.3s ease;
-}
-
-.btn-wishlist:hover {
-background: rgba(45, 80, 22, 0.1);
-border-color: var(--primary);
-}
-
-.btn-wishlist.active {
-background: var(--safari-red);
-border-color: var(--safari-red);
-color: white;
-}
-
-/* Category Pills */
-.category-pills {
-display: flex;
-justify-content: center;
-gap: 10px;
-margin: 20px auto;
-flex-wrap: wrap;
-padding: 0 20px;
-max-width: 1000px;
-}
-
-.category-pill {
-background: white;
-color: var(--primary);
-border: 1px solid rgba(45, 80, 22, 0.2);
-border-radius: 50px;
-padding: 8px 16px;
-font-size: 0.9rem;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s ease;
-display: flex;
-align-items: center;
-gap: 5px;
-}
-
-.category-pill:hover {
-background: rgba(45, 80, 22, 0.05);
-border-color: var(--primary);
-}
-
-.category-pill.active {
-background: var(--primary);
-color: white;
-border-color: var(--primary);
-}
-
-.category-pill i {
-font-size: 0.8rem;
-}
-
-/* Stats Section */
-.stats-section {
-display: flex;
-justify-content: center;
-gap: 15px;
-margin: 20px auto;
-max-width: 1000px;
-padding: 0 15px;
-flex-wrap: wrap;
-}
-
-.stat-card {
-background: white;
-border-radius: 12px;
-padding: 15px;
-text-align: center;
-box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-min-width: 150px;
-flex: 1;
-border: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.stat-number {
-font-size: 1.5rem;
-font-weight: 700;
-color: var(--primary);
-margin-bottom: 5px;
-font-family: 'Poppins', sans-serif;
-}
-
-.stat-label {
-color: var(--primary);
-font-size: 0.8rem;
-text-transform: uppercase;
-letter-spacing: 1px;
-}
-
-/* Modern form steps */
-.form-steps {
-display: flex;
-justify-content: space-between;
-margin-bottom: 2rem;
-position: relative;
-}
-
-.form-steps::before {
-content: "";
-position: absolute;
-top: 20px;
-left: 0;
-right: 0;
-height: 2px;
-background-color: #e0e0e0;
-z-index: 1;
-}
-
-.form-step {
-position: relative;
-z-index: 2;
-display: flex;
-flex-direction: column;
-align-items: center;
-width: 100px;
-}
-
-.step-circle {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-background-color: #e0e0e0;
-color: #999;
-display: flex;
-align-items: center;
-justify-content: center;
-font-weight: 600;
-margin-bottom: 0.5rem;
-transition: all 0.3s ease;
-}
-
-.form-step.active .step-circle {
-background-color: var(--primary);
-color: white;
-}
-
-.form-step.completed .step-circle {
-background-color: var(--success);
-color: white;
-}
-
-.step-label {
-font-size: 0.875rem;
-color: #999;
-text-align: center;
-}
-
-.form-step.active .step-label {
-color: var(--dark);
-font-weight: 600;
-}
-
-/* Tour details card */
-.tour-details-card {
-background: white;
-border-radius: 16px;
-overflow: hidden;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-border: 1px solid rgba(45, 80, 22, 0.1);
-margin-bottom: 1.5rem;
-}
-
-.tour-details-header {
-background: linear-gradient(135deg, var(--primary) 0%, var(--safari-green) 100%);
-padding: 1.5rem;
-color: white;
-}
-
-.tour-details-title {
-font-size: 1.25rem;
-font-weight: 700;
-margin-bottom: 0.5rem;
-font-family: 'Poppins', sans-serif;
-}
-
-.tour-details-subtitle {
-font-size: 0.9rem;
-opacity: 0.9;
-}
-
-.tour-details-content {
-padding: 1.5rem;
-}
-
-.tour-details-item {
-display: flex;
-justify-content: space-between;
-padding: 0.75rem 0;
-border-bottom: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.tour-details-item:last-child {
-border-bottom: none;
-}
-
-.tour-details-label {
-color: var(--gray);
-font-weight: 500;
-}
-
-.tour-details-value {
-font-weight: 600;
-color: var(--dark);
-}
-
-/* Support card */
-.support-card {
-background: white;
-border-radius: 16px;
-overflow: hidden;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-border: 1px solid rgba(45, 80, 22, 0.1);
-margin-bottom: 1.5rem;
-}
-
-.support-header {
-background: linear-gradient(135deg, var(--secondary) 0%, var(--earth-brown) 100%);
-padding: 1.5rem;
-color: white;
-}
-
-.support-title {
-font-size: 1.25rem;
-font-weight: 700;
-margin-bottom: 0.5rem;
-font-family: 'Poppins', sans-serif;
-}
-
-.support-content {
-padding: 1.5rem;
-}
-
-.support-item {
-display: flex;
-align-items: center;
-padding: 0.75rem;
-border-radius: 8px;
-margin-bottom: 0.75rem;
-transition: all 0.3s ease;
-}
-
-.support-item:hover {
-background: rgba(45, 80, 22, 0.05);
-}
-
-.support-icon {
-width: 40px;
-height: 40px;
-border-radius: 8px;
-background: rgba(139, 69, 19, 0.1);
-color: var(--secondary);
-display: flex;
-align-items: center;
-justify-content: center;
-margin-right: 1rem;
-}
-
-.support-text {
-color: var(--dark);
-font-weight: 500;
-}
-
-/* Security card */
-.security-card {
-background: white;
-border-radius: 16px;
-overflow: hidden;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-border: 1px solid rgba(45, 80, 22, 0.1);
-}
-
-.security-header {
-background: linear-gradient(135deg, var(--safari-blue) 0%, var(--safari-purple) 100%);
-padding: 1.5rem;
-color: white;
-}
-
-.security-title {
-font-size: 1.25rem;
-font-weight: 700;
-margin-bottom: 0.5rem;
-font-family: 'Poppins', sans-serif;
-}
-
-.security-content {
-padding: 1.5rem;
-}
-
-.security-item {
-display: flex;
-align-items: center;
-padding: 0.75rem;
-border-radius: 8px;
-margin-bottom: 0.75rem;
-transition: all 0.3s ease;
-}
-
-.security-item:hover {
-background: rgba(45, 80, 22, 0.05);
-}
-
-.security-item-icon {
-width: 40px;
-height: 40px;
-border-radius: 8px;
-background: rgba(25, 118, 210, 0.1);
-color: var(--safari-blue);
-display: flex;
-align-items: center;
-justify-content: center;
-margin-right: 1rem;
-}
-
-.security-item-content {
-flex: 1;
-}
-
-.security-item-title {
-font-weight: 600;
-color: var(--dark);
-margin-bottom: 0.25rem;
-}
-
-.security-item-desc {
-font-size: 0.875rem;
-color: var(--gray);
-}
-
-/* Footer */
-footer {
-background: var(--primary);
-color: white;
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-.security-features {
-grid-template-columns: 1fr;
-}
-
-.stats-section {
-flex-direction: column;
-align-items: center;
-}
-
-.stat-card {
-width: 100%;
-max-width: 300px;
-}
-
-.category-pills {
-justify-content: flex-start;
-overflow-x: auto;
-padding-bottom: 10px;
-}
-
-.form-steps {
-justify-content: space-around;
-}
-}
+      /* Safari/Travel Theme Colors */
+      --safari-gold: #c6a350;
+      --safari-dark: #2b2a28;
+      --safari-light: #f8f7f3;
+      --safari-accent: #8b7355;
+      --safari-green: #2e7d32;
+      --safari-cream: #f5f1e6;
+      --safari-brown: #795548;
+      --safari-orange: #e65100;
+      --safari-sand: #f5e9c8;
+      --kenya-green: #008000; /* Green from Kenyan flag */
+      --kenya-black: #000000; /* Black from Kenyan flag */
+      --kenya-red: #CE1126; /* Red from Kenyan flag */
+
+      /* Glassmorphism */
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      --glass-blur: 8px;
+
+      /* Original Colors */
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #f59e0b;
+      --dark: #1e293b;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --error: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --rounded-sm: 0.25rem;
+      --rounded: 0.5rem;
+      --rounded-lg: 0.75rem;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: var(--safari-dark);
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                  url('https://www.tripsavvy.com/thmb/KkQlX5E5LN1pLgpQtu_7ooUgg4s=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-468020303-593ea6513df78c537b17ce38.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Safari pattern overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c6a350' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.3;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Header Styles */
+    .header {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      box-shadow: var(--glass-shadow);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 300;
+      padding: 1rem 0;
+      width: 100%;
+    }
+
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand a {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      color: var(--safari-gold);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: var(--transition);
+    }
+
+    .brand a:hover {
+      transform: translateY(-2px);
+    }
+
+    .brand i {
+      font-size: clamp(1.5rem, 3vw, 1.75rem);
+      color: var(--safari-gold);
+    }
+
+    .nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: var(--transition);
+      font-size: clamp(0.9rem, 1.2vw, 1rem);
+    }
+
+    .nav a:hover {
+      color: var(--safari-gold);
+    }
+
+    .nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--safari-gold);
+      transition: var(--transition);
+    }
+
+    .nav a:hover::after {
+      width: 100%;
+    }
+
+    .nav .btn {
+      background: var(--kenya-green);
+      color: white;
+      border-radius: var(--rounded);
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      transition: var(--transition);
+      border: 1px solid var(--kenya-green);
+    }
+
+    .nav .btn:hover {
+      background: var(--safari-gold);
+      color: var(--kenya-black);
+      border-color: var(--safari-gold);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: var(--kenya-green);
+      border: 1px solid var(--kenya-green);
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glass-shadow);
+      transition: var(--transition);
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--safari-gold);
+      color: var(--kenya-black);
+    }
+
+    /* Hero Section */
+    .hero {
+      color: white;
+      text-align: center;
+      padding: clamp(3rem, 10vw, 5rem) 1.5rem;
+      border-radius: var(--rounded-lg);
+      margin: 2rem 0;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      max-width: 800px;
+      margin: 0 auto 2rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* Cards Section */
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      box-shadow: var(--glass-shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-content {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--kenya-green);
+      color: white;
+      border-radius: var(--rounded);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--kenya-green);
+    }
+
+    .btn:hover {
+      background: var(--safari-gold);
+      color: var(--kenya-black);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn i {
+      transition: transform 0.3s ease;
+    }
+
+    .btn:hover i {
+      transform: translateX(3px);
+    }
+
+    /* Form input styles */
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .input-field::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--safari-gold);
+      box-shadow: 0 0 0 3px rgba(198, 163, 80, 0.3);
+    }
+
+    /* Section title */
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .section-title i {
+      color: var(--safari-gold);
+      font-size: 1.5rem;
+    }
+
+    /* Order summary */
+    .order-summary {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .order-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      color: white;
+    }
+
+    .order-line .label {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    .order-line .value {
+      font-weight: 600;
+      color: white;
+    }
+
+    .order-total {
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    .order-total .value {
+      color: var(--safari-gold);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* Security badge */
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 128, 0, 0.2);
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 0.875rem;
+      color: white;
+      backdrop-filter: blur(10px);
+    }
+
+    .security-badge i {
+      color: var(--safari-gold);
+    }
+
+    /* Payment container */
+    .payment-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Payment status */
+    .payment-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-weight: 500;
+      color: white;
+    }
+
+    .payment-status.success {
+      background-color: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .payment-status.error {
+      background-color: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .payment-status.processing {
+      background-color: rgba(243, 156, 18, 0.2);
+      border: 1px solid rgba(243, 156, 18, 0.3);
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--kenya-green), var(--safari-gold));
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Payment processing overlay */
+    .payment-processing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(5px);
+    }
+
+    .processing-content {
+      text-align: center;
+      max-width: 500px;
+      padding: 1.5rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      border-radius: var(--rounded-lg);
+      border: 1px solid var(--glass-border);
+    }
+
+    .processing-spinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid rgba(255, 255, 255, 0.2);
+      border-top: 6px solid var(--safari-gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Toast notification */
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      max-width: 350px;
+      color: white;
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-notification.success {
+      border-left: 4px solid var(--success);
+    }
+
+    .toast-notification.error {
+      border-left: 4px solid var(--error);
+    }
+
+    .toast-icon {
+      font-size: 20px;
+    }
+
+    .toast-notification.success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-notification.error .toast-icon {
+      color: var(--error);
+    }
+
+    /* Promo code section */
+    .promo-code-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .promo-code-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .promo-code-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px 0 0 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .promo-code-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .promo-code-input:focus {
+      outline: none;
+      border-color: var(--safari-gold);
+    }
+
+    .promo-code-btn {
+      padding: 12px 20px;
+      background: var(--kenya-green);
+      color: white;
+      border: none;
+      border-radius: 0 10px 10px 0;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .promo-code-btn:hover {
+      background: var(--safari-gold);
+      color: var(--kenya-black);
+    }
+
+    /* Security features */
+    .security-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .security-feature {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      border-radius: 10px;
+      box-shadow: var(--glass-shadow);
+      border: 1px solid var(--glass-border);
+    }
+
+    .security-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(198, 163, 80, 0.2);
+      color: var(--safari-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.75rem;
+    }
+
+    .security-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .security-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: white;
+    }
+
+    .security-desc {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Countdown */
+    .countdown {
+      background: rgba(0, 128, 0, 0.2);
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+      color: white;
+    }
+
+    .countdown::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(198, 163, 80, 0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Tour details card */
+    .tour-details-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .tour-details-header {
+      background: linear-gradient(135deg, var(--kenya-green) 0%, var(--safari-green) 100%);
+      padding: 1.5rem;
+      color: white;
+      position: relative;
+    }
+
+    .tour-details-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.2;
+    }
+
+    .tour-details-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-family: 'Playfair Display', serif;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tour-details-subtitle {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tour-details-content {
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .tour-details-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .tour-details-item:last-child {
+      border-bottom: none;
+    }
+
+    .tour-details-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    .tour-details-value {
+      font-weight: 600;
+      color: white;
+    }
+
+    /* Support card */
+    .support-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .support-header {
+      background: linear-gradient(135deg, var(--safari-orange) 0%, var(--safari-brown) 100%);
+      padding: 1.5rem;
+      color: white;
+    }
+
+    .support-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .support-content {
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .support-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s ease;
+      color: white;
+    }
+
+    .support-item:hover {
+      background: rgba(198, 163, 80, 0.1);
+    }
+
+    .support-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: rgba(230, 81, 0, 0.2);
+      color: var(--safari-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+
+    .support-text {
+      color: white;
+      font-weight: 500;
+    }
+
+    /* Security card */
+    .security-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .security-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      padding: 1.5rem;
+      color: white;
+    }
+
+    .security-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .security-content {
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .security-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .security-item:hover {
+      background: rgba(198, 163, 80, 0.1);
+    }
+
+    .security-item-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: rgba(37, 99, 235, 0.2);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+
+    .security-item-content {
+      flex: 1;
+    }
+
+    .security-item-title {
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.25rem;
+    }
+
+    .security-item-desc {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Tour cards */
+    .tour-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+      transition: var(--transition);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .tour-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .tour-image-container {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .tour-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .tour-card:hover .tour-image {
+      transform: scale(1.05);
+    }
+
+    .tour-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--kenya-green);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 2;
+    }
+
+    .tour-badge.featured {
+      background: var(--safari-gold);
+      color: var(--kenya-black);
+    }
+
+    .tour-badge.new {
+      background: var(--safari-green);
+    }
+
+    .tour-badge.discount {
+      background: var(--kenya-red);
+    }
+
+    .tour-content {
+      padding: 1.25rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .tour-category {
+      color: var(--safari-gold);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .tour-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .tour-description {
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+
+    .tour-highlights {
+      margin-bottom: 1rem;
+    }
+
+    .tour-highlight {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .tour-highlight i {
+      color: var(--safari-gold);
+      margin-right: 8px;
+      font-size: 0.8rem;
+    }
+
+    .tour-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .tour-price {
+      color: var(--safari-gold);
+      font-weight: 700;
+      font-size: 1.125rem;
+    }
+
+    .tour-price .original-price {
+      text-decoration: line-through;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1rem;
+      margin-right: 5px;
+    }
+
+    .tour-duration {
+      display: flex;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+    }
+
+    .tour-duration i {
+      margin-right: 5px;
+      color: var(--safari-gold);
+    }
+
+    .tour-rating {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .tour-rating i {
+      color: var(--safari-gold);
+      font-size: 0.9rem;
+    }
+
+    .tour-rating span {
+      margin-left: 5px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .tour-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .tour-ref {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .btn-wishlist {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-wishlist:hover {
+      background: rgba(198, 163, 80, 0.2);
+      border-color: var(--safari-gold);
+    }
+
+    .btn-wishlist.active {
+      background: var(--kenya-red);
+      border-color: var(--kenya-red);
+      color: white;
+    }
+
+    /* Form steps */
+    .form-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .form-steps::before {
+      content: "";
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: rgba(255, 255, 255, 0.2);
+      z-index: 1;
+    }
+
+    .form-step {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100px;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-step.active .step-circle {
+      background-color: var(--safari-gold);
+      color: var(--kenya-black);
+    }
+
+    .form-step.completed .step-circle {
+      background-color: var(--kenya-green);
+      color: white;
+    }
+
+    .step-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+    }
+
+    .form-step.active .step-label {
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Paystack button */
+    .paystack-button {
+      background: linear-gradient(135deg, var(--kenya-green) 0%, var(--safari-green) 100%);
+      color: white;
+      font-weight: 600;
+      padding: 16px 24px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 18px;
+      box-shadow: 0 4px 15px rgba(0, 128, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .paystack-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .paystack-button:hover::before {
+      left: 100%;
+    }
+
+    .paystack-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4);
+    }
+
+    .paystack-button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Footer Styles */
+    .footer {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border-top: 1px solid var(--glass-border);
+      color: white;
+      padding: 2rem 0;
+      margin-top: auto;
+      position: relative;
+      width: 100%;
+    }
+
+    .footer::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--safari-gold);
+    }
+
+    .footer .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+
+    .footer p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: var(--kenya-green);
+      color: white;
+      transition: var(--transition);
+      border: 1px solid var(--kenya-green);
+    }
+
+    .social-link:hover {
+      background: var(--safari-gold);
+      color: var(--kenya-black);
+      transform: translateY(-3px);
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem;
+      }
+
+      .nav {
+        position: fixed;
+        top: 75px;
+        left: 0;
+        width: 100%;
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        -webkit-backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        flex-direction: column;
+        gap: 0;
+        padding: 1rem 0;
+        box-shadow: var(--glass-shadow);
+        border-radius: 0 0 1rem 1rem;
+        transform: translateY(-150%);
+        transition: var(--transition);
+        z-index: 99;
+        max-height: calc(100vh - 75px);
+        overflow-y: auto;
+      }
+
+      .nav.active {
+        transform: translateY(0);
+      }
+
+      .nav a {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+      }
+
+      .nav a:hover {
+        background: rgba(198, 163, 80, 0.1);
+      }
+
+      .nav a::after {
+        display: none;
+      }
+
+      .nav .btn {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+        justify-content: center;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      .security-features {
+        grid-template-columns: 1fr;
+      }
+
+      .form-steps {
+        justify-content: space-around;
+      }
+    }
+
+    /* Tablet Styles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .security-features {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Large Screens */
+    @media (min-width: 1200px) {
+      .container {
+        padding: 0 2%;
+      }
+    }
+
+    /* Extra Large Screens */
+    @media (min-width: 1600px) {
+      .container {
+        max-width: 1600px;
+      }
+    }
+
+    /* Accessibility */
+    a:focus,
+    button:focus,
+    input:focus,
+    textarea:focus {
+      outline: 2px solid var(--safari-gold);
+      outline-offset: 2px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card,
+    .tour-card,
+    .security-feature {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .tour-card:nth-child(2) { animation-delay: 0.1s; }
+    .tour-card:nth-child(3) { animation-delay: 0.2s; }
+    .security-feature:nth-child(2) { animation-delay: 0.1s; }
+    .security-feature:nth-child(3) { animation-delay: 0.2s; }
+    .security-feature:nth-child(4) { animation-delay: 0.3s; }
   </style>
 </head>
 <body>
-  <!-- Safari-inspired Background -->
-  <div class="safari-bg"></div>
-  <div class="safari-leaf leaf-1"></div>
-  <div class="safari-leaf leaf-2"></div>
-  <div class="safari-leaf leaf-3"></div>
-
-  <!-- Modern Navbar -->
-  <nav class="navbar py-4 px-4 md:px-8">
-    <div class="container mx-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="navbar-brand mb-4 md:mb-0">
-          <i class="fas fa-mountain"></i>
-          Safari<span>Adventures</span>
-        </div>
-
-        <div class="flex flex-col md:flex-row items-center gap-4">
-          <div class="hidden md:flex space-x-6">
-            <a href="{% url 'bookings:home' %}" class="nav-link">Home</a>
-            <a href="{% url 'bookings:tours' %}" class="nav-link">Tours</a>
-            <a href="{% url 'bookings:about' %}" class="nav-link">About</a>
-            <a href="{% url 'bookings:contact' %}" class="nav-link">Contact</a>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <div class="countdown">
-              <i class="fas fa-clock"></i>
-              <span id="countdown-timer">15:00</span>
-            </div>
-            <div class="security-badge">
-              <i class="fas fa-lock"></i>
-              <span>Secure Payment</span>
-            </div>
-            <button class="md:hidden text-gray-600" id="mobile-menu-button">
-              <i class="fas fa-bars text-xl"></i>
-            </button>
-          </div>
-        </div>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="brand">
+        <a href="/" aria-label="Home">
+          <i class="fas fa-globe-africa" aria-hidden="true"></i>
+          Airport & Destinations
+        </a>
       </div>
+      <nav class="nav" id="mainNav" aria-label="Main Navigation">
+        <a href="{% url 'bookings:home' %}" aria-label="Home">
+          <i class="fas fa-home"></i>
+          Home
+        </a>
+        <a href="{% url 'bookings:tours' %}" aria-label="Tours">
+          <i class="fas fa-binoculars"></i>
+          Tours
+        </a>
+        <a href="{% url 'bookings:about' %}" aria-label="About">
+          <i class="fas fa-info-circle"></i>
+          About
+        </a>
+        <a href="{% url 'bookings:contact' %}" aria-label="Contact">
+          <i class="fas fa-envelope"></i>
+          Contact
+        </a>
+      </nav>
+      <button class="mobile-menu-btn" id="menuToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainNav">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
 
-      <!-- Mobile Menu -->
-      <div class="hidden mt-4 pb-4 border-t border-gray-200" id="mobile-menu">
-        <div class="flex flex-col space-y-3 mt-3">
-          <a href="{% url 'bookings:home' %}" class="nav-link">Home</a>
-          <a href="{% url 'bookings:tours' %}" class="nav-link">Tours</a>
-          <a href="{% url 'bookings:about' %}" class="nav-link">About</a>
-          <a href="{% url 'bookings:contact' %}" class="nav-link">Contact</a>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <!-- Main -->
+  <main class="container">
+    <section class="hero">
+      <h1>Complete Your <span style="color: var(--safari-gold);">{{ tour.title }} Safari</span> Booking</h1>
+      <p>Secure payment processing for your authentic Kenyan adventure</p>
+    </section>
 
-  <!-- Hero Section -->
-  <section class="py-12 px-4 md:px-8">
-    <div class="container mx-auto max-w-6xl text-center">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4" style="font-family: 'Poppins', sans-serif; color: var(--primary);">
-        Complete Your <span style="color: var(--secondary);">Safari Adventure</span> Booking
-      </h1>
-    </div>
-  </section>
-
-  <!-- Stats Section -->
-  <div class="stats-section">
-    <div class="stat-card">
-      <div class="stat-number">50+</div>
-      <div class="stat-label">Tour Packages</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">15+</div>
-      <div class="stat-label">Years Experience</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">10,000+</div>
-      <div class="stat-label">Happy Travelers</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">excellent</div>
-      <div class="stat-label">Satisfaction Rate</div>
-    </div>
-  </div>
-
-  <!-- Category Pills -->
-  <div class="category-pills">
-    <div class="category-pill active" data-category="all">
-      <i class="fas fa-globe"></i> All Tours
-    </div>
-    <div class="category-pill" data-category="safari">
-      <i class="fas fa-binoculars"></i> Safari
-    </div>
-    <div class="category-pill" data-category="adventure">
-      <i class="fas fa-mountain"></i> Adventure
-    </div>
-    <div class="category-pill" data-category="cultural">
-      <i class="fas fa-landmark"></i> Cultural
-    </div>
-    <div class="category-pill" data-category="beach">
-      <i class="fas fa-umbrella-beach"></i> Beach
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  <main class="container mx-auto px-4 py-6 max-w-6xl">
     <!-- Form Steps Progress -->
     <div class="form-steps mb-10">
       <div class="form-step active" id="step-1">
@@ -1297,28 +1450,28 @@ justify-content: space-around;
             <i class="fas fa-user-circle"></i>
             Traveler Information
           </h2>
-          <p class="text-gray-600 mb-6">Please provide your details to complete the booking</p>
+          <p class="text-white mb-6">Please provide your details to complete the booking</p>
 
           <form id="guest-info-form" method="POST" action="{% url 'bookings:tour_payment' tour.id %}">
             {% csrf_token %}
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
+                <label class="block text-white font-medium mb-2">Full Name *</label>
                 <input type="text" id="full-name" name="full_name" required
                   class="input-field" placeholder="John Doe" />
-                <span class="text-red-500 text-sm hidden" id="name-error">Please enter your full name</span>
+                <span class="text-red-400 text-sm hidden" id="name-error">Please enter your full name</span>
               </div>
               <div>
-                <label class="block text-gray-700 font-medium mb-2">Email Address *</label>
+                <label class="block text-white font-medium mb-2">Email Address *</label>
                 <input type="email" id="guest-email" name="email" required
                   class="input-field" placeholder="john@example.com" />
-                <span class="text-red-500 text-sm hidden" id="email-error">Please enter a valid email</span>
+                <span class="text-red-400 text-sm hidden" id="email-error">Please enter a valid email</span>
               </div>
             </div>
 
             <div class="mb-6">
-              <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
+              <label class="block text-white font-medium mb-2">Phone Number *</label>
               <div class="flex">
                 <select id="country-code" name="country_code" class="input-field w-1/3 rounded-r-none">
                   <option value="+254">+254 (KE)</option>
@@ -1328,35 +1481,35 @@ justify-content: space-around;
                 <input type="tel" id="phone" name="phone" required
                   class="input-field flex-1 rounded-l-none" placeholder="712 345 678" />
               </div>
-              <span class="text-red-500 text-sm hidden" id="phone-error">Please enter a valid phone number</span>
+              <span class="text-red-400 text-sm hidden" id="phone-error">Please enter a valid phone number</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div>
-                <label class="block text-gray-700 font-medium mb-2">Adults *</label>
+                <label class="block text-white font-medium mb-2">Adults *</label>
                 <input type="number" id="adults" name="adults" min="1" required
                   class="input-field" value="1" />
               </div>
               <div>
-                <label class="block text-gray-700 font-medium mb-2">Children</label>
+                <label class="block text-white font-medium mb-2">Children</label>
                 <input type="number" id="children" name="children" min="0"
                   class="input-field" value="0" />
               </div>
               <div>
-                <label class="block text-gray-700 font-medium mb-2">Days *</label>
+                <label class="block text-white font-medium mb-2">Days *</label>
                 <input type="number" id="days" name="days" min="1"
                   class="input-field" value="{{ tour.duration_days }}" />
               </div>
             </div>
 
             <div class="mb-8">
-              <label class="block text-gray-700 font-medium mb-2">Travel Date *</label>
+              <label class="block text-white font-medium mb-2">Travel Date *</label>
               <input type="date" id="travel-date" name="travel_date" required
                 min="{{ today|date:'Y-m-d' }}" class="input-field" />
-              <span class="text-red-500 text-sm hidden" id="date-error">Please select a future date</span>
+              <span class="text-red-400 text-sm hidden" id="date-error">Please select a future date</span>
             </div>
 
-            <button type="submit" id="continue-btn" class="btn-primary w-full">
+            <button type="submit" id="continue-btn" class="btn w-full">
               <span>Continue to Payment</span>
               <i class="fas fa-arrow-right"></i>
             </button>
@@ -1372,89 +1525,89 @@ justify-content: space-around;
 
           <!-- Modern Guest Summary -->
           <div class="order-summary mb-8">
-            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-              <i class="fas fa-receipt mr-3 text-green-600"></i> Booking Summary
+            <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
+              <i class="fas fa-receipt mr-3 text-yellow-400"></i> Booking Summary
             </h3>
 
-            <div class="bg-white rounded-xl p-6 shadow-sm">
+            <div class="bg-black bg-opacity-30 rounded-xl p-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-user text-green-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-4">
+                    <i class="fas fa-user text-yellow-400"></i>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">Traveler</p>
-                    <p class="font-medium text-gray-800" id="summary-name">-</p>
+                    <p class="text-sm text-gray-300">Traveler</p>
+                    <p class="font-medium text-white" id="summary-name">-</p>
                   </div>
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-envelope text-green-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-4">
+                    <i class="fas fa-envelope text-yellow-400"></i>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">Email</p>
-                    <p class="font-medium text-gray-800" id="summary-email">-</p>
+                    <p class="text-sm text-gray-300">Email</p>
+                    <p class="font-medium text-white" id="summary-email">-</p>
                   </div>
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-phone text-green-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-4">
+                    <i class="fas fa-phone text-yellow-400"></i>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">Phone</p>
-                    <p class="font-medium text-gray-800" id="summary-phone">-</p>
+                    <p class="text-sm text-gray-300">Phone</p>
+                    <p class="font-medium text-white" id="summary-phone">-</p>
                   </div>
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-calendar text-green-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-4">
+                    <i class="fas fa-calendar text-yellow-400"></i>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">Travel Date</p>
-                    <p class="font-medium text-gray-800" id="summary-date">-</p>
+                    <p class="text-sm text-gray-300">Travel Date</p>
+                    <p class="font-medium text-white" id="summary-date">-</p>
                   </div>
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-users text-green-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-4">
+                    <i class="fas fa-users text-yellow-400"></i>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">Travelers</p>
-                    <p class="font-medium text-gray-800" id="summary-travelers">-</p>
+                    <p class="text-sm text-gray-300">Travelers</p>
+                    <p class="font-medium text-white" id="summary-travelers">-</p>
                   </div>
                 </div>
 
                 <div class="flex items-center">
-                  <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-clock text-green-600"></i>
+                  <div class="w-12 h-12 rounded-full bg-green-900 bg-opacity-30 flex items-center justify-center mr-4">
+                    <i class="fas fa-clock text-yellow-400"></i>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">Duration</p>
-                    <p class="font-medium text-gray-800" id="summary-days">-</p>
+                    <p class="text-sm text-gray-300">Duration</p>
+                    <p class="font-medium text-white" id="summary-days">-</p>
                   </div>
                 </div>
               </div>
 
-              <div class="border-t border-gray-200 pt-6 mt-6">
+              <div class="border-t border-gray-700 pt-6 mt-6">
                 <div class="flex justify-between items-center mb-3">
-                  <span class="text-gray-600">Adult Cost</span>
-                  <span class="font-medium" id="summary-adults-cost">-</span>
+                  <span class="text-gray-300">Adult Cost</span>
+                  <span class="font-medium text-white" id="summary-adults-cost">-</span>
                 </div>
                 <div class="flex justify-between items-center mb-3">
-                  <span class="text-gray-600">Children Cost</span>
-                  <span class="font-medium" id="summary-children-cost">-</span>
+                  <span class="text-gray-300">Children Cost</span>
+                  <span class="font-medium text-white" id="summary-children-cost">-</span>
                 </div>
                 <div id="discount-row" class="flex justify-between items-center mb-3 hidden">
-                  <span class="text-gray-600">Discount</span>
-                  <span class="font-medium text-green-600" id="discount-amount">-</span>
+                  <span class="text-gray-300">Discount</span>
+                  <span class="font-medium text-green-400" id="discount-amount">-</span>
                 </div>
-                <div class="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
-                  <span class="text-lg font-bold text-gray-800">Total Amount</span>
-                  <span class="text-xl font-bold text-green-600" id="summary-total">-</span>
+                <div class="flex justify-between items-center pt-4 mt-4 border-t border-gray-700">
+                  <span class="text-lg font-bold text-white">Total Amount</span>
+                  <span class="text-xl font-bold text-yellow-400" id="summary-total">-</span>
                 </div>
               </div>
             </div>
@@ -1462,7 +1615,7 @@ justify-content: space-around;
 
           <!-- Promo Code Section -->
           <div class="promo-code-section mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Promo Code</h3>
+            <h3 class="text-lg font-semibold text-white mb-4">Promo Code</h3>
             <div class="promo-code-input-group">
               <input type="text" id="promo-code" class="promo-code-input" placeholder="Enter promo code">
               <button type="button" id="apply-promo" class="promo-code-btn">Apply</button>
@@ -1472,27 +1625,27 @@ justify-content: space-around;
 
           <!-- Payment Method Details -->
           <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Payment Method</h3>
-            <div class="payment-method-card active">
+            <h3 class="text-lg font-semibold text-white mb-4">Payment Method</h3>
+            <div class="payment-method-card active bg-black bg-opacity-30 rounded-xl p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                  <div class="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center mr-4">
-                    <i class="fas fa-credit-card text-green-600 text-2xl"></i>
+                  <div class="w-14 h-14 rounded-xl bg-green-900 bg-opacity-30 flex items-center justify-center mr-4">
+                    <i class="fas fa-credit-card text-yellow-400 text-2xl"></i>
                   </div>
                   <div>
-                    <h4 class="font-semibold text-gray-800 text-lg">Paystack</h4>
-                    <p class="text-sm text-gray-600">Secure online payment</p>
+                    <h4 class="font-semibold text-white text-lg">Paystack</h4>
+                    <p class="text-sm text-gray-300">Secure online payment</p>
                   </div>
                 </div>
                 <div class="flex space-x-3">
-                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fab fa-cc-visa text-gray-700 text-xl"></i>
+                  <div class="w-12 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-visa text-gray-300 text-xl"></i>
                   </div>
-                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fab fa-cc-mastercard text-gray-700 text-xl"></i>
+                  <div class="w-12 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-mastercard text-gray-300 text-xl"></i>
                   </div>
-                  <div class="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fab fa-cc-amex text-gray-700 text-xl"></i>
+                  <div class="w-12 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                    <i class="fab fa-cc-amex text-gray-300 text-xl"></i>
                   </div>
                 </div>
               </div>
@@ -1501,7 +1654,7 @@ justify-content: space-around;
 
           <!-- Paystack Payment Container -->
           <div class="payment-container mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Enter Payment Details</h3>
+            <h3 class="text-lg font-semibold text-white mb-4">Enter Payment Details</h3>
 
             <!-- Payment Status -->
             <div class="payment-status processing" id="payment-status">
@@ -1513,8 +1666,8 @@ justify-content: space-around;
               <!-- Loading state -->
               <div id="paystack-loading" class="flex flex-col items-center justify-center h-64">
                 <div class="processing-spinner mb-4"></div>
-                <p class="text-gray-600 font-medium">Initializing secure payment...</p>
-                <p class="text-gray-500 text-sm mt-2">Please wait while we connect to Paystack</p>
+                <p class="text-white font-medium">Initializing secure payment...</p>
+                <p class="text-gray-300 text-sm mt-2">Please wait while we connect to Paystack</p>
                 <div class="progress-bar w-full max-w-md mt-4">
                   <div class="progress-fill" id="progress-fill"></div>
                 </div>
@@ -1530,13 +1683,13 @@ justify-content: space-around;
               </div>
 
               <!-- Error state (hidden initially) -->
-              <div id="paystack-error" class="hidden p-8 bg-red-50 rounded-xl text-center">
-                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+              <div id="paystack-error" class="hidden p-8 bg-red-900 bg-opacity-20 rounded-xl text-center">
+                <div class="w-16 h-16 bg-red-900 bg-opacity-30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-red-800 mb-2">Payment Error</h3>
-                <p class="text-red-600 mb-4">We couldn't initialize the payment. Please try again.</p>
-                <button id="retry-payment" class="btn-primary">
+                <h3 class="text-lg font-semibold text-red-300 mb-2">Payment Error</h3>
+                <p class="text-red-200 mb-4">We couldn't initialize the payment. Please try again.</p>
+                <button id="retry-payment" class="btn">
                   <span>Try Again</span>
                   <i class="fas fa-redo"></i>
                 </button>
@@ -1592,51 +1745,113 @@ justify-content: space-around;
         <div class="tour-details-card">
           <div class="tour-details-header">
             <h3 class="tour-details-title">Tour Details</h3>
-            <p class="tour-details-subtitle">The Ark Lodge</p>
+            <p class="tour-details-subtitle">{{ tour.title }}</p>
           </div>
           <div class="tour-details-content">
-            <p class="text-gray-600 mb-4">
-              Set in the heart of the Aberdare National Park, iconic and yes, quirky. The Ark overlooks a floodlit waterhole and salt lick, which attracts a host of wildlife.
-            </p>
+            <p class="text-gray-300 mb-4">{{ tour.description }}</p>
             <div class="tour-details-item">
               <span class="tour-details-label">Duration:</span>
-              <span class="tour-details-value">1 days</span>
+              <span class="tour-details-value">{{ tour.duration_days }} days</span>
             </div>
             <div class="tour-details-item">
               <span class="tour-details-label">Price per person:</span>
-              <span class="tour-details-value">KES 20,000.00</span>
+              <span class="tour-details-value">KES {{ tour.price_per_person|floatformat:2|intcomma }}</span>
             </div>
             <div class="tour-details-item">
               <span class="tour-details-label">Category:</span>
-              <span class="tour-details-value">Wildlife</span>
+              <span class="tour-details-value">{{ tour.category|title }}</span>
             </div>
             <div class="tour-details-item">
               <span class="tour-details-label">Booking Ref:</span>
-              <span class="tour-details-value">AIRTOURS0008/2025</span>
+              <span class="tour-details-value">AIRTOURS{{ tour.id|stringformat:"04d" }}/{% now "Y" %}</span>
             </div>
             <div class="mt-4">
-              <h4 class="font-semibold text-gray-800 mb-2">What's Included</h4>
-              <ul class="text-sm text-gray-600 space-y-1">
+              <h4 class="font-semibold text-white mb-2">What's Included</h4>
+              <ul class="text-sm text-gray-300 space-y-1">
+                {% for inclusion in tour.inclusions %}
                 <li class="flex items-start">
-                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                  <span>Accommodation at The Ark Lodge</span>
+                  <i class="fas fa-check text-yellow-400 mt-1 mr-2"></i>
+                  <span>{{ inclusion }}</span>
+                </li>
+                {% empty %}
+                <li class="flex items-start">
+                  <i class="fas fa-check text-yellow-400 mt-1 mr-2"></i>
+                  <span>Accommodation at the lodge</span>
                 </li>
                 <li class="flex items-start">
-                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                  <i class="fas fa-check text-yellow-400 mt-1 mr-2"></i>
                   <span>All meals during the stay</span>
                 </li>
                 <li class="flex items-start">
-                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                  <i class="fas fa-check text-yellow-400 mt-1 mr-2"></i>
                   <span>Game drives with experienced guides</span>
                 </li>
                 <li class="flex items-start">
-                  <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                  <i class="fas fa-check text-yellow-400 mt-1 mr-2"></i>
                   <span>Park entrance fees</span>
                 </li>
+                {% endfor %}
               </ul>
             </div>
           </div>
         </div>
+
+        <!-- Support Card -->
+        <div class="support-card">
+          <div class="support-header">
+            <h3 class="support-title">Need Help?</h3>
+          </div>
+          <div class="support-content">
+            <div class="support-item">
+              <div class="support-icon">
+                <i class="fas fa-phone-alt"></i>
+              </div>
+              <div class="support-text">Call us: +254 700 123456</div>
+            </div>
+            <div class="support-item">
+              <div class="support-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="support-text">Email: info@airportanddestinations.com</div>
+            </div>
+            <div class="support-item">
+              <div class="support-icon">
+                <i class="fas fa-comments"></i>
+              </div>
+              <div class="support-text">Live Chat Available</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Card -->
+        <div class="security-card">
+          <div class="security-header">
+            <h3 class="security-title">Security Guarantee</h3>
+          </div>
+          <div class="security-content">
+            <div class="security-item">
+              <div class="security-item-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="security-item-content">
+                <div class="security-item-title">Secure Payments</div>
+                <div class="security-item-desc">All transactions are encrypted</div>
+              </div>
+            </div>
+            <div class="security-item">
+              <div class="security-item-icon">
+                <i class="fas fa-lock"></i>
+              </div>
+              <div class="security-item-content">
+                <div class="security-item-title">Data Protection</div>
+                <div class="security-item-desc">Your information is safe with us</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Other Tours Section -->
     <div class="mt-12">
       <h2 class="section-title">
@@ -1722,7 +1937,7 @@ justify-content: space-around;
                 <button class="btn-wishlist" onclick="toggleWishlist(this, '{{ other_tour.id }}')" aria-label="Add to wishlist">
                   <i class="far fa-heart"></i>
                 </button>
-                <button class="btn-primary" onclick="window.location.href='{% url 'bookings:tour_payment' other_tour.id %}'" aria-label="Book {{ other_tour.title }}">
+                <button class="btn" onclick="window.location.href='{% url 'bookings:tour_payment' other_tour.id %}'" aria-label="Book {{ other_tour.title }}">
                   Book Now <i class="fas fa-arrow-right"></i>
                 </button>
               </div>
@@ -1731,9 +1946,9 @@ justify-content: space-around;
         </div>
         {% empty %}
         <div class="col-span-2 text-center py-8">
-          <i class="fas fa-map-marked-alt text-4xl text-gray-300 mb-4"></i>
-          <h3 class="text-xl font-semibold text-gray-600 mb-2">No other tours available</h3>
-          <p class="text-gray-500">Check back later for more safari adventures</p>
+          <i class="fas fa-map-marked-alt text-4xl text-gray-500 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-300 mb-2">No other tours available</h3>
+          <p class="text-gray-400">Check back later for more safari adventures</p>
         </div>
         {% endfor %}
       </div>
@@ -1741,70 +1956,22 @@ justify-content: space-around;
   </main>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-300 py-12 px-4 mt-16">
-    <div class="container mx-auto max-w-6xl">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-          <h3 class="text-xl font-bold text-white mb-4">Safari<span class="text-yellow-500">Adventures</span></h3>
-          <p class="mb-4">Creating unforgettable wildlife experiences since 2005.</p>
-          <div class="flex space-x-4">
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="text-lg font-semibold text-white mb-4">Quick Links</h4>
-          <ul class="space-y-2">
-            <li><a href="{% url 'bookings:about' %}" class="hover:text-white">About Us</a></li>
-            <li><a href="{% url 'bookings:tours' %}" class="hover:text-white">Safari Packages</a></li>
-            <li><a href="#" class="hover:text-white">Testimonials</a></li>
-            <li><a href="#" class="hover:text-white">Gallery</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-lg font-semibold text-white mb-4">Contact Info</h4>
-          <ul class="space-y-2">
-            <li class="flex items-start">
-              <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
-              <span>Nairobi, Kenya</span>
-            </li>
-            <li class="flex items-center">
-              <i class="fas fa-phone mr-2"></i>
-              <span>+254 700 123456</span>
-            </li>
-            <li class="flex items-center">
-              <i class="fas fa-envelope mr-2"></i>
-              <span>info@safariadventures.com</span>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="text-lg font-semibold text-white mb-4">Newsletter</h4>
-          <p class="mb-4">Subscribe for special offers and safari tips</p>
-          <form class="flex">
-            <input type="email" placeholder="Your email"
-              class="px-4 py-2 rounded-l-lg text-gray-800 w-full focus:outline-none" />
-            <button class="bg-green-600 text-white px-4 py-2 rounded-r-lg hover:bg-green-700">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-        <p>&copy; {% now "Y" %} SafariAdventures. All rights reserved.</p>
-        <div class="mt-2">
-          <a href="#" class="mx-2 hover:text-white">Privacy Policy</a>
-          <a href="{% url 'bookings:terms' %}" class="mx-2 hover:text-white">Terms of Service</a>
-        </div>
-        <div class="mt-4 text-gray-500">
-          <p>Developed by <a href="https://brytechltd.com" target="_blank" class="text-green-500 hover:text-green-400">Brytech Ltd</a></p>
-        </div>
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Airport & Destinations • DEV BRYTEC LTD • Nairobi, Kenya</p>
+      <div class="social-links" role="navigation" aria-label="Social media">
+        <a href="https://facebook.com" class="social-link" target="_blank" aria-label="Facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://twitter.com" class="social-link" target="_blank" aria-label="Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="https://instagram.com" class="social-link" target="_blank" aria-label="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://wa.me/254759234580" class="social-link" target="_blank" aria-label="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
       </div>
     </div>
   </footer>
@@ -1813,15 +1980,15 @@ justify-content: space-around;
   <div id="payment-processing" class="payment-processing hidden">
     <div class="processing-content">
       <div class="processing-spinner"></div>
-      <h3 class="text-2xl font-bold text-gray-800 mb-2">Processing Your Payment</h3>
-      <p class="text-gray-600 mb-6">Please wait while we initialize your secure payment with Paystack.</p>
-      <div class="bg-gray-100 p-4 rounded-lg text-left">
+      <h3 class="text-2xl font-bold text-white mb-2">Processing Your Payment</h3>
+      <p class="text-gray-300 mb-6">Please wait while we initialize your secure payment with Paystack.</p>
+      <div class="bg-black bg-opacity-30 p-4 rounded-lg text-left">
         <div class="flex items-center mb-3">
-          <i class="fas fa-check-circle text-green-500 mr-2"></i>
+          <i class="fas fa-check-circle text-green-400 mr-2"></i>
           <span>Verifying your information</span>
         </div>
         <div class="flex items-center mb-3">
-          <i class="fas fa-check-circle text-green-500 mr-2"></i>
+          <i class="fas fa-check-circle text-green-400 mr-2"></i>
           <span>Creating your booking</span>
         </div>
         <div class="flex items-center">
@@ -1837,7 +2004,7 @@ justify-content: space-around;
     <i class="toast-icon"></i>
     <div>
       <div class="toast-title font-medium"></div>
-      <div class="toast-message text-sm text-gray-600"></div>
+      <div class="toast-message text-sm text-gray-300"></div>
     </div>
   </div>
 
@@ -1859,8 +2026,8 @@ justify-content: space-around;
       const progressFill = document.getElementById('progress-fill');
       const paystackPaymentButton = document.getElementById('paystack-payment-button');
       const paystackAmount = document.getElementById('paystack-amount');
-      const mobileMenuButton = document.getElementById('mobile-menu-button');
-      const mobileMenu = document.getElementById('mobile-menu');
+      const menuToggle = document.getElementById('menuToggle');
+      const mainNav = document.getElementById('mainNav');
 
       // Form steps
       const step1 = document.getElementById('step-1');
@@ -1911,11 +2078,46 @@ justify-content: space-around;
       let discountCode = '';
 
       // Mobile menu toggle
-      if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', () => {
-          mobileMenu.classList.toggle('hidden');
-        });
-      }
+      menuToggle.addEventListener('click', () => {
+        const isOpen = mainNav.classList.toggle('active');
+        menuToggle.setAttribute('aria-expanded', isOpen);
+
+        // Toggle icon between bars and times
+        const icon = menuToggle.querySelector('i');
+        if (isOpen) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mainNav.contains(e.target) && !menuToggle.contains(e.target) && mainNav.classList.contains('active')) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
+
+      // Close menu when window is resized above mobile breakpoint
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          mainNav.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', false);
+
+          // Reset icon
+          const icon = menuToggle.querySelector('i');
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      });
 
       // Format currency
       function formatKES(amount) {
@@ -1984,7 +2186,7 @@ justify-content: space-around;
             discountPercentage = 10;
             discountCode = code;
             promoMessage.textContent = 'Promo code applied! 10% discount.';
-            promoMessage.className = 'mt-2 text-sm text-green-600';
+            promoMessage.className = 'mt-2 text-sm text-green-400';
             promoMessage.classList.remove('hidden');
             applyPromoBtn.disabled = true;
             applyPromoBtn.textContent = 'Applied';
@@ -1993,18 +2195,18 @@ justify-content: space-around;
             discountPercentage = 15;
             discountCode = code;
             promoMessage.textContent = 'Promo code applied! 15% discount.';
-            promoMessage.className = 'mt-2 text-sm text-green-600';
+            promoMessage.className = 'mt-2 text-sm text-green-400';
             promoMessage.classList.remove('hidden');
             applyPromoBtn.disabled = true;
             applyPromoBtn.textContent = 'Applied';
             recalc();
           } else if (code === '') {
             promoMessage.textContent = 'Please enter a promo code.';
-            promoMessage.className = 'mt-2 text-sm text-red-600';
+            promoMessage.className = 'mt-2 text-sm text-red-400';
             promoMessage.classList.remove('hidden');
           } else {
             promoMessage.textContent = 'Invalid promo code.';
-            promoMessage.className = 'mt-2 text-sm text-red-600';
+            promoMessage.className = 'mt-2 text-sm text-red-400';
             promoMessage.classList.remove('hidden');
           }
         });

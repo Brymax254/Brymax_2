@@ -135,35 +135,115 @@ class TourAdmin(admin.ModelAdmin):
         }),
     )
 
-
 # =====================================================
 # VEHICLE ADMIN
 # =====================================================
+from django.contrib import admin
+from django.utils.html import format_html
+import datetime
+import json
+from .models import Vehicle
+
+
+# -------------------------
+# CUSTOM FILTERS
+# -------------------------
+class InsuranceStatusFilter(admin.SimpleListFilter):
+    title = "Insurance Status"
+    parameter_name = "insurance_status"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("valid", "Valid"),
+            ("expired", "Expired"),
+        ]
+
+    def queryset(self, request, queryset):
+        today = datetime.date.today()
+        if self.value() == "valid":
+            return queryset.filter(insurance_expiry__gte=today)
+        if self.value() == "expired":
+            return queryset.filter(insurance_expiry__lt=today)
+        return queryset
+
+
+class InspectionStatusFilter(admin.SimpleListFilter):
+    title = "Inspection Status"
+    parameter_name = "inspection_status"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("valid", "Valid"),
+            ("expired", "Expired"),
+        ]
+
+    def queryset(self, request, queryset):
+        today = datetime.date.today()
+        if self.value() == "valid":
+            return queryset.filter(inspection_expiry__gte=today)
+        if self.value() == "expired":
+            return queryset.filter(inspection_expiry__lt=today)
+        return queryset
+
+
+# -------------------------
+# VEHICLE ADMIN
+# -------------------------
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "vehicle_type", "fuel_type", "capacity", "is_active", "insurance_status",
-                    "inspection_status")
-    list_filter = ("vehicle_type", "fuel_type", "is_active", "created_at")
-    search_fields = ("make", "model", "license_plate")
+    list_display = (
+        "license_plate",
+        "full_name",
+        "vehicle_type_display",
+        "fuel_type_display",
+        "capacity",
+        "is_active",
+        "insurance_status",
+        "inspection_status",
+        "image_preview",
+    )
+    list_filter = (
+        "vehicle_type",
+        "fuel_type",
+        "is_active",
+        InsuranceStatusFilter,   # ✅ custom filter
+        InspectionStatusFilter,  # ✅ custom filter
+        "created_at",
+    )
+    search_fields = ("make", "model", "license_plate", "color")
     ordering = ("license_plate",)
     date_hierarchy = "created_at"
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at", "image_preview", "vehicle_age", "documents_status")
+
     fieldsets = (
         (None, {
-            "fields": ("make", "model", "year", "color", "license_plate", "vehicle_type", "fuel_type", "capacity",
-                       "is_active")
+            "fields": (
+                "make", "model", "year", "color", "license_plate",
+                "vehicle_type", "fuel_type", "capacity", "is_active"
+            )
+        }),
+        ("Images", {
+            "fields": (("image", "image_preview"), "external_image_url"),
+            "description": "Upload an image or provide an external image URL"
         }),
         ("Features", {
-            "fields": ("features", "accessibility_features")
+            "fields": ("features", "accessibility_features"),
+            "classes": ("collapse",)
         }),
         ("Documents", {
-            "fields": ("logbook_copy", "insurance_copy", "inspection_certificate")
+            "fields": ("logbook_copy", "insurance_copy", "inspection_certificate"),
+            "classes": ("collapse",)
         }),
         ("Expiry Dates", {
             "fields": ("insurance_expiry", "inspection_expiry")
         }),
         ("Environmental", {
-            "fields": ("carbon_footprint_per_km",)
+            "fields": ("carbon_footprint_per_km",),
+            "classes": ("collapse",)
+        }),
+        ("Vehicle Information", {
+            "fields": ("vehicle_age", "documents_status"),
+            "classes": ("collapse",)
         }),
         ("Timestamps", {
             "classes": ("collapse",),
@@ -171,55 +251,156 @@ class VehicleAdmin(admin.ModelAdmin):
         }),
     )
 
+    # -------------------------
+    # DISPLAY HELPERS
+    # -------------------------
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="max-height: 100px; max-width: 200px; border-radius:5px;" />',
+                obj.image.url
+            )
+        elif obj.external_image_url:
+            return format_html(
+                '<img src="{}" style="max-height: 100px; max-width: 200px; border-radius:5px;" />',
+                obj.external_image_url
+            )
+        return format_html(
+            '<div style="width:200px; height:100px; background:#f0f0f0; border-radius:5px; '
+            'display:flex; align-items:center; justify-content:center; color:#666;">{}<br>Image</div>',
+            obj.vehicle_type_display
+        )
+
+    image_preview.short_description = "Image Preview"
+
+    def full_name(self, obj):
+        return obj.full_name
+    full_name.short_description = "Vehicle"
+
+    def vehicle_type_display(self, obj):
+        return obj.vehicle_type_display
+    vehicle_type_display.short_description = "Type"
+
+    def fuel_type_display(self, obj):
+        return obj.fuel_type_display
+    fuel_type_display.short_description = "Fuel"
+
+    def insurance_status(self, obj):
+        today = datetime.date.today()
+        if obj.insurance_expiry and obj.insurance_expiry >= today:
+            return format_html('<span style="color: green;">✓ Valid</span>')
+        return format_html('<span style="color: red;">✗ Expired</span>')
+    insurance_status.short_description = "Insurance"
+    insurance_status.admin_order_field = "insurance_expiry"
+
+    def inspection_status(self, obj):
+        today = datetime.date.today()
+        if obj.inspection_expiry and obj.inspection_expiry >= today:
+            return format_html('<span style="color: green;">✓ Valid</span>')
+        return format_html('<span style="color: red;">✗ Expired</span>')
+    inspection_status.short_description = "Inspection"
+    inspection_status.admin_order_field = "inspection_expiry"
+
+    def vehicle_age(self, obj):
+        return f"{obj.vehicle_age} years" if obj.vehicle_age is not None else "N/A"
+    vehicle_age.short_description = "Vehicle Age"
+
+    def documents_status(self, obj):
+        if obj.documents_valid:
+            return format_html('<span style="color: green;">✓ All Valid</span>')
+        return format_html('<span style="color: red;">✗ Some Expired</span>')
+    documents_status.short_description = "Documents Status"
+
+    # -------------------------
+    # FORM HANDLING
+    # -------------------------
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name in ["features", "accessibility_features"]:
+            kwargs["widget"] = forms.Textarea(attrs={"rows": 4, "cols": 40})
+            kwargs["help_text"] = 'Enter features as JSON, e.g.: ["AC", "WiFi", "USB Charging"]'
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        for field_name in ["features", "accessibility_features"]:
+            field_value = form.cleaned_data.get(field_name)
+            if isinstance(field_value, str):
+                try:
+                    parsed = json.loads(field_value)
+                    if isinstance(parsed, list):
+                        setattr(obj, field_name, parsed)
+                    else:
+                        setattr(obj, field_name, [])
+                except json.JSONDecodeError:
+                    setattr(obj, field_name, [item.strip() for item in field_value.split(",") if item.strip()])
+        super().save_model(request, obj, form, change)
+
+    class Media:
+        css = {"all": ("admin/css/vehicle_admin.css",)}
+        js = ("admin/js/vehicle_admin.js",)
 
 # =====================================================
 # DRIVER ADMIN
 # =====================================================
 @admin.register(Driver)
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "normalized_phone", "license_number", "license_type",
+    list_display = ("get_full_name", "get_phone_display", "license_number", "license_type",
                     "available", "rating", "total_trips", "created_at")
-    list_filter = ("available", "license_type", "experience_years", "created_at")
-    search_fields = ("full_name", "phone_number", "license_number", "vehicle__license_plate")
+    list_filter = ("available", "license_type", "experience_years", "created_at", "is_verified")
+    search_fields = ("user__first_name", "user__last_name", "phone_number", "license_number", "vehicle__license_plate")
     ordering = ("user__first_name", "user__last_name")
     autocomplete_fields = ("user", "vehicle")
     date_hierarchy = "created_at"
-    readonly_fields = ("normalized_phone", "created_at", "updated_at", "total_trips", "total_earnings")
+    readonly_fields = ("normalized_phone", "created_at", "updated_at", "total_trips", "total_earnings", "rating")
     fieldsets = (
         (None, {
-            "fields": ("user", "full_name", "license_number", "license_type", "available", "is_verified")
+            "fields": ("user", "license_number", "license_type", "available", "is_verified")
         }),
         ("Contact Information", {
-            "fields": ("phone_number", "normalized_phone", "email")
+            "fields": ("phone_number", "normalized_phone")
         }),
         ("Personal Details", {
             "fields": ("gender", "date_of_birth", "nationality", "profile_picture", "bio")
         }),
-        ("License", {
-            "fields": ("license_expiry", "driver_license_copy")
-        }),
-        ("Vehicle", {
-            "fields": ("vehicle",)
-        }),
-        ("Experience & Stats", {
-            "fields": ("experience_years", "rating", "total_trips", "total_earnings")
+        ("License & Experience", {
+            "fields": ("license_expiry", "driver_license_copy", "experience_years")
         }),
         ("Documents", {
-            "fields": ("police_clearance", "verification_document")
+            "fields": ("verification_document", "police_clearance"),
+            "classes": ("collapse",)
         }),
-        ("Bank Details", {
-            "fields": ("bank_name", "bank_account", "bank_branch")
+        ("Bank Information", {
+            "fields": ("bank_name", "bank_account", "bank_branch", "payment_methods"),
+            "classes": ("collapse",)
         }),
-        ("Payment Preferences", {
-            "fields": ("payment_methods",)
+        ("Statistics", {
+            "fields": ("rating", "total_trips", "total_earnings"),
+            "classes": ("collapse",)
         }),
         ("Timestamps", {
-            "classes": ("collapse",),
-            "fields": ("created_at", "updated_at")
+            "fields": ("created_at", "updated_at"),
+            "classes": ("collapse",)
         }),
     )
 
+    # Custom methods to display user information
+    def get_full_name(self, obj):
+        return obj.user.get_full_name() if obj.user else "No User"
+    get_full_name.short_description = "Full Name"
+    get_full_name.admin_order_field = "user__first_name"
 
+    def get_phone_display(self, obj):
+        return obj.phone_number
+    get_phone_display.short_description = "Phone Number"
+
+    def get_email(self, obj):
+        return obj.user.email if obj.user else "No Email"
+    get_email.short_description = "Email"
+
+    # If you want to include email in search, add this method
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        queryset |= self.model.objects.filter(user__email__icontains=search_term)
+        return queryset, use_distinct
 # =====================================================
 # BOOKING ADMIN
 # =====================================================

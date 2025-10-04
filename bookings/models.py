@@ -9,7 +9,7 @@ import re
 from decimal import Decimal
 from datetime import date, datetime, time, timedelta
 from typing import Optional, List, Dict, Any, Tuple, Union
-
+from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db import models
@@ -185,7 +185,7 @@ class PaymentManager(models.Manager):
 
 
 # =============================================================================
-# BOOKING CUSTOMER MODEL
+# CUSTOMER MODELS
 # =============================================================================
 class BookingCustomer(TimeStampedModel):
     """Model to store customer information for individual bookings without user accounts."""
@@ -218,7 +218,7 @@ class BookingCustomer(TimeStampedModel):
 
 
 # =============================================================================
-# DRIVER MODEL (concrete model with profile fields included)
+# DRIVER AND VEHICLE MODELS
 # =============================================================================
 class Driver(TimeStampedModel):
     """Model for drivers who log in and update their profiles."""
@@ -346,7 +346,7 @@ class Driver(TimeStampedModel):
         return self.user.username
 
     @property
-    def age(self):
+    def person_age(self):
         """Calculate age from date of birth."""
         if self.date_of_birth:
             today = timezone.now().date()
@@ -407,9 +407,6 @@ class Driver(TimeStampedModel):
         return self.trips.filter(date__gte=today, status='SCHEDULED')
 
 
-# =============================================================================
-# VEHICLE MODEL (unchanged)
-# =============================================================================
 class Vehicle(TimeStampedModel):
     """Model for vehicles used by drivers."""
     VEHICLE_TYPES = [
@@ -431,6 +428,7 @@ class Vehicle(TimeStampedModel):
         ('CNG', 'Compressed Natural Gas'),
     ]
 
+    # Basic Information
     make = models.CharField(max_length=50, help_text="Vehicle make (e.g., Toyota)")
     model = models.CharField(max_length=50, help_text="Vehicle model (e.g., Hilux)")
     year = models.PositiveIntegerField(help_text="Year of manufacture")
@@ -440,13 +438,30 @@ class Vehicle(TimeStampedModel):
     fuel_type = models.CharField(max_length=20, choices=FUEL_TYPES)
     capacity = models.PositiveIntegerField(help_text="Passenger capacity")
 
-    # Features
-    features = models.JSONField(
-        default=dict, blank=True,
-        help_text="Vehicle features (AC, WiFi, etc.)"
+    # Vehicle Images
+    image = CloudinaryField(
+        'vehicle_image',
+        blank=True,
+        null=True,
+        help_text="Upload vehicle image",
+        folder='vehicles'
     )
+    external_image_url = models.URLField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="External URL for vehicle image (alternative to upload)"
+    )
+
+    # Features - Using ArrayField (PostgreSQL specific)
+    features = models.JSONField(default=list, blank=True, null=True,
+                                help_text="Vehicle features (AC, WiFi, etc.)")
+
+    # Accessibility Features
     accessibility_features = models.JSONField(
-        default=dict, blank=True,
+        default=list,
+        blank=True,
+        null=True,
         help_text="Accessibility features (wheelchair access, etc.)"
     )
 
@@ -479,10 +494,39 @@ class Vehicle(TimeStampedModel):
             models.Index(fields=['license_plate']),
             models.Index(fields=['vehicle_type']),
             models.Index(fields=['is_active']),
+            models.Index(fields=['fuel_type']),
         ]
 
     def __str__(self):
         return f"{self.year} {self.make} {self.model} ({self.license_plate})"
+
+    def clean(self):
+        """Validate model fields."""
+        super().clean()
+
+        # Validate that at least one image source is provided if vehicle is active
+        if self.is_active and not self.image and not self.external_image_url:
+            raise ValidationError(
+                "Active vehicles must have either an uploaded image or an external image URL."
+            )
+
+        # Validate year is not in the future
+        if self.year > timezone.now().year:
+            raise ValidationError(
+                {"year": "Year of manufacture cannot be in the future."}
+            )
+
+        # Validate insurance expiry is in the future if provided
+        if self.insurance_expiry and self.insurance_expiry <= timezone.now().date():
+            raise ValidationError(
+                {"insurance_expiry": "Insurance expiry date must be in the future."}
+            )
+
+        # Validate inspection expiry is in the future if provided
+        if self.inspection_expiry and self.inspection_expiry <= timezone.now().date():
+            raise ValidationError(
+                {"inspection_expiry": "Inspection expiry date must be in the future."}
+            )
 
     @property
     def insurance_status(self):
@@ -498,9 +542,91 @@ class Vehicle(TimeStampedModel):
             return self.inspection_expiry > timezone.now().date()
         return True
 
+    @property
+    def documents_valid(self):
+        """Check if all documents are valid."""
+        return self.insurance_status and self.inspection_status
 
-# =============================================================================
-# DESTINATIONS & TOURS
+    @property
+    def image_url(self):
+        """Get the URL of the vehicle image."""
+        # Priority: external_image_url > uploaded image > default image
+        if self.external_image_url:
+            return self.external_image_url
+
+        if self.image:
+            return self.image.url
+
+        # Return a default image based on vehicle type
+        return self.get_default_image_url()
+
+    def get_default_image_url(self):
+        """Get a default image URL based on vehicle type."""
+        default_images = {
+            'SEDAN': 'https://images.unsplash.com/photo-1554224713-b3739b9b37a0?auto=format&fit=crop&w=800&q=80',
+            'SUV': 'https://images.unsplash.com/photo-1554224712-d8560f709cbe?auto=format&fit=crop&w=800&q=80',
+            'VAN': 'https://images.unsplash.com/photo-1570165888111-03c4d0d1d4a4?auto=format&fit=crop&w=800&q=80',
+            'MINIBUS': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=800&q=80',
+            'BUS': 'https://images.unsplash.com/photo-1544620324-13c736403b9c?auto=format&fit=crop&w=800&q=80',
+            'LUXURY': 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80',
+            'ELECTRIC': 'https://images.unsplash.com/photo-1593941707882-a5bba6f5b4b0?auto=format&fit=crop&w=800&q=80',
+            'HYBRID': 'https://images.unsplash.com/photo-1593941707882-a5bba6f5b4b0?auto=format&fit=crop&w=800&q=80',
+        }
+        return default_images.get(self.vehicle_type,
+                                  'https://images.unsplash.com/photo-1549399542-7e244f5c2f4d?auto=format&fit=crop&w=800&q=80')
+
+    @property
+    def full_name(self):
+        """Return the full name of the vehicle."""
+        return f"{self.year} {self.make} {self.model}"
+
+    @property
+    def vehicle_type_display(self):
+        """Return the display name for the vehicle type."""
+        return dict(self.VEHICLE_TYPES).get(self.vehicle_type, self.vehicle_type)
+
+    @property
+    def fuel_type_display(self):
+        """Return the display name for the fuel type."""
+        return dict(self.FUEL_TYPES).get(self.fuel_type, self.fuel_type)
+
+    @property
+    def features_list(self):
+        """Return features as a list."""
+        if isinstance(self.features, list):
+            return self.features
+        return []
+
+    @property
+    def accessibility_features_list(self):
+        """Return accessibility features as a list."""
+        if isinstance(self.accessibility_features, list):
+            return self.accessibility_features
+        return []
+
+    @property
+    def vehicle_age(self):
+        """Calculate vehicle age in years."""
+        if not self.year:
+            return None
+        current_year = timezone.now().year
+        return current_year - self.year
+
+    def get_carbon_footprint(self, distance_km):
+        """Calculate carbon footprint for a given distance in km."""
+        return self.carbon_footprint_per_km * distance_km
+
+    def save(self, *args, **kwargs):
+        """Override save method to perform additional operations."""
+        # Ensure features are stored as lists
+        if self.features and not isinstance(self.features, list):
+            self.features = []
+
+        if self.accessibility_features and not isinstance(self.accessibility_features, list):
+            self.accessibility_features = []
+
+        super().save(*args, **kwargs)# =============================================================================
+# DESTINATIONS & TOURS MODELS
 # =============================================================================
 class Destination(TimeStampedModel, LocationModel):
     """Model for travel destinations."""
@@ -850,7 +976,7 @@ class Tour(TimeStampedModel):
 
 
 # =============================================================================
-# BOOKINGS & TRIPS
+# BOOKINGS & TRIPS MODELS
 # =============================================================================
 def generate_booking_reference():
     """Generate a unique booking reference."""
@@ -1205,7 +1331,7 @@ class Trip(TimeStampedModel):
 
 
 # =============================================================================
-# PAYMENTS
+# PAYMENT MODELS
 # =============================================================================
 class PaymentProvider(models.TextChoices):
     MPESA = "MPESA", "M-PESA"
@@ -1517,7 +1643,7 @@ class Payment(TimeStampedModel):
 
 
 # =============================================================================
-# REVIEWS
+# REVIEW MODELS
 # =============================================================================
 class Review(TimeStampedModel):
     """Model for customer reviews for tours and drivers."""
@@ -1650,7 +1776,7 @@ class Review(TimeStampedModel):
 
 
 # =============================================================================
-# CONTENT & MISC
+# CONTENT & MISC MODELS
 # =============================================================================
 class ContactMessage(TimeStampedModel):
     """Model for messages from the contact page."""
