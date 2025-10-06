@@ -8,6 +8,8 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for dynamic behavior -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Google Fonts -->
@@ -50,6 +52,7 @@
             margin-bottom: 2.5rem;
             box-shadow: var(--card-shadow);
             text-align: center;
+            position: relative;
         }
 
         .form-header h1 {
@@ -76,7 +79,7 @@
         }
 
         .section-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
         }
 
@@ -100,45 +103,17 @@
             color: white;
         }
 
-        .basic-info .section-header i {
-            background: linear-gradient(135deg, var(--safari-green), #2a8c5f);
-        }
-
-        .itinerary .section-header i {
-            background: linear-gradient(135deg, var(--safari-sky), #38bdf8);
-        }
-
-        .pricing .section-header i {
-            background: linear-gradient(135deg, #10b981, #34d399);
-        }
-
-        .duration .section-header i {
-            background: linear-gradient(135deg, var(--safari-accent), #e6b88a);
-        }
-
-        .group-size .section-header i {
-            background: linear-gradient(135deg, #6366f1, #818cf8);
-        }
-
-        .media .section-header i {
-            background: linear-gradient(135deg, #4b5563, #6b7280);
-        }
-
-        .location .section-header i {
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-        }
-
-        .sustainability .section-header i {
-            background: linear-gradient(135deg, #22c55e, #4ade80);
-        }
-
-        .accessibility .section-header i {
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
-        }
-
-        .health-safety .section-header i {
-            background: linear-gradient(135deg, #ef4444, #f87171);
-        }
+        /* Icon backgrounds */
+        .basic-info .section-header i { background: linear-gradient(135deg, var(--safari-green), #2a8c5f); }
+        .itinerary .section-header i { background: linear-gradient(135deg, var(--safari-sky), #38bdf8); }
+        .pricing .section-header i { background: linear-gradient(135deg, #10b981, #34d399); }
+        .duration .section-header i { background: linear-gradient(135deg, var(--safari-accent), #e6b88a); }
+        .group-size .section-header i { background: linear-gradient(135deg, #6366f1, #818cf8); }
+        .media .section-header i { background: linear-gradient(135deg, #4b5563, #6b7280); }
+        .location .section-header i { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        .sustainability .section-header i { background: linear-gradient(135deg, #22c55e, #4ade80); }
+        .accessibility .section-header i { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .health-safety .section-header i { background: linear-gradient(135deg, #ef4444, #f87171); }
 
         .section-title {
             font-size: 1.25rem;
@@ -263,10 +238,80 @@
             margin-bottom: 1.5rem;
         }
 
-        .form-row .form-group {
+        .form-row .section-card {
             flex: 1;
+            margin-bottom: 0;
         }
 
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            min-width: 300px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+        /* Progress indicator */
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--safari-green), var(--safari-earth));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+
+        .progress-step {
+            text-align: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .progress-step.active {
+            color: var(--safari-green);
+            font-weight: 600;
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .form-header {
                 padding: 2rem 1.5rem;
@@ -288,37 +333,63 @@
                 flex-direction: column;
                 gap: 1rem;
             }
+
+            .toast {
+                right: 1rem;
+                left: 1rem;
+                min-width: auto;
+            }
         }
     </style>
 </head>
-<body>
+<body x-data="tourForm()">
     <div class="form-container">
         <div class="form-header">
             <h1>Create a New Safari Tour</h1>
             <p>Design an unforgettable experience for your guests with our comprehensive tour creation tool</p>
         </div>
 
-        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <!-- Progress Indicator -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" :style="`width: ${progressPercentage}%`"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="progress-step" :class="{'active': currentSection >= 1}">Basic Info</div>
+                <div class="progress-step" :class="{'active': currentSection >= 2}">Details</div>
+                <div class="progress-step" :class="{'active': currentSection >= 3}">Pricing & Duration</div>
+                <div class="progress-step" :class="{'active': currentSection >= 4}">Additional Info</div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate
+              @submit.prevent="submitForm" :class="{ 'loading': isLoading }">
             {% csrf_token %}
 
-            <!-- Basic Info -->
-            <div class="section-card basic-info">
+            <!-- Basic Info Section -->
+            <div class="section-card basic-info" id="section-1">
                 <div class="section-header">
                     <i class="fas fa-info-circle"></i>
                     <h3 class="section-title">Basic Information</h3>
                 </div>
                 <div class="section-body">
                     <div class="form-group mb-4">
-                        <label class="form-label">Tour Title</label>
+                        <label class="form-label">Tour Title *</label>
                         {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.title.errors }}</div>
+                        {% endif %}
                     </div>
                     <div class="form-group mb-4">
                         <label class="form-label">Tagline</label>
                         {{ form.tagline }}
                     </div>
                     <div class="form-group mb-4">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">Description *</label>
                         {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.description.errors }}</div>
+                        {% endif %}
                     </div>
                     <div class="form-group">
                         <label class="form-label">Category</label>
@@ -327,8 +398,8 @@
                 </div>
             </div>
 
-            <!-- Itinerary & Highlights -->
-            <div class="section-card itinerary">
+            <!-- Itinerary & Highlights Section -->
+            <div class="section-card itinerary" id="section-2">
                 <div class="section-header">
                     <i class="fas fa-route"></i>
                     <h3 class="section-title">Itinerary Details</h3>
@@ -356,8 +427,8 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <!-- Pricing -->
+            <div class="form-row" id="section-3">
+                <!-- Pricing Card -->
                 <div class="section-card pricing">
                     <div class="section-header">
                         <i class="fas fa-tag"></i>
@@ -365,8 +436,11 @@
                     </div>
                     <div class="section-body">
                         <div class="form-group mb-4">
-                            <label class="form-label">Price per Person</label>
+                            <label class="form-label">Price per Person *</label>
                             {{ form.price_per_person }}
+                            {% if form.price_per_person.errors %}
+                                <div class="text-red-500 text-sm mt-1">{{ form.price_per_person.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="form-group mb-4">
                             <label class="form-label">Discount Price</label>
@@ -379,7 +453,7 @@
                     </div>
                 </div>
 
-                <!-- Duration -->
+                <!-- Duration Card -->
                 <div class="section-card duration">
                     <div class="section-header">
                         <i class="fas fa-clock"></i>
@@ -387,8 +461,11 @@
                     </div>
                     <div class="section-body">
                         <div class="form-group mb-4">
-                            <label class="form-label">Days</label>
+                            <label class="form-label">Days *</label>
                             {{ form.duration_days }}
+                            {% if form.duration_days.errors %}
+                                <div class="text-red-500 text-sm mt-1">{{ form.duration_days.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="form-group mb-4">
                             <label class="form-label">Nights</label>
@@ -403,7 +480,7 @@
             </div>
 
             <div class="form-row">
-                <!-- Group Size -->
+                <!-- Group Size Card -->
                 <div class="section-card group-size">
                     <div class="section-header">
                         <i class="fas fa-users"></i>
@@ -421,7 +498,7 @@
                     </div>
                 </div>
 
-                <!-- Media -->
+                <!-- Media Card -->
                 <div class="section-card media">
                     <div class="section-header">
                         <i class="fas fa-images"></i>
@@ -444,8 +521,8 @@
                 </div>
             </div>
 
-            <!-- Location -->
-            <div class="section-card location">
+            <!-- Location Section -->
+            <div class="section-card location" id="section-4">
                 <div class="section-header">
                     <i class="fas fa-map-marker-alt"></i>
                     <h3 class="section-title">Location</h3>
@@ -467,7 +544,7 @@
             </div>
 
             <div class="form-row">
-                <!-- Sustainability -->
+                <!-- Sustainability Card -->
                 <div class="section-card sustainability">
                     <div class="section-header">
                         <i class="fas fa-leaf"></i>
@@ -490,7 +567,7 @@
                     </div>
                 </div>
 
-                <!-- Accessibility -->
+                <!-- Accessibility Card -->
                 <div class="section-card accessibility">
                     <div class="section-header">
                         <i class="fas fa-universal-access"></i>
@@ -510,7 +587,7 @@
                 </div>
             </div>
 
-            <!-- Health & Safety -->
+            <!-- Health & Safety Section -->
             <div class="section-card health-safety">
                 <div class="section-header">
                     <i class="fas fa-shield-alt"></i>
@@ -530,13 +607,183 @@
                 </div>
             </div>
 
-            <div class="text-center">
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-save"></i>
-                    Save Tour
+            <!-- Tour Status (Auto-set by system) -->
+            <div class="section-card">
+                <div class="section-header">
+                    <i class="fas fa-cogs"></i>
+                    <h3 class="section-title">Tour Status (Auto-configured)</h3>
+                </div>
+                <div class="section-body">
+                    <div class="bg-safari-sand p-4 rounded-lg">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-info-circle text-safari-green mr-2"></i>
+                            New tours are automatically set as <strong>pending approval</strong> and <strong>not available</strong> until approved by an administrator.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between mt-8">
+                <button type="button" @click="previousSection"
+                        class="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                        x-show="currentSection > 1">
+                    <i class="fas fa-arrow-left mr-2"></i> Previous Section
+                </button>
+
+                <button type="button" @click="nextSection"
+                        class="px-6 py-3 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 transition-colors"
+                        x-show="currentSection < 4">
+                    Next Section <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+
+                <button type="submit" class="submit-btn" x-show="currentSection === 4">
+                    <i class="fas fa-save" x-show="!isLoading"></i>
+                    <i class="fas fa-spinner fa-spin" x-show="isLoading"></i>
+                    <span x-text="isLoading ? 'Creating Tour...' : 'Save Tour'"></span>
                 </button>
             </div>
         </form>
     </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" :class="messageType" x-show="message" x-transition>
+        <i :class="messageType === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i>
+        <span x-text="message"></span>
+    </div>
+
+    <script>
+        function tourForm() {
+            return {
+                isLoading: false,
+                message: '',
+                messageType: '',
+                currentSection: 1,
+                totalSections: 4,
+
+                get progressPercentage() {
+                    return (this.currentSection / this.totalSections) * 100;
+                },
+
+                nextSection() {
+                    if (this.currentSection < this.totalSections) {
+                        this.currentSection++;
+                        this.scrollToSection();
+                    }
+                },
+
+                previousSection() {
+                    if (this.currentSection > 1) {
+                        this.currentSection--;
+                        this.scrollToSection();
+                    }
+                },
+
+                scrollToSection() {
+                    const section = document.getElementById(`section-${this.currentSection}`);
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                },
+
+                async submitForm() {
+                    this.isLoading = true;
+                    this.message = '';
+
+                    try {
+                        const form = this.$el;
+                        const formData = new FormData(form);
+
+                        // Add auto-generated fields
+                        formData.append('available', 'false');
+                        formData.append('is_approved', 'false');
+                        formData.append('created_by', '{{ request.user.id }}');
+
+                        const response = await fetch('{% url "create_tour" %}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            this.message = data.message || 'Tour created successfully! Redirecting...';
+                            this.messageType = 'success';
+
+                            // Redirect after delay
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url || '{% url "driver_dashboard" %}';
+                            }, 2000);
+                        } else {
+                            this.message = data.error || 'Error creating tour. Please check the form and try again.';
+                            this.messageType = 'error';
+
+                            // Display field errors if any
+                            if (data.errors) {
+                                this.displayFieldErrors(data.errors);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        this.message = 'Network error. Please try again.';
+                        this.messageType = 'error';
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                displayFieldErrors(errors) {
+                    // Clear previous errors
+                    document.querySelectorAll('.field-error').forEach(el => el.remove());
+
+                    // Display new errors
+                    for (const [field, messages] of Object.entries(errors)) {
+                        const input = document.querySelector(`[name="${field}"]`);
+                        if (input) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'field-error text-red-500 text-sm mt-1';
+                            errorDiv.innerHTML = messages.join('<br>');
+                            input.parentNode.appendChild(errorDiv);
+                        }
+                    }
+                },
+
+                // Auto-calculate nights based on days
+                calculateNights() {
+                    const daysInput = document.querySelector('[name="duration_days"]');
+                    const nightsInput = document.querySelector('[name="duration_nights"]');
+
+                    if (daysInput && nightsInput) {
+                        daysInput.addEventListener('input', (e) => {
+                            const days = parseInt(e.target.value) || 0;
+                            if (days > 0) {
+                                nightsInput.value = days - 1;
+                            }
+                        });
+                    }
+                },
+
+                init() {
+                    this.calculateNights();
+
+                    // Set up form validation
+                    const forms = document.querySelectorAll('.needs-validation');
+                    Array.from(forms).forEach(form => {
+                        form.addEventListener('submit', event => {
+                            if (!form.checkValidity()) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                            }
+                            form.classList.add('was-validated');
+                        }, false);
+                    });
+                }
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,10 +1,22 @@
 # =============================================================================
 # URLS – Bookings App
 # =============================================================================
-from django.urls import path, re_path
+from django.urls import path, re_path, include
+from rest_framework.routers import DefaultRouter
 from . import views
+from .api import views as api_views  # Import API views
 
-app_name = "bookings"  # App namespace
+app_name = "bookings"
+
+# Create a router for API endpoints
+router = DefaultRouter()
+router.register(r'tours', api_views.TourViewSet, basename='tour')
+router.register(r'bookings', api_views.BookingViewSet, basename='booking')
+router.register(r'payments', api_views.PaymentViewSet, basename='payment')
+router.register(r'trips', api_views.TripViewSet, basename='trip')
+router.register(r'booking-customers', api_views.BookingCustomerViewSet, basename='bookingcustomer')
+router.register(r'drivers', api_views.DriverViewSet, basename='driver')
+router.register(r'vehicles', api_views.VehicleViewSet, basename='vehicle')
 
 urlpatterns = [
     # ===============================
@@ -23,13 +35,13 @@ urlpatterns = [
     path("excursions/", views.excursions, name="excursions"),
     path("tours-and-safaris/", views.tours, name="tours"),
     path("tour/<slug:tour_slug>/", views.TourDetailView.as_view(), name="tour_detail"),
-path("nairobi-airport-transfers-and-taxis/", views.nairobi_airport_transfers, name="nairobi_airport_transfers"),
+    path("nairobi-airport-transfers-and-taxis/", views.nairobi_airport_transfers, name="nairobi_airport_transfers"),
+
     # ===============================
     # 💳 Tour Payments (Paystack)
     # ===============================
     path("tour/<int:tour_id>/pay/", views.tour_payment, name="tour_payment"),
     path("book-tour/<int:tour_id>/", views.tour_payment, name="tour_payment_legacy"),
-    # Added missing pattern for payments/tour/<tour_id>/
     path("payments/tour/<int:tour_id>/", views.tour_payment, name="tour_payment_alt"),
 
     # ===============================
@@ -47,7 +59,6 @@ path("nairobi-airport-transfers-and-taxis/", views.nairobi_airport_transfers, na
     path("payments/create-guest-order/", views.create_guest_paystack_order, name="create_guest_paystack_order"),
     path("payments/callback/", views.paystack_callback, name="paystack_callback"),
     path("payments/webhook/", views.paystack_webhook, name="paystack_webhook"),
-    # Legacy aliases (for backwards compatibility)
     path("paystack/callback/", views.paystack_callback, name="paystack_callback_legacy"),
     path("paystack/webhook/", views.paystack_webhook, name="paystack_webhook_legacy"),
 
@@ -57,9 +68,6 @@ path("nairobi-airport-transfers-and-taxis/", views.nairobi_airport_transfers, na
     path("guest/checkout/<int:tour_id>/", views.guest_checkout, name="guest_checkout"),
     path("guest/process-info/", views.process_guest_info, name="process_guest_info"),
     path("guest/payment/<uuid:payment_id>/", views.guest_payment_page, name="guest_payment_page"),
-    path("guest/payment/return/", views.guest_payment_return, name="guest_payment_return"),
-    path("guest/payment/success/", views.guest_payment_success, name="guest_payment_success"),
-    path("guest/payment/failed/", views.guest_payment_failed, name="guest_payment_failed"),
 
     # ===============================
     # 🚖 Driver Authentication & Dashboard
@@ -83,17 +91,18 @@ path("nairobi-airport-transfers-and-taxis/", views.nairobi_airport_transfers, na
     path("brymax-admin/tour-approval/", views.admin_tour_approval, name="admin_tour_approval"),
     path("brymax-admin/tour-approval/approve/<int:tour_id>/", views.approve_tour, name="approve_tour"),
     path("brymax-admin/tour-approval/reject/<int:tour_id>/", views.reject_tour, name="reject_tour"),
-    path("brymax-admin/payments/", views.payment_admin_list, name="payment_admin_list"),
-    path("brymax-admin/payments/<uuid:payment_id>/", views.payment_admin_detail, name="payment_admin_detail"),
-    path("brymax-admin/payments/<uuid:payment_id>/refund/", views.payment_admin_refund, name="payment_admin_refund"),
 
     # ===============================
-    # 📊 API Endpoints
+    # 📊 API Endpoints - ALPINE.JS INTEGRATION
     # ===============================
     path("api/tour/<int:tour_id>/price/", views.tour_price_api, name="tour_price_api"),
     path("api/tour/<int:tour_id>/availability/", views.tour_availability_api, name="tour_availability_api"),
     path("api/tours/", views.tours_api, name="tours_api"),
     path("api/payment/<uuid:payment_id>/status/", views.check_payment_status, name="check_payment_status"),
+
+    # NEW: Alpine.js API Endpoints
+    path("api/dashboard/", api_views.DashboardView.as_view(), name="api_dashboard"),
+    path("api/", include(router.urls)),  # Includes all API endpoints
 
     # ===============================
     # 📧 Contact Form

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,9 @@
   <meta name="keywords" content="Kenya Safaris, Nairobi Airport Transfers, Maasai Mara Tours, Amboseli Safaris, Kenyan Wildlife, African Adventure"/>
   <meta name="author" content="Airport & Destinations Kenya"/>
   <title>Airport & Destinations | Premium Kenyan Travel Experiences</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="https://i.ibb.co/tPZ6TBcJ/logo.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -98,9 +102,9 @@
       padding: 0 2rem;
     }
 
-    /* Header Styles */
+    /* Header Styles - Updated for white logo background */
     .header {
-      background: var(--glass-bg);
+      background: rgba(0, 0, 0, 0.7); /* Darker background for contrast */
       backdrop-filter: blur(var(--glass-blur));
       -webkit-backdrop-filter: blur(var(--glass-blur));
       box-shadow: var(--glass-shadow);
@@ -108,7 +112,7 @@
       position: sticky;
       top: 0;
       z-index: 300;
-      padding: 1rem 0;
+      padding: 0.5rem 0;
       width: 100%;
     }
 
@@ -140,9 +144,17 @@
       transform: translateY(-2px);
     }
 
-    .brand i {
-      font-size: clamp(1.5rem, 3vw, 1.75rem);
-      color: var(--safari-gold);
+    .brand-logo {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+      transition: var(--transition);
+      border-radius: 8px; /* Rounded corners for white background */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Shadow for better visibility */
+    }
+
+    .brand a:hover .brand-logo {
+      transform: scale(1.05);
     }
 
     .nav {
@@ -228,6 +240,8 @@
       position: relative;
       overflow: hidden;
       width: 100%;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
+      backdrop-filter: blur(5px);
     }
 
     .hero::before {
@@ -293,164 +307,166 @@
     .btn:hover i {
       transform: translateX(3px);
     }
-/* Cards Section */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-  margin: 3rem 0;
-  width: 100%;
-}
 
-.card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--rounded-lg);
-  box-shadow: var(--glass-shadow);
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
+    /* Cards Section */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+      width: 100%;
+    }
 
-.card-airport {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-              url('https://images.unsplash.com/photo-1566477986534-e6b3f1e6d71d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--rounded-lg);
+      box-shadow: var(--glass-shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
 
-.card-airport::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(0, 128, 0, 0.3) 0%, rgba(198, 163, 80, 0.2) 100%);
-  mix-blend-mode: overlay;
-  z-index: 1;
-}
+    .card-airport {
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                  url('https://images.unsplash.com/photo-1566477986534-e6b3f1e6d71d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
 
-.card-safari {
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-              url('https://images.unsplash.com/photo-1516426122078-c23e76319801?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-  background-size: cover;
-  background-position: center;
-}
+    .card-airport::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0, 128, 0, 0.3) 0%, rgba(198, 163, 80, 0.2) 100%);
+      mix-blend-mode: overlay;
+      z-index: 1;
+    }
 
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-}
+    .card-safari {
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                  url('https://images.unsplash.com/photo-1516426122078-c23e76319801?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-position: center;
+    }
 
-.card-icon {
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(198, 163, 80, 0.2);
-  border-bottom: 1px solid var(--glass-border);
-  position: relative;
-  z-index: 2;
-}
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
 
-.card-airport .card-icon {
-  background: rgba(0, 128, 0, 0.2);
-}
+    .card-icon {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(198, 163, 80, 0.2);
+      border-bottom: 1px solid var(--glass-border);
+      position: relative;
+      z-index: 2;
+    }
 
-.card-icon i {
-  font-size: 3rem;
-  color: var(--safari-gold);
-}
+    .card-airport .card-icon {
+      background: rgba(0, 128, 0, 0.2);
+    }
 
-.card-airport .card-icon i {
-  color: var(--kenya-green);
-}
+    .card-icon i {
+      font-size: 3rem;
+      color: var(--safari-gold);
+    }
 
-.card-content {
-  padding: 1.5rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: rgba(0, 0, 0, 0.6);
-  position: relative;
-  z-index: 2;
-}
+    .card-airport .card-icon i {
+      color: var(--kenya-green);
+    }
 
-.card h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: white;
-}
+    .card-content {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.6);
+      position: relative;
+      z-index: 2;
+    }
 
-.card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem 0;
-}
+    .card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
 
-.card li {
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 0.75rem;
-  padding-left: 1.5rem;
-  position: relative;
-  line-height: 1.5;
-}
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+    }
 
-.card li::before {
-  content: "•";
-  color: var(--safari-gold);
-  font-weight: bold;
-  position: absolute;
-  left: 0;
-}
+    .card li {
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+      line-height: 1.5;
+    }
 
-.card-airport .card li::before {
-  color: var(--kenya-green);
-}
+    .card li::before {
+      content: "•";
+      color: var(--safari-gold);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
 
-.card p {
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1.5rem;
-  flex: 1;
-}
+    .card-airport .card li::before {
+      color: var(--kenya-green);
+    }
 
-.link {
-  display: inline-flex;
-  align-items: center;
-  color: var(--safari-gold);
-  font-weight: 600;
-  text-decoration: none;
-  transition: var(--transition);
-  margin-top: auto;
-}
+    .card p {
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 1.5rem;
+      flex: 1;
+    }
 
-.card-airport .link {
-  color: var(--kenya-green);
-}
+    .link {
+      display: inline-flex;
+      align-items: center;
+      color: var(--safari-gold);
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      margin-top: auto;
+    }
 
-.link:hover {
-  color: var(--safari-sand);
-}
+    .card-airport .link {
+      color: var(--kenya-green);
+    }
 
-.card-airport .link:hover {
-  color: var(--safari-gold);
-}
+    .link:hover {
+      color: var(--safari-sand);
+    }
 
-.link i {
-  transition: var(--transition);
-}
+    .card-airport .link:hover {
+      color: var(--safari-gold);
+    }
 
-.link:hover i {
-  transform: translateX(5px);
-}
+    .link i {
+      transition: var(--transition);
+    }
+
+    .link:hover i {
+      transform: translateX(5px);
+    }
+
     /* Features Section */
     .features {
       display: grid;
@@ -675,6 +691,46 @@
       width: 100%;
     }
 
+    /* Partners Section */
+    .partners {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2.5rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .partners h3 {
+      text-align: center;
+      color: white;
+      margin-bottom: 2rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+
+    .partner-logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2.5rem;
+    }
+
+    .partner-logo {
+      height: 60px;
+      width: auto;
+      object-fit: contain;
+      opacity: 0.7;
+      transition: var(--transition);
+      background-color: white;
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .partner-logo:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
     /* Footer Styles */
     .footer {
       background: var(--glass-bg);
@@ -820,6 +876,14 @@
       .testimonial-grid {
         grid-template-columns: 1fr;
       }
+
+      .partner-logos {
+        gap: 1.5rem;
+      }
+
+      .partner-logo {
+        height: 45px;
+      }
     }
 
     /* Tablet Styles */
@@ -834,6 +898,10 @@
 
       .testimonial-grid {
         grid-template-columns: repeat(2, 1fr);
+      }
+
+      .partner-logos {
+        gap: 2rem;
       }
     }
 
@@ -887,7 +955,7 @@
     <div class="container">
       <div class="brand">
         <a href="/" aria-label="Home">
-          <i class="fas fa-globe-africa" aria-hidden="true"></i>
+          <img src="https://iili.io/KhHmATx.md.png" alt="Airport & Destinations Logo" class="brand-logo">
           Airport & Destinations
         </a>
       </div>
@@ -956,18 +1024,18 @@
       </article>
 
       <article class="card card-safari">
-  <div class="card-icon">
-    <i class="fas fa-binoculars"></i>
-  </div>
-  <div class="card-content">
-    <h3>Tours & Safaris</h3>
-    <p>Custom itineraries to Maasai Mara, Amboseli, Naivasha, and beyond for unforgettable wildlife experiences. Book and pay securely through our app.</p>
-    <a href="/tours-and-safaris/" aria-label="View tours" class="btn">
-      <i class="fas fa-compass"></i>
-      View Tours
-    </a>
-  </div>
-</article>
+        <div class="card-icon">
+          <i class="fas fa-binoculars"></i>
+        </div>
+        <div class="card-content">
+          <h3>Tours & Safaris</h3>
+          <p>Custom itineraries to Maasai Mara, Amboseli, Naivasha, and beyond for unforgettable wildlife experiences. Book and pay securely through our app.</p>
+          <a href="/tours-and-safaris/" aria-label="View tours" class="btn">
+            <i class="fas fa-compass"></i>
+            View Tours
+          </a>
+        </div>
+      </article>
     </section>
 
     <section class="features">
@@ -1057,13 +1125,31 @@
     <section class="cta">
       <h2>Ready for Your Authentic Kenyan Adventure?</h2>
       <p>Book your transfers, tours, and safaris today. Pay for tours & safaris through our secure app, or connect directly with our office via WhatsApp for instant transfer bookings.</p>
-
+      <a class="btn" href="/contact/" aria-label="Book Now">
         <i class="fas fa-calendar-check"></i>
         Book Now
       </a>
     </section>
   </main>
 
+<!-- Partners Section -->
+<section class="partners">
+  <div class="container">
+    <h3>Our Trusted Partners</h3>
+    <div class="partner-logos">
+      {% load partner_tags %}
+      {% get_partner_logos as partner_images %}
+      {% for image_path in partner_images %}
+        <img src="{% static image_path %}" alt="Partner Logo" class="partner-logo">
+      {% empty %}
+        <!-- Fallback placeholder logos if no images are found -->
+        <img src="{% static 'images/partners/placeholder1.png' %}" alt="Partner Logo" class="partner-logo">
+        <img src="{% static 'images/partners/placeholder2.png' %}" alt="Partner Logo" class="partner-logo">
+        <img src="{% static 'images/partners/placeholder3.png' %}" alt="Partner Logo" class="partner-logo">
+      {% endfor %}
+    </div>
+  </div>
+</section>
   <!-- Footer -->
   <footer class="footer">
     <div class="container">
