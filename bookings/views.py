@@ -8,11 +8,9 @@ import hashlib
 import hmac
 import json
 import logging
-import re
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
-from typing import Any, Dict, Optional, Union
 
 # Third-party
 import requests
@@ -23,7 +21,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import send_mail
@@ -31,9 +28,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models, transaction
 from django.db.models import Avg, Count, Q, Sum
 from django.db.models.functions import TruncMonth
-from django.http import Http404, HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.debug import sensitive_post_parameters
@@ -42,16 +38,11 @@ from django.views.generic import DetailView
 
 # Local apps - Models
 from .models import (
-    Booking, BookingCustomer, ContactMessage, Driver, Destination, Payment,
+    Booking, BookingCustomer, Destination, Payment,
     PaymentProvider, PaymentStatus, Review, Tour, TourCategory, Trip
 )
 
 # Local apps - Serializers
-from api.serializers import (
-    BookingSerializer, DestinationSerializer, DriverSerializer, PaymentSerializer,
-    ReviewSerializer, TourCategorySerializer, TourSerializer, TripSerializer,
-    VehicleSerializer
-)
 
 # Local apps - Forms
 from .forms import ContactForm, GuestCheckoutForm, TourForm
@@ -63,11 +54,9 @@ from bookings.services import (
 
 # Local apps - Utils
 from .utils import (
-    check_tour_availability, cleanup_expired_payments, create_error_response,
+    check_tour_availability, create_error_response,
     create_payment_record, create_success_response, get_client_ip,
-    get_tour_pricing, log_payment_event, mask_email, mask_phone,
-    normalize_phone_number, send_payment_confirmation_email,
-    validate_paystack_config, validate_payment_data
+    get_tour_pricing, log_payment_event, mask_email, validate_paystack_config, validate_payment_data
 )
 
 # Local apps - Decorators
@@ -224,7 +213,7 @@ def nairobi_transfers(request):
         "transfer_services": transfer_services,
         "transfer_prices": transfer_prices,
     }
-    return render(request, "nairobi_transfers.html", context)
+    return render(request, "nairobi_airport_transfers.html", context)
 
 
 def excursions(request):
@@ -1191,7 +1180,7 @@ def driver_dashboard(request):
     # ==================== RATINGS DATA ====================
     # Base queryset for the driver's reviews
     reviews_qs = Review.objects.filter(booking__driver=driver).select_related(
-        "customer", "booking"
+        "booking__booking_customer", "booking"
     )
 
     # Aggregate ratings (do this first, without slicing)
@@ -1202,7 +1191,7 @@ def driver_dashboard(request):
     )
 
     # Get latest 10 reviews
-    reviews = reviews_qs.order_by("-created_at")[:10]  # now `reviews` exists
+    reviews = reviews_qs.order_by("-created_at")[:10]
 
     performance_metrics = {
         "completion_rate": (trip_stats["completed_trips"] / trip_stats["total_trips"] * 100)
@@ -1876,7 +1865,7 @@ def guest_payment_return(request):
     return render(request, "payments/guest_payment_return.html")
 
 def nairobi_airport_transfers(request):
-    return render(request, "nairobi_transfers.html")
+    return render(request, "nairobi_airport_transfers.html")
 
 
 @require_GET
@@ -1965,3 +1954,186 @@ def vehicles_api(request):
     except Exception as e:
         logger.exception(f"Vehicles API error: {e}")
         return create_error_response("Error fetching vehicles", status=500)
+
+
+def nairobi_airport_transfers(request):
+    """Render Nairobi airport transfers page."""
+    transfer_services = getattr(settings, 'TRANSFER_SERVICES', [])
+    transfer_prices = getattr(settings, 'TRANSFER_PRICES', {})
+
+    context = {
+        "transfer_services": transfer_services,
+        "transfer_prices": transfer_prices,
+    }
+    return render(request, "nairobi_airport_transfers.html", context)
+
+
+@staff_member_required
+def modern_admin_dashboard(request):
+    """Render modern admin dashboard."""
+    # Add dashboard logic here
+    return render(request, "admin/modern_dashboard.html")
+
+
+@staff_member_required
+def admin_tour_approval(request):
+    """Render tour approval page."""
+    tours = Tour.objects.filter(is_approved=False)
+    return render(request, "admin/tour_approval.html", {"tours": tours})
+
+
+@staff_member_required
+def approve_tour(request, tour_id):
+    """Approve a tour."""
+    tour = get_object_or_404(Tour, id=tour_id)
+    tour.is_approved = True
+    tour.approved_by = request.user
+    tour.approved_at = timezone.now()
+    tour.save()
+    messages.success(request, "Tour approved successfully.")
+    return redirect("bookings:admin_tour_approval")
+
+
+@staff_member_required
+def reject_tour(request, tour_id):
+    """Reject a tour."""
+    tour = get_object_or_404(Tour, id=tour_id)
+    tour.delete()
+    messages.success(request, "Tour rejected successfully.")
+    return redirect("bookings:admin_tour_approval")
+
+
+def tour_price_api(request, tour_id):
+    """API endpoint to get tour pricing."""
+    tour = get_object_or_404(Tour, id=tour_id)
+    adults = int(request.GET.get('adults', 1))
+    children = int(request.GET.get('children', 0))
+
+    pricing = get_tour_pricing(tour, adults, children)
+    return JsonResponse(pricing)
+
+
+def tour_availability_api(request, tour_id):
+    """API endpoint to check tour availability."""
+    tour = get_object_or_404(Tour, id=tour_id)
+    travel_date_str = request.GET.get('travel_date')
+
+    if not travel_date_str:
+        return JsonResponse({"error": "travel_date is required"}, status=400)
+
+    try:
+        travel_date = datetime.strptime(travel_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        return JsonResponse({"error": "Invalid date format"}, status=400)
+
+    availability = check_tour_availability(tour, travel_date)
+    return JsonResponse(availability)
+
+
+def tours_api(request):
+    """API endpoint to get tours."""
+    tours = Tour.objects.filter(is_approved=True, available=True)
+
+    # Apply filters
+    category = request.GET.get('category')
+    if category:
+        tours = tours.filter(category__slug=category)
+
+    # Serialize
+    tours_data = []
+    for tour in tours:
+        tours_data.append({
+            'id': tour.id,
+            'title': tour.title,
+            'slug': tour.slug,
+            'price': float(tour.current_price),
+            'image': tour.get_image_src(),
+            'duration': tour.total_duration,
+            'category': tour.category.name if tour.category else None,
+        })
+
+    return JsonResponse({"tours": tours_data})
+
+
+def contact_submit(request):
+    """Handle contact form submission."""
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            contact_message = form.save()
+
+            # Send notification email
+            subject = f"New Contact: {contact_message.subject}"
+            message = f"""
+From: {contact_message.name}
+Email: {contact_message.email}
+Phone: {contact_message.phone}
+
+Message:
+{contact_message.message}
+            """
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.ADMIN_EMAIL],
+                    fail_silently=False,
+                )
+                messages.success(request, "Your message has been sent. We'll get back to you soon.")
+            except Exception as e:
+                logger.error(f"Error sending contact email: {e}")
+                messages.error(request, "There was an error sending your message. Please try again.")
+
+            return redirect('bookings:contact')
+        else:
+            messages.error(request, "Please correct the errors below.")
+
+    return redirect('bookings:contact')
+
+
+def vehicles_api(request):
+    """API endpoint to get vehicles."""
+    vehicles = Vehicle.objects.filter(is_active=True)
+
+    vehicles_data = []
+    for vehicle in vehicles:
+        vehicles_data.append({
+            'id': vehicle.id,
+            'make': vehicle.make,
+            'model': vehicle.model,
+            'year': vehicle.year,
+            'license_plate': vehicle.license_plate,
+            'vehicle_type': vehicle.vehicle_type,
+            'capacity': vehicle.capacity,
+            'image': vehicle.image_url,
+        })
+
+    return JsonResponse({"vehicles": vehicles_data})
+
+
+def health_check(request):
+    """Health check endpoint."""
+    return JsonResponse({"status": "healthy"})
+
+
+def payment_success(request):
+    """Generic payment success page."""
+    return render(request, "payments/success.html")
+
+def get_serializer_context(self):
+    context = super().get_serializer_context()
+    context['request'] = self.request
+    return context
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .models import Vehicle
+from .serializers import VehicleSerializer
+
+@api_view(['GET'])
+def vehicle_list(request):
+    vehicles = Vehicle.objects.filter(is_active=True)
+    serializer = VehicleSerializer(vehicles, many=True, context={'request': request})
+    return Response(serializer.data)

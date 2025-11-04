@@ -1,5 +1,5 @@
 from django import template
-
+from datetime import timedelta
 register = template.Library()
 
 
@@ -45,3 +45,18 @@ def mul(value, arg):
         return float(value) * float(arg)
     except (ValueError, TypeError):
         return 0
+
+@register.filter
+def add_days(value, days):
+    """Adds a number of days to a date or datetime."""
+    try:
+        days = int(days)
+    except (ValueError, TypeError):
+        return value
+
+    if hasattr(value, "__add__"):
+        try:
+            return value + timedelta(days=days)
+        except Exception:
+            return value
+    return value

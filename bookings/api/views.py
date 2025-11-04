@@ -1,68 +1,164 @@
-# bookings/api/views.py
-from rest_framework import viewsets, status
+# /home/brymax/Documents/airport_destinations/bookings/api/views.py
+
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.db.models import Count, Sum, Q, Avg
+from django.db.models import Sum, Count, Q, Avg
 from django.utils import timezone
 from datetime import datetime, timedelta
 from decimal import Decimal
 import requests
 from django.conf import settings
 
-from ..models import (
-    Tour, Booking, Payment, Trip, BookingCustomer,
-    Driver, Vehicle, Destination, Review, ContactMessage, TourCategory
+from bookings.models import (
+    Driver, BookingCustomer, Vehicle, Destination, TourCategory, Tour,
+    Booking, Trip, Payment, PaymentStatus, Review, ContactMessage,
+    PaymentProvider
+)
+
+from .serializers import (
+    DriverSerializer, TourSerializer, BookingSerializer, TripSerializer,
+    PaymentSerializer, ReviewSerializer, VehicleSerializer, DestinationSerializer,
+    BookingCustomerSerializer, TourCategorySerializer, ContactMessageSerializer,
+    PaymentProviderSerializer, PaymentStatusSerializer,
+    # Create/Update serializers
+    BookingCreateSerializer, PaymentCreateSerializer, ReviewCreateSerializer,
+    DriverCreateSerializer, TourCreateSerializer, VehicleCreateSerializer
 )
 
 
-class TourViewSet(viewsets.ModelViewSet):
-    queryset = Tour.objects.all().select_related('category', 'created_by', 'approved_by')
+class DriverViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows drivers to be viewed or edited.
+    """
+    queryset = Driver.objects.all()
+    serializer_class = DriverSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request):
-        tours = self.get_queryset()
-        serialized_tours = []
-        for tour in tours:
-            serialized_tours.append({
-                'id': tour.id,
-                'title': tour.title,
-                'slug': tour.slug,
-                'tagline': tour.tagline,
-                'description': tour.description,
-                'price_per_person': float(tour.price_per_person) if tour.price_per_person else 0,
-                'discount_price': float(tour.discount_price) if tour.discount_price else 0,
-                'current_price': float(tour.current_price) if hasattr(tour, 'current_price') else float(
-                    tour.price_per_person) if tour.price_per_person else 0,
-                'currency': tour.currency,
-                'duration_days': tour.duration_days,
-                'duration_nights': tour.duration_nights,
-                'max_group_size': tour.max_group_size,
-                'min_group_size': tour.min_group_size,
-                'difficulty': tour.difficulty,
-                'category': tour.category.id if tour.category else None,
-                'category_name': tour.category.name if tour.category else 'Uncategorized',
-                'available': tour.available,
-                'featured': tour.featured,
-                'is_popular': tour.is_popular,
-                'is_approved': tour.is_approved,
-                'created_by': tour.created_by.id if tour.created_by else None,
-                'created_by_name': tour.created_by.username if tour.created_by else 'Unknown',
-                'approved_by': tour.approved_by.id if tour.approved_by else None,
-                'approved_at': tour.approved_at.isoformat() if tour.approved_at else None,
-                'departure_point': tour.departure_point,
-                'image': tour.image.url if tour.image else tour.image_url,
-                'image_url': tour.image_url,
-                'created_at': tour.created_at.isoformat(),
-                'updated_at': tour.updated_at.isoformat(),
-                'has_discount': tour.has_discount if hasattr(tour,
-                                                             'has_discount') else tour.discount_price and tour.discount_price < tour.price_per_person,
-                'total_duration': tour.total_duration if hasattr(tour,
-                                                                 'total_duration') else f"{tour.duration_days} days, {tour.duration_nights} nights"
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return DriverCreateSerializer
+        return DriverSerializer
+
+    @action(detail=True, methods=['get'])
+    def dashboard_data(self, request, pk=None):
+        """
+        Retrieves detailed dashboard data for a specific driver.
+        """
+        driver = self.get_object()
+        today = timezone.now().date()
+
+        # Get basic stats
+        total_earnings = Trip.objects.filter(driver=driver, status='COMPLETED').aggregate(total=Sum('earnings'))['total'] or 0
+        completed_trips = Trip.objects.filter(driver=driver, status='COMPLETED').count()
+        active_tours = Tour.objects.filter(created_by=driver, available=True, is_approved=True).count()
+
+        # Get monthly earnings
+        monthly_earnings = Trip.objects.filter(
+            driver=driver,
+            status='COMPLETED',
+            date__gte=timezone.now().replace(day=1)
+        ).aggregate(total=Sum('earnings'))['total'] or 0
+
+        # Get today's trips
+        today_trips = Trip.objects.filter(driver=driver, date=today)
+
+        # Get upcoming trips
+        upcoming_trips = Trip.objects.filter(
+            driver=driver,
+            date__gt=today
+        ).order_by('date')[:10]
+
+        # Get recent bookings
+        recent_bookings = Booking.objects.filter(
+            driver=driver,
+            travel_date__gte=timezone.now() - timedelta(days=30)
+        ).order_by('-booking_date')[:5]
+
+        # Get vehicle status
+        try:
+            vehicle = driver.vehicle
+            vehicle_status = {
+                'name': f"{vehicle.make} {vehicle.model}",
+                'plate': vehicle.license_plate,
+                'status': 'ACTIVE' if vehicle.is_active else 'INACTIVE',
+                'next_maintenance': vehicle.inspection_expiry.strftime("%Y-%m-%d") if vehicle.inspection_expiry else None,
+                'maintenance_due': vehicle.inspection_expiry and vehicle.inspection_expiry <= today + timedelta(days=30)
+            }
+        except Vehicle.DoesNotExist:
+            vehicle_status = None
+
+        # Get tour stats
+        tours = Tour.objects.filter(created_by=driver)
+        tour_stats = {
+            'total': tours.count(),
+            'approved': tours.filter(is_approved=True).count(),
+            'pending': tours.filter(is_approved=False).count(),
+            'active': tours.filter(is_approved=True, available=True).count()
+        }
+
+        # Get ratings
+        reviews = Review.objects.filter(driver=driver)
+        avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+        total_reviews = reviews.count()
+
+        # Rating distribution
+        rating_distribution = []
+        for i in range(1, 6):
+            count = reviews.filter(rating=i).count()
+            rating_distribution.append({
+                'rating': i,
+                'count': count,
+                'percentage': (count / total_reviews * 100) if total_reviews > 0 else 0
             })
-        return Response(serialized_tours)
+
+        return Response({
+            'driver': DriverSerializer(driver).data,
+            'total_earnings': total_earnings,
+            'completed_trips': completed_trips,
+            'active_tours': active_tours,
+            'monthly_earnings': monthly_earnings,
+            'today_trips': TripSerializer(today_trips, many=True).data,
+            'upcoming_trips': TripSerializer(upcoming_trips, many=True).data,
+            'recent_bookings': BookingSerializer(recent_bookings, many=True).data,
+            'vehicle_status': vehicle_status,
+            'tour_stats': tour_stats,
+            'avg_rating': avg_rating,
+            'total_reviews': total_reviews,
+            'rating_distribution': rating_distribution
+        })
+
+
+class TourViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows tours to be viewed or edited.
+    """
+    queryset = Tour.objects.all().select_related('category', 'created_by', 'approved_by')
+    serializer_class = TourSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return TourCreateSerializer
+        return TourSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        driver_id = self.request.query_params.get('driver_id', None)
+        if driver_id:
+            queryset = queryset.filter(created_by_id=driver_id)
+        return queryset
+
+    def perform_create(self, serializer):
+        # Assumes the User model has a OneToOneField to Driver with related_name='driver'
+        serializer.save(created_by=self.request.user.driver)
 
     @action(detail=True, methods=['post'])
     def toggle_approval(self, request, pk=None):
+        """
+        Toggles the approval status of a tour.
+        """
         tour = self.get_object()
         tour.is_approved = not tour.is_approved
         if tour.is_approved:
@@ -73,84 +169,70 @@ class TourViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def toggle_availability(self, request, pk=None):
+        """
+        Toggles the availability status of a tour.
+        """
         tour = self.get_object()
         tour.available = not tour.available
         tour.save()
         return Response({'status': 'success', 'available': tour.available})
 
 
-class BookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.all().select_related('booking_customer', 'destination', 'tour', 'driver', 'vehicle')
+class TripViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows trips to be viewed or edited.
+    """
+    queryset = Trip.objects.all().select_related('driver', 'booking', 'vehicle')
+    serializer_class = TripSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request):
-        bookings = self.get_queryset()
-        serialized_bookings = []
-        for booking in bookings:
-            serialized_bookings.append({
-                'id': booking.id,
-                'booking_reference': booking.booking_reference,
-                'booking_customer': booking.booking_customer.id if booking.booking_customer else None,
-                'booking_customer_name': booking.booking_customer.full_name if booking.booking_customer else 'Unknown',
-                'destination': booking.destination.id if booking.destination else None,
-                'destination_name': booking.destination.name if booking.destination else None,
-                'tour': booking.tour.id if booking.tour else None,
-                'tour_id': booking.tour.id if booking.tour else None,
-                'tour_name': booking.tour.title if booking.tour else None,
-                'booking_type': booking.booking_type,
-                'num_adults': booking.num_adults,
-                'num_children': booking.num_children,
-                'num_infants': booking.num_infants,
-                'total_passengers': booking.total_passengers,
-                'pickup_location': booking.pickup_location,
-                'dropoff_location': booking.dropoff_location,
-                'travel_date': booking.travel_date.isoformat() if booking.travel_date else None,
-                'travel_time': booking.travel_time.isoformat() if booking.travel_time else None,
-                'status': booking.status,
-                'total_price': float(booking.total_price) if booking.total_price else 0,
-                'currency': booking.currency,
-                'is_paid': booking.is_paid,
-                'is_cancelled': booking.is_cancelled,
-                'service_name': booking.service_name,
-                'created_at': booking.created_at.isoformat(),
-                'updated_at': booking.updated_at.isoformat()
-            })
-        return Response(serialized_bookings)
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        driver_id = self.request.query_params.get('driver_id', None)
+        if driver_id:
+            queryset = queryset.filter(driver_id=driver_id)
+        return queryset
+
+
+class BookingViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows bookings to be viewed or edited.
+    """
+    queryset = Booking.objects.all().select_related('booking_customer', 'destination', 'tour', 'driver', 'vehicle')
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return BookingCreateSerializer
+        return BookingSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        driver_id = self.request.query_params.get('driver_id', None)
+        if driver_id:
+            queryset = queryset.filter(driver_id=driver_id)
+        return queryset
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows payments to be viewed or edited.
+    """
     queryset = Payment.objects.all().select_related('user', 'booking', 'tour')
+    serializer_class = PaymentSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request):
-        payments = self.get_queryset()
-        serialized_payments = []
-        for payment in payments:
-            serialized_payments.append({
-                'id': payment.id,
-                'reference': payment.reference,
-                'amount': float(payment.amount) if payment.amount else 0,
-                'amount_paid': float(payment.amount_paid) if payment.amount_paid else 0,
-                'currency': payment.currency,
-                'status': payment.status,
-                'provider': payment.provider,
-                'method': payment.method,
-                'guest_full_name': payment.guest_full_name,
-                'guest_email': payment.guest_email,
-                'guest_phone': payment.guest_phone,
-                'tour': payment.tour.id if payment.tour else None,
-                'tour_title': payment.tour.title if payment.tour else None,
-                'booking': payment.booking.id if payment.booking else None,
-                'paystack_transaction_id': payment.paystack_transaction_id,
-                'authorization_code': payment.authorization_code,
-                'webhook_verified': payment.webhook_verified,
-                'paid_on': payment.paid_on.isoformat() if payment.paid_on else None,
-                'created_at': payment.created_at.isoformat(),
-                'updated_at': payment.updated_at.isoformat(),
-                'is_successful': payment.status == 'SUCCESS'
-            })
-        return Response(serialized_payments)
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return PaymentCreateSerializer
+        return PaymentSerializer
 
     @action(detail=True, methods=['post'])
     def verify(self, request, pk=None):
+        """
+        Verifies a payment transaction with the provider.
+        """
         payment = self.get_object()
         success = payment.verify_paystack_transaction()
         if success:
@@ -160,144 +242,199 @@ class PaymentViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class TripViewSet(viewsets.ModelViewSet):
-    queryset = Trip.objects.all().select_related('driver', 'booking', 'vehicle')
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows reviews to be viewed or edited.
+    """
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request):
-        trips = self.get_queryset()
-        serialized_trips = []
-        for trip in trips:
-            serialized_trips.append({
-                'id': trip.id,
-                'driver': trip.driver.id if trip.driver else None,
-                'driver_name': trip.driver.full_name if trip.driver else 'Unknown',
-                'destination': trip.destination,
-                'date': trip.date.isoformat() if trip.date else None,
-                'start_time': trip.start_time.isoformat() if trip.start_time else None,
-                'end_time': trip.end_time.isoformat() if trip.end_time else None,
-                'earnings': float(trip.earnings) if trip.earnings else 0,
-                'distance': float(trip.distance) if trip.distance else 0,
-                'status': trip.status,
-                'customer_rating': trip.customer_rating,
-                'customer_feedback': trip.customer_feedback,
-                'created_at': trip.created_at.isoformat()
-            })
-        return Response(serialized_trips)
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return ReviewCreateSerializer
+        return ReviewSerializer
 
-
-# Simplified ViewSets for other models
-class BookingCustomerViewSet(viewsets.ModelViewSet):
-    queryset = BookingCustomer.objects.all()
-
-    def list(self, request):
-        customers = self.get_queryset()
-        serialized_customers = [{
-            'id': customer.id,
-            'full_name': customer.full_name,
-            'email': customer.email,
-            'phone_number': customer.phone_number,
-            'normalized_phone': customer.normalized_phone,
-            'adults': customer.adults,
-            'children': customer.children,
-            'travel_date': customer.travel_date.isoformat() if customer.travel_date else None,
-            'days': customer.days,
-            'created_at': customer.created_at.isoformat()
-        } for customer in customers]
-        return Response(serialized_customers)
-
-
-class DriverViewSet(viewsets.ModelViewSet):
-    queryset = Driver.objects.all().select_related('user', 'vehicle')
-
-    def list(self, request):
-        drivers = self.get_queryset()
-        serialized_drivers = [{
-            'id': driver.id,
-            'full_name': driver.full_name,
-            'phone_number': driver.phone_number,
-            'license_number': driver.license_number,
-            'available': driver.available,
-            'rating': float(driver.rating) if driver.rating else 0,
-            'total_trips': driver.total_trips,
-            'total_earnings': float(driver.total_earnings) if driver.total_earnings else 0,
-            'created_at': driver.created_at.isoformat()
-        } for driver in drivers]
-        return Response(serialized_drivers)
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        driver_id = self.request.query_params.get('driver_id', None)
+        if driver_id:
+            queryset = queryset.filter(driver_id=driver_id)
+        return queryset
 
 
 class VehicleViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows vehicles to be viewed or edited.
+    The image URL will be absolute.
+    """
     queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request):
-        vehicles = self.get_queryset()
-        serialized_vehicles = [{
-            'id': vehicle.id,
-            'make': vehicle.make,
-            'model': vehicle.model,
-            'license_plate': vehicle.license_plate,
-            'vehicle_type': vehicle.vehicle_type,
-            'capacity': vehicle.capacity,
-            'is_active': vehicle.is_active,
-            'created_at': vehicle.created_at.isoformat()
-        } for vehicle in vehicles]
-        return Response(serialized_vehicles)
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return VehicleCreateSerializer
+        return VehicleSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+
+class BookingCustomerViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows booking customers to be viewed or edited.
+    """
+    queryset = BookingCustomer.objects.all()
+    serializer_class = BookingCustomerSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class DestinationViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows destinations to be viewed or edited.
+    """
+    queryset = Destination.objects.all()
+    serializer_class = DestinationSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class TourCategoryViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows tour categories to be viewed or edited.
+    """
+    queryset = TourCategory.objects.all()
+    serializer_class = TourCategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class ContactMessageViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows contact messages to be viewed or edited.
+    """
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class DashboardView(APIView):
+    """
+    A single API endpoint to get dashboard data for both drivers and admin users.
+    The response structure changes based on the user's role.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
-        # Calculate real statistics from your database
-        total_tours = Tour.objects.count()
-        approved_tours = Tour.objects.filter(is_approved=True).count()
-        pending_tours = Tour.objects.filter(is_approved=False).count()
-        active_tours = Tour.objects.filter(available=True, is_approved=True).count()
-
-        # Calculate earnings from successful payments
-        successful_payments = Payment.objects.filter(status='SUCCESS')
-        total_earnings = successful_payments.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-
-        # Monthly earnings
-        current_month = timezone.now().month
-        current_year = timezone.now().year
-        monthly_earnings = successful_payments.filter(
-            created_at__month=current_month,
-            created_at__year=current_year
-        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-
-        # Completed trips
-        completed_trips = Trip.objects.filter(status='COMPLETED').count()
-
-        # Today's trips
+        user = request.user
         today = timezone.now().date()
-        today_trips = Trip.objects.filter(date=today)
+        current_month = today.replace(day=1)
 
-        # Recent bookings (last 5)
-        recent_bookings = Booking.objects.select_related('booking_customer', 'tour').order_by('-created_at')[:5]
-
-        dashboard_data = {
-            'tour_stats': {
-                'total': total_tours,
-                'approved': approved_tours,
-                'pending': pending_tours,
-                'active': active_tours
-            },
-            'total_earnings': float(total_earnings),
-            'monthly_earnings': float(monthly_earnings),
-            'completed_trips': completed_trips,
-            'active_tours': active_tours,
-            'today_trips': [{
-                'id': trip.id,
-                'driver_name': trip.driver.full_name if trip.driver else 'Unknown',
-                'destination': trip.destination,
-                'status': trip.status
-            } for trip in today_trips],
-            'recent_bookings': [{
-                'id': booking.id,
-                'customer': booking.booking_customer.full_name if booking.booking_customer else 'Unknown',
-                'service_name': booking.service_name,
-                'amount': float(booking.total_price) if booking.total_price else 0
-            } for booking in recent_bookings],
-            'avg_rating': 4.7,  # You can calculate this from reviews
-            'total_reviews': 0  # You can calculate this from reviews
+        # Base user data
+        data = {
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'is_staff': user.is_staff,
+            }
         }
 
-        return Response(dashboard_data)
+        # Driver-specific data
+        # Assumes the User model has a OneToOneField to Driver with related_name='driver'
+        if hasattr(user, 'driver'):
+            driver = user.driver
+
+            # Trip stats
+            trips = Trip.objects.filter(driver=driver)
+            completed_trips = trips.filter(status='COMPLETED')
+
+            # Earnings
+            monthly_earnings = completed_trips.filter(
+                date__year=current_month.year,
+                date__month=current_month.month
+            ).aggregate(total=Sum('earnings'))['total'] or 0
+
+            week_ago = today - timedelta(days=7)
+            weekly_earnings = completed_trips.filter(date__gte=week_ago).aggregate(total=Sum('earnings'))['total'] or 0
+
+            # Today's and upcoming trips
+            today_trips = trips.filter(date=today, status__in=['SCHEDULED', 'IN_PROGRESS']).order_by('start_time')
+            upcoming_trips = trips.filter(date__gt=today, status='SCHEDULED').order_by('date')[:10]
+
+            # Recent bookings for this driver's tours
+            recent_bookings = Booking.objects.filter(
+                driver=driver
+            ).select_related('tour', 'payment', 'booking_customer').order_by('-created_at')[:5]
+
+            # Vehicle status
+            vehicle_status = None
+            try:
+                vehicle = driver.vehicle
+                vehicle_status = {
+                    'name': f"{vehicle.make} {vehicle.model}",
+                    'plate': vehicle.license_plate,
+                    'status': 'ACTIVE' if vehicle.is_active else 'INACTIVE',
+                    'next_maintenance': vehicle.inspection_expiry.strftime("%Y-%m-%d") if vehicle.inspection_expiry else None,
+                    'maintenance_due': vehicle.inspection_expiry and vehicle.inspection_expiry <= today + timedelta(days=7),
+                }
+            except Vehicle.DoesNotExist:
+                pass
+
+            # Tour stats
+            tour_stats = Tour.objects.filter(created_by=driver).aggregate(
+                total_tours=Count('id'),
+                approved_tours=Count('id', filter=Q(is_approved=True)),
+                active_tours=Count('id', filter=Q(available=True, is_approved=True)),
+            )
+
+            # Add driver-specific data to the response
+            data.update({
+                'driver': DriverSerializer(driver).data,
+                'stats': {
+                    'monthly_earnings': float(monthly_earnings),
+                    'weekly_earnings': float(weekly_earnings),
+                    'total_tours': tour_stats['total_tours'],
+                    'approved_tours': tour_stats['approved_tours'],
+                    'active_tours': tour_stats['active_tours'],
+                },
+                'today_trips': TripSerializer(today_trips, many=True).data,
+                'upcoming_trips': TripSerializer(upcoming_trips, many=True).data,
+                'recent_bookings': BookingSerializer(recent_bookings, many=True).data,
+                'vehicle_status': vehicle_status,
+            })
+
+        # Admin-specific data
+        elif user.is_staff:
+            # Overall stats
+            total_tours = Tour.objects.count()
+            approved_tours = Tour.objects.filter(is_approved=True).count()
+            total_bookings = Booking.objects.count()
+            total_payments = Payment.objects.count()
+            successful_payments = Payment.objects.filter(status='SUCCESS').count()
+
+            # Recent activity
+            recent_tours = Tour.objects.select_related('created_by').order_by('-created_at')[:5]
+            recent_bookings = Booking.objects.select_related('booking_customer', 'tour').order_by('-created_at')[:5]
+            pending_tours = Tour.objects.filter(is_approved=False).order_by('-created_at')
+
+            # Add admin-specific data to the response
+            data.update({
+                'admin': {
+                    'stats': {
+                        'total_tours': total_tours,
+                        'approved_tours': approved_tours,
+                        'total_bookings': total_bookings,
+                        'total_payments': total_payments,
+                        'successful_payments': successful_payments,
+                    },
+                    'recent_tours': TourSerializer(recent_tours, many=True).data,
+                    'recent_bookings': BookingSerializer(recent_bookings, many=True).data,
+                    'pending_tours': TourSerializer(pending_tours, many=True).data,
+                }
+            })
+
+        return Response(data)

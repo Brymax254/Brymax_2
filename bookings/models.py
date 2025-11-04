@@ -1,11 +1,10 @@
-# =============================================================================
-# IMPORTS
-# =============================================================================
+from cloudinary.models import CloudinaryField
 import uuid
 import logging
 import hmac
 import hashlib
 import re
+import json
 from decimal import Decimal
 from datetime import date, datetime, time, timedelta
 from typing import Optional, List, Dict, Any, Tuple, Union
@@ -20,15 +19,32 @@ from django.core.validators import RegexValidator, MinValueValidator, MaxValueVa
 from django.core.exceptions import ValidationError
 import requests
 from django.template.loader import render_to_string
-from cloudinary.models import CloudinaryField
 
 # Logger
 logger = logging.getLogger(__name__)
 
 
 # =============================================================================
+# IMAGE VALIDATION
+# =============================================================================
+
+def validate_image_file_extension(value):
+    """
+    Validate that the uploaded file has a valid image extension.
+    """
+    import os
+    from django.core.exceptions import ValidationError
+
+    ext = os.path.splitext(value.name)[1]
+    valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+    if not ext.lower() in valid_extensions:
+        raise ValidationError('Unsupported file extension. Allowed extensions are: %s.' % ', '.join(valid_extensions))
+
+
+# =============================================================================
 # HELPER FUNCTIONS
 # =============================================================================
+
 def normalize_phone_number(phone_number: str) -> str:
     """Normalize a phone number to E.164 format."""
     if not phone_number:
@@ -78,6 +94,7 @@ def validate_rating(value: int) -> None:
 # =============================================================================
 # BASE ABSTRACT MODELS
 # =============================================================================
+
 class TimeStampedModel(models.Model):
     """Abstract base model with created_at and updated_at fields."""
     created_at = models.DateTimeField(auto_now_add=True)
@@ -114,6 +131,7 @@ class LocationModel(models.Model):
 # =============================================================================
 # CUSTOM MANAGERS
 # =============================================================================
+
 class ActiveManager(models.Manager):
     """Manager for models with an is_active field."""
 
@@ -187,6 +205,7 @@ class PaymentManager(models.Manager):
 # =============================================================================
 # CUSTOMER MODELS
 # =============================================================================
+
 class BookingCustomer(TimeStampedModel):
     """Model to store customer information for individual bookings without user accounts."""
     full_name = models.CharField(max_length=200)
@@ -220,6 +239,7 @@ class BookingCustomer(TimeStampedModel):
 # =============================================================================
 # DRIVER AND VEHICLE MODELS
 # =============================================================================
+
 class Driver(TimeStampedModel):
     """Model for drivers who log in and update their profiles."""
     GENDER_CHOICES = [
@@ -406,9 +426,20 @@ class Driver(TimeStampedModel):
         today = timezone.now().date()
         return self.trips.filter(date__gte=today, status='SCHEDULED')
 
+# =============================================================================
+# VEHICLE MODEL
+# =============================================================================
+
+from decimal import Decimal
+from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from cloudinary.models import CloudinaryField
+from django.core.validators import validate_image_file_extension
 
 class Vehicle(TimeStampedModel):
-    """Model for vehicles used by drivers."""
+    """Model representing a vehicle used in bookings and transfers."""
+
     VEHICLE_TYPES = [
         ('SEDAN', 'Sedan'),
         ('SUV', 'SUV'),
@@ -430,7 +461,7 @@ class Vehicle(TimeStampedModel):
 
     # Basic Information
     make = models.CharField(max_length=50, help_text="Vehicle make (e.g., Toyota)")
-    model = models.CharField(max_length=50, help_text="Vehicle model (e.g., Hilux)")
+    model = models.CharField(max_length=50, help_text="Vehicle model (e.g., Noah)")
     year = models.PositiveIntegerField(help_text="Year of manufacture")
     color = models.CharField(max_length=30, blank=True, null=True)
     license_plate = models.CharField(max_length=20, unique=True)
@@ -438,13 +469,13 @@ class Vehicle(TimeStampedModel):
     fuel_type = models.CharField(max_length=20, choices=FUEL_TYPES)
     capacity = models.PositiveIntegerField(help_text="Passenger capacity")
 
-    # Vehicle Images
-    image = CloudinaryField(
-        'vehicle_image',
+    # Images
+    image = models.ImageField(
+        upload_to='vehicles/%Y/%m/',
         blank=True,
         null=True,
-        help_text="Upload vehicle image",
-        folder='vehicles'
+        validators=[validate_image_file_extension],
+        help_text="Upload main vehicle image (max 100MB)"
     )
     external_image_url = models.URLField(
         max_length=255,
@@ -453,38 +484,41 @@ class Vehicle(TimeStampedModel):
         help_text="External URL for vehicle image (alternative to upload)"
     )
 
-    # Features - Using ArrayField (PostgreSQL specific)
-    features = models.JSONField(default=list, blank=True, null=True,
-                                help_text="Vehicle features (AC, WiFi, etc.)")
-
-    # Accessibility Features
+    # Features
+    features = models.JSONField(
+        default=list,
+        blank=True,
+        null=True,
+        help_text="Vehicle features (AC, WiFi, Bluetooth, etc.)"
+    )
     accessibility_features = models.JSONField(
         default=list,
         blank=True,
         null=True,
-        help_text="Accessibility features (wheelchair access, etc.)"
+        help_text="Accessibility features (wheelchair access, ramp, etc.)"
     )
 
     # Documents
     logbook_copy = CloudinaryField(
-        "raw", blank=True, null=True, help_text="Copy of vehicle logbook"
+        "logbook_copy", blank=True, null=True, help_text="Scanned logbook copy"
     )
     insurance_copy = CloudinaryField(
-        "raw", blank=True, null=True, help_text="Copy of insurance certificate"
+        "insurance_copy", blank=True, null=True, help_text="Insurance certificate"
     )
     inspection_certificate = CloudinaryField(
-        "raw", blank=True, null=True, help_text="Vehicle inspection certificate"
+        "inspection_certificate", blank=True, null=True, help_text="Inspection certificate"
     )
 
-    # Dates
+    # Dates & Status
     insurance_expiry = models.DateField(null=True, blank=True)
     inspection_expiry = models.DateField(null=True, blank=True)
-
-    # Status
     is_active = models.BooleanField(default=True)
+
     carbon_footprint_per_km = models.DecimalField(
-        max_digits=6, decimal_places=3, default=Decimal('0.120'),
-        help_text="CO2 emissions per km in kg"
+        max_digits=6,
+        decimal_places=3,
+        default=Decimal('0.120'),
+        help_text="CO₂ emissions per km (kg)"
     )
 
     class Meta:
@@ -501,133 +535,78 @@ class Vehicle(TimeStampedModel):
         return f"{self.year} {self.make} {self.model} ({self.license_plate})"
 
     def clean(self):
-        """Validate model fields."""
+        """Custom validation logic."""
         super().clean()
 
-        # Validate that at least one image source is provided if vehicle is active
+        # Validate image size (100MB limit)
+        if self.image and self.image.size > 100 * 1024 * 1024:
+            raise ValidationError({
+                "image": "Image file size cannot exceed 100MB."
+            })
+
+        # Active vehicles must have an image or external link
         if self.is_active and not self.image and not self.external_image_url:
             raise ValidationError(
                 "Active vehicles must have either an uploaded image or an external image URL."
             )
 
-        # Validate year is not in the future
+        # Validate manufacture year
         if self.year > timezone.now().year:
-            raise ValidationError(
-                {"year": "Year of manufacture cannot be in the future."}
-            )
+            raise ValidationError({"year": "Year of manufacture cannot be in the future."})
 
-        # Validate insurance expiry is in the future if provided
+        # Validate insurance expiry
         if self.insurance_expiry and self.insurance_expiry <= timezone.now().date():
-            raise ValidationError(
-                {"insurance_expiry": "Insurance expiry date must be in the future."}
-            )
+            raise ValidationError({"insurance_expiry": "Insurance expiry must be in the future."})
 
-        # Validate inspection expiry is in the future if provided
+        # Validate inspection expiry
         if self.inspection_expiry and self.inspection_expiry <= timezone.now().date():
-            raise ValidationError(
-                {"inspection_expiry": "Inspection expiry date must be in the future."}
-            )
-
-    @property
-    def insurance_status(self):
-        """Check if insurance is valid."""
-        if self.insurance_expiry:
-            return self.insurance_expiry > timezone.now().date()
-        return True
-
-    @property
-    def inspection_status(self):
-        """Check if inspection is valid."""
-        if self.inspection_expiry:
-            return self.inspection_expiry > timezone.now().date()
-        return True
-
-    @property
-    def documents_valid(self):
-        """Check if all documents are valid."""
-        return self.insurance_status and self.inspection_status
+            raise ValidationError({"inspection_expiry": "Inspection expiry must be in the future."})
 
     @property
     def image_url(self):
-        """Get the URL of the vehicle image."""
-        # Priority: external_image_url > uploaded image > default image
-        if self.external_image_url:
-            return self.external_image_url
-
+        """Return uploaded or external image URL."""
         if self.image:
             return self.image.url
-
-        # Return a default image based on vehicle type
-        return self.get_default_image_url()
-
-    def get_default_image_url(self):
-        """Get a default image URL based on vehicle type."""
-        default_images = {
-            'SEDAN': 'https://images.unsplash.com/photo-1554224713-b3739b9b37a0?auto=format&fit=crop&w=800&q=80',
-            'SUV': 'https://images.unsplash.com/photo-1554224712-d8560f709cbe?auto=format&fit=crop&w=800&q=80',
-            'VAN': 'https://images.unsplash.com/photo-1570165888111-03c4d0d1d4a4?auto=format&fit=crop&w=800&q=80',
-            'MINIBUS': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=800&q=80',
-            'BUS': 'https://images.unsplash.com/photo-1544620324-13c736403b9c?auto=format&fit=crop&w=800&q=80',
-            'LUXURY': 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80',
-            'ELECTRIC': 'https://images.unsplash.com/photo-1593941707882-a5bba6f5b4b0?auto=format&fit=crop&w=800&q=80',
-            'HYBRID': 'https://images.unsplash.com/photo-1593941707882-a5bba6f5b4b0?auto=format&fit=crop&w=800&q=80',
-        }
-        return default_images.get(self.vehicle_type,
-                                  'https://images.unsplash.com/photo-1549399542-7e244f5c2f4d?auto=format&fit=crop&w=800&q=80')
+        elif self.external_image_url:
+            return self.external_image_url
+        return None  # No default placeholder
 
     @property
     def full_name(self):
-        """Return the full name of the vehicle."""
         return f"{self.year} {self.make} {self.model}"
 
     @property
-    def vehicle_type_display(self):
-        """Return the display name for the vehicle type."""
-        return dict(self.VEHICLE_TYPES).get(self.vehicle_type, self.vehicle_type)
-
-    @property
-    def fuel_type_display(self):
-        """Return the display name for the fuel type."""
-        return dict(self.FUEL_TYPES).get(self.fuel_type, self.fuel_type)
-
-    @property
-    def features_list(self):
-        """Return features as a list."""
-        if isinstance(self.features, list):
-            return self.features
-        return []
-
-    @property
-    def accessibility_features_list(self):
-        """Return accessibility features as a list."""
-        if isinstance(self.accessibility_features, list):
-            return self.accessibility_features
-        return []
-
-    @property
     def vehicle_age(self):
-        """Calculate vehicle age in years."""
-        if not self.year:
-            return None
-        current_year = timezone.now().year
-        return current_year - self.year
+        return timezone.now().year - self.year if self.year else None
+
+    @property
+    def documents_valid(self):
+        return self.insurance_status and self.inspection_status
+
+    @property
+    def insurance_status(self):
+        return not self.insurance_expiry or self.insurance_expiry > timezone.now().date()
+
+    @property
+    def inspection_status(self):
+        return not self.inspection_expiry or self.inspection_expiry > timezone.now().date()
 
     def get_carbon_footprint(self, distance_km):
-        """Calculate carbon footprint for a given distance in km."""
+        """Return carbon footprint for a given distance in km."""
         return self.carbon_footprint_per_km * distance_km
 
     def save(self, *args, **kwargs):
-        """Override save method to perform additional operations."""
-        # Ensure features are stored as lists
-        if self.features and not isinstance(self.features, list):
+        """Ensure JSON fields are always lists."""
+        if not isinstance(self.features, list):
             self.features = []
-
-        if self.accessibility_features and not isinstance(self.accessibility_features, list):
+        if not isinstance(self.accessibility_features, list):
             self.accessibility_features = []
+        super().save(*args, **kwargs)
 
-        super().save(*args, **kwargs)# =============================================================================
+# =============================================================================
 # DESTINATIONS & TOURS MODELS
 # =============================================================================
+
 class Destination(TimeStampedModel, LocationModel):
     """Model for travel destinations."""
     DESTINATION_TYPES = [
@@ -657,11 +636,30 @@ class Destination(TimeStampedModel, LocationModel):
     is_featured = models.BooleanField(default=False)
 
     # Media
-    image = CloudinaryField("image", blank=True, null=True)
-    video = CloudinaryField("video", resource_type="video", blank=True, null=True)
-    image_url = models.URLField(blank=True, null=True)
+    image = models.ImageField(
+        upload_to='uploads/images/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Main image (stored locally)"
+    )
+
+    video = models.FileField(
+        upload_to='uploads/videos/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Upload video file (stored locally, up to 500MB)"
+    )
+
+    image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional external image URL"
+    )
+
     gallery_images = models.JSONField(
-        default=list, blank=True, help_text="List of additional image URLs"
+        default=list,
+        blank=True,
+        help_text="List of additional image file paths or URLs"
     )
 
     # Sustainability
@@ -729,13 +727,22 @@ class Destination(TimeStampedModel, LocationModel):
         return self.image_url or "/static/img/destination-placeholder.jpg"
 
 
+
+
 class TourCategory(TimeStampedModel):
     """Model for tour categories."""
+
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
-    image = CloudinaryField("image", blank=True, null=True)
+
+    image = models.ImageField(
+        upload_to='uploads/tour_categories/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Upload category image (stored locally, max 100MB)"
+    )
 
     # Managers
     objects = models.Manager()
@@ -749,8 +756,14 @@ class TourCategory(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        """Validate uploaded image size."""
+        super().clean()
+        if self.image and self.image.size > 100 * 1024 * 1024:  # 100MB limit
+            raise ValidationError({"image": "Image size cannot exceed 100MB."})
+
     def save(self, *args, **kwargs):
-        """Override save to auto-generate slug."""
+        """Auto-generate unique slug if missing."""
         if not self.slug and self.name:
             base_slug = slugify(self.name)
             slug = base_slug
@@ -759,13 +772,11 @@ class TourCategory(TimeStampedModel):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
-
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        """Get the absolute URL for this category."""
+        """Return the absolute URL for this category."""
         return reverse('category_detail', kwargs={'slug': self.slug})
-
 
 class Tour(TimeStampedModel):
     """Model for multi-day safaris/tours."""
@@ -828,11 +839,30 @@ class Tour(TimeStampedModel):
     )
 
     # Media
-    image = CloudinaryField("image", blank=True, null=True)
-    video = CloudinaryField("video", resource_type="video", blank=True, null=True)
-    image_url = models.URLField(blank=True, null=True)
+    image = models.ImageField(
+        upload_to='uploads/media/images/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Main image (stored locally, max 500MB)"
+    )
+
+    video = models.FileField(
+        upload_to='uploads/media/videos/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Upload video file (stored locally, max 500MB)"
+    )
+
+    image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional external image URL"
+    )
+
     gallery_images = models.JSONField(
-        default=list, blank=True, help_text="List of additional image URLs"
+        default=list,
+        blank=True,
+        help_text="List of additional local image paths or URLs"
     )
 
     # Location
@@ -916,8 +946,7 @@ class Tour(TimeStampedModel):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        """Get the absolute URL for this tour."""
-        return reverse('tour_detail', kwargs={'slug': self.slug})
+        return reverse("bookings:tour_detail", kwargs={"tour_slug": self.slug})
 
     def get_image_src(self):
         """Return Cloudinary image URL if available, else fallback to image_url."""
@@ -978,6 +1007,7 @@ class Tour(TimeStampedModel):
 # =============================================================================
 # BOOKINGS & TRIPS MODELS
 # =============================================================================
+
 def generate_booking_reference():
     """Generate a unique booking reference."""
     timestamp = timezone.now().strftime("%Y%m%d")
@@ -1001,6 +1031,7 @@ class Booking(TimeStampedModel):
         ('NO_SHOW', 'No Show'),
         ('IN_PROGRESS', 'In Progress'),
     ]
+
     booking_customer = models.ForeignKey(
         'BookingCustomer', on_delete=models.CASCADE, related_name='bookings',
         null=True, blank=True
@@ -1333,6 +1364,7 @@ class Trip(TimeStampedModel):
 # =============================================================================
 # PAYMENT MODELS
 # =============================================================================
+
 class PaymentProvider(models.TextChoices):
     MPESA = "MPESA", "M-PESA"
     PAYSTACK = "PAYSTACK", "Paystack"
@@ -1355,93 +1387,32 @@ class PaymentStatus(models.TextChoices):
 
 
 class Payment(TimeStampedModel):
-    """Model for payments."""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    # Payer info
-    user = models.ForeignKey(
-        'auth.User', on_delete=models.CASCADE, null=True, blank=True,
-        related_name="payments"
-    )
-    guest_full_name = models.CharField(max_length=200, blank=True, null=True)
-    guest_email = models.EmailField(blank=True, null=True)
-    guest_phone = models.CharField(max_length=20, blank=True, null=True)
-    normalized_guest_phone = models.CharField(max_length=20, blank=True)
-
-    # Booking details
+    """Model for payment records."""
     booking = models.OneToOneField(
-        "Booking", on_delete=models.CASCADE, null=True, blank=True,
-        related_name="payment"
+        'Booking', on_delete=models.CASCADE, related_name='payment'
     )
-    tour = models.ForeignKey(
-        "Tour", on_delete=models.CASCADE, null=True, blank=True,
-        related_name="payments"
-    )
-    travel_date = models.DateField(default=timezone.now)
-
-    # Passenger details
-    adults = models.PositiveIntegerField(default=1)
-    children = models.PositiveIntegerField(default=0)
-    days = models.PositiveIntegerField(default=1)
-
-    # Billing
-    billing_line1 = models.CharField(max_length=255, default="Nairobi")
-    billing_city = models.CharField(max_length=100, default="Nairobi")
-    billing_state = models.CharField(max_length=100, default="Nairobi")
-    billing_postal_code = models.CharField(max_length=20, default="00100")
-    billing_country_code = models.CharField(max_length=3, default="KE")
-
-    # Payment details
-    provider = models.CharField(
-        max_length=20, choices=PaymentProvider.choices,
-        default=PaymentProvider.PAYSTACK
-    )
-    method = models.CharField(
-        max_length=20, choices=PaymentProvider.choices,
-        default=PaymentProvider.PAYSTACK
+    amount = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))]
     )
     currency = models.CharField(max_length=10, default="KES")
-    amount = models.DecimalField(
-        max_digits=12, decimal_places=2, default=0.00,
-        validators=[MinValueValidator(Decimal('0.00'))]
+    provider = models.CharField(
+        max_length=20, choices=PaymentProvider.choices, default=PaymentProvider.MPESA
     )
-    amount_paid = models.DecimalField(
-        max_digits=12, decimal_places=2, default=0.00,
-        validators=[MinValueValidator(Decimal('0.00'))]
-    )
-    phone_number = models.CharField(max_length=20, blank=True, default="")
     status = models.CharField(
-        max_length=20, choices=PaymentStatus.choices,
-        default=PaymentStatus.PENDING
+        max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
     )
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    provider_response = models.JSONField(default=dict, blank=True)
 
-    # Paystack transaction
-    reference = models.CharField(max_length=100, db_index=True, default="")
-    access_code = models.CharField(max_length=255, blank=True, null=True)
-    paystack_transaction_id = models.CharField(max_length=255, blank=True, null=True)
-    transaction_id = models.CharField(max_length=100, blank=True, default="")
-    authorization_code = models.CharField(max_length=100, blank=True, default="")
-    raw_response = models.JSONField(blank=True, null=True)
-
-    # Webhook verification
-    webhook_verified = models.BooleanField(default=False)
-    webhook_received_at = models.DateTimeField(null=True, blank=True)
-
-    # Additional
-    description = models.TextField(default="Payment for Tour")
-    paid_on = models.DateTimeField(blank=True, null=True)
-    failure_reason = models.TextField(blank=True, null=True)
-    payment_channel = models.CharField(max_length=50, blank=True, null=True)
-    ip_address = models.GenericIPAddressField(blank=True, null=True)
-
-    # Refunds
-    refund_reference = models.CharField(max_length=100, blank=True, null=True)
+    # Refund fields
     refund_amount = models.DecimalField(
-        max_digits=12, decimal_places=2, default=Decimal('0.00'),
+        max_digits=10, decimal_places=2, default=Decimal('0.00'),
         validators=[MinValueValidator(Decimal('0.00'))]
     )
     refund_reason = models.TextField(blank=True, null=True)
-    refunded_on = models.DateTimeField(null=True, blank=True)
+    refund_transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    refund_date = models.DateTimeField(null=True, blank=True)
 
     # Managers
     objects = PaymentManager()
@@ -1450,203 +1421,90 @@ class Payment(TimeStampedModel):
         verbose_name = "Payment"
         verbose_name_plural = "Payments"
         indexes = [
-            models.Index(fields=['reference']),
-            models.Index(fields=['paystack_transaction_id']),
+            models.Index(fields=['booking']),
             models.Index(fields=['status']),
-            models.Index(fields=['created_at']),
-            models.Index(fields=['user', 'status']),
+            models.Index(fields=['provider']),
+            models.Index(fields=['transaction_id']),
         ]
 
     def __str__(self):
-        identity = self.guest_full_name or (
-            self.user.get_full_name() if self.user else "Guest"
-        )
-        return f"{identity} - {self.amount} {self.currency} ({self.status})"
+        return f"Payment {self.id} - {self.booking.booking_reference} - {self.amount} {self.currency}"
 
-    def save(self, *args, **kwargs):
-        if self.guest_phone and not self.normalized_guest_phone:
-            self.normalized_guest_phone = normalize_phone_number(self.guest_phone)
-        if self.status == PaymentStatus.SUCCESS:
-            if not self.amount_paid:
-                self.amount_paid = self.amount
-            if not self.paid_on:
-                self.paid_on = timezone.now()
-        super().save(*args, **kwargs)
-
-    # ==============================
-    # PAYSTACK WEBHOOK HANDLING
-    # ==============================
-    def verify_webhook_signature(self, payload: bytes, signature: str) -> bool:
-        secret = settings.PAYSTACK_SECRET_KEY
-        computed_signature = hmac.new(secret.encode(), payload, hashlib.sha512).hexdigest()
-        return hmac.compare_digest(computed_signature, signature)
-
-    def process_paystack_webhook(self, payload: dict) -> bool:
-        try:
-            event = payload.get('event')
-            data = payload.get('data', {})
-
-            if event == 'charge.success':
-                self.reference = data.get('reference')
-                self.paystack_transaction_id = str(data.get('id'))
-                self.amount_paid = Decimal(data.get('amount', 0)) / 100
-                self.payment_channel = data.get('channel')
-                self.ip_address = data.get('ip_address')
-                self.authorization_code = data.get('authorization', {}).get('authorization_code', '')
-                self.webhook_verified = True
-                self.webhook_received_at = timezone.now()
-                self.status = PaymentStatus.SUCCESS
-                self.paid_on = timezone.now()
-                self.raw_response = payload
-
-                self.save()
-
-                if self.booking:
-                    self.booking.status = 'CONFIRMED'
-                    self.booking.save()
-
-                self.send_confirmation_email()
-                logger.info(f"Processed Paystack webhook successfully for payment {self.id}")
-                return True
-
-            elif event == 'charge.failed':
-                self.status = PaymentStatus.FAILED
-                self.failure_reason = data.get('message', 'Payment failed')
-                self.webhook_verified = True
-                self.webhook_received_at = timezone.now()
-                self.raw_response = payload
-                self.save()
-                logger.warning(f"Payment {self.id} failed via webhook: {self.failure_reason}")
-                return False
-
-        except Exception as e:
-            logger.error(f"Error processing Paystack webhook for payment {self.id}: {e}")
-            return False
-
-    # ==============================
-    # VERIFY PAYSTACK TRANSACTION
-    # ==============================
-    def verify_paystack_transaction(self) -> bool:
-        if not self.reference:
-            logger.error(f"Cannot verify payment without reference: {self.id}")
-            return False
-        try:
-            url = f"https://api.paystack.co/transaction/verify/{self.reference}"
-            headers = {"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"}
-            response = requests.get(url, headers=headers)
-            resp_data = response.json()
-
-            if resp_data.get('status'):
-                data = resp_data.get('data', {})
-                self.paystack_transaction_id = str(data.get('id'))
-                self.amount_paid = Decimal(data.get('amount', 0)) / 100
-                self.payment_channel = data.get('channel')
-                self.ip_address = data.get('ip_address')
-                self.raw_response = data
-
-                if data.get('status') == 'success':
-                    self.status = PaymentStatus.SUCCESS
-                    self.paid_on = timezone.now()
-                    if self.booking:
-                        self.booking.status = 'CONFIRMED'
-                        self.booking.save()
-                    self.send_confirmation_email()
-                else:
-                    self.status = PaymentStatus.FAILED
-                    self.failure_reason = data.get('gateway_response', 'Payment failed')
-
-                self.save()
-                logger.info(f"Verified Paystack transaction for payment {self.id}")
-                return True
-
-            else:
-                self.status = PaymentStatus.FAILED
-                self.failure_reason = resp_data.get('message', 'Verification failed')
-                self.save()
-                logger.error(f"Paystack verification failed for payment {self.id}")
-                return False
-
-        except Exception as e:
-            logger.error(f"Error verifying Paystack transaction for payment {self.id}: {e}")
-            return False
-
-    # ==============================
-    # INITIATE REFUND
-    # ==============================
-    def initiate_refund(self, amount: Decimal = None, reason: str = "") -> bool:
-        if not self.is_successful:
-            logger.error(f"Cannot refund unsuccessful payment {self.id}")
-            return False
-        if amount is None:
-            amount = self.amount_paid
-        try:
-            url = "https://api.paystack.co/refund"
-            headers = {"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"}
-            payload = {
-                "transaction": self.paystack_transaction_id,
-                "amount": int(amount * 100),
-                "currency": self.currency,
-                "reason": reason or "Customer requested refund"
-            }
-            response = requests.post(url, json=payload, headers=headers)
-            resp_data = response.json()
-
-            if resp_data.get('status'):
-                refund = resp_data.get('data', {})
-                self.refund_reference = refund.get('reference')
-                self.refund_amount = amount
-                self.refund_reason = reason
-                self.refunded_on = timezone.now()
-                self.status = PaymentStatus.REFUNDED if amount == self.amount_paid else PaymentStatus.PARTIAL_REFUND
-                self.save()
-                logger.info(f"Refund initiated for payment {self.id} with reference {self.refund_reference}")
-                return True
-            else:
-                logger.error(f"Refund failed for payment {self.id}: {resp_data.get('message')}")
-                return False
-
-        except Exception as e:
-            logger.error(f"Error initiating refund for payment {self.id}: {e}")
-            return False
-
-    # ==============================
-    # EMAIL NOTIFICATIONS
-    # ==============================
-    def send_confirmation_email(self):
-        email = self.payer_email
-        if not email:
-            logger.warning(f"No email available for payment {self.id}")
-            return
-        context = {'payment': self, 'tour': self.tour, 'booking': self.booking}
-        subject = render_to_string('payments/email/confirmation_subject.txt', context).strip()
-        text_body = render_to_string('payments/email/confirmation_email.txt', context)
-        html_body = render_to_string('payments/email/confirmation_email.html', context)
-        send_mail(subject, text_body, settings.DEFAULT_FROM_EMAIL, [email], html_message=html_body)
-        logger.info(f"Confirmation email sent to {email} for payment {self.id}")
-
-    # ==============================
-    # HELPER PROPERTIES
-    # ==============================
     @property
     def is_successful(self):
+        """Check if payment was successful."""
         return self.status == PaymentStatus.SUCCESS
 
     @property
-    def payer_email(self):
-        if self.guest_email:
-            return self.guest_email
-        elif self.booking and self.booking.booking_customer:
-            return self.booking.booking_customer.email
-        elif self.user:
-            return self.user.email
-        return None
+    def is_refunded(self):
+        """Check if payment was refunded."""
+        return self.status in [PaymentStatus.REFUNDED, PaymentStatus.PARTIAL_REFUND]
+
+    @property
+    def is_pending(self):
+        """Check if payment is pending."""
+        return self.status == PaymentStatus.PENDING
+
+    def mark_successful(self, transaction_id=None, response_data=None):
+        """Mark payment as successful."""
+        self.status = PaymentStatus.SUCCESS
+        if transaction_id:
+            self.transaction_id = transaction_id
+        if response_data:
+            self.provider_response = response_data
+        self.save()
+
+        # Update booking payment status
+        if self.booking:
+            self.booking.is_paid = True
+            self.booking.save(update_fields=['is_paid'])
+
+    def mark_failed(self, response_data=None):
+        """Mark payment as failed."""
+        self.status = PaymentStatus.FAILED
+        if response_data:
+            self.provider_response = response_data
+        self.save()
+
+    def initiate_refund(self, amount=None, reason=""):
+        """Initiate a refund for this payment."""
+        if not self.is_successful:
+            raise ValueError("Only successful payments can be refunded.")
+
+        refund_amount = amount if amount else self.amount
+        if refund_amount <= 0:
+            raise ValueError("Refund amount must be greater than zero.")
+
+        if refund_amount > self.amount:
+            raise ValueError("Refund amount cannot exceed the original payment amount.")
+
+        self.refund_amount = refund_amount
+        self.refund_reason = reason
+
+        # Determine refund status
+        if refund_amount == self.amount:
+            self.status = PaymentStatus.REFUNDED
+        else:
+            self.status = PaymentStatus.PARTIAL_REFUND
+
+        self.refund_date = timezone.now()
+        self.save()
+
+        # Update booking payment status if fully refunded
+        if self.status == PaymentStatus.REFUNDED:
+            if self.booking:
+                self.booking.is_paid = False
+                self.booking.save(update_fields=['is_paid'])
+
+        return True
 
 
 # =============================================================================
 # REVIEW MODELS
 # =============================================================================
+
 class Review(TimeStampedModel):
-    """Model for customer reviews for tours and drivers."""
+    """Model for customer reviews."""
     RATING_CHOICES = [
         (1, '1 - Poor'),
         (2, '2 - Fair'),
@@ -1655,131 +1513,72 @@ class Review(TimeStampedModel):
         (5, '5 - Excellent'),
     ]
 
-    booking = models.ForeignKey(
-        'Booking', on_delete=models.CASCADE, related_name='reviews'
-    )
-    tour = models.ForeignKey(
-        'Tour', on_delete=models.CASCADE, related_name='reviews',
-        null=True, blank=True
+    booking = models.OneToOneField(
+        'Booking', on_delete=models.CASCADE, related_name='review'
     )
     driver = models.ForeignKey(
-        'Driver', on_delete=models.CASCADE, related_name='reviews',
-        null=True, blank=True
+        'Driver', on_delete=models.CASCADE, related_name='reviews', null=True, blank=True
+    )
+    tour = models.ForeignKey(
+        'Tour', on_delete=models.CASCADE, related_name='reviews', null=True, blank=True
+    )
+    destination = models.ForeignKey(
+        'Destination', on_delete=models.CASCADE, related_name='reviews', null=True, blank=True
     )
 
-    # Overall rating
-    rating = models.PositiveIntegerField(
-        choices=RATING_CHOICES, validators=[validate_rating]
-    )
+    rating = models.PositiveIntegerField(choices=RATING_CHOICES)
+    title = models.CharField(max_length=100, blank=True)
+    comment = models.TextField(blank=True)
 
-    # Detailed ratings
-    safety_rating = models.PositiveIntegerField(
-        choices=RATING_CHOICES, null=True, blank=True
-    )
-    cleanliness_rating = models.PositiveIntegerField(
-        choices=RATING_CHOICES, null=True, blank=True
-    )
-    value_rating = models.PositiveIntegerField(
-        choices=RATING_CHOICES, null=True, blank=True
-    )
-    comfort_rating = models.PositiveIntegerField(
-        choices=RATING_CHOICES, null=True, blank=True
-    )
-    punctuality_rating = models.PositiveIntegerField(
-        choices=RATING_CHOICES, null=True, blank=True
-    )
-
-    # Content
-    title = models.CharField(max_length=200)
-    comment = models.TextField()
-
-    # Status
-    is_public = models.BooleanField(default=True)
-    is_verified = models.BooleanField(default=False)
-    verified_at = models.DateTimeField(null=True, blank=True)
-
-    # Response
-    response = models.TextField(blank=True, null=True)
-    responded_at = models.DateTimeField(null=True, blank=True)
-    responded_by = models.ForeignKey(
+    # Approval
+    is_approved = models.BooleanField(default=False)
+    approved_by = models.ForeignKey(
         'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="review_responses"
+        related_name="approved_reviews"
     )
+    approved_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Review"
         verbose_name_plural = "Reviews"
-        unique_together = ['booking', 'tour', 'driver']
         indexes = [
             models.Index(fields=['rating']),
-            models.Index(fields=['is_public']),
-            models.Index(fields=['is_verified']),
-            models.Index(fields=['tour', 'rating']),
-            models.Index(fields=['driver', 'rating']),
+            models.Index(fields=['is_approved']),
+            models.Index(fields=['driver']),
+            models.Index(fields=['tour']),
+            models.Index(fields=['destination']),
         ]
 
     def __str__(self):
-        return f"Review by {self.booking.booking_customer} - {self.rating}/5"
+        return f"Review for {self.booking.booking_reference} - {self.rating}/5"
 
-    def verify(self):
-        """Mark review as verified."""
-        self.is_verified = True
-        self.verified_at = timezone.now()
-        self.save(update_fields=['is_verified', 'verified_at'])
+    def approve(self, user):
+        """Approve the review."""
+        self.is_approved = True
+        self.approved_by = user
+        self.approved_at = timezone.now()
+        self.save(update_fields=['is_approved', 'approved_by', 'approved_at'])
 
-    def respond(self, response, user):
-        """Add a response to the review."""
-        self.response = response
-        self.responded_at = timezone.now()
-        self.responded_by = user
-        self.save(update_fields=['response', 'responded_at', 'responded_by'])
-
-    def get_rating_text(self):
-        """Get human-readable rating text."""
-        rating_map = {
-            1: "Poor",
-            2: "Fair",
-            3: "Good",
-            4: "Very Good",
-            5: "Excellent"
-        }
-        return rating_map.get(self.rating, "Unknown")
-
-    @property
-    def review_target(self):
-        """Get the target of the review (tour or driver)."""
-        if self.tour:
-            return self.tour
-        elif self.driver:
-            return self.driver
-        return None
-
-    @property
-    def review_target_name(self):
-        """Get the name of the review target."""
-        target = self.review_target
-        if target:
-            return str(target)
-        return "Unknown"
-
-    @property
-    def average_detailed_rating(self):
-        """Calculate average of detailed ratings."""
-        ratings = [
-            self.safety_rating, self.cleanliness_rating, self.value_rating,
-            self.comfort_rating, self.punctuality_rating
-        ]
-        valid_ratings = [r for r in ratings if r is not None]
-        if valid_ratings:
-            return sum(valid_ratings) / len(valid_ratings)
-        return None
+        # Update driver rating if applicable
+        if self.driver:
+            self.driver.update_rating(self.rating)
 
 
 # =============================================================================
-# CONTENT & MISC MODELS
+# CONTACT & INQUIRY MODELS
 # =============================================================================
+
 class ContactMessage(TimeStampedModel):
-    """Model for messages from the contact page."""
+    """Model for contact form submissions."""
+    INQUIRY_TYPES = [
+        ('GENERAL', 'General Inquiry'),
+        ('BOOKING', 'Booking Question'),
+        ('PAYMENT', 'Payment Issue'),
+        ('COMPLAINT', 'Complaint'),
+        ('PARTNERSHIP', 'Partnership'),
+        ('OTHER', 'Other'),
+    ]
+
     PRIORITY_CHOICES = [
         ('LOW', 'Low'),
         ('MEDIUM', 'Medium'),
@@ -1787,55 +1586,54 @@ class ContactMessage(TimeStampedModel):
         ('URGENT', 'Urgent'),
     ]
 
-    INQUIRY_TYPES = [
-        ('GENERAL', 'General Inquiry'),
-        ('BOOKING', 'Booking Question'),
-        ('PAYMENT', 'Payment Issue'),
-        ('COMPLAINT', 'Complaint'),
-        ('PARTNERSHIP', 'Partnership Opportunity'),
-        ('FEEDBACK', 'Feedback'),
-        ('TECHNICAL', 'Technical Support'),
-    ]
-
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=100)
     email = models.EmailField()
-    phone = models.CharField(
-        max_length=20, blank=True, null=True,
-        validators=[validate_phone_number]
-    )
-    inquiry_type = models.CharField(
-        max_length=20, choices=INQUIRY_TYPES, default='GENERAL'
-    )
+    phone = models.CharField(max_length=20, blank=True)
+    inquiry_type = models.CharField(max_length=20, choices=INQUIRY_TYPES, default='GENERAL')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM')
     subject = models.CharField(max_length=200)
     message = models.TextField()
-    priority = models.CharField(
-        max_length=10, choices=PRIORITY_CHOICES, default='MEDIUM'
-    )
+
+    # Status
+    is_read = models.BooleanField(default=False)
     is_resolved = models.BooleanField(default=False)
+    assigned_to = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="assigned_messages"
+    )
     resolved_by = models.ForeignKey(
         'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
         related_name="resolved_messages"
     )
     resolved_at = models.DateTimeField(null=True, blank=True)
-    assigned_to = models.ForeignKey(
-        'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="assigned_messages"
-    )
+
+    # Notes for admin
+    admin_notes = models.TextField(blank=True)
+
+    # IP address for tracking
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Contact Message"
         verbose_name_plural = "Contact Messages"
         indexes = [
-            models.Index(fields=['priority']),
+            models.Index(fields=['is_read']),
             models.Index(fields=['is_resolved']),
+            models.Index(fields=['inquiry_type']),
+            models.Index(fields=['priority']),
             models.Index(fields=['assigned_to']),
         ]
 
     def __str__(self):
-        return f"Message from {self.name} - {self.subject}"
+        return f"{self.name} - {self.subject}"
 
-    def mark_resolved(self, user):
-        """Mark message as resolved by the given user."""
+    def mark_as_read(self):
+        """Mark message as read."""
+        self.is_read = True
+        self.save(update_fields=['is_read'])
+
+    def mark_as_resolved(self, user):
+        """Mark message as resolved."""
         self.is_resolved = True
         self.resolved_by = user
         self.resolved_at = timezone.now()
@@ -1846,23 +1644,489 @@ class ContactMessage(TimeStampedModel):
         self.assigned_to = user
         self.save(update_fields=['assigned_to'])
 
-    @property
-    def is_assigned(self):
-        """Check if message is assigned to someone."""
-        return self.assigned_to is not None
+
+# =============================================================================
+# NEWSLETTER MODELS
+# =============================================================================
+
+class NewsletterSubscription(TimeStampedModel):
+    """Model for newsletter subscriptions."""
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Newsletter Subscription"
+        verbose_name_plural = "Newsletter Subscriptions"
+        indexes = [
+            models.Index(fields=['email']),
+            models.Index(fields=['is_active']),
+        ]
+
+    def __str__(self):
+        return self.email
+
+    def unsubscribe(self):
+        """Unsubscribe from newsletter."""
+        self.is_active = False
+        self.save(update_fields=['is_active'])
+
+    def subscribe(self):
+        """Subscribe to newsletter."""
+        self.is_active = True
+        self.save(update_fields=['is_active'])
+
+
+# =============================================================================
+# SETTINGS MODELS
+# =============================================================================
+
+class SiteSettings(models.Model):
+    """Model for site-wide settings."""
+    site_name = models.CharField(max_length=100, default="Safari Tours")
+    site_description = models.TextField(blank=True)
+    contact_email = models.EmailField(default="info@safaritours.com")
+    contact_phone = models.CharField(max_length=20, default="+254712345678")
+    address = models.TextField(blank=True)
+
+    # Social media links
+    facebook_url = models.URLField(blank=True)
+    twitter_url = models.URLField(blank=True)
+    instagram_url = models.URLField(blank=True)
+    youtube_url = models.URLField(blank=True)
+
+    # Payment settings
+    mpesa_paybill = models.CharField(max_length=10, blank=True)
+    mpesa_account_number = models.CharField(max_length=20, blank=True)
+    paystack_public_key = models.CharField(max_length=100, blank=True)
+    paystack_secret_key = models.CharField(max_length=100, blank=True)
+
+    # Email settings
+    email_host = models.CharField(max_length=100, blank=True)
+    email_port = models.PositiveIntegerField(default=587)
+    email_host_user = models.EmailField(blank=True)
+    email_host_password = models.CharField(max_length=100, blank=True)
+    email_use_tls = models.BooleanField(default=True)
+
+    # Other settings
+    maintenance_mode = models.BooleanField(default=False)
+    maintenance_message = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Site Settings"
+        verbose_name_plural = "Site Settings"
+
+    def __str__(self):
+        return self.site_name
+
+    def save(self, *args, **kwargs):
+        # Ensure there's only one instance of SiteSettings
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        """Load the site settings, creating a default instance if needed."""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+# =============================================================================
+# FAQ MODELS
+# =============================================================================
+
+class FAQCategory(TimeStampedModel):
+    """Model for FAQ categories."""
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    description = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "FAQ Category"
+        verbose_name_plural = "FAQ Categories"
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate slug."""
+        if not self.slug and self.name:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while FAQCategory.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+
+
+class FAQ(TimeStampedModel):
+    """Model for frequently asked questions."""
+    question = models.CharField(max_length=200)
+    answer = models.TextField()
+    category = models.ForeignKey(
+        'FAQCategory', on_delete=models.CASCADE, related_name='faqs'
+    )
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "FAQ"
+        verbose_name_plural = "FAQs"
+        ordering = ['category', 'order', 'question']
+
+    def __str__(self):
+        return self.question
+
+
+# =============================================================================
+# BLOG MODELS
+# =============================================================================
+
+class BlogCategory(TimeStampedModel):
+    """Model for blog categories."""
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Blog Category"
+        verbose_name_plural = "Blog Categories"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate slug."""
+        if not self.slug and self.name:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while BlogCategory.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+
+
+class BlogPost(TimeStampedModel):
+    """Model for blog posts."""
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
+    excerpt = models.TextField(max_length=300, help_text="Brief summary of the post")
+    content = models.TextField()
+
+    featured_image = models.ImageField(
+        upload_to='uploads/blog/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Upload featured image (stored locally, max 100MB)"
+    )
+
+    image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional external image URL for featured image"
+    )
+
+    # Metadata
+    meta_description = models.CharField(max_length=160, blank=True)
+    meta_keywords = models.CharField(max_length=255, blank=True)
+
+    # Status and visibility
+    is_published = models.BooleanField(default=False)
+    is_featured = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+
+    # Relationships
+    author = models.ForeignKey(
+        'auth.User', on_delete=models.CASCADE, related_name='blog_posts'
+    )
+    category = models.ForeignKey(
+        'BlogCategory', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='blog_posts'
+    )
+    tags = models.ManyToManyField('BlogTag', blank=True, related_name='blog_posts')
+
+    # SEO
+    seo_title = models.CharField(max_length=60, blank=True)
+
+    class Meta:
+        verbose_name = "Blog Post"
+        verbose_name_plural = "Blog Posts"
+        ordering = ['-published_at', '-created_at']
+        indexes = [
+            models.Index(fields=['is_published']),
+            models.Index(fields=['is_featured']),
+            models.Index(fields=['published_at']),
+            models.Index(fields=['author']),
+            models.Index(fields=['category']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate slug and set published_at."""
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while BlogPost.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+
+        # Set published_at when publishing for the first time
+        if self.is_published and not self.published_at:
+            self.published_at = timezone.now()
+
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        """Get the absolute URL for this blog post."""
+        return reverse('blog_detail', kwargs={'slug': self.slug})
 
     @property
-    def is_overdue(self):
-        """Check if message is overdue for resolution."""
-        if self.is_resolved:
-            return False
+    def primary_image(self):
+        """Return the primary image URL."""
+        if self.featured_image:
+            return self.featured_image.url
+        return self.image_url or "/static/img/blog-placeholder.jpg"
 
-        # Messages older than 3 days with high or urgent priority are overdue
-        if self.priority in ['HIGH', 'URGENT']:
-            return (timezone.now() - self.created_at).days > 3
+    @property
+    def reading_time(self):
+        """Estimate reading time in minutes."""
+        word_count = len(self.content.split())
+        return max(1, round(word_count / 200))  # Assuming 200 words per minute
 
-        # Messages older than 7 days with medium priority are overdue
-        if self.priority == 'MEDIUM':
-            return (timezone.now() - self.created_at).days > 7
 
-        return False
+class BlogTag(TimeStampedModel):
+    """Model for blog tags."""
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=60, unique=True, blank=True)
+
+    class Meta:
+        verbose_name = "Blog Tag"
+        verbose_name_plural = "Blog Tags"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate slug."""
+        if not self.slug and self.name:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while BlogTag.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+
+        super().save(*args, **kwargs)
+
+
+# =============================================================================
+# TESTIMONIAL MODELS
+# =============================================================================
+
+class Testimonial(TimeStampedModel):
+    """Model for customer testimonials."""
+    customer_name = models.CharField(max_length=100)
+    customer_email = models.EmailField(blank=True)
+    customer_photo = CloudinaryField("image", blank=True, null=True)
+    photo_url = models.URLField(blank=True, null=True)
+    rating = models.PositiveIntegerField(
+        choices=[(i, f"{i} Stars") for i in range(1, 6)],
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    testimonial = models.TextField()
+    tour = models.ForeignKey(
+        'Tour', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='testimonials'
+    )
+    destination = models.ForeignKey(
+        'Destination', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='testimonials'
+    )
+    is_featured = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Testimonial"
+        verbose_name_plural = "Testimonials"
+        ordering = ['-is_featured', '-created_at']
+        indexes = [
+            models.Index(fields=['is_featured']),
+            models.Index(fields=['is_approved']),
+            models.Index(fields=['rating']),
+        ]
+
+    def __str__(self):
+        return f"Testimonial by {self.customer_name}"
+
+    @property
+    def customer_photo_url(self):
+        """Return the customer photo URL."""
+        if self.customer_photo:
+            return self.customer_photo.url
+        return self.photo_url or "/static/img/avatar-placeholder.jpg"
+
+    def approve(self):
+        """Approve the testimonial."""
+        self.is_approved = True
+        self.save(update_fields=['is_approved'])
+
+    def feature(self):
+        """Feature the testimonial."""
+        self.is_featured = True
+        self.save(update_fields=['is_featured'])
+
+
+# =============================================================================
+# BANNER MODELS
+# =============================================================================
+
+class Banner(TimeStampedModel):
+    """Model for homepage banners."""
+    title = models.CharField(max_length=200)
+    subtitle = models.CharField(max_length=300, blank=True)
+    description = models.TextField(blank=True)
+
+    # Desktop Image
+    image = models.ImageField(
+        upload_to='uploads/banners/images/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Upload main banner image (stored locally, max 100MB)"
+    )
+
+    image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional external image URL for desktop view"
+    )
+
+    # Mobile Image
+    mobile_image = models.ImageField(
+        upload_to='uploads/banners/mobile/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Upload mobile banner image (stored locally, max 100MB)"
+    )
+
+    mobile_image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional external image URL for mobile view"
+    )
+
+    # Link
+    link_url = models.URLField(blank=True)
+    link_text = models.CharField(max_length=50, default="Learn More")
+
+    # Display options
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+
+    # Banner type
+    BANNER_TYPES = [
+        ('HERO', 'Hero Banner'),
+        ('PROMOTION', 'Promotion Banner'),
+        ('FEATURED', 'Featured Tour Banner'),
+        ('ANNOUNCEMENT', 'Announcement Banner'),
+    ]
+    banner_type = models.CharField(max_length=20, choices=BANNER_TYPES, default='HERO')
+
+    # Related content
+    tour = models.ForeignKey(
+        'Tour', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='banners'
+    )
+    destination = models.ForeignKey(
+        'Destination', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='banners'
+    )
+
+    class Meta:
+        verbose_name = "Banner"
+        verbose_name_plural = "Banners"
+        ordering = ['order', '-created_at']
+        indexes = [
+            models.Index(fields=['is_active']),
+            models.Index(fields=['banner_type']),
+            models.Index(fields=['order']),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def primary_image(self):
+        """Return the primary image URL."""
+        if self.image:
+            return self.image.url
+        return self.image_url or "/static/img/banner-placeholder.jpg"
+
+    @property
+    def primary_mobile_image(self):
+        """Return the mobile image URL."""
+        if self.mobile_image:
+            return self.mobile_image.url
+        return self.mobile_image_url or self.primary_image
+
+
+# =============================================================================
+# PARTNER MODELS
+# =============================================================================
+
+class Partner(TimeStampedModel):
+    """Model for partners and affiliates."""
+    name = models.CharField(max_length=100)
+    logo = CloudinaryField("image", blank=True, null=True)
+    logo_url = models.URLField(blank=True, null=True)
+    website_url = models.URLField(blank=True)
+    description = models.TextField(blank=True)
+
+    # Partner type
+    PARTNER_TYPES = [
+        ('HOTEL', 'Hotel'),
+        ('AIRLINE', 'Airline'),
+        ('ACTIVITY', 'Activity Provider'),
+        ('TRANSPORT', 'Transport Provider'),
+        ('INSURANCE', 'Insurance'),
+        ('OTHER', 'Other'),
+    ]
+    partner_type = models.CharField(max_length=20, choices=PARTNER_TYPES, default='OTHER')
+
+    # Display options
+    is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Partner"
+        verbose_name_plural = "Partners"
+        ordering = ['order', 'name']
+        indexes = [
+            models.Index(fields=['is_active']),
+            models.Index(fields=['is_featured']),
+            models.Index(fields=['partner_type']),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def logo_image_url(self):
+        """Return the logo URL."""
+        if self.logo:
+            return self.logo.url
+        return self.logo_url or "/static/img/partner-placeholder.png"

@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="description" content="Premium airport transfers and tours in Nairobi. Professional, reliable service with modern fleet and instant booking."/>
+  <meta name="keywords" content="Nairobi airport transfer, Kenya tours, airport shuttle, private transfer, Nairobi taxi"/>
+  <meta name="author" content="Nairobi Tours & Transfers"/>
+  <title>Nairobi Airport Transfers & Tours - Premium Transfer Services</title>
+  <meta data-whatsapp-number="254723229651">
+
+  <!-- Preload Critical Resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" as="style">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&q=60&w=1200" fetchpriority="high">
+
+  <!-- Design Tokens -->
+  <style>
+
+      /* =========================
+   Design tokens (theme-ready, fluid, accessible)
+   ========================= */
+:root{
+  /* Colors */
+  --color-primary: #0E2433;
+  --color-primary-2: #1A3A4F;
+  --color-accent: #1FA2FF;
+  --color-warm: #FFC857;
+  --bg: #F3F6F9;
+  --surface: #FFFFFF;
+  --text-primary: #0B1221;
+  --muted: #9CA8B6;
+
+  /* Glass & overlays */
+  --glass-100: rgba(255,255,255,0.66);
+  --glass-60: rgba(255,255,255,0.36);
+  --glass-dark-40: rgba(11,18,33,0.40);
+  --glass-inset: rgba(11,18,33,0.06);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg,var(--color-primary) 0%,var(--color-primary-2) 100%);
+  --gradient-accent: linear-gradient(135deg,var(--color-accent) 0%,#0D8ED9 100%);
+  --gradient-warm: linear-gradient(135deg,var(--color-warm) 0%,#FFA726 100%);
+
+  /* Typography (fluid sizes) */
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --fs-base: 1rem;
+  --fs-small: 0.8125rem;            /* 13px */
+  --fs-h1: clamp(2rem, 4.2vw, 2.5rem);
+  --fs-h2: clamp(1.5rem, 3.2vw, 1.75rem);
+  --fs-h3: clamp(1.125rem, 2.2vw, 1.25rem);
+
+  /* Layout */
+  --container-max: 1280px;
+  --gutter: 1rem;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --control-h: 48px;
+  --booking-bar-height: 72px;
+
+  /* Elevation & shadows */
+  --shadow-xs: 0 2px 6px rgba(10,16,28,0.06);
+  --shadow-sm: 0 8px 24px rgba(13,20,30,0.08);
+  --shadow-md: 0 12px 32px rgba(10,16,28,0.10);
+  --shadow-lg: 0 16px 40px rgba(10,16,28,0.12);
+  --shadow-glow: 0 0 28px rgba(31,162,255,0.22);
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-med: 220ms;
+  --dur-slow: 360ms;
+  --ease: cubic-bezier(.2,.9,.3,1);
+}
+
+/* Dark theme override (toggle by adding .theme-dark to body) */
+.theme-dark{
+  --bg: #07121A;
+  --surface: rgba(8,14,20,0.86);
+  --text-primary: #E6F0F6;
+  --muted: #9BA9B6;
+  --glass-100: rgba(255,255,255,0.04);
+  --glass-60: rgba(255,255,255,0.03);
+  --glass-dark-40: rgba(0,0,0,0.5);
+  --gradient-primary: linear-gradient(135deg,#07202A 0%,#0D2F3E 100%);
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce){
+  :root{ --dur-fast: 1ms; --dur-med: 1ms; --dur-slow: 1ms; --ease: linear; }
+}
+
+/* =========================
+   Base reset and utilities
+   ========================= */
+*,
+*::before,
+*::after{ box-sizing: border-box; margin:0; padding:0; }
+
+html{ scroll-behavior: smooth; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+
+body{
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Containers and headings */
+.container{
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 2.5vw, 1.5rem);
+}
+h1,h2,h3,h4,h5,h6{
+  font-family: var(--font-sans);
+  font-weight:600;
+  color:var(--text-primary);
+  line-height:1.15;
+  margin:0 0 .5rem 0;
+}
+h1{ font-size:var(--fs-h1); font-weight:700; }
+h2{ font-size:var(--fs-h2); }
+h3{ font-size:var(--fs-h3); }
+
+/* Text utilities */
+.lead{ font-size:1.0625rem; color:var(--muted); }
+
+/* Accessibility focus */
+:focus{ outline:none; box-shadow: 0 0 0 4px rgba(31,162,255,0.12); border-radius:6px; transition: box-shadow var(--dur-fast) var(--ease); }
+:focus-visible{ box-shadow: 0 0 0 6px rgba(31,162,255,0.14); outline-offset:2px; }
+
+/* =========================
+   Header (sticky, glassy)
+   ========================= */
+header{
+  background: var(--surface);
+  border-bottom: 1px solid rgba(14,36,51,0.06);
+  position: sticky;
+  top:0;
+  z-index:60;
+  transition: box-shadow var(--dur-med) var(--ease), background var(--dur-med) var(--ease);
+  backdrop-filter: blur(6px);
+}
+header.scrolled{ box-shadow: var(--shadow-sm); }
+
+.header-top{
+  background: var(--gradient-primary);
+  color: var(--surface);
+  font-size: var(--fs-small);
+  padding: .4rem 0;
+}
+.header-top .container{ display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+
+.header-main{ padding: clamp(.6rem, 1.2vw, 1.1rem) 0; }
+.header-content{ display:flex; gap:1rem; align-items:center; justify-content:space-between; }
+
+.logo{ display:flex; align-items:center; gap:.75rem; text-decoration:none; color:var(--text-primary); }
+.logo-icon{
+  width:44px; height:44px; display:grid; place-items:center; background:var(--gradient-primary);
+  color:var(--surface); border-radius: calc(var(--radius-md) - 2px); font-weight:700; box-shadow:var(--shadow-xs);
+}
+.logo-text{ font-size:1.125rem; font-weight:700; }
+
+.nav-menu{ display:flex; gap:1.75rem; align-items:center; list-style:none; margin:0; padding:0; }
+.nav-link{
+  color:var(--text-primary); text-decoration:none; font-weight:500; position:relative; padding:.25rem 0;
+  transition: color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.nav-link::after{
+  content:''; position:absolute; left:0; bottom:-6px; height:3px; width:0; background: linear-gradient(90deg,var(--color-accent), #0D8ED9); border-radius:3px;
+  transition: width var(--dur-fast) var(--ease);
+}
+.nav-link:hover{ color:var(--color-accent); transform:translateY(-2px); }
+.nav-link:hover::after{ width:100%; }
+
+.btn{
+  display:inline-flex; align-items:center; gap:.5rem; text-decoration:none;
+  background:var(--gradient-primary); color:var(--surface); padding:.5rem .9rem; border-radius:var(--radius-md);
+  box-shadow:var(--shadow-xs); font-weight:600; transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  border:none; cursor:pointer;
+}
+.btn:hover{ transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+.btn-ghost{ background:transparent; color:var(--text-primary); border:1px solid rgba(11,18,33,0.06); }
+
+/* Mobile menu button */
+.mobile-menu-btn{
+  display:none; background:var(--gradient-primary); color:var(--surface); border:none; padding:.55rem; border-radius:var(--radius-md); cursor:pointer; font-size:1.1rem;
+}
+@media (max-width:880px){ .mobile-menu-btn{ display:inline-grid; place-items:center; width:44px; height:44px; } .nav-menu{ display:none; } }
+
+/* Contact & social */
+.contact-info{ display:flex; gap:1.25rem; align-items:center; color:var(--glass-dark-40); font-size:.95rem; }
+.contact-info a{ color:inherit; text-decoration:none; display:inline-flex; gap:.5rem; align-items:center; transition: color var(--dur-fast) var(--ease); }
+.contact-info a:hover{ color:var(--surface); }
+
+.social-links{ display:flex; gap:.5rem; align-items:center; }
+.social-links a{
+  width:36px; height:36px; border-radius:999px; display:grid; place-items:center;
+  background: rgba(255,255,255,0.06); color:var(--glass-100); text-decoration:none; transition: all var(--dur-fast) var(--ease);
+}
+.social-links a:hover{ background:var(--color-accent); color:var(--surface); transform:translateY(-4px); box-shadow:var(--shadow-glow); }
+
+/* =========================
+   Scoped Hero (use --hero-bg-url inline or JS)
+   ========================= */
+.hero{
+  position:relative;
+  padding: clamp(2rem, 6vw, 4.5rem) 1rem;
+  min-height: clamp(420px, 60vh, 720px);
+  overflow:hidden;
+  display:grid;
+  align-items:center;
+  color:var(--surface);
+  isolation:isolate;
+  --hero-overlay: linear-gradient(120deg, rgba(2,6,23,0.55), rgba(6,32,64,0.36));
+  --hero-bg-url: var(--hero-image, url('https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&q=60&w=1200'));
+}
+.hero::before{
+  content:""; position:absolute; inset:0; z-index:0;
+  background-image: var(--hero-overlay), var(--hero-bg-url);
+  background-size: cover; background-position: center right; background-repeat:no-repeat;
+  filter: saturate(1.05) contrast(1.02) blur(0.6px);
+  transform: translateZ(0);
+}
+
+/* hero inner grid */
+.hero .hero-inner{
+  position:relative; z-index:2; width:min(1200px,100%); margin-inline:auto;
+  display:grid; grid-template-columns: 1fr 520px; gap: clamp(1rem, 3vw, 2.5rem); align-items:center;
+}
+.hero .hero-copy{ max-width:56ch; color:var(--surface); }
+.hero .hero-badge{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .9rem; border-radius:999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+  backdrop-filter: blur(8px) saturate(120%); color:var(--color-warm); font-weight:700;
+}
+.hero h1{
+  margin:.35rem 0 .8rem; line-height:1.02; font-size:clamp(1.6rem,4.2vw,2.8rem); font-weight:800;
+  color: color-mix(in srgb, var(--surface) 92%, transparent 0%);
+}
+.hero .lead{ font-size:1.0625rem; color: color-mix(in srgb, var(--surface) 86%, transparent 0%); margin-bottom:1.6rem; max-width:62ch; }
+.hero .hero-buttons{ display:flex; gap:1rem; flex-wrap:wrap; }
+.hero .hero-media{
+  position:relative; border-radius:14px; height:clamp(300px,40vh,520px);
+  background-image: var(--hero-overlay), var(--hero-bg-url); background-size:cover; background-position:center right;
+  box-shadow: var(--shadow-md); isolation:isolate; overflow:hidden; pointer-events:none;
+}
+.hero .hero-media::after{
+  content:""; position:absolute; inset:0; z-index:2; background: linear-gradient(90deg, rgba(3,6,23,0.30) 0%, rgba(3,6,23,0.00) 60%); mix-blend-mode:multiply;
+}
+
+/* Buttons in hero */
+.hero .btn-primary{
+  background: linear-gradient(90deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 75%, var(--color-primary) 25%));
+  color:var(--surface); box-shadow: 0 10px 30px rgba(6,182,212,0.12); padding:.85rem 1.25rem; border-radius:12px; font-weight:700;
+}
+.hero .btn-secondary{ background: rgba(255,255,255,0.12); color:var(--surface); border:1px solid rgba(255,255,255,0.14); padding:.75rem 1rem; border-radius:12px; }
+
+/* =========================
+   Booking Bar (sticky, responsive)
+   ========================= */
+:root{ --booking-bar-h: var(--booking-bar-height, 72px); }
+
+.booking-bar{
+  position: sticky; bottom: 20px; z-index:60;
+  width: min(1120px, calc(100% - 2rem)); margin: 0 auto;
+  height: var(--booking-bar-h); display:flex; gap:12px; align-items:center; justify-content:space-between;
+  padding:12px 16px; border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.80));
+  box-shadow: var(--shadow-sm); border:1px solid var(--glass-inset);
+  backdrop-filter: blur(10px) saturate(120%); transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+@media (max-width:720px){
+  .booking-bar{ width: calc(100% - 1.5rem); padding:10px; gap:8px; height: calc(var(--booking-bar-h) * 0.85); flex-direction:column; align-items:stretch; position:fixed; left:50%; transform:translateX(-50%); bottom:14px; }
+}
+
+/* booking inputs & layout */
+.booking-input,
+.booking-select,
+.booking-date{
+  height: var(--control-h,48px); min-width:120px; padding:0 12px; border-radius:var(--radius-md);
+  border:1px solid rgba(14,36,51,0.08); background:var(--surface); color:var(--text-primary);
+  font-family:var(--font-sans); font-size:var(--fs-base); line-height:1; display:inline-flex; align-items:center;
+  gap:8px; transition: box-shadow var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  -webkit-appearance:none; appearance:none;
+}
+.booking-input::placeholder{ color:var(--muted); }
+.booking-input.flex{ flex:1 1 auto; min-width:0; }
+.booking-input:focus, .booking-select:focus, .booking-date:focus{
+  outline:none; border-color: color-mix(in srgb, var(--color-accent) 70%, black 0%); box-shadow: 0 6px 18px rgba(31,162,255,0.08); transform: translateY(-1px); z-index:2;
+}
+.booking-input[disabled]{ opacity:0.6; cursor:not-allowed; }
+
+.booking-group{ display:flex; gap:12px; align-items:center; flex:1 1 auto; min-width:0; }
+.booking-actions{ display:flex; gap:8px; align-items:center; }
+
+.booking-cta{
+  height: var(--control-h,48px); padding:0 18px; border-radius:var(--radius-md); border:none; cursor:pointer;
+  font-weight:700; font-family:var(--font-sans); display:inline-flex; align-items:center; gap:8px;
+  background: var(--gradient-accent); color:var(--surface); box-shadow: var(--shadow-glow); transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.booking-cta:hover{ transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.booking-cta:active{ transform: translateY(1px) scale(.997); }
+.booking-cta .icon{ width:20px; height:20px; display:inline-grid; place-items:center; }
+@media (max-width:720px){ .booking-actions{ width:100%; } .booking-cta{ width:100%; justify-content:center; } }
+
+/* select arrow styling */
+.booking-select{ appearance:none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 14px) calc(1em + 2px), calc(100% - 9px) calc(1em + 2px); background-size:6px 6px,6px 6px; background-repeat:no-repeat; padding-right:36px; }
+
+/* =========================
+   Pricing strip & breakdown
+   ========================= */
+.pricing-strip{ background:var(--surface); padding:clamp(.75rem,1.2vw,1.25rem) 0; border-bottom:1px solid rgba(14,36,51,0.06); position:relative; z-index:10; }
+.pricing-container{ display:flex; gap:1rem; align-items:center; justify-content:space-between; width:min(1200px, calc(100% - 2rem)); margin-inline:auto; padding-inline: clamp(.75rem, 2.5vw, 1.5rem); }
+.price-chip{ display:inline-flex; align-items:center; gap:.5rem; background:var(--gradient-accent); color:var(--surface); padding:.35rem .75rem; border-radius:999px; font-weight:700; font-size:var(--fs-small); box-shadow:var(--shadow-xs); }
+
+/* collapsible breakdown */
+.price-breakdown{ width: min(1100px, calc(100% - 2rem)); margin:.75rem auto 0; background:var(--surface); border-radius:var(--radius-md); padding:.75rem; box-shadow:var(--shadow-sm); border:1px solid var(--glass-inset); transition: max-height var(--dur-med) var(--ease), opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease); max-height:0; opacity:0; overflow:hidden; }
+.price-breakdown.is-open{ max-height:480px; opacity:1; transform:translateY(0); }
+
+.price-row{ display:flex; gap:.75rem; justify-content:space-between; align-items:center; padding:.5rem 0; border-bottom:1px solid rgba(14,36,51,0.04); font-size:var(--fs-base); }
+.price-row:last-child{ border-bottom:none; font-weight:700; }
+.price-label{ color:var(--muted); } .price-value{ color:var(--text-primary); } .price-value.warm{ color:var(--color-warm); }
+@media (max-width:720px){ .pricing-container{ flex-direction:column; align-items:flex-start; gap:.5rem; padding-inline:.75rem; } .price-breakdown{ width: calc(100% - 1.5rem); margin-left:.75rem; } }
+
+/* =========================
+   Booking section & form
+   ========================= */
+.booking-section{ padding: clamp(2rem, 6vw, 4rem) 0; background:var(--bg); }
+.booking-container{ width: min(1100px, calc(100% - 2rem)); margin-inline:auto; padding-inline: clamp(.75rem, 2.5vw, 1rem); }
+.booking-card{ background:var(--surface); border-radius: calc(var(--radius-lg) + 2px); box-shadow:var(--shadow-md); overflow:hidden; display:grid; grid-template-columns:1fr; }
+.booking-header{ background:var(--gradient-primary); color:var(--surface); padding: clamp(1rem, 2.5vw, 2rem); text-align:center; }
+.booking-header h2{ font-size:var(--fs-h2); margin-bottom:.4rem; } .booking-header p{ opacity:.95; margin:0; }
+.booking-form{ padding: clamp(1rem, 2.5vw, 2rem); display:block; }
+.form-row{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.5rem; }
+.form-group{ display:flex; flex-direction:column; gap:.5rem; } .form-label{ font-weight:600; color:var(--text-primary); font-size:var(--fs-small); }
+.form-control{ padding:.75rem 1rem; border-radius:var(--radius-md); border:1px solid rgba(14,36,51,0.08); background:var(--surface); font-size:var(--fs-base); transition: box-shadow var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.form-control:focus{ outline:none; border-color: color-mix(in srgb, var(--color-accent) 70%, black 0%); box-shadow: 0 8px 22px rgba(31,162,255,0.06); transform: translateY(-2px); }
+select.form-control{ cursor:pointer; padding-right:2.75rem; }
+
+/* =========================
+   Vehicle grid & cards
+   ========================= */
+.vehicle-selection{ margin:2rem 0; }
+.section-title{ display:flex; align-items:center; gap:.5rem; font-size:var(--fs-h3); font-weight:600; color:var(--text-primary); margin-bottom:1rem; }
+.section-title i{ color:var(--color-accent); }
+
+.vehicle-grid{ display:grid; gap:1.5rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-bottom:1.5rem; }
+.vehicle-card{ background:var(--surface); border:1px solid rgba(14,36,51,0.06); border-radius:var(--radius-lg); overflow:hidden; cursor:pointer; display:flex; flex-direction:column; transition: transform var(--dur-med) var(--ease), box-shadow var(--dur-med) var(--ease), border-color var(--dur-med) var(--ease); }
+.vehicle-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-sm); border-color:var(--color-accent); }
+.vehicle-card.selected{ border-color:var(--color-accent); background: color-mix(in srgb, var(--color-accent) 6%, transparent 0%); }
+.vehicle-image{ width:100%; height:180px; object-fit:cover; background:var(--bg); transition: transform var(--dur-slow) var(--ease); }
+.vehicle-card:hover .vehicle-image{ transform:scale(1.04); }
+.vehicle-content{ padding:1.25rem; display:flex; flex-direction:column; gap:.5rem; flex:1 1 auto; }
+.vehicle-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; }
+.vehicle-title{ font-size:1.0625rem; font-weight:700; color:var(--text-primary); }
+.vehicle-price{ font-size:1.0625rem; font-weight:700; color:var(--color-accent); }
+.vehicle-specs{ display:flex; gap:1rem; margin-top:.5rem; font-size:var(--fs-small); color:var(--muted); flex-wrap:wrap; }
+.vehicle-spec{ display:inline-flex; align-items:center; gap:.35rem; }
+.vehicle-spec i{ color:var(--color-accent); font-size:.8rem; }
+
+/* =========================
+   Features section & cards
+   ========================= */
+.features-section{ padding: clamp(2rem, 5vw, 4rem) 0; background:var(--surface); }
+.features-grid{ display:grid; gap:2rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top:1.5rem; }
+.feature-card{ text-align:center; padding: clamp(1rem, 2.5vw, 2rem); border-radius:var(--radius-lg); background: color-mix(in srgb, var(--surface) 96%, transparent 0%); transition: transform var(--dur-med) var(--ease), box-shadow var(--dur-med) var(--ease); cursor:default; min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:1rem; }
+.feature-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-sm); }
+.feature-icon{ width:64px; height:64px; border-radius: calc(var(--radius-md) + 2px); display:grid; place-items:center; background:var(--gradient-primary); color:var(--surface); font-size:1.25rem; transition: transform var(--dur-med) var(--ease), background var(--dur-med) var(--ease); }
+.feature-card:hover .feature-icon{ background:var(--gradient-accent); transform:scale(1.08); }
+.feature-title{ font-size:var(--fs-h3); font-weight:700; color:var(--text-primary); margin-top:.25rem; }
+.feature-description{ color:var(--muted); line-height:1.6; font-size:.98rem; text-wrap:balance; }
+
+/* =========================
+   Testimonials
+   ========================= */
+.testimonials-section{ padding: clamp(2rem, 6vw, 4rem) 0; background:var(--bg); color:var(--text-primary); }
+.testimonials-grid{ display:grid; gap:clamp(1rem,2.5vw,2rem); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top:clamp(1rem,3vw,2rem); align-items:start; }
+.testimonial-card{ background:var(--surface); padding: clamp(1rem,2.5vw,2rem); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); transition: transform var(--dur-med) var(--ease), box-shadow var(--dur-med) var(--ease), opacity var(--dur-med) var(--ease); display:flex; flex-direction:column; gap:1rem; }
+.testimonial-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-md); }
+.testimonial-content{ font-style:italic; color: color-mix(in srgb, var(--text-primary) 92%, transparent 0%); line-height:1.6; margin:0; }
+.testimonial-author{ display:flex; gap:1rem; align-items:center; margin-top:auto; }
+.author-avatar{ width:56px; height:56px; border-radius:50%; background: color-mix(in srgb, var(--surface) 90%, var(--bg) 10%); display:flex; align-items:center; justify-content:center; color:var(--muted); font-weight:700; flex-shrink:0; overflow:hidden; }
+.author-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+.author-info h4{ font-size:1rem; font-weight:700; margin:0; color:var(--text-primary); } .author-info p{ margin:0; font-size:var(--fs-small); color:var(--muted); }
+.rating{ color:var(--color-warm); margin-top:.5rem; display:inline-flex; gap:.25rem; align-items:center; font-weight:700; }
+
+/* =========================
+   Driver card
+   ========================= */
+.driver-card{ display:flex; gap:1rem; align-items:center; padding:.75rem; border-radius:var(--radius-md); background:var(--surface); box-shadow:var(--shadow-sm); transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
+.driver-card:hover{ transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.driver-photo{ width:72px; height:72px; border-radius:50%; object-fit:cover; background: color-mix(in srgb, var(--surface) 92%, var(--bg) 8%); box-shadow: 0 6px 18px rgba(10,16,28,0.06); flex-shrink:0; }
+.driver-info{ flex:1 1 auto; min-width:0; } .driver-name{ font-weight:700; margin:0 0 .15rem 0; color:var(--text-primary); } .driver-rating{ color:var(--color-warm); font-size:var(--fs-small); margin:0; } .driver-vehicle{ font-size:var(--fs-small); color:var(--muted); margin-top:.25rem; }
+.driver-actions{ display:flex; gap:.5rem; align-items:center; }
+.driver-action{ width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background: color-mix(in srgb, var(--surface) 96%, transparent 0%); border:1px solid rgba(14,36,51,0.06); color:var(--text-primary); text-decoration:none; transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease); }
+.driver-action:hover{ transform:translateY(-3px); background:var(--gradient-accent); color:var(--surface); border-color:transparent; }
+.eta-badge{ background:var(--gradient-warm); color:var(--text-primary); padding:.25rem .5rem; border-radius:999px; font-size:var(--fs-small); font-weight:700; display:inline-flex; align-items:center; }
+
+/* =========================
+   Footer
+   ========================= */
+footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp(2rem,5vw,3rem) 0 clamp(1rem,3vw,1.5rem); }
+.footer-content{ width: min(1200px, calc(100% - 2rem)); margin:0 auto 1.25rem; display:grid; gap:1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.footer-section h3{ font-size:1.0625rem; margin:0 0 .75rem 0; color:var(--surface); }
+.footer-section p, .footer-section a{ color: color-mix(in srgb, var(--surface) 82%, transparent 0%); text-decoration:none; line-height:1.8; transition: color var(--dur-fast) var(--ease); }
+.footer-section a:hover{ color:var(--color-accent); }
+.footer-links{ list-style:none; padding:0; margin:0; } .footer-links li{ margin-bottom:.5rem; }
+.footer-bottom{ border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem; text-align:center; color: color-mix(in srgb, var(--surface) 72%, transparent 0%); font-size:var(--fs-small); }
+
+/* =========================
+   Modal (accessible)
+   ========================= */
+.modal{ display:none; position:fixed; inset:0; background: rgba(2,6,23,0.6); z-index:1100; align-items:center; justify-content:center; padding:1rem; }
+.modal.active{ display:flex; }
+.modal-content{ background:var(--surface); border-radius:var(--radius-lg); max-width:720px; width:100%; max-height:90vh; overflow:auto; box-shadow:var(--shadow-md); transform-origin:center; animation: modalIn var(--dur-fast) var(--ease) both; }
+@keyframes modalIn{ from{ transform: translateY(8px) scale(.992); opacity:0; } to{ transform: translateY(0) scale(1); opacity:1; } }
+.modal-header{ padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(14,36,51,0.06); }
+.modal-title{ font-size:var(--fs-h3); font-weight:700; color:var(--text-primary); margin:0; }
+.modal-close{ background:transparent; border:none; font-size:1.25rem; color:var(--muted); cursor:pointer; padding:.25rem; border-radius:8px; }
+.modal-close:hover{ color:var(--text-primary); background: color-mix(in srgb, var(--surface) 6%, transparent 0%); }
+.modal-body{ padding:1rem 1.25rem; } .modal-footer{ padding:.75rem 1.25rem; border-top:1px solid rgba(14,36,51,0.06); display:flex; gap:.75rem; justify-content:flex-end; }
+
+/* =========================
+   Loading / spinner
+   ========================= */
+.loading{ display:flex; justify-content:center; align-items:center; padding:2rem; }
+.spinner{ width:40px; height:40px; border:3px solid rgba(14,36,51,0.08); border-top-color:var(--color-accent); border-radius:50%; animation: spin 900ms linear infinite; }
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+/* =========================
+   Mobile Menu (off-canvas)
+   ========================= */
+.mobile-menu{
+  position:fixed; top:0; right:-100%; width:min(84%,320px); height:100vh; background:var(--surface);
+  box-shadow:var(--shadow-sm); z-index:1100; transition: transform var(--dur-med) var(--ease), opacity var(--dur-med) var(--ease);
+  transform: translateX(100%); display:flex; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+.mobile-menu.active{ transform: translateX(0); right:0; opacity:1; }
+.mobile-menu-header{ padding:1.25rem; border-bottom:1px solid rgba(14,36,51,0.06); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.mobile-menu-close{ background:transparent; border:none; font-size:1.25rem; color:var(--muted); cursor:pointer; padding:.35rem; border-radius:8px; transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.mobile-menu-close:focus{ outline:3px solid rgba(31,162,255,0.14); outline-offset:2px; }
+.mobile-menu-close:hover{ background: color-mix(in srgb, var(--surface) 6%, transparent 0%); color:var(--text-primary); transform:translateY(-2px); }
+.mobile-menu-nav{ padding:1rem 1.25rem; display:block; }
+.mobile-menu-nav ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem; }
+.mobile-menu-nav a{ display:block; padding:.65rem 0; color:var(--text-primary); text-decoration:none; font-weight:600; transition: color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.mobile-menu-nav a:hover{ color:var(--color-accent); transform:translateX(4px); }
+.mobile-menu-cta{ margin:1rem 1.25rem 1.75rem; padding:.85rem 1rem; background:var(--gradient-primary); color:var(--surface); border-radius:var(--radius-md); font-weight:700; display:inline-flex; align-items:center; justify-content:center; gap:.5rem; width:calc(100% - 2.5rem); box-shadow:var(--shadow-xs); border:none; cursor:pointer; }
+
+/* overlay for mobile menu */
+.mobile-menu-overlay{ position:fixed; inset:0; background: rgba(2,6,23,0.45); z-index:1050; opacity:0; pointer-events:none; transition: opacity var(--dur-med) var(--ease); }
+.mobile-menu-overlay.active{ opacity:1; pointer-events:auto; }
+
+/* =========================
+   Utilities
+   ========================= */
+.text-center{ text-align:center; }
+.mb-2{ margin-bottom:.5rem; } .mb-4{ margin-bottom:1rem; } .mb-6{ margin-bottom:1.5rem; } .mb-8{ margin-bottom:2rem; }
+.error-message{ text-align:center; padding:2rem; color:var(--text-primary); } .error-message p{ color:#EF4444; margin:0 0 1rem 0; }
+.vehicle-sub{ font-size:var(--fs-small); color:var(--muted); margin-top:.25rem; } .vehicle-image-container{ position:relative; overflow:hidden; border-radius:12px; background:var(--bg); }
+
+/* =========================
+   Responsive tweaks
+   ========================= */
+@media (max-width:980px){
+  .hero .hero-inner{ grid-template-columns:1fr; gap:1rem; }
+  .hero .hero-media{ order:-1; height:clamp(220px,34vh,420px); border-radius:12px; margin-bottom:1rem; background-position:center; }
+  .hero h1{ font-size:clamp(1.4rem,6.5vw,2.2rem); }
+}
+
+@media (max-width:880px){
+  .nav-menu{ display:none !important; }
+  .mobile-menu-btn{ display:inline-grid !important; }
+  .hero{ grid-template-columns:1fr; gap:1.5rem; }
+  .hero h1{ font-size: clamp(1.6rem, 6vw, 2rem); }
+  .hero p, .lead{ font-size:1rem; }
+  .hero-buttons{ flex-direction:column; }
+  .btn{ width:100%; justify-content:center; }
+  .form-row{ grid-template-columns:1fr; }
+  .vehicle-grid{ grid-template-columns:1fr; }
+  .features-grid, .testimonials-grid{ grid-template-columns:1fr; }
+  .booking-bar{ flex-wrap:wrap; height:auto; padding:1rem; position:fixed; left:50%; transform:translateX(-50%); bottom:14px; width:calc(100% - 2rem); }
+  .booking-input{ min-width:100%; }
+}
+
+@media (max-width:720px){
+  .pricing-container{ flex-direction:column; align-items:flex-start; gap:.5rem; padding-inline:.75rem; }
+  .price-breakdown{ width: calc(100% - 1.5rem); margin-left:.75rem; }
+  .vehicle-image{ height:160px; }
+  .feature-card{ min-height:auto; padding:1rem; }
+  .author-avatar{ width:48px; height:48px; }
+  .driver-photo{ width:56px; height:56px; }
+  .testimonials-grid{ grid-template-columns:1fr; }
+  .modal-content{ max-width:92%; }
+}
+
+/* Respect reduced motion strongly */
+@media (prefers-reduced-motion: reduce){
+  *{ transition-duration: 1ms !important; animation-duration: 1ms !important; animation-iteration-count: 1 !important; }
+  .testimonial-card, .driver-card, .feature-card, .vehicle-card, .modal-content, .price-breakdown { transition: none !important; transform: none !important; animation: none !important; }
+}
+
+/* =========================
+   Notes
+   - Use inline style="--hero-bg-url: url('/img.jpg')" on .hero to scope hero images
+   - Toggle .price-breakdown.is-open to show pricing details
+   - Toggle .vehicle-card.selected to indicate selection
+   - Toggle .mobile-menu.active and .mobile-menu-overlay.active for mobile nav
+   - Toggle .modal.active for modal visibility; ensure focus trap in JS
+   ========================= */
+
+  </style>
+
+  <!-- Load Fonts Asynchronously -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap"></noscript>
+
+  <!-- Load Font Awesome Asynchronously -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+</head>
+<body>
+  <!-- Header -->
+  <header id="header">
+    <div class="header-top">
+      <div class="container">
+        <div class="header-top-content">
+          <div class="contact-info">
+            <a href="tel:+254723229651">
+              <i class="fas fa-phone"></i>
+              +254 723 229 651
+            </a>
+            <a href="mailto:info@nairobitransfers.com">
+              <i class="fas fa-envelope"></i>
+              info@nairobitransfers.com
+            </a>
+          </div>
+          <div class="social-links">
+            <a href="#" aria-label="Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" aria-label="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://wa.me/254723229651" aria-label="WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="header-main">
+      <div class="container">
+        <div class="header-content">
+          <a href="/" class="logo">
+            <div class="logo-icon">
+              <i class="fas fa-plane"></i>
+            </div>
+            <div class="logo-text">Nairobi Transfers</div>
+          </a>
+          <nav>
+            <ul class="nav-menu">
+              <li><a href="#home" class="nav-link">Home</a></li>
+              <li><a href="#services" class="nav-link">Services</a></li>
+              <li><a href="#booking" class="nav-link">Booking</a></li>
+              <li><a href="#about" class="nav-link">About</a></li>
+              <li><a href="#contact" class="nav-link">Contact</a></li>
+              <li>
+                <a href="#booking" class="btn">
+                  <i class="fas fa-calendar-check"></i>
+                  Book Now
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-plane"></i>
+        </div>
+        <div class="logo-text">Nairobi Transfers</div>
+      </div>
+      <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close mobile menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="mobile-menu-nav">
+      <ul>
+        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="#services" class="nav-link">Services</a></li>
+        <li><a href="#booking" class="nav-link">Booking</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+      </ul>
+      <a href="#booking" class="mobile-menu-cta">
+        <i class="fas fa-calendar-check"></i>
+        Book Now
+      </a>
+    </div>
+  </div>
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+  <!-- Booking Bar -->
+  <div class="container">
+    <div class="booking-bar">
+      <select class="booking-select" id="quickService" aria-label="Service Type">
+        <option value="">Service Type</option>
+        <option value="airport">Airport Transfer</option>
+        <option value="city">City Tour</option>
+        <option value="safari">Safari Transfer</option>
+        <option value="custom">Custom Transfer</option>
+      </select>
+      <input type="date" class="booking-date" id="quickDate" aria-label="Date">
+      <input type="time" class="booking-input" id="quickTime" aria-label="Time">
+      <input type="text" class="booking-input" id="quickPickup" placeholder="Pickup Location" aria-label="Pickup Location">
+      <input type="text" class="booking-input" id="quickDropoff" placeholder="Drop-off Location" aria-label="Drop-off Location">
+      <button class="booking-cta" id="quickBook">
+        <i class="fas fa-search"></i>
+        Get Price
+      </button>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero" aria-labelledby="hero-heading">
+    <div class="hero-inner container">
+      <div class="hero-copy">
+        <div class="hero-badge" aria-hidden="true">
+          <svg class="badge-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+          <span class="badge-text">Professional & Reliable Service</span>
+        </div>
+
+        <h1 id="hero-heading">Premium Airport Transfers in Nairobi</h1>
+
+        <p class="lead">Experience seamless travel with our modern fleet, experienced drivers, and on-time pickups.</p>
+
+        <div class="hero-buttons" role="group" aria-label="Primary actions">
+          <a href="#booking" class="btn btn-primary">Book Your Transfer</a>
+          <a href="#services" class="btn btn-secondary">Learn More</a>
+        </div>
+      </div>
+
+      <div class="hero-media" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- Booking Section -->
+  <section class="booking-section" id="booking">
+    <div class="container">
+      <div class="booking-container">
+        <div class="booking-card">
+          <div class="booking-header">
+            <h2>Book Your Transfer</h2>
+            <p>Fill in the details below to reserve your airport transfer</p>
+          </div>
+          <form class="booking-form" id="bookingForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="service">Service Type</label>
+                <select class="form-control" id="service" name="service" required>
+                  <option value="">Select Service</option>
+                  <option value="airport">Airport Transfer</option>
+                  <option value="city">City Tour</option>
+                  <option value="safari">Safari Transfer</option>
+                  <option value="custom">Custom Transfer</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="date">Date</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="time">Time</label>
+                <input type="time" class="form-control" id="time" name="time" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="pickup">Pickup Location</label>
+                <input type="text" class="form-control" id="pickup" name="pickup" placeholder="JKIA Airport, Hotel, Address..." required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dropoff">Drop-off Location</label>
+                <input type="text" class="form-control" id="dropoff" name="dropoff" placeholder="Hotel, Address, Airport..." required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="passengers">Passengers</label>
+                <input type="number" class="form-control" id="passengers" name="passengers" min="1" value="1" required>
+              </div>
+            </div>
+
+            <!-- Vehicle Selection -->
+            <div class="vehicle-selection" data-api="/api/vehicles/">
+              <h3 class="section-title">
+                <i class="fas fa-car" aria-hidden="true"></i>
+                Select Your Vehicle
+              </h3>
+
+              <div class="vehicle-grid" id="vehicleGrid" role="listbox" aria-label="Available vehicles" tabindex="0">
+                <div class="loading" id="vehicleLoading" aria-live="polite">
+                  <div class="spinner" aria-hidden="true"></div>
+                  <span class="visually-hidden">Loading vehicles…</span>
+                </div>
+              </div>
+
+              <input type="hidden" id="selectedVehicle" name="selectedVehicle" required>
+
+              <div class="vehicle-error visually-hidden" id="vehicleError" role="alert"></div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="name">Full Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="John Doe" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="john@example.com" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="phone">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" name="phone" placeholder="+254 7XX XXX XXX" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="notes">Special Requests (Optional)</label>
+              <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Flight number, special requirements, etc."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;">
+              <i class="fab fa-whatsapp"></i>
+              Book via WhatsApp
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Driver Card Section -->
+  <section class="booking-section" id="driver" style="display: none;">
+    <div class="container">
+      <div class="booking-card">
+        <div class="booking-header">
+          <h2>Your Driver Details</h2>
+          <p>Meet your professional driver for this journey</p>
+        </div>
+        <div class="driver-card">
+          <img src="https://picsum.photos/seed/driver1/150/150.jpg" alt="Driver Photo" class="driver-photo">
+          <div class="driver-info">
+            <div class="driver-name">Michael Kamau</div>
+            <div class="driver-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              4.9 (127 trips)
+            </div>
+            <div class="driver-vehicle">
+              <i class="fas fa-car"></i> Toyota Prado - KCB 123X
+            </div>
+          </div>
+          <div class="driver-actions">
+            <a href="tel:+254712345678" class="driver-action" aria-label="Call driver">
+              <i class="fas fa-phone"></i>
+            </a>
+            <a href="https://wa.me/254712345678" class="driver-action" aria-label="Message driver">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+          <div class="eta-badge">
+            <i class="fas fa-clock"></i> 15 min
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="services">
+    <div class="container">
+      <div class="text-center">
+        <h2>Why Choose Us</h2>
+        <p style="color: var(--muted); font-size: 1.125rem;">We provide exceptional transfer services with focus on comfort and reliability</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3 class="feature-title">24/7 Availability</h3>
+          <p class="feature-description">Round-the-clock service to accommodate any flight schedule or travel plan</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3 class="feature-title">Safe & Reliable</h3>
+          <p class="feature-description">Professional drivers with well-maintained vehicles ensure your safety</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <h3 class="feature-title">Fixed Prices</h3>
+          <p class="feature-description">Transparent pricing with no hidden fees or surprise charges</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3 class="feature-title">Expert Drivers</h3>
+          <p class="feature-description">Knowledgeable local drivers with years of experience</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-car"></i>
+          </div>
+          <h3 class="feature-title">Modern Fleet</h3>
+          <p class="feature-description">Well-maintained vehicles with modern amenities for your comfort</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          <h3 class="feature-title">Easy Booking</h3>
+          <p class="feature-description">Simple online booking process with instant confirmation</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="text-center">
+        <h2>What Our Customers Say</h2>
+        <p style="color: var(--muted); font-size: 1.125rem;">Real reviews from satisfied customers</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <p class="testimonial-content">"Excellent service from start to finish. The driver was waiting for us at arrivals and helped with luggage. Vehicle was clean and comfortable. Highly recommend!"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="author-info">
+              <h4>Sarah Johnson</h4>
+              <p>Business Traveler</p>
+            </div>
+          </div>
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-content">"Professional and punctual service. Used them for multiple airport transfers and never been disappointed. Competitive prices and excellent customer service."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="author-info">
+              <h4>Michael Chen</h4>
+              <p>Frequent Flyer</p>
+            </div>
+          </div>
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-content">"Great experience! The booking process was easy and the driver was very professional. Got me to the airport on time for my early morning flight. Will definitely use again."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="author-info">
+              <h4>David Kimani</h4>
+              <p>Local Resident</p>
+            </div>
+          </div>
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Nairobi Transfers</h3>
+          <p>Your trusted partner for airport transfers and tours in Nairobi. Professional service, modern fleet, and competitive prices.</p>
+          <div class="social-links" style="margin-top: 1rem;">
+            <a href="#" aria-label="Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" aria-label="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://wa.me/254723229651" aria-label="WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>Services</h3>
+          <ul class="footer-links">
+            <li><a href="#">Airport Transfers</a></li>
+            <li><a href="#">City Tours</a></li>
+            <li><a href="#">Safari Transfers</a></li>
+            <li><a href="#">Custom Tours</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Company</h3>
+          <ul class="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Our Fleet</a></li>
+            <li><a href="#">Testimonials</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact Info</h3>
+          <p><i class="fas fa-phone"></i> +254 723 229 651</p>
+          <p><i class="fas fa-envelope"></i> info@nairobitransfers.com</p>
+          <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Nairobi Tours & Transfers. All rights reserved. | Powered by DEV BRYTEC LTD</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Modal -->
+  <div class="modal" id="whatsappModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Booking via WhatsApp</h3>
+        <button class="modal-close" id="whatsappModalClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 1rem;">Please review your booking details:</p>
+        <div id="bookingSummary" style="background: var(--bg); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;"></div>
+        <p style="color: var(--muted); font-size: var(--fs-small);">Click "Send to WhatsApp" to confirm your booking. We'll contact you shortly to finalize the details.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="whatsappCancel">Cancel</button>
+        <button class="btn btn-primary" id="whatsappSend">
+          <i class="fab fa-whatsapp"></i>
+          Send to WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal" id="successModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Booking Submitted!</h3>
+        <button class="modal-close" id="successModalClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <div style="font-size: 3rem; color: #10B981; margin-bottom: 1rem;">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <p style="margin-bottom: 1rem;">Your booking request has been sent successfully via WhatsApp!</p>
+        <p style="color: var(--muted);">We'll contact you shortly to confirm your reservation and discuss payment options.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="successClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // Performance helpers
+  const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
+  const throttle = (func, limit) => {
+    let inThrottle;
+    return function() {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  };
+
+  // DOM helpers
+  const q = (sel, root = document) => root.querySelector(sel);
+  const qa = (sel, root = document) => Array.from((root || document).querySelectorAll(sel));
+  const escapeHtml = (s) => {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, (m) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  };
+  const safeShow = (el, d = 'block') => { if (el && el.style) el.style.display = d; };
+  const safeHide = (el) => { if (el && el.style) el.style.display = 'none'; };
+
+  // Cache for vehicles to avoid repeated API calls
+  const vehicleCache = {
+    data: null,
+    timestamp: null,
+    expiry: 10 * 60 * 1000, // 10 minutes
+    isValid: function() {
+      return this.data && this.timestamp && (Date.now() - this.timestamp < this.expiry);
+    },
+    set: function(data) {
+      this.data = data;
+      this.timestamp = Date.now();
+    },
+    get: function() {
+      return this.isValid() ? this.data : null;
+    },
+    clear: function() {
+      this.data = null;
+      this.timestamp = null;
+    }
+  };
+
+  // Intersection Observer for lazy loading
+  let imageObserver;
+  const setupImageObserver = () => {
+    if ('IntersectionObserver' in window) {
+      imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            const src = img.dataset.src;
+            if (src) {
+              img.src = src;
+              img.removeAttribute('data-src');
+              observer.unobserve(img);
+            }
+          }
+        });
+      }, {
+        rootMargin: '50px 0px',
+        threshold: 0.01
+      });
+    }
+  };
+
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    // Setup image observer for lazy loading
+    setupImageObserver();
+
+    // DOM elements
+    const vehicleGrid = q('#vehicleGrid');
+    const selectedInput = q('#selectedVehicle');
+    const bookingForm = q('#bookingForm');
+    const whatsappModal = q('#whatsappModal');
+    const successModal = q('#successModal');
+    const bookingSummary = q('#bookingSummary');
+    const driverSection = q('#driver');
+    const bookingSection = q('#booking');
+    const header = q('#header');
+    const mobileMenuBtn = q('#mobileMenuBtn');
+    const mobileMenu = q('#mobileMenu');
+    const mobileMenuClose = q('#mobileMenuClose');
+    const mobileMenuOverlay = q('#mobileMenuOverlay');
+    const quickBook = q('#quickBook');
+    const quickService = q('#quickService');
+    const quickDate = q('#quickDate');
+    const quickTime = q('#quickTime');
+    const quickPickup = q('#quickPickup');
+    const quickDropoff = q('#quickDropoff');
+
+    if (!vehicleGrid || !selectedInput) return;
+
+    // State
+    let vehicles = [];
+    let focusedIndex = -1;
+    let currentRequestToken = null;
+    let isLoading = false;
+
+    // API configuration
+    const API_ENDPOINT = '/api/vehicles/';
+    const API_TIMEOUT = 8000; // 8 seconds
+
+    // Mobile menu functionality
+    function openMobileMenu() {
+      mobileMenu.classList.add('active');
+      mobileMenuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('active');
+      mobileMenuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', openMobileMenu);
+    }
+
+    if (mobileMenuClose) {
+      mobileMenuClose.addEventListener('click', closeMobileMenu);
+    }
+
+    if (mobileMenuOverlay) {
+      mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    // Close mobile menu when clicking on nav links
+    qa('.mobile-menu-nav a').forEach(link => {
+      link.addEventListener('click', () => {
+        closeMobileMenu();
+      });
+    });
+
+    // Header scroll effect with throttling for performance
+    const handleScroll = throttle(() => {
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    }, 100);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Quick booking bar functionality
+    if (quickBook) {
+      quickBook.addEventListener('click', () => {
+        // Transfer quick booking values to main form
+        if (quickService.value) q('#service').value = quickService.value;
+        if (quickDate.value) q('#date').value = quickDate.value;
+        if (quickTime.value) q('#time').value = quickTime.value;
+        if (quickPickup.value) q('#pickup').value = quickPickup.value;
+        if (quickDropoff.value) q('#dropoff').value = quickDropoff.value;
+
+        // Scroll to booking form
+        bookingSection.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    // UI element creators with document fragments for better performance
+    function createLoadingEl() {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'loading';
+      wrapper.setAttribute('aria-live', 'polite');
+      wrapper.innerHTML = '<div class="spinner" aria-hidden="true"></div><span class="visually-hidden">Loading vehicles…</span>';
+      return wrapper;
+    }
+
+    function createErrorEl(message = 'Failed to load vehicles.') {
+      const el = document.createElement('div');
+      el.className = 'vehicle-error';
+      el.setAttribute('role', 'alert');
+      el.innerHTML = `<p>${escapeHtml(message)}</p><button type="button" class="btn btn-primary" id="retryLoadVehicles">Retry</button>`;
+      return el;
+    }
+
+    function createEmptyEl() {
+      const el = document.createElement('div');
+      el.className = 'vehicle-empty';
+      el.textContent = 'No vehicles available at the moment.';
+      return el;
+    }
+
+    // Selection and focus
+    function setSelectedById(id) {
+      selectedInput.value = id == null ? '' : String(id);
+      qa('.vehicle-card', vehicleGrid).forEach((c) => {
+        const isSelected = c.dataset.vehicleId === String(id);
+        c.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        c.classList.toggle('selected', isSelected);
+      });
+    }
+
+    function focusCardAt(index) {
+      const cards = qa('.vehicle-card', vehicleGrid);
+      if (!cards.length) return;
+      if (index < 0) index = 0;
+      if (index >= cards.length) index = cards.length - 1;
+      focusedIndex = index;
+      const el = cards[index];
+      if (el && typeof el.focus === 'function') el.focus();
+    }
+
+    // Build card with lazy loading for images
+    function buildVehicleCard(vehicle) {
+      const id = vehicle.id ?? '';
+      const make = vehicle.make ?? vehicle.name ?? 'Unknown';
+      const model = vehicle.model ?? '';
+      const vehicleType = vehicle.vehicle_type ?? vehicle.type ?? '';
+      const capacity = vehicle.capacity ?? vehicle.seats ?? '-';
+      const plate = vehicle.license_plate ?? '';
+      const price = vehicle.price ?? '';
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'vehicle-card';
+      btn.setAttribute('role', 'option');
+      btn.setAttribute('aria-selected', 'false');
+      btn.dataset.vehicleId = String(id);
+      btn.tabIndex = 0;
+
+      // Image with lazy loading
+      const hasImage = !!(vehicle.image_url || vehicle.image);
+      const imageHtml = hasImage
+        ? `<img data-src="${escapeHtml(vehicle.image_url || vehicle.image)}" alt="${escapeHtml(make + (model ? ' ' + model : ''))}" class="vehicle-image" loading="lazy">`
+        : `<div class="vehicle-no-image" aria-hidden="true">Car image will be available soon</div>`;
+
+      btn.innerHTML = `
+        <div class="vehicle-image-container">
+          ${imageHtml}
+        </div>
+        <div class="vehicle-content">
+          <div class="vehicle-header">
+            <div class="vehicle-meta-left">
+              <div class="vehicle-title">${escapeHtml(make)} ${escapeHtml(model)}</div>
+              <div class="vehicle-sub">${escapeHtml(vehicleType)}</div>
+            </div>
+            <div class="vehicle-price">${escapeHtml(String(price))}</div>
+          </div>
+          <div class="vehicle-specs">
+            <div class="vehicle-spec">
+              <i class="fas fa-users"></i> ${escapeHtml(String(capacity))} Seats
+            </div>
+            ${plate ? `<div class="vehicle-spec">Plate: ${escapeHtml(plate)}</div>` : ''}
+          </div>
+        </div>
+      `;
+
+      // Setup lazy loading for image
+      const img = btn.querySelector('img[data-src]');
+      if (img && imageObserver) {
+        imageObserver.observe(img);
+      }
+
+      // Image error handling
+      if (img) {
+        img.addEventListener('error', () => {
+          const container = btn.querySelector('.vehicle-image-container');
+          if (container) {
+            container.innerHTML = `<div class="vehicle-no-image" aria-hidden="true">Car image will be available soon</div>`;
+          }
+        });
+      }
+
+      // Event listeners
+      btn.addEventListener('click', () => setSelectedById(id));
+
+      btn.addEventListener('keydown', (e) => {
+        const cards = qa('.vehicle-card', vehicleGrid);
+        const idx = cards.indexOf(btn);
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); setSelectedById(id);
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault(); focusCardAt(idx + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault(); focusCardAt(idx - 1);
+        } else if (e.key === 'Home') {
+          e.preventDefault(); focusCardAt(0);
+        } else if (e.key === 'End') {
+          e.preventDefault(); focusCardAt(cards.length - 1);
+        }
+      });
+
+      return btn;
+    }
+
+    // Render grid with document fragment for better performance
+    function renderVehicleGrid(list) {
+      // Clear existing content
+      while (vehicleGrid.firstChild) {
+        vehicleGrid.removeChild(vehicleGrid.firstChild);
+      }
+
+      vehicleGrid.setAttribute('role', 'listbox');
+      vehicleGrid.setAttribute('aria-label', 'Available vehicles');
+      vehicleGrid.tabIndex = 0;
+
+      if (!Array.isArray(list) || list.length === 0) {
+        vehicleGrid.appendChild(createEmptyEl());
+        selectedInput.value = '';
+        return;
+      }
+
+      // Use document fragment for better performance
+      const fragment = document.createDocumentFragment();
+      list.forEach((v) => fragment.appendChild(buildVehicleCard(v)));
+      vehicleGrid.appendChild(fragment);
+
+      // Auto-select first if nothing selected
+      if (!selectedInput.value && list.length) {
+        setSelectedById(list[0].id);
+      }
+    }
+
+    // Loading / error UI
+    function showLoading() {
+      while (vehicleGrid.firstChild) {
+        vehicleGrid.removeChild(vehicleGrid.firstChild);
+      }
+      vehicleGrid.appendChild(createLoadingEl());
+    }
+
+    function showError(message) {
+      while (vehicleGrid.firstChild) {
+        vehicleGrid.removeChild(vehicleGrid.firstChild);
+      }
+      const el = createErrorEl(message);
+      vehicleGrid.appendChild(el);
+      const retryBtn = q('#retryLoadVehicles');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+          try {
+            loadVehicles();
+          } catch (err) {
+            console.error('Error reloading vehicles:', err);
+            showError('Failed to reload vehicles. Please try again later.');
+          }
+        });
+      }
+    }
+
+    // Fetch vehicles from backend API with caching
+    async function loadVehicles() {
+      // Check if already loading
+      if (isLoading) return;
+      isLoading = true;
+
+      // Cancel any previous request
+      if (currentRequestToken) currentRequestToken.cancelled = true;
+      const token = { cancelled: false };
+      currentRequestToken = token;
+
+      // Check cache first
+      const cachedData = vehicleCache.get();
+      if (cachedData) {
+        vehicles = cachedData;
+        renderVehicleGrid(vehicles);
+        isLoading = false;
+        return;
+      }
+
+      showLoading();
+
+      try {
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+        const response = await fetch(API_ENDPOINT, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // Add any authentication headers if needed
+            // 'Authorization': 'Bearer your_token_here'
+          },
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (token.cancelled) return;
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (token.cancelled) return;
+
+        // Handle different response formats
+        let vehiclesData = [];
+        if (Array.isArray(data)) {
+          vehiclesData = data;
+        } else if (data && data.data && Array.isArray(data.data)) {
+          vehiclesData = data.data;
+        } else if (data && data.results && Array.isArray(data.results)) {
+          vehiclesData = data.results;
+        } else {
+          console.error('Unexpected API response format:', data);
+          throw new Error('Invalid response format from API');
+        }
+
+        // Ensure each vehicle has required fields
+        vehicles = vehiclesData.map(vehicle => ({
+          id: vehicle.id || Math.random().toString(36).substr(2, 9),
+          name: vehicle.name || `${vehicle.make || 'Unknown'} ${vehicle.model || 'Model'}`,
+          make: vehicle.make || 'Unknown',
+          model: vehicle.model || '',
+          vehicle_type: vehicle.vehicle_type || vehicle.type || 'Standard',
+          capacity: vehicle.capacity || vehicle.seats || 4,
+          license_plate: vehicle.license_plate || '',
+          image_url: vehicle.image_url || vehicle.image || null,
+          price: vehicle.price || '$45',
+          // Include any additional fields from your API
+          ...vehicle
+        }));
+
+        // Cache the data
+        vehicleCache.set(vehicles);
+
+        // Render vehicles
+        renderVehicleGrid(vehicles);
+      } catch (error) {
+        console.error('Error fetching vehicles:', error);
+        if (token.cancelled) return;
+
+        // Show error message with retry option
+        if (error.name === 'AbortError') {
+          showError('Request timed out. Please check your connection and try again.');
+        } else {
+          showError(`Failed to load vehicles: ${error.message}. Please try again.`);
+        }
+      } finally {
+        if (currentRequestToken === token) currentRequestToken = null;
+        isLoading = false;
+      }
+    }
+
+    // Keyboard navigation when grid has focus
+    vehicleGrid.addEventListener('keydown', (e) => {
+      const cards = qa('.vehicle-card', vehicleGrid);
+      if (!cards.length) return;
+      if (['ArrowDown','ArrowRight','ArrowUp','ArrowLeft','Home','End'].includes(e.key)) {
+        e.preventDefault();
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') focusCardAt((focusedIndex === -1 ? 0 : focusedIndex + 1));
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') focusCardAt((focusedIndex === -1 ? cards.length - 1 : focusedIndex - 1));
+        if (e.key === 'Home') focusCardAt(0);
+        if (e.key === 'End') focusCardAt(cards.length - 1);
+      }
+    });
+
+    // Reflect external changes to selectedInput
+    selectedInput.addEventListener('change', () => setSelectedById(selectedInput.value));
+
+    // Form submit validation: ensure a vehicle selected and phone format
+    const enclosingForm = bookingForm || vehicleGrid.closest('form');
+    if (enclosingForm) {
+      enclosingForm.addEventListener('submit', (e) => {
+        // If bookingForm is handled separately below, this is just a safeguard for other forms
+        const sv = selectedInput.value;
+        if (!sv) {
+          e.preventDefault();
+          const alertEl = document.createElement('div');
+          alertEl.className = 'visually-hidden';
+          alertEl.setAttribute('role', 'alert');
+          alertEl.textContent = 'Please select a vehicle before booking.';
+          enclosingForm.appendChild(alertEl);
+          setTimeout(() => { if (enclosingForm.contains(alertEl)) enclosingForm.removeChild(alertEl); }, 3000);
+          vehicleGrid.focus();
+        }
+      });
+    }
+
+    // Booking form submission flow: prepare summary and show WhatsApp modal
+    if (bookingForm) {
+      bookingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const selectedVehicleId = selectedInput.value;
+        if (!selectedVehicleId) {
+          alert('Please select a vehicle');
+          return;
+        }
+
+        const phoneInput = q('#phone');
+        const phonePattern = /^\+254\d{9}$/;
+        if (!phoneInput || !phonePattern.test(phoneInput.value.trim())) {
+          alert('Please enter a valid Kenyan phone number in the format +254XXXXXXXXX');
+          return;
+        }
+
+        const formData = new FormData(bookingForm);
+        const vehicle = vehicles.find(v => String(v.id) === String(selectedVehicleId)) || {};
+
+        const summaryHtml = [
+          `<strong>Service:</strong> ${escapeHtml(formData.get('service') || '')}`,
+          `<strong>Date:</strong> ${escapeHtml(formData.get('date') || '')}`,
+          `<strong>Time:</strong> ${escapeHtml(formData.get('time') || '')}`,
+          `<strong>Pickup:</strong> ${escapeHtml(formData.get('pickup') || '')}`,
+          `<strong>Drop-off:</strong> ${escapeHtml(formData.get('dropoff') || '')}`,
+          `<strong>Passengers:</strong> ${escapeHtml(formData.get('passengers') || '')}`,
+          `<strong>Vehicle:</strong> ${escapeHtml(vehicle.make || vehicle.name || '')} ${escapeHtml(vehicle.model || '')} - ${escapeHtml(String(vehicle.capacity ?? vehicle.seats ?? '—'))} Seats`,
+          `<strong>Name:</strong> ${escapeHtml(formData.get('name') || '')}`,
+          `<strong>Phone:</strong> ${escapeHtml(formData.get('phone') || '')}`
+        ].join('<br>');
+
+        if (bookingSummary) bookingSummary.innerHTML = summaryHtml;
+        if (whatsappModal) {
+          whatsappModal.classList.add('active');
+          if (typeof whatsappModal.focus === 'function') whatsappModal.focus();
+        }
+      });
+    }
+
+    // WhatsApp modal actions
+    const whatsappSend = q('#whatsappSend');
+    const whatsappCancel = q('#whatsappCancel');
+    const whatsappModalClose = q('#whatsappModalClose');
+
+    // Function to handle WhatsApp send
+    function handleWhatsAppSend() {
+      if (!bookingForm) return;
+      try {
+        const formData = new FormData(bookingForm);
+        const vehicle = vehicles.find(v => String(v.id) === String(selectedInput.value)) || {};
+
+        const lines = [
+          '*New Booking Request*',
+          '',
+          `Service: ${formData.get('service') || ''}`,
+          `Date: ${formData.get('date') || ''}`,
+          `Time: ${formData.get('time') || ''}`,
+          `Pickup: ${formData.get('pickup') || ''}`,
+          `Drop-off: ${formData.get('dropoff') || ''}`,
+          `Passengers: ${formData.get('passengers') || ''}`,
+          `Vehicle: ${vehicle.make || vehicle.name || ''} ${vehicle.model || ''} - ${vehicle.capacity ?? vehicle.seats ?? ''} Seats`,
+          `Name: ${formData.get('name') || ''}`,
+          `Phone: ${formData.get('phone') || ''}`,
+          `Email: ${formData.get('email') || ''}`,
+          `Notes: ${formData.get('notes') || 'None'}`
+        ];
+
+        const whatsappUrl = `https://wa.me/254723229651?text=${encodeURIComponent(lines.join('\n'))}`;
+        window.open(whatsappUrl, '_blank', 'noopener');
+
+        if (whatsappModal) whatsappModal.classList.remove('active');
+        if (successModal) successModal.classList.add('active');
+        bookingForm.reset();
+
+        setTimeout(() => {
+          if (driverSection) {
+            safeShow(driverSection);
+            driverSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 800);
+      } catch (err) {
+        console.error('Error sending WhatsApp message:', err);
+        alert('Failed to send WhatsApp message. Please try again.');
+      }
+    }
+
+    // Function to close WhatsApp modal
+    function closeWhatsAppModal() {
+      if (whatsappModal) whatsappModal.classList.remove('active');
+    }
+
+    // Function to close success modal
+    function closeSuccessModal() {
+      if (successModal) successModal.classList.remove('active');
+    }
+
+    // Add event listeners to WhatsApp modal buttons
+    if (whatsappSend) {
+      whatsappSend.addEventListener('click', handleWhatsAppSend);
+    }
+
+    if (whatsappCancel) {
+      whatsappCancel.addEventListener('click', closeWhatsAppModal);
+    }
+
+    if (whatsappModalClose) {
+      whatsappModalClose.addEventListener('click', closeWhatsAppModal);
+    }
+
+    // Success modal buttons
+    const successClose = q('#successClose');
+    const successModalCloseBtn = q('#successModalClose');
+
+    if (successClose) {
+      successClose.addEventListener('click', closeSuccessModal);
+    }
+
+    if (successModalCloseBtn) {
+      successModalCloseBtn.addEventListener('click', closeSuccessModal);
+    }
+
+    // Close modals on outside click
+    qa('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    });
+
+    // Smooth anchor scrolling with performance optimization
+    const handleAnchorClick = (e) => {
+      const href = e.currentTarget.getAttribute('href');
+      if (!href || href === '#') return;
+      e.preventDefault();
+      const target = q(href);
+      if (target) {
+        // Use requestAnimationFrame for smoother scrolling
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    };
+
+    qa('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', handleAnchorClick);
+    });
+
+    // Start loading vehicles
+    loadVehicles();
+
+    // Public API for debugging
+    window.vehicleWidget = {
+      reload: () => {
+        vehicleCache.clear();
+        return loadVehicles();
+      },
+      getVehicles: () => vehicles.slice(),
+      select: (id) => setSelectedById(id),
+      clearCache: () => vehicleCache.clear()
+    };
+  });
+})();
+</script>
+
+</body>
+</html>

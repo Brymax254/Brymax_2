@@ -4,7 +4,7 @@ import os
 import dj_database_url  # pip install dj-database-url
 from dotenv import load_dotenv  # pip install python-dotenv
 from decouple import config
-import cloudinary
+
 from airport.utils import normalize_phone_number
 
 # ==============================
@@ -14,6 +14,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")  # Load .env for local dev
 LOGIN_URL = "bookings:driver_login"   # redirect for @login_required
 LOGOUT_REDIRECT_URL = "bookings:home"
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
 
 # ==============================
 # SECURITY
@@ -42,21 +44,13 @@ INSTALLED_APPS = [
     "rest_framework",
 
     # Third-party apps
-    "cloudinary",
-    "cloudinary_storage",
+
     "admin_tools",
     "admin_tools.dashboard",
     "admin_tools.theming",
     "admin_tools.menu",
     "plotly",
 ]
-
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
-}
-#DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ==============================
 # MIDDLEWARE
@@ -157,15 +151,6 @@ SITE_URL = config("SITE_URL", default="https://brymax.xyz")
 PAYSTACK_CALLBACK_URL = f"{SITE_URL}/paystack/callback/"
 PAYSTACK_WEBHOOK_URL = f"{SITE_URL}/paystack/webhook/"
 
-# ==============================
-# CLOUDINARY CONFIGURATION
-# ==============================
-cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
-    secure=True,
-)
 
 # ==============================
 # EMAIL CONFIGURATION
