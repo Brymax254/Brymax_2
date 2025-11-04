@@ -1042,8 +1042,7 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
 
   const throttle = (func, limit) => {
     let inThrottle;
-    return function() {
-      const args = arguments;
+    return function(...args) {
       const context = this;
       if (!inThrottle) {
         func.apply(context, args);
@@ -1096,7 +1095,7 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
             if (src) {
               img.src = src;
               img.removeAttribute('data-src');
-              observer.unobserve(img);
+              try { observer.unobserve(img); } catch(e) {}
             }
           }
         });
@@ -1109,7 +1108,6 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
 
   // Initialize when DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
-    // Setup image observer for lazy loading
     setupImageObserver();
 
     // DOM elements
@@ -1145,65 +1143,50 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
     const API_ENDPOINT = '/api/vehicles/';
     const API_TIMEOUT = 8000; // 8 seconds
 
-    // Mobile menu functionality
+    // Mobile menu
     function openMobileMenu() {
+      if (!mobileMenu || !mobileMenuOverlay) return;
       mobileMenu.classList.add('active');
       mobileMenuOverlay.classList.add('active');
+      mobileMenuBtn && mobileMenuBtn.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
     }
-
     function closeMobileMenu() {
+      if (!mobileMenu || !mobileMenuOverlay) return;
       mobileMenu.classList.remove('active');
       mobileMenuOverlay.classList.remove('active');
+      mobileMenuBtn && mobileMenuBtn.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
     }
-
     if (mobileMenuBtn) {
       mobileMenuBtn.addEventListener('click', openMobileMenu);
+      mobileMenuBtn.setAttribute('aria-controls', mobileMenu ? mobileMenu.id || 'mobileMenu' : '');
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
     }
+    if (mobileMenuClose) mobileMenuClose.addEventListener('click', closeMobileMenu);
+    if (mobileMenuOverlay) mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    qa('.mobile-menu-nav a').forEach(link => link.addEventListener('click', closeMobileMenu));
 
-    if (mobileMenuClose) {
-      mobileMenuClose.addEventListener('click', closeMobileMenu);
-    }
-
-    if (mobileMenuOverlay) {
-      mobileMenuOverlay.addEventListener('click', closeMobileMenu);
-    }
-
-    // Close mobile menu when clicking on nav links
-    qa('.mobile-menu-nav a').forEach(link => {
-      link.addEventListener('click', () => {
-        closeMobileMenu();
-      });
-    });
-
-    // Header scroll effect with throttling for performance
+    // Header scroll effect
     const handleScroll = throttle(() => {
-      if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
+      if (!header) return;
+      if (window.scrollY > 50) header.classList.add('scrolled'); else header.classList.remove('scrolled');
     }, 100);
-
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Quick booking bar functionality
+    // Quick booking transfer
     if (quickBook) {
       quickBook.addEventListener('click', () => {
-        // Transfer quick booking values to main form
-        if (quickService.value) q('#service').value = quickService.value;
-        if (quickDate.value) q('#date').value = quickDate.value;
-        if (quickTime.value) q('#time').value = quickTime.value;
-        if (quickPickup.value) q('#pickup').value = quickPickup.value;
-        if (quickDropoff.value) q('#dropoff').value = quickDropoff.value;
-
-        // Scroll to booking form
-        bookingSection.scrollIntoView({ behavior: 'smooth' });
+        if (quickService && q('#service')) q('#service').value = quickService.value || q('#service').value;
+        if (quickDate && q('#date')) q('#date').value = quickDate.value || q('#date').value;
+        if (quickTime && q('#time')) q('#time').value = quickTime.value || q('#time').value;
+        if (quickPickup && q('#pickup')) q('#pickup').value = quickPickup.value || q('#pickup').value;
+        if (quickDropoff && q('#dropoff')) q('#dropoff').value = quickDropoff.value || q('#dropoff').value;
+        bookingSection && bookingSection.scrollIntoView({ behavior: 'smooth' });
       });
     }
 
-    // UI element creators with document fragments for better performance
+    // UI creators
     function createLoadingEl() {
       const wrapper = document.createElement('div');
       wrapper.className = 'loading';
@@ -1211,7 +1194,6 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       wrapper.innerHTML = '<div class="spinner" aria-hidden="true"></div><span class="visually-hidden">Loading vehicles…</span>';
       return wrapper;
     }
-
     function createErrorEl(message = 'Failed to load vehicles.') {
       const el = document.createElement('div');
       el.className = 'vehicle-error';
@@ -1219,7 +1201,6 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       el.innerHTML = `<p>${escapeHtml(message)}</p><button type="button" class="btn btn-primary" id="retryLoadVehicles">Retry</button>`;
       return el;
     }
-
     function createEmptyEl() {
       const el = document.createElement('div');
       el.className = 'vehicle-empty';
@@ -1235,6 +1216,10 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
         c.setAttribute('aria-selected', isSelected ? 'true' : 'false');
         c.classList.toggle('selected', isSelected);
       });
+      if (vehicleGrid) {
+        if (id) vehicleGrid.setAttribute('aria-activedescendant', `vehicle-${String(id)}`);
+        else vehicleGrid.removeAttribute('aria-activedescendant');
+      }
     }
 
     function focusCardAt(index) {
@@ -1245,9 +1230,10 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       focusedIndex = index;
       const el = cards[index];
       if (el && typeof el.focus === 'function') el.focus();
+      if (el && el.dataset && el.dataset.vehicleId) vehicleGrid.setAttribute('aria-activedescendant', `vehicle-${el.dataset.vehicleId}`);
     }
 
-    // Build card with lazy loading for images
+    // Build card
     function buildVehicleCard(vehicle) {
       const id = vehicle.id ?? '';
       const make = vehicle.make ?? vehicle.name ?? 'Unknown';
@@ -1264,17 +1250,16 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       btn.setAttribute('aria-selected', 'false');
       btn.dataset.vehicleId = String(id);
       btn.tabIndex = 0;
+      btn.id = `vehicle-${String(id)}`;
 
-      // Image with lazy loading
       const hasImage = !!(vehicle.image_url || vehicle.image);
+      const imageSrc = escapeHtml(vehicle.image_url || vehicle.image || '');
       const imageHtml = hasImage
-        ? `<img data-src="${escapeHtml(vehicle.image_url || vehicle.image)}" alt="${escapeHtml(make + (model ? ' ' + model : ''))}" class="vehicle-image" loading="lazy">`
+        ? `<img data-src="${imageSrc}" alt="${escapeHtml(make + (model ? ' ' + model : ''))}" class="vehicle-image" loading="lazy">`
         : `<div class="vehicle-no-image" aria-hidden="true">Car image will be available soon</div>`;
 
       btn.innerHTML = `
-        <div class="vehicle-image-container">
-          ${imageHtml}
-        </div>
+        <div class="vehicle-image-container">${imageHtml}</div>
         <div class="vehicle-content">
           <div class="vehicle-header">
             <div class="vehicle-meta-left">
@@ -1284,31 +1269,24 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
             <div class="vehicle-price">${escapeHtml(String(price))}</div>
           </div>
           <div class="vehicle-specs">
-            <div class="vehicle-spec">
-              <i class="fas fa-users"></i> ${escapeHtml(String(capacity))} Seats
-            </div>
+            <div class="vehicle-spec"><i class="fas fa-users" aria-hidden="true"></i> ${escapeHtml(String(capacity))} Seats</div>
             ${plate ? `<div class="vehicle-spec">Plate: ${escapeHtml(plate)}</div>` : ''}
           </div>
         </div>
       `;
 
-      // Setup lazy loading for image
       const img = btn.querySelector('img[data-src]');
-      if (img && imageObserver) {
-        imageObserver.observe(img);
-      }
-
-      // Image error handling
+      if (img && imageObserver) imageObserver.observe(img);
       if (img) {
         img.addEventListener('error', () => {
           const container = btn.querySelector('.vehicle-image-container');
           if (container) {
+            try { imageObserver && imageObserver.unobserve(img); } catch(e) {}
             container.innerHTML = `<div class="vehicle-no-image" aria-hidden="true">Car image will be available soon</div>`;
           }
         });
       }
 
-      // Event listeners
       btn.addEventListener('click', () => setSelectedById(id));
 
       btn.addEventListener('keydown', (e) => {
@@ -1330,12 +1308,9 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       return btn;
     }
 
-    // Render grid with document fragment for better performance
+    // Render grid
     function renderVehicleGrid(list) {
-      // Clear existing content
-      while (vehicleGrid.firstChild) {
-        vehicleGrid.removeChild(vehicleGrid.firstChild);
-      }
+      while (vehicleGrid.firstChild) vehicleGrid.removeChild(vehicleGrid.firstChild);
 
       vehicleGrid.setAttribute('role', 'listbox');
       vehicleGrid.setAttribute('aria-label', 'Available vehicles');
@@ -1344,59 +1319,44 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       if (!Array.isArray(list) || list.length === 0) {
         vehicleGrid.appendChild(createEmptyEl());
         selectedInput.value = '';
+        vehicleGrid.removeAttribute('aria-activedescendant');
         return;
       }
 
-      // Use document fragment for better performance
       const fragment = document.createDocumentFragment();
       list.forEach((v) => fragment.appendChild(buildVehicleCard(v)));
       vehicleGrid.appendChild(fragment);
 
-      // Auto-select first if nothing selected
-      if (!selectedInput.value && list.length) {
-        setSelectedById(list[0].id);
-      }
+      if (!selectedInput.value && list.length) setSelectedById(list[0].id);
     }
 
     // Loading / error UI
     function showLoading() {
-      while (vehicleGrid.firstChild) {
-        vehicleGrid.removeChild(vehicleGrid.firstChild);
-      }
+      while (vehicleGrid.firstChild) vehicleGrid.removeChild(vehicleGrid.firstChild);
       vehicleGrid.appendChild(createLoadingEl());
     }
 
     function showError(message) {
-      while (vehicleGrid.firstChild) {
-        vehicleGrid.removeChild(vehicleGrid.firstChild);
-      }
+      while (vehicleGrid.firstChild) vehicleGrid.removeChild(vehicleGrid.firstChild);
       const el = createErrorEl(message);
       vehicleGrid.appendChild(el);
-      const retryBtn = q('#retryLoadVehicles');
+      const retryBtn = el.querySelector('#retryLoadVehicles');
       if (retryBtn) {
         retryBtn.addEventListener('click', () => {
-          try {
-            loadVehicles();
-          } catch (err) {
-            console.error('Error reloading vehicles:', err);
-            showError('Failed to reload vehicles. Please try again later.');
-          }
-        });
+          try { loadVehicles(); } catch (err) { console.error('Error reloading vehicles:', err); showError('Failed to reload vehicles. Please try again later.'); }
+        }, { once: true });
       }
     }
 
-    // Fetch vehicles from backend API with caching
+    // Fetch vehicles with AbortController + caching
     async function loadVehicles() {
-      // Check if already loading
       if (isLoading) return;
       isLoading = true;
 
-      // Cancel any previous request
       if (currentRequestToken) currentRequestToken.cancelled = true;
       const token = { cancelled: false };
       currentRequestToken = token;
 
-      // Check cache first
       const cachedData = vehicleCache.get();
       if (cachedData) {
         vehicles = cachedData;
@@ -1408,46 +1368,30 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       showLoading();
 
       try {
-        // Create AbortController for timeout
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
         const response = await fetch(API_ENDPOINT, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            // Add any authentication headers if needed
-            // 'Authorization': 'Bearer your_token_here'
-          },
-          signal: controller.signal
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          credentials: 'same-origin'
         });
 
         clearTimeout(timeoutId);
-
         if (token.cancelled) return;
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
-
         if (token.cancelled) return;
 
-        // Handle different response formats
         let vehiclesData = [];
-        if (Array.isArray(data)) {
-          vehiclesData = data;
-        } else if (data && data.data && Array.isArray(data.data)) {
-          vehiclesData = data.data;
-        } else if (data && data.results && Array.isArray(data.results)) {
-          vehiclesData = data.results;
-        } else {
-          console.error('Unexpected API response format:', data);
-          throw new Error('Invalid response format from API');
-        }
+        if (Array.isArray(data)) vehiclesData = data;
+        else if (data && data.data && Array.isArray(data.data)) vehiclesData = data.data;
+        else if (data && data.results && Array.isArray(data.results)) vehiclesData = data.results;
+        else { console.error('Unexpected API response format:', data); throw new Error('Invalid response format from API'); }
 
-        // Ensure each vehicle has required fields
         vehicles = vehiclesData.map(vehicle => ({
           id: vehicle.id || Math.random().toString(36).substr(2, 9),
           name: vehicle.name || `${vehicle.make || 'Unknown'} ${vehicle.model || 'Model'}`,
@@ -1458,32 +1402,23 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
           license_plate: vehicle.license_plate || '',
           image_url: vehicle.image_url || vehicle.image || null,
           price: vehicle.price || '$45',
-          // Include any additional fields from your API
           ...vehicle
         }));
 
-        // Cache the data
         vehicleCache.set(vehicles);
-
-        // Render vehicles
         renderVehicleGrid(vehicles);
       } catch (error) {
         console.error('Error fetching vehicles:', error);
         if (token.cancelled) return;
-
-        // Show error message with retry option
-        if (error.name === 'AbortError') {
-          showError('Request timed out. Please check your connection and try again.');
-        } else {
-          showError(`Failed to load vehicles: ${error.message}. Please try again.`);
-        }
+        if (error.name === 'AbortError') showError('Request timed out. Please check your connection and try again.');
+        else showError(`Failed to load vehicles: ${error.message}. Please try again.`);
       } finally {
         if (currentRequestToken === token) currentRequestToken = null;
         isLoading = false;
       }
     }
 
-    // Keyboard navigation when grid has focus
+    // Keyboard navigation on grid
     vehicleGrid.addEventListener('keydown', (e) => {
       const cards = qa('.vehicle-card', vehicleGrid);
       if (!cards.length) return;
@@ -1496,14 +1431,13 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       }
     });
 
-    // Reflect external changes to selectedInput
+    // External changes to selectedInput
     selectedInput.addEventListener('change', () => setSelectedById(selectedInput.value));
 
-    // Form submit validation: ensure a vehicle selected and phone format
+    // Enclosing form safeguard
     const enclosingForm = bookingForm || vehicleGrid.closest('form');
     if (enclosingForm) {
       enclosingForm.addEventListener('submit', (e) => {
-        // If bookingForm is handled separately below, this is just a safeguard for other forms
         const sv = selectedInput.value;
         if (!sv) {
           e.preventDefault();
@@ -1518,16 +1452,13 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       });
     }
 
-    // Booking form submission flow: prepare summary and show WhatsApp modal
+    // Booking form submission: show WhatsApp modal and summary
     if (bookingForm) {
       bookingForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
         const selectedVehicleId = selectedInput.value;
-        if (!selectedVehicleId) {
-          alert('Please select a vehicle');
-          return;
-        }
+        if (!selectedVehicleId) { alert('Please select a vehicle'); return; }
 
         const phoneInput = q('#phone');
         const phonePattern = /^\+254\d{9}$/;
@@ -1559,12 +1490,7 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       });
     }
 
-    // WhatsApp modal actions
-    const whatsappSend = q('#whatsappSend');
-    const whatsappCancel = q('#whatsappCancel');
-    const whatsappModalClose = q('#whatsappModalClose');
-
-    // Function to handle WhatsApp send
+    // WhatsApp modal actions (final part)
     function handleWhatsAppSend() {
       if (!bookingForm) return;
       try {
@@ -1606,40 +1532,22 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       }
     }
 
-    // Function to close WhatsApp modal
-    function closeWhatsAppModal() {
-      if (whatsappModal) whatsappModal.classList.remove('active');
-    }
+    function closeWhatsAppModal() { if (whatsappModal) whatsappModal.classList.remove('active'); }
+    function closeSuccessModal() { if (successModal) successModal.classList.remove('active'); }
 
-    // Function to close success modal
-    function closeSuccessModal() {
-      if (successModal) successModal.classList.remove('active');
-    }
+    const whatsappSend = q('#whatsappSend');
+    const whatsappCancel = q('#whatsappCancel');
+    const whatsappModalClose = q('#whatsappModalClose');
 
-    // Add event listeners to WhatsApp modal buttons
-    if (whatsappSend) {
-      whatsappSend.addEventListener('click', handleWhatsAppSend);
-    }
+    if (whatsappSend) whatsappSend.addEventListener('click', handleWhatsAppSend);
+    if (whatsappCancel) whatsappCancel.addEventListener('click', closeWhatsAppModal);
+    if (whatsappModalClose) whatsappModalClose.addEventListener('click', closeWhatsAppModal);
 
-    if (whatsappCancel) {
-      whatsappCancel.addEventListener('click', closeWhatsAppModal);
-    }
-
-    if (whatsappModalClose) {
-      whatsappModalClose.addEventListener('click', closeWhatsAppModal);
-    }
-
-    // Success modal buttons
     const successClose = q('#successClose');
     const successModalCloseBtn = q('#successModalClose');
 
-    if (successClose) {
-      successClose.addEventListener('click', closeSuccessModal);
-    }
-
-    if (successModalCloseBtn) {
-      successModalCloseBtn.addEventListener('click', closeSuccessModal);
-    }
+    if (successClose) successClose.addEventListener('click', closeSuccessModal);
+    if (successModalCloseBtn) successModalCloseBtn.addEventListener('click', closeSuccessModal);
 
     // Close modals on outside click
     qa('.modal').forEach(modal => {
@@ -1648,40 +1556,30 @@ footer{ background:var(--gradient-primary); color:var(--surface); padding: clamp
       });
     });
 
-    // Smooth anchor scrolling with performance optimization
+    // Smooth anchor scrolling
     const handleAnchorClick = (e) => {
       const href = e.currentTarget.getAttribute('href');
       if (!href || href === '#') return;
       e.preventDefault();
       const target = q(href);
-      if (target) {
-        // Use requestAnimationFrame for smoother scrolling
-        requestAnimationFrame(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      }
+      if (target) requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }));
     };
-
-    qa('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', handleAnchorClick);
-    });
-
-    // Start loading vehicles
-    loadVehicles();
+    qa('a[href^="#"]').forEach(anchor => anchor.addEventListener('click', handleAnchorClick));
 
     // Public API for debugging
     window.vehicleWidget = {
-      reload: () => {
-        vehicleCache.clear();
-        return loadVehicles();
-      },
+      reload: () => { vehicleCache.clear(); return loadVehicles(); },
       getVehicles: () => vehicles.slice(),
       select: (id) => setSelectedById(id),
       clearCache: () => vehicleCache.clear()
     };
-  });
+
+    // Start
+    loadVehicles();
+  }); // DOMContentLoaded end
 })();
 </script>
+
 
 </body>
 </html>
