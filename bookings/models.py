@@ -946,7 +946,11 @@ class Tour(TimeStampedModel):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("bookings:tour_detail", kwargs={"tour_slug": self.slug})
+        # Only generate URL if slug exists
+        if self.slug:
+            return reverse("bookings:tour_detail", kwargs={"tour_slug": self.slug})
+        # Return a fallback URL if slug is empty
+        return reverse("admin:bookings_tour_change", args=[self.pk]) if self.pk else "#"
 
     def get_image_src(self):
         """Return Cloudinary image URL if available, else fallback to image_url."""
