@@ -1111,12 +1111,21 @@ def driver_dashboard(request):
     vehicle_status = None
     if hasattr(driver, "vehicle") and driver.vehicle:
         vehicle = driver.vehicle
+        # Use a fallback for missing fields
+        status = getattr(vehicle, "available", None)
+        if status is True:
+            status_text = "Available"
+        elif status is False:
+            status_text = "Unavailable"
+        else:
+            status_text = "Unknown"
+
         vehicle_status = {
             "name": f"{vehicle.make} {vehicle.model}",
-            "plate": vehicle.license_plate,
-            "status": vehicle.status,
-            "next_maintenance": vehicle.next_maintenance_date,
-            "maintenance_due": vehicle.next_maintenance_date
+            "plate": getattr(vehicle, "license_plate", "N/A"),
+            "status": status_text,
+            "next_maintenance": getattr(vehicle, "next_maintenance_date", None),
+            "maintenance_due": getattr(vehicle, "next_maintenance_date", None)
                                and vehicle.next_maintenance_date <= today + timedelta(days=7),
         }
 
@@ -2137,3 +2146,19 @@ def vehicle_list(request):
     vehicles = Vehicle.objects.filter(is_active=True)
     serializer = VehicleSerializer(vehicles, many=True, context={'request': request})
     return Response(serializer.data)
+
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from .models import Driver
+
+def driver_action(request, driver_id):
+    """Toggle a driver's active status from the admin button."""
+    driver = get_object_or_404(Driver, id=driver_id)
+    driver.is_active = not driver.is_active
+    driver.save()
+    messages.success(
+        request,
+        f"Driver '{driver.name}' status changed to {'Active' if driver.is_active else 'Inactive'}."
+    )
+    return redirect("/admin/bookings/driver/")
