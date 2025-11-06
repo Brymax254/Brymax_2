@@ -27,5 +27,5 @@ urlpatterns = [
 # ===============================
 # 📸 Serve Uploaded Media in Development
 # ===============================
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Always serve media files (even when DEBUG=False)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
