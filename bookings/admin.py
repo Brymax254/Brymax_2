@@ -359,23 +359,29 @@ class DriverAdmin(admin.ModelAdmin):
         self.message_user(request, f"📩 Verification reminders sent to {count} drivers.", messages.INFO)
 
     send_verification_reminder.short_description = "Send verification reminder"
-
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'license_plate', 'vehicle_type', 'fuel_type', 'capacity', 'is_active',
-                    'documents_status_badge')
+    list_display = (
+        'full_name', 'license_plate', 'vehicle_type', 'fuel_type',
+        'capacity', 'is_active', 'documents_status_badge', 'image_preview'
+    )
     list_filter = ('vehicle_type', 'fuel_type', 'is_active')
     search_fields = ('make', 'model', 'license_plate')
-    readonly_fields = ('vehicle_age', 'documents_valid', 'insurance_status', 'inspection_status',
-                       'documents_status_badge')
+    readonly_fields = (
+        'vehicle_age', 'documents_valid', 'insurance_status', 'inspection_status',
+        'documents_status_badge', 'image_preview'
+    )
     actions = ['activate_vehicles', 'deactivate_vehicles', 'send_inspection_reminder']
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('make', 'model', 'year', 'color', 'license_plate', 'vehicle_type', 'fuel_type', 'capacity')
+            'fields': (
+                'make', 'model', 'year', 'color',
+                'license_plate', 'vehicle_type', 'fuel_type', 'capacity'
+            )
         }),
         ('Images', {
-            'fields': ('image', 'external_image_url', 'image_url')
+            'fields': ('image', 'external_image_url', 'image_preview'),  # ✅ replaced image_url with preview
         }),
         ('Features', {
             'fields': ('features', 'accessibility_features')
@@ -394,9 +400,33 @@ class VehicleAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
     inlines = [TripInline]
 
+    # ==========================
+    # 🖼️ Image Preview
+    # ==========================
+    def image_preview(self, obj):
+        """Display a small preview of the uploaded image or external image URL."""
+        if getattr(obj, 'image', None):
+            return format_html(
+                '<img src="{}" style="max-height:150px; border-radius:10px; box-shadow:0 2px 4px rgba(0,0,0,0.3);" />',
+                obj.image.url
+            )
+        elif getattr(obj, 'external_image_url', None):
+            return format_html(
+                '<img src="{}" style="max-height:150px; border-radius:10px; opacity:0.9;" />',
+                obj.external_image_url
+            )
+        return format_html('<span style="color:gray;">No image available</span>')
+
+    image_preview.short_description = "Image Preview"
+
+    # ==========================
+    # 📄 Document Badge
+    # ==========================
     def documents_status_badge(self, obj):
+        """Show colored badge based on document validity."""
         if not obj.insurance_expiry or not obj.inspection_expiry:
             return format_html('<span style="color: orange;">Unknown</span>')
 
@@ -411,7 +441,9 @@ class VehicleAdmin(admin.ModelAdmin):
 
     documents_status_badge.short_description = 'Documents Status'
 
-    # Custom actions
+    # ==========================
+    # ⚙️ Custom Actions
+    # ==========================
     def activate_vehicles(self, request, queryset):
         count = queryset.update(is_active=True)
         self.message_user(request, f"{count} vehicles have been activated.", messages.SUCCESS)
