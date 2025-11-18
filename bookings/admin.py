@@ -1,6 +1,7 @@
+# bookings/admin.py
+from django.urls import reverse, path
 from django.contrib import admin, messages
 from django.utils.html import format_html
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.db.models import Count, Sum, Avg, Q
 from django.utils import timezone
@@ -310,7 +311,7 @@ class DriverAdmin(admin.ModelAdmin):
 
     def driver_actions(self, obj):
         """Add Verify/Unverify buttons in admin list."""
-        url = reverse('bookings:driver_action', args=[obj.pk])
+        url = reverse('admin:driver_action', args=[obj.pk])
         if not obj.is_verified:
             return format_html(
                 '<a class="button" style="background:#28a745;color:white;padding:5px 10px;'
@@ -941,22 +942,8 @@ admin.site.index_title = "Welcome to Safari Bookings Administration"
 # CUSTOM ADMIN VIEWS
 # =============================================================================
 
-from django.urls import path
-from django.contrib import admin
-
-
-class CustomAdminSite(admin.AdminSite):
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('driver/<int:driver_id>/action/', self.admin_view(driver_action_view), name='driver_action'),
-            path('booking/<int:booking_id>/action/', self.admin_view(booking_action_view), name='booking_action'),
-            path('trip/<int:trip_id>/action/', self.admin_view(trip_action_view), name='trip_action'),
-            path('payment/<int:payment_id>/action/', self.admin_view(payment_action_view), name='payment_action'),
-            path('dashboard/', self.admin_view(dashboard_view), name='dashboard'),
-        ]
-        return custom_urls + urls
-
+# These views handle the custom actions from the inline admin forms.
+# They are now registered with the default admin site.
 
 def driver_action_view(request, driver_id):
     driver = Driver.objects.get(pk=driver_id)
@@ -1060,3 +1047,30 @@ def dashboard_view(request):
     }
 
     return render(request, 'admin/dashboard.html', context)
+
+
+# =============================================================================
+# REGISTER CUSTOM ADMIN URLS WITH THE DEFAULT ADMIN SITE
+# =============================================================================
+
+# This is the fix: We override the get_urls method to inject our custom admin URLs.
+# This makes them available to the default admin site, resolving the NoReverseMatch error.
+
+def get_admin_urls(urls):
+    def get_urls():
+        # Define your custom admin URLs here.
+        # The names must match what is used in reverse() calls (e.g., 'admin:booking_action').
+        custom_urls = [
+            path('driver/<int:driver_id>/action/', admin.site.admin_view(driver_action_view), name='driver_action'),
+            path('booking/<int:booking_id>/action/', admin.site.admin_view(booking_action_view), name='booking_action'),
+            path('trip/<int:trip_id>/action/', admin.site.admin_view(trip_action_view), name='trip_action'),
+            path('payment/<int:payment_id>/action/', admin.site.admin_view(payment_action_view), name='payment_action'),
+            path('dashboard/', admin.site.admin_view(dashboard_view), name='dashboard'),
+        ]
+        # Add your custom URLs to the original admin URLs
+        return custom_urls + urls
+
+    return get_urls
+
+# Apply the override to the default admin site
+admin.site.get_urls = get_admin_urls(admin.site.get_urls())

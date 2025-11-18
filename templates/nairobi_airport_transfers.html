@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Nairobi Airport Transfers - fast booking, vehicle selection and WhatsApp confirmation">
+  <meta name="description" content="Airport Transfers & Destinations - fast booking, vehicle selection and WhatsApp confirmation">
   <meta name="whatsapp-number" content="254723229651">
-  <title>Nairobi Airport Transfers</title>
+  <title> Airport Transfers & Destinations </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 /* ===== CSS CUSTOM PROPERTIES ===== */
 :root {
@@ -137,46 +138,64 @@ body {
   width: 100%;
 }
 
-/* Header */
+/* ===============================
+   🧭 HEADER (Modern Glass Design)
+================================== */
+
 header {
   position: sticky;
   top: 0;
-  height: var(--header-height);
   z-index: var(--z-sticky);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(250, 251, 255, 0.9));
-  backdrop-filter: saturate(180%) blur(10px);
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  height: var(--header-height);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
   border-bottom: 1px solid rgba(8, 20, 40, 0.08);
-  transition: background-color var(--trans-base);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  transition: background-color var(--trans-base), box-shadow var(--trans-fast);
 }
 
-.header-inner {
+header.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.header-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
   height: 100%;
+  padding: 0 var(--space-lg);
 }
 
+/* ===== BRAND / LOGO ===== */
 .brand {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   font-weight: 700;
-  color: var(--text);
+  font-size: var(--text-lg);
+  color: var(--navy);
   text-decoration: none;
+  letter-spacing: -0.2px;
 }
 
-.brand:hover {
+.brand i {
+  font-size: 1.4em;
   color: var(--navy);
 }
 
-.brand h1 {
-  font-size: var(--text-lg);
-  font-weight: 700;
+.brand:hover,
+.brand:focus {
+  color: var(--navy);
+  text-decoration: none;
+  transform: translateY(-1px);
+  transition: all var(--trans-fast);
 }
 
-.menu-btn {
+/* ===== MENU BUTTON ===== */
+.mobile-menu-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,28 +204,130 @@ header {
   padding: var(--space-sm);
   border-radius: var(--radius);
   cursor: pointer;
-  font-size: var(--text-lg);
+  font-size: 1.25rem;
   color: var(--text);
   transition: all var(--trans-fast);
 }
 
-.menu-btn:hover,
-.menu-btn:focus {
+.mobile-menu-btn:hover,
+.mobile-menu-btn:focus {
   background: rgba(11, 95, 217, 0.05);
   border-color: var(--navy);
+  color: var(--navy);
 }
 
-.desktop-nav {
+/* ===== DESKTOP NAV ===== */
+.main-nav {
   display: none;
 }
 
-/* Main content area */
+@media (min-width: 992px) {
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  .main-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    list-style: none;
+  }
+
+  .main-nav a {
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--trans-fast);
+    position: relative;
+    padding: var(--space-sm) 0;
+  }
+
+  .main-nav a:hover {
+    color: var(--navy);
+  }
+
+  .main-nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: var(--navy);
+    transition: width var(--trans-fast);
+  }
+
+  .main-nav a:hover::after {
+    width: 100%;
+  }
+
+  .main-nav .btn {
+    background: linear-gradient(135deg, var(--navy), #084ac1);
+    color: white;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius);
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    transition: all var(--trans-fast);
+  }
+
+  .main-nav .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(11, 95, 217, 0.2);
+  }
+
+  .mobile-menu-btn {
+    display: none;
+  }
+}
+
+/* ===== SECONDARY NAV ===== */
+.secondary-nav {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .secondary-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-sm) 0;
+  }
+
+  .secondary-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    list-style: none;
+  }
+
+  .secondary-nav a {
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--trans-fast);
+    font-size: var(--text-sm);
+  }
+
+  .secondary-nav a:hover {
+    color: var(--navy);
+  }
+}
+
+/* ===== MAIN CONTENT ===== */
 main {
   padding: var(--space-lg) 0;
   min-height: calc(100vh - var(--header-height));
 }
 
-/* ===== MOBILE MENU ===== */
+/* ===============================
+   📱 MOBILE MENU
+================================== */
+
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -219,7 +340,7 @@ main {
   transition: transform var(--trans-base) cubic-bezier(0.23, 1, 0.32, 1);
   z-index: var(--z-modal);
   border-right: 1px solid rgba(8, 20, 40, 0.06);
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
 }
 
@@ -227,18 +348,26 @@ main {
   transform: translateX(0);
 }
 
+/* ===== MOBILE MENU HEADER ===== */
 .mobile-menu .menu-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md);
   border-bottom: 1px solid rgba(8, 20, 40, 0.04);
+  background: var(--panel);
   position: sticky;
   top: 0;
-  background: var(--panel);
-  z-index: 1;
+  z-index: 2;
 }
 
+.mobile-menu .menu-header h2 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ===== MOBILE NAVIGATION ===== */
 .mobile-nav {
   padding: var(--space-md);
 }
@@ -255,22 +384,26 @@ main {
 
 .mobile-nav a:hover,
 .mobile-nav a:focus {
-  background: rgba(11, 95, 217, 0.05);
+  background: rgba(11, 95, 217, 0.07);
   color: var(--navy);
 }
 
+/* ===== MOBILE MENU OVERLAY ===== */
 .mobile-menu-overlay {
   position: fixed;
   inset: 0;
   background: rgba(8, 20, 40, 0.4);
-  display: none;
-  z-index: var(--z-fixed);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--trans-base);
+  z-index: var(--z-fixed);
 }
 
 .mobile-menu-overlay.active {
-  display: block;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ===== HERO SECTION ===== */
@@ -354,6 +487,23 @@ main {
   display: inline-block;
   transition: all var(--trans-fast);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.hero-cta:hover::before {
+  left: 100%;
 }
 
 .hero-cta:hover,
@@ -397,9 +547,10 @@ main {
 /* ===== VEHICLE GRID ===== */
 #vehicleGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: var(--space-md);
   padding: var(--space-sm);
+  margin-bottom: var(--space-lg);
 }
 
 /* Vehicle Card */
@@ -603,6 +754,77 @@ main {
   gap: var(--space-lg);
 }
 
+/* ===== STEP INDICATOR ===== */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+  position: relative;
+}
+
+.step-indicator::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(8, 20, 40, 0.1);
+  z-index: 1;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.step-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid rgba(8, 20, 40, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-sm);
+  transition: all var(--trans-fast);
+}
+
+.step.active .step-number {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: white;
+}
+
+.step.completed .step-number {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+.step-label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  text-align: center;
+  max-width: 100px;
+}
+
+.step.active .step-label {
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.step.completed .step-label {
+  color: var(--success);
+}
+
+/* ===== FORM SECTIONS ===== */
 .form-section {
   background: rgba(255, 255, 255, 0.8);
   border-radius: var(--radius-lg);
@@ -710,10 +932,14 @@ main {
   border-radius: var(--radius-lg);
   padding: var(--space-md);
   margin-bottom: var(--space-md);
-  display: flex;
+  display: none;
   align-items: center;
   gap: var(--space-md);
   transition: all var(--trans-fast);
+}
+
+.selected-vehicle.active {
+  display: flex;
 }
 
 .selected-vehicle:hover {
@@ -1204,6 +1430,10 @@ footer {
   .form-section {
     padding: var(--space-md);
   }
+
+  .step-label {
+    font-size: 10px;
+  }
 }
 
 /* Print styles */
@@ -1229,23 +1459,44 @@ footer {
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
 
+  <!-- =======================
+       🌍 Global Header
+  ======================= -->
   <header id="header">
-    <div class="container header-inner">
+    <div class="header-container">
+      <!-- ===== Brand / Logo ===== -->
       <div class="brand">
-        <button id="mobileMenuBtn" class="menu-btn" aria-controls="mobileMenu" aria-expanded="false" aria-label="Open menu">☰</button>
-        <div>
-          <h1>Nairobi Airport Transfers</h1>
-          <div class="kicker">Professional airport transfers and taxis</div>
-        </div>
+        <a href="/" class="brand-link" aria-label="Home">
+          <i class="fas fa-globe-africa" class="btn" aria-hidden="true"></i>
+          <span>Airport & Destinations</span>
+        </a>
       </div>
 
-      <nav class="desktop-nav" aria-label="Main navigation">
-        <a href="#booking" class="kicker" style="text-decoration:none;color:var(--navy);font-weight:600">Book transfer</a>
-        <a href="#vehicles">Vehicles</a>
-        <a href="#info">Why Us</a>
-        <a href="#contact">Contact</a>
+      <!-- ===== Primary Navigation ===== -->
+      <nav class="main-nav" id="mainNav" class="btn" aria-label="Primary Navigation">
+        <ul>
+          <li><a href="/" aria-label="Home"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="/tours-and-safaris/" class="btn" aria-label="Tours & Safaris"><i class="fas fa-binoculars"></i> Tours & Safaris</a></li>
+          <li><a href="/nairobi-airport-transfers-and-taxis/" class="btn" aria-label="Airport Transfers"><i class="fas fa-plane-arrival"></i> Airport Transfers</a></li>
+          <li><a href="/about/" class="btn" aria-label="About"><i class="fas fa-info-circle"></i> About</a></li>
+          <li><a href="/contact/" class="btn" aria-label="Contact"><i class="fas fa-envelope"></i> Contact</a></li>
+        </ul>
       </nav>
+
+      <!-- ===== Mobile Menu Button ===== -->
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mobileMenu">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
     </div>
+
+    <!-- ===== Secondary / Quick Links ===== -->
+    <nav class="secondary-nav" class="btn" aria-label="Quick Links">
+      <ul>
+        <li><a href="#booking" class="kicker" style="text-decoration:none;color:var(--navy);font-weight:600">Book Transfer</a></li>
+        <li><a href="#info">Why Us</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
   </header>
 
   <!-- Mobile menu -->
@@ -1256,7 +1507,6 @@ footer {
     </div>
     <nav class="mobile-nav" aria-label="Mobile navigation">
       <a href="#booking">Book Transfer</a>
-      <a href="#vehicles">Vehicles</a>
       <a href="#info">Why Us</a>
       <a href="#contact">Contact</a>
     </nav>
@@ -1276,54 +1526,61 @@ footer {
   </section>
 
   <main id="main" class="container">
-    <section id="vehicles" class="grid" aria-labelledby="vehiclesHeading">
-      <h2 id="vehiclesHeading">Available vehicles</h2>
-      <div id="vehicleGrid" role="listbox" aria-label="Available vehicles" tabindex="0"></div>
-    </section>
-
-    <section id="info" class="info-section" aria-labelledby="infoHeading">
-      <h2 id="infoHeading" class="text-center">Why Choose Nairobi Airport Transfers</h2>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-icon">✈️</div>
-          <h3>Flight Tracking</h3>
-          <p>We monitor your flight in real-time to ensure we're there when you arrive, even if your flight is early or delayed.</p>
-        </div>
-        <div class="info-card">
-          <div class="info-icon">👨‍✈️</div>
-          <h3>Professional Drivers</h3>
-          <p>Our experienced drivers are courteous, knowledgeable about Nairobi, and committed to your safety and comfort.</p>
-        </div>
-        <div class="info-card">
-          <div class="info-icon">💺</div>
-          <h3>Comfortable Vehicles</h3>
-          <p>Travel in style and comfort with our well-maintained fleet of modern vehicles equipped with air conditioning.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Modern Booking Card -->
+    <!-- Modern Booking Card with Vehicle Selection Inside -->
     <section id="booking" class="booking-container" aria-labelledby="bookingHeading">
       <div class="booking-header">
         <h2>Book Your Transfer</h2>
-        <p>Fill in your details and we'll confirm via WhatsApp</p>
+        <p>Select your vehicle and fill in your details for WhatsApp confirmation</p>
       </div>
 
       <div class="booking-body">
         <form id="bookingForm" class="booking-form" autocomplete="on" novalidate>
           <input type="hidden" id="selectedVehicle" name="vehicle_id" value="">
 
-          <!-- Selected Vehicle Display -->
-          <div id="selectedVehicleDisplay" class="selected-vehicle" style="display: none;">
-            <div class="selected-vehicle-icon">🚗</div>
-            <div class="selected-vehicle-info">
-              <div class="selected-vehicle-name" id="selectedVehicleName">No vehicle selected</div>
-              <div class="selected-vehicle-details" id="selectedVehicleDetails">Please select a vehicle above</div>
+          <!-- Step Indicator -->
+          <div class="step-indicator">
+            <div class="step active" id="step1">
+              <div class="step-number">1</div>
+              <div class="step-label">Select Vehicle</div>
+            </div>
+            <div class="step" id="step2">
+              <div class="step-number">2</div>
+              <div class="step-label">Trip Details</div>
+            </div>
+            <div class="step" id="step3">
+              <div class="step-number">3</div>
+              <div class="step-label">Contact Info</div>
+            </div>
+          </div>
+
+          <!-- Vehicle Selection Section -->
+          <div class="form-section" id="vehicleSection">
+            <div class="section-title">
+              <div class="section-icon">🚗</div>
+              Select Your Vehicle
+            </div>
+
+            <!-- Selected Vehicle Display -->
+            <div id="selectedVehicleDisplay" class="selected-vehicle">
+              <div class="selected-vehicle-icon">🚗</div>
+              <div class="selected-vehicle-info">
+                <div class="selected-vehicle-name" id="selectedVehicleName">No vehicle selected</div>
+                <div class="selected-vehicle-details" id="selectedVehicleDetails">Please select a vehicle below</div>
+              </div>
+            </div>
+
+            <div id="vehicleGrid" role="listbox" aria-label="Available vehicles" tabindex="0"></div>
+
+            <div style="text-align: center; margin-top: var(--space-lg);">
+              <button type="button" id="continueToDetails" class="btn btn-primary" disabled>
+                <span>→</span>
+                Continue to Trip Details
+              </button>
             </div>
           </div>
 
           <!-- Trip Details Section -->
-          <div class="form-section">
+          <div class="form-section" id="tripDetailsSection" style="display: none;">
             <div class="section-title">
               <div class="section-icon">📍</div>
               Trip Details
@@ -1342,7 +1599,8 @@ footer {
               </div>
               <div class="form-group">
                 <label class="form-label" for="date">
-                  <span class="label-icon">📅</span                  > Travel Date
+                  <span class="label-icon">📅</span>
+                  Travel Date
                 </label>
                 <input type="date" name="date" id="date" class="form-input" required>
               </div>
@@ -1363,14 +1621,6 @@ footer {
                 <input type="number" name="passengers" id="passengers" class="form-input" min="1" max="20" placeholder="How many passengers?" required>
               </div>
             </div>
-          </div>
-
-          <!-- Location Section -->
-          <div class="form-section">
-            <div class="section-title">
-              <div class="section-icon">🗺️</div>
-              Location Details
-            </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="pickup">
@@ -1387,10 +1637,21 @@ footer {
                 <input type="text" name="dropoff" id="dropoff" class="form-input" placeholder="Enter destination" required>
               </div>
             </div>
+
+            <div style="display: flex; gap: var(--space-md); margin-top: var(--space-lg);">
+              <button type="button" id="backToVehicle" class="btn btn-secondary">
+                <span>←</span>
+                Back to Vehicle Selection
+              </button>
+              <button type="button" id="continueToContact" class="btn btn-primary">
+                <span>→</span>
+                Continue to Contact
+              </button>
+            </div>
           </div>
 
           <!-- Contact Section -->
-          <div class="form-section">
+          <div class="form-section" id="contactSection" style="display: none;">
             <div class="section-title">
               <div class="section-icon">👤</div>
               Contact Information
@@ -1411,41 +1672,73 @@ footer {
                 <input type="tel" name="phone" id="phone" class="form-input" placeholder="+2547XXXXXXXX" pattern="^\+?254[0-9]{9}$" required>
               </div>
             </div>
-          </div>
 
-          <div class="booking-actions">
-            <button type="submit" class="btn btn-primary">
-              <span>📤</span>
-              Send Booking via WhatsApp
-            </button>
-            <button type="button" id="clearSelection" class="btn btn-secondary">
-              <span>🔄</span>
-              Clear Form
-            </button>
+            <div style="display: flex; gap: var(--space-md); margin-top: var(--space-lg);">
+              <button type="button" id="backToDetails" class="btn btn-secondary">
+                <span>←</span>
+                Back to Trip Details
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <span>📤</span>
+                Send Booking via WhatsApp
+              </button>
+            </div>
           </div>
         </form>
       </div>
     </section>
+
+    <section id="info" class="info-section" aria-labelledby="infoHeading">
+      <h2 id="infoHeading" class="text-center">Why Choose Airport Transfers</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">✈️</div>
+          <h3>Flight Tracking</h3>
+          <p>We monitor your flight in real-time to ensure we're there when you arrive, even if your flight is early or delayed.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">👨‍✈️</div>
+          <h3>Professional Drivers</h3>
+          <p>Our experienced drivers are courteous, knowledgeable about Nairobi, and committed to your safety and comfort.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">💺</div>
+          <h3>Comfortable Vehicles</h3>
+          <p>Travel in style and comfort with our well-maintained fleet of modern vehicles equipped with air conditioning.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer id="contact">
-    <div class="container">
-      <div class="footer-content">
-        <div>
-          <h3>Nairobi Airport Transfers</h3>
-          <p class="kicker">Professional airport transfers and taxis</p>
-        </div>
-        <div class="footer-links">
-          <a href="#vehicles">Vehicles</a>
-          <a href="#booking">Book Now</a>
-          <a href="#info">Why Us</a>
-        </div>
-        <a href="https://wa.me/254723229651" class="whatsapp-button" target="_blank" rel="noopener">
-          <span>💬</span> WhatsApp Us
-        </a>
-      </div>
+<footer id="contact" class="footer">
+  <div class="container">
+    <div class="footer-content">
+
+      <!-- WhatsApp Button -->
+      <a
+        href="https://wa.me/254723229651"
+        class="whatsapp-button"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Chat with us on WhatsApp"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12.04 2C6.49 2 2 6.45 2 11.97c0 2.1.57 4.09 1.66 5.84L2 22l4.35-1.62a10.03 10.03 0 0 0 5.7 1.7h.01c5.55 0 10.04-4.45 10.04-9.97C22.1 6.45 17.6 2 12.04 2zm.01 17.74h-.01a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-2.5.93.87-2.43-.2-.31a8.02 8.02 0 0 1-1.24-4.34c0-4.45 3.65-8.07 8.15-8.07 2.18 0 4.23.84 5.77 2.36a8.02 8.02 0 0 1 2.4 5.73c0 4.45-3.65 8.07-8.14 8.07zm4.52-5.9c-.25-.12-1.48-.73-1.7-.82-.23-.08-.4-.12-.57.13-.17.25-.65.82-.8.99-.15.17-.3.19-.55.06a6.65 6.65 0 0 1-1.96-1.21 7.34 7.34 0 0 1-1.36-1.68c-.14-.25 0-.38.1-.5.1-.1.23-.27.34-.41.1-.13.13-.23.2-.38.07-.15.03-.28-.01-.39-.04-.12-.57-1.38-.78-1.9-.2-.48-.4-.41-.57-.42h-.48c-.17 0-.39.06-.6.28s-.8.78-.8 1.9.83 2.2.95 2.35c.12.15 1.64 2.6 3.97 3.66.55.24.98.38 1.32.48.55.17 1.06.15 1.46.09.45-.07 1.38-.56 1.57-1.11.19-.55.19-1.02.13-1.12-.05-.1-.23-.16-.48-.28z"/>
+        </svg>
+        <span>WhatsApp Us</span>
+      </a>
     </div>
-  </footer>
+
+    <div class="footer-bottom">
+      <p>© <span id="year"></span> Airport Transfers. All rights reserved. BryTECHDEVLTD</p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</footer>
+
 
   <!-- WhatsApp confirmation modal -->
   <div id="whatsappModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="whatsappTitle">
@@ -1646,10 +1939,21 @@ footer {
       const mobileMenu=q('#mobileMenu');
       const mobileMenuClose=q('#mobileMenuClose');
       const mobileMenuOverlay=q('#mobileMenuOverlay');
-      const clearSelectionBtn=q('#clearSelection');
       const selectedVehicleDisplay=q('#selectedVehicleDisplay');
       const selectedVehicleName=q('#selectedVehicleName');
       const selectedVehicleDetails=q('#selectedVehicleDetails');
+
+      // Step elements
+      const step1=q('#step1');
+      const step2=q('#step2');
+      const step3=q('#step3');
+      const vehicleSection=q('#vehicleSection');
+      const tripDetailsSection=q('#tripDetailsSection');
+      const contactSection=q('#contactSection');
+      const continueToDetails=q('#continueToDetails');
+      const continueToContact=q('#continueToContact');
+      const backToVehicle=q('#backToVehicle');
+      const backToDetails=q('#backToDetails');
 
       if(!vehicleGrid||!selectedInput) return;
 
@@ -1665,6 +1969,38 @@ footer {
 
       // header scroll
       window.addEventListener('scroll',throttle(()=>{ header?.classList.toggle('scrolled', window.scrollY>50); },100),{passive:true});
+
+      // Step navigation
+      function showStep(stepNumber) {
+        // Hide all sections
+        vehicleSection.style.display = 'none';
+        tripDetailsSection.style.display = 'none';
+        contactSection.style.display = 'none';
+
+        // Reset all step indicators
+        step1.classList.remove('active', 'completed');
+        step2.classList.remove('active', 'completed');
+        step3.classList.remove('active', 'completed');
+
+        // Show the appropriate section and update step indicators
+        switch(stepNumber) {
+          case 1:
+            vehicleSection.style.display = 'block';
+            step1.classList.add('active');
+            break;
+          case 2:
+            tripDetailsSection.style.display = 'block';
+            step1.classList.add('completed');
+            step2.classList.add('active');
+            break;
+          case 3:
+            contactSection.style.display = 'block';
+            step1.classList.add('completed');
+            step2.classList.add('completed');
+            step3.classList.add('active');
+            break;
+        }
+      }
 
       // ui creators
       function createLoadingEl(){ const d=document.createElement('div'); d.className='loading'; d.innerHTML='<div class="spinner" aria-hidden="true"></div><div style="margin-top:8px">Loading vehicles…</div>'; return d; }
@@ -1684,12 +2020,17 @@ footer {
         if (id) {
           const vehicle = vehicles.find(v => String(v.id) === String(id));
           if (vehicle) {
-            selectedVehicleDisplay.style.display = 'flex';
+            selectedVehicleDisplay.classList.add('active');
             selectedVehicleName.textContent = `${vehicle.make || vehicle.name || 'Unknown'} ${vehicle.model || ''}`;
             selectedVehicleDetails.textContent = `${vehicle.capacity || vehicle.seats || '-'} seats • ${vehicle.price ? 'KSh ' + vehicle.price : 'Price on request'}`;
+
+            // Enable continue button
+            continueToDetails.disabled = false;
           }
         } else {
-          selectedVehicleDisplay.style.display = 'none';
+          selectedVehicleDisplay.classList.remove('active');
+          // Disable continue button
+          continueToDetails.disabled = true;
         }
 
         // Update hero when vehicle is selected
@@ -1709,7 +2050,7 @@ footer {
       }
 
       // render
-      function renderVehicleGrid(list){ vehicleGrid.replaceChildren(); if(!Array.isArray(list)||!list.length){ vehicleGrid.appendChild(createEmptyEl()); selectedInput.value=''; return; } const frag=document.createDocumentFragment(); for(const v of list) frag.appendChild(buildVehicleCard(v)); vehicleGrid.appendChild(frag); if(!selectedInput.value && list.length) setSelectedById(list[0].id); }
+      function renderVehicleGrid(list){ vehicleGrid.replaceChildren(); if(!Array.isArray(list)||!list.length){ vehicleGrid.appendChild(createEmptyEl()); selectedInput.value=''; return; } const frag=document.createDocumentFragment(); for(const v of list) frag.appendChild(buildVehicleCard(v)); vehicleGrid.appendChild(frag); }
 
       // fetch with caching + abort
       async function loadVehicles(){ if(isLoading) return; isLoading=true; const cached=vehicleCache.get(); if(cached){ vehicles=cached; renderVehicleGrid(vehicles); setupHeroSection(vehicles); isLoading=false; // background refresh but don't block UI
@@ -1739,27 +2080,171 @@ footer {
       // external changes
       selectedInput.addEventListener('change',()=>setSelectedById(selectedInput.value));
 
-      // booking form
-      if(bookingForm){ bookingForm.addEventListener('submit',(e)=>{ e.preventDefault(); const selectedVehicleId=selectedInput.value; if(!selectedVehicleId){ alert('Please select a vehicle'); return; } const phone=q('#phone'); const phonePattern=/^\+254\d{9}$/; if(!phone||!phonePattern.test(phone.value.trim())){ alert('Please enter a valid Kenyan phone number in the format +254XXXXXXXXX'); return; } const formData=new FormData(bookingForm); const vehicle=vehicles.find(v=>String(v.id)===String(selectedVehicleId))||{}; const summaryHtml=[`<strong>Service:</strong> ${escapeHtml(formData.get('service')||'')}`,`<strong>Date:</strong> ${escapeHtml(formData.get('date')||'')}`,`<strong>Time:</strong> ${escapeHtml(formData.get('time')||'')}`,`<strong>Pickup:</strong> ${escapeHtml(formData.get('pickup')||'')}`,`<strong>Drop-off:</strong> ${escapeHtml(formData.get('dropoff')||'')}`,`<strong>Passengers:</strong> ${escapeHtml(formData.get('passengers')||'')}`,`<strong>Vehicle:</strong> ${escapeHtml(vehicle.make||vehicle.name||'')} ${escapeHtml(vehicle.model||'')} - ${escapeHtml(String(vehicle.capacity||vehicle.seats||'—'))} Seats`,`<strong>Name:</strong> ${escapeHtml(formData.get('name')||'')}`,`<strong>Phone:</strong> ${escapeHtml(formData.get('phone')||'')}`].join('<br>'); bookingSummary.innerHTML=summaryHtml; whatsappModal.classList.add('active'); whatsappModal.setAttribute('aria-hidden','false'); }); }
+      // Step navigation event listeners
+      continueToDetails?.addEventListener('click', () => {
+        if (!selectedInput.value) {
+          alert('Please select a vehicle first');
+          return;
+        }
+        showStep(2);
+      });
 
-      function handleWhatsAppSend(){ try{ const formData=new FormData(bookingForm); const vehicle=vehicles.find(v=>String(v.id)===String(selectedInput.value))||{}; const lines=['*New Booking Request*','',`Service: ${formData.get('service')||''}`,`Date: ${formData.get('date')||''}`,`Time: ${formData.get('time')||''}`,`Pickup: ${formData.get('pickup')||''}`,`Drop-off: ${formData.get('dropoff')||''}`,`Passengers: ${formData.get('passengers')||''}`,`Vehicle: ${vehicle.make||vehicle.name||''} ${vehicle.model||''} - ${vehicle.capacity||vehicle.seats||''} Seats`,`Name: ${formData.get('name')||''}`,`Phone: ${formData.get('phone')||''}`,`Email: ${formData.get('email')||''}`,`Notes: ${formData.get('notes')||'None'}`]; const wa=`https://wa.me/254723229651?text=${encodeURIComponent(lines.join('\n'))}`; window.open(wa,'_blank','noopener'); whatsappModal.classList.remove('active'); whatsappModal.setAttribute('aria-hidden','true'); successModal.classList.add('active'); successModal.setAttribute('aria-hidden','false'); bookingForm.reset(); setSelectedById(null); setTimeout(()=>{ successModal.classList.remove('active'); successModal.setAttribute('aria-hidden','true'); }, 4500); }catch(e){ console.error(e); alert('Failed to open WhatsApp.'); } }
+      continueToContact?.addEventListener('click', () => {
+        // Validate trip details
+        const service = q('#service').value;
+        const date = q('#date').value;
+        const time = q('#time').value;
+        const passengers = q('#passengers').value;
+        const pickup = q('#pickup').value;
+        const dropoff = q('#dropoff').value;
+
+        if (!service || !date || !time || !passengers || !pickup || !dropoff) {
+          alert('Please fill in all trip details');
+          return;
+        }
+
+        showStep(3);
+      });
+
+      backToVehicle?.addEventListener('click', () => {
+        showStep(1);
+      });
+
+      backToDetails?.addEventListener('click', () => {
+        showStep(2);
+      });
+
+      // booking form
+      if(bookingForm){
+        bookingForm.addEventListener('submit',(e)=>{
+          e.preventDefault();
+
+          // Validate all steps
+          const selectedVehicleId=selectedInput.value;
+          if(!selectedVehicleId){
+            showStep(1);
+            alert('Please select a vehicle');
+            return;
+          }
+
+          const service=q('#service').value;
+          const date=q('#date').value;
+          const time=q('#time').value;
+          const passengers=q('#passengers').value;
+          const pickup=q('#pickup').value;
+          const dropoff=q('#dropoff').value;
+
+          if(!service || !date || !time || !passengers || !pickup || !dropoff){
+            showStep(2);
+            alert('Please fill in all trip details');
+            return;
+          }
+
+          const name=q('#name').value;
+          const phone=q('#phone').value;
+
+          if(!name || !phone){
+            showStep(3);
+            alert('Please provide your contact information');
+            return;
+          }
+
+          const phonePattern=/^\+254\d{9}$/;
+          if(!phonePattern.test(phone.trim())){
+            showStep(3);
+            alert('Please enter a valid Kenyan phone number in the format +254XXXXXXXXX');
+            return;
+          }
+
+          const formData=new FormData(bookingForm);
+          const vehicle=vehicles.find(v=>String(v.id)===String(selectedVehicleId))||{};
+          const summaryHtml=[
+            `<strong>Vehicle:</strong> ${escapeHtml(vehicle.make||vehicle.name||'')} ${escapeHtml(vehicle.model||'')} - ${escapeHtml(String(vehicle.capacity||vehicle.seats||'—'))} Seats`,
+            `<strong>Service:</strong> ${escapeHtml(formData.get('service')||'')}`,
+            `<strong>Date:</strong> ${escapeHtml(formData.get('date')||'')}`,
+            `<strong>Time:</strong> ${escapeHtml(formData.get('time')||'')}`,
+            `<strong>Pickup:</strong> ${escapeHtml(formData.get('pickup')||'')}`,
+            `<strong>Drop-off:</strong> ${escapeHtml(formData.get('dropoff')||'')}`,
+            `<strong>Passengers:</strong> ${escapeHtml(formData.get('passengers')||'')}`,
+            `<strong>Name:</strong> ${escapeHtml(formData.get('name')||'')}`,
+            `<strong>Phone:</strong> ${escapeHtml(formData.get('phone')||'')}`
+          ].join('<br>');
+          bookingSummary.innerHTML=summaryHtml;
+          whatsappModal.classList.add('active');
+          whatsappModal.setAttribute('aria-hidden','false');
+        });
+      }
+
+      function handleWhatsAppSend(){
+        try{
+          const formData=new FormData(bookingForm);
+          const vehicle=vehicles.find(v=>String(v.id)===String(selectedInput.value))||{};
+          const lines=[
+            '*New Booking Request*',
+            '',
+            `Vehicle: ${vehicle.make||vehicle.name||''} ${vehicle.model||''} - ${vehicle.capacity||vehicle.seats||''} Seats`,
+            `Service: ${formData.get('service')||''}`,
+            `Date: ${formData.get('date')||''}`,
+            `Time: ${formData.get('time')||''}`,
+            `Pickup: ${formData.get('pickup')||''}`,
+            `Drop-off: ${formData.get('dropoff')||''}`,
+            `Passengers: ${formData.get('passengers')||''}`,
+            `Name: ${formData.get('name')||''}`,
+            `Phone: ${formData.get('phone')||''}`,
+            `Email: ${formData.get('email')||''}`,
+            `Notes: ${formData.get('notes')||'None'}`
+          ];
+          const wa=`https://wa.me/254723229651?text=${encodeURIComponent(lines.join('\n'))}`;
+          window.open(wa,'_blank','noopener');
+          whatsappModal.classList.remove('active');
+          whatsappModal.setAttribute('aria-hidden','true');
+          successModal.classList.add('active');
+          successModal.setAttribute('aria-hidden','false');
+          bookingForm.reset();
+          setSelectedById(null);
+          showStep(1); // Reset to first step
+          setTimeout(()=>{
+            successModal.classList.remove('active');
+            successModal.setAttribute('aria-hidden','true');
+          }, 4500);
+        }catch(e){
+          console.error(e);
+          alert('Failed to open WhatsApp.');
+        }
+      }
 
       q('#whatsappSend')?.addEventListener('click',handleWhatsAppSend);
-      q('#whatsappCancel')?.addEventListener('click',()=>{ whatsappModal.classList.remove('active'); whatsappModal.setAttribute('aria-hidden','true'); });
+      q('#whatsappCancel')?.addEventListener('click',()=>{
+        whatsappModal.classList.remove('active');
+        whatsappModal.setAttribute('aria-hidden','true');
+      });
 
-      q('#successClose')?.addEventListener('click',()=>{ successModal.classList.remove('active'); successModal.setAttribute('aria-hidden','true'); });
+      q('#successClose')?.addEventListener('click',()=>{
+        successModal.classList.remove('active');
+        successModal.setAttribute('aria-hidden','true');
+      });
 
       // retry close when clicking backdrop
-      qa('.modal').forEach(m=>m.addEventListener('click',(e)=>{ if(e.target===m){ m.classList.remove('active'); m.setAttribute('aria-hidden','true'); } }));
-
-      // clear selection
-      clearSelectionBtn?.addEventListener('click',()=>{ vehicleCache.clear(); bookingForm.reset(); setSelectedById(null); });
+      qa('.modal').forEach(m=>m.addEventListener('click',(e)=>{
+        if(e.target===m){
+          m.classList.remove('active');
+          m.setAttribute('aria-hidden','true');
+        }
+      }));
 
       // start
       loadVehicles();
 
       // expose for debugging
-      window.vehicleWidget={ reload:()=>{ vehicleCache.clear(); return loadVehicles(); }, getVehicles:()=>vehicles.slice(), select:(id)=>setSelectedById(id), clearCache:()=>vehicleCache.clear() };
+      window.vehicleWidget={
+        reload:()=>{
+          vehicleCache.clear();
+          return loadVehicles();
+        },
+        getVehicles:()=>vehicles.slice(),
+        select:(id)=>setSelectedById(id),
+        clearCache:()=>vehicleCache.clear()
+      };
 
     }); // DOMContentLoaded
   })();

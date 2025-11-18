@@ -2162,3 +2162,18 @@ def driver_action(request, driver_id):
         f"Driver '{driver.name}' status changed to {'Active' if driver.is_active else 'Inactive'}."
     )
     return redirect("/admin/bookings/driver/")
+
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import Booking
+
+
+def booking_action(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    # Example logic (customize this part)
+    booking.status = "processed"
+    booking.save()
+
+    # Redirect back to the booking admin page
+    return redirect("admin:bookings_booking_change", booking_id)

@@ -136,3 +136,10 @@ urlpatterns += [
 urlpatterns += [
     path("health/", views.health_check, name="health_check"),
 ]
+
+# =============================================================================
+# 📦 BOOKING ACTIONS (Fix for NoReverseMatch)
+# =============================================================================
+urlpatterns += [
+    path("booking/action/<int:booking_id>/", views.booking_action, name="booking_action"),
+]
