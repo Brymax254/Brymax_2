@@ -1,31 +1,39 @@
-<!doctype html>
-<html lang="en" class="no-js">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Premium Nairobi Airport Transfers - Fast, reliable airport transportation with instant WhatsApp confirmation">
-  <title>Nairobi Airport Transfers | Fast & Reliable</title>
+  <meta name="description" content="Premium Airport Transfers & Destinations - Fast, reliable international airport transportation">
+  <title>Airport Transfers & Destinations</title>
 
   <!-- Performance Optimizations -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <!-- Inline Critical CSS -->
   <style>
-    /*! Critical CSS - 2.3KB gzipped */
     :root {
-      --bg: #0a192f;
-      --surface: #112240;
-      --primary: #64ffda;
-      --secondary: #0a5fd9;
-      --text: #e6f1ff;
-      --text-muted: #8892b0;
-      --success: #2ecc71;
-      --shadow: 0 10px 30px -15px rgba(2,12,27,0.7);
+      --primary: #8B4513;
+      --primary-light: #A0522D;
+      --secondary: #DAA520;
+      --accent: #FFD700;
+      --dark: #2C1810;
+      --light: #FFF8E7;
+      --surface: #FFF5E1;
+      --text: #2C1810;
+      --text-light: #8B4513;
+      --shadow: 0 10px 30px -15px rgba(139, 69, 19, 0.2);
+      --shadow-lg: 0 20px 40px -15px rgba(139, 69, 19, 0.3);
       --radius: 12px;
       --radius-sm: 8px;
-      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-fast: all 0.2s ease;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,11 +41,11 @@
     html {
       scroll-behavior: smooth;
       -webkit-font-smoothing: antialiased;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
+      background: var(--light);
       color: var(--text);
       line-height: 1.6;
       overflow-x: hidden;
@@ -54,10 +62,17 @@
       position: fixed;
       top: 0;
       width: 100%;
-      background: rgba(10, 25, 47, 0.9);
+      background: var(--surface);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(139, 69, 19, 0.1);
       z-index: 1000;
       padding: 1rem 0;
+      transition: var(--transition);
+    }
+
+    .header.scrolled {
+      box-shadow: 0 4px 30px rgba(139, 69, 19, 0.15);
     }
 
     .header .container {
@@ -67,13 +82,21 @@
     }
 
     .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary);
-      text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 1rem;
+      text-decoration: none;
+    }
+
+    .logo img {
+      height: 40px;
+      width: auto;
+    }
+
+    .logo-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
     }
 
     .nav {
@@ -86,7 +109,8 @@
       color: var(--text);
       text-decoration: none;
       font-weight: 500;
-      transition: var(--transition);
+      transition: var(--transition-fast);
+      font-size: 0.9rem;
     }
 
     .nav a:hover {
@@ -98,9 +122,12 @@
       min-height: 100vh;
       display: flex;
       align-items: center;
-      background: linear-gradient(135deg, rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.7)),
-                  url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iODAiIGhlaWdodD0iODAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0icmdiYSgxMDAsMjU1LDIxOCwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgZmlsbD0idXJsKCNwYXR0ZXJuKSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIvPjwvc3ZnPg==');
+      background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(139, 69, 19, 0.7)),
+                  url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-position: center;
       position: relative;
+      padding-top: 80px;
     }
 
     .hero-content {
@@ -112,14 +139,13 @@
       font-weight: 800;
       line-height: 1.1;
       margin-bottom: 1.5rem;
-      background: linear-gradient(135deg, var(--text), var(--primary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--light);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .hero p {
       font-size: 1.25rem;
-      color: var(--text-muted);
+      color: rgba(255, 255, 255, 0.9);
       margin-bottom: 2rem;
     }
 
@@ -127,18 +153,21 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: var(--primary);
-      color: var(--bg);
+      background: var(--accent);
+      color: var(--dark);
       padding: 1rem 2rem;
       border-radius: var(--radius);
       text-decoration: none;
       font-weight: 600;
       transition: var(--transition);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--accent);
     }
 
     .cta-button:hover {
       transform: translateY(-3px);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-lg);
+      background: var(--secondary);
     }
 
     /* Stats */
@@ -156,7 +185,13 @@
       padding: 1.5rem;
       border-radius: var(--radius);
       text-align: center;
-      border: 1px solid rgba(100, 255, 218, 0.1);
+      border: 1px solid rgba(139, 69, 19, 0.1);
+      transition: var(--transition);
+    }
+
+    .stat:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
 
     .stat-number {
@@ -166,42 +201,21 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Booking */
+    /* Booking Section */
+    .booking-section {
+      margin-top: 4rem;
+      padding: 4rem 0;
+    }
+
     .booking-card {
       background: var(--surface);
       border-radius: var(--radius);
-      padding: 2rem;
-      box-shadow: var(--shadow);
+      padding: 3rem;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(139, 69, 19, 0.05);
     }
 
-    /* Loading Skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, #112240 25%, #1a304f 50%, #112240 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-    }
-
-    @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* Footer */
-    .footer {
-      margin-top: 4rem;
-      padding: 3rem 0;
-      border-top: 1px solid rgba(100, 255, 218, 0.1);
-    }
-
-    @media (max-width: 768px) {
-      .nav { display: none; }
-      .stats { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
-
-  <!-- Non-critical CSS (loaded asynchronously) -->
-  <style id="non-critical-css">
-    /* Deferred styles */
+    /* Vehicle Grid */
     .vehicle-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -215,11 +229,17 @@
       overflow: hidden;
       transition: var(--transition);
       border: 2px solid transparent;
+      box-shadow: 0 5px 15px rgba(139, 69, 19, 0.05);
+    }
+
+    .vehicle-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
 
     .vehicle-card.selected {
       border-color: var(--primary);
-      box-shadow: 0 0 30px rgba(100, 255, 218, 0.2);
+      box-shadow: 0 0 30px rgba(139, 69, 19, 0.2);
     }
 
     .vehicle-image {
@@ -228,26 +248,104 @@
       object-fit: cover;
     }
 
+    .vehicle-info {
+      padding: 1.5rem;
+    }
+
+    .vehicle-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .vehicle-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .vehicle-capacity {
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+
+    .vehicle-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .vehicle-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-tag {
+      background: rgba(139, 69, 19, 0.1);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .select-vehicle-btn {
+      width: 100%;
+      background: var(--primary);
+      color: var(--light);
+      border: none;
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .select-vehicle-btn:hover {
+      background: var(--primary-light);
+    }
+
+    .select-vehicle-btn.selected {
+      background: var(--secondary);
+    }
+
+    /* Step Indicator */
     .step-indicator {
       display: flex;
       justify-content: space-between;
       margin: 2rem 0;
+      position: relative;
+    }
+
+    .step-indicator::before {
+      content: '';
+      position: absolute;
+      top: 1.5rem;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #e9ecef;
+      z-index: 1;
     }
 
     .step {
       flex: 1;
       text-align: center;
       position: relative;
+      z-index: 2;
     }
 
     .step:not(:last-child)::after {
       content: '';
       position: absolute;
-      top: 1rem;
+      top: 1.5rem;
       right: -50%;
       width: 100%;
       height: 2px;
-      background: var(--text-muted);
+      background: #e9ecef;
       z-index: 1;
     }
 
@@ -256,21 +354,153 @@
     }
 
     .step-number {
-      width: 2rem;
-      height: 2rem;
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: 50%;
-      background: var(--text-muted);
-      color: var(--bg);
+      background: #e9ecef;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 0.5rem;
       position: relative;
       z-index: 2;
+      font-weight: 600;
+      transition: var(--transition);
     }
 
     .step.active .step-number {
       background: var(--primary);
+      color: var(--light);
+    }
+
+    .step.completed .step-number {
+      background: var(--secondary);
+      color: var(--dark);
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--light);
+      border: 1px solid #ced4da;
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Loading Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Refresh Button */
+    .refresh-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--primary);
+      color: var(--light);
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition);
+      z-index: 999;
+      border: none;
+    }
+
+    .refresh-btn:hover {
+      transform: scale(1.1);
+      background: var(--primary-light);
+    }
+
+    .refresh-btn.loading .spinner {
+      display: block;
+    }
+
+    .refresh-btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      color: var(--text);
+      padding: 1rem 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      opacity: 0;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 4rem;
+      padding: 3rem 0;
+      border-top: 1px solid #e9ecef;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav { display: none; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -279,8 +509,8 @@
   <header class="header">
     <div class="container">
       <a href="/" class="logo">
-        <i class="fas fa-plane"></i>
-        NairobiTransfers
+        <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="Airport Transfers & Destinations">
+        <span class="logo-text">Airport Transfers & Destinations</span>
       </a>
       <nav class="nav">
         <a href="#booking">Book Now</a>
@@ -298,8 +528,8 @@
   <section class="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>Premium Airport Transfers</h1>
-        <p>Fast, reliable transportation to and from Jomo Kenyatta International Airport. Book in 30 seconds.</p>
+        <h1>Global Airport Transfers</h1>
+        <p>Professional transportation services worldwide. Book your transfer in seconds.</p>
         <a href="#booking" class="cta-button">
           <i class="fas fa-calendar-alt"></i>
           Book Instantly
@@ -312,8 +542,8 @@
   <div class="container">
     <div class="stats">
       <div class="stat">
-        <div class="stat-number">2</div>
-        <div>Minute Booking</div>
+        <div class="stat-number">150+</div>
+        <div>Countries</div>
       </div>
       <div class="stat">
         <div class="stat-number">24/7</div>
@@ -324,7 +554,7 @@
         <div>On Time</div>
       </div>
       <div class="stat">
-        <div class="stat-number">5k+</div>
+        <div class="stat-number">50K+</div>
         <div>Happy Clients</div>
       </div>
     </div>
@@ -332,138 +562,133 @@
 
   <!-- Main Content -->
   <main class="container">
-    <!-- Booking Card -->
-    <section id="booking" class="booking-card">
-      <h2 style="margin-bottom: 2rem;">Book Your Transfer</h2>
+    <!-- Booking Section -->
+    <section class="booking-section" id="booking">
+      <div class="booking-card">
+        <h2 style="margin-bottom: 2rem;">Book Your Transfer</h2>
 
-      <!-- Step Indicator -->
-      <div class="step-indicator">
-        <div class="step active" data-step="1">
-          <div class="step-number">1</div>
-          <div>Select Vehicle</div>
-        </div>
-        <div class="step" data-step="2">
-          <div class="step-number">2</div>
-          <div>Trip Details</div>
-        </div>
-        <div class="step" data-step="3">
-          <div class="step-number">3</div>
-          <div>Confirm</div>
-        </div>
-      </div>
-
-      <!-- Step 1: Vehicle Selection -->
-      <div id="step-1" class="step-content active">
-        <h3 style="margin-bottom: 1.5rem;">Choose Your Vehicle</h3>
-
-        <!-- Vehicle Grid -->
-        <div id="vehicle-grid" class="vehicle-grid">
-          <!-- Vehicles loaded via JS -->
-          <div class="vehicle-card skeleton" style="height: 300px;"></div>
-          <div class="vehicle-card skeleton" style="height: 300px;"></div>
-          <div class="vehicle-card skeleton" style="height: 300px;"></div>
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step active" data-step="1">
+            <div class="step-number">1</div>
+            <div>Select Vehicle</div>
+          </div>
+          <div class="step" data-step="2">
+            <div class="step-number">2</div>
+            <div>Trip Details</div>
+          </div>
+          <div class="step" data-step="3">
+            <div class="step-number">3</div>
+            <div>Confirm</div>
+          </div>
         </div>
 
-        <button id="next-step-1" class="cta-button" style="margin-top: 2rem;" disabled>
-          Continue to Details <i class="fas fa-arrow-right"></i>
-        </button>
-      </div>
+        <!-- Step 1: Vehicle Selection -->
+        <div id="step-1" class="step-content active">
+          <h3 style="margin-bottom: 1.5rem;">Choose Your Vehicle</h3>
 
-      <!-- Step 2: Trip Details -->
-      <div id="step-2" class="step-content" style="display: none;">
-        <h3 style="margin-bottom: 1.5rem;">Trip Details</h3>
-
-        <div id="selected-vehicle-preview" style="background: rgba(100, 255, 218, 0.1); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: none;">
-          <strong>Selected:</strong> <span id="selected-vehicle-name">None</span>
-        </div>
-
-        <form id="trip-form" style="display: grid; gap: 1rem;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div>
-              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Pickup Location</label>
-              <input type="text" id="pickup" placeholder="Airport or address" required
-                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Destination</label>
-              <input type="text" id="destination" placeholder="Hotel or address" required
-                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
-            </div>
+          <!-- Vehicle Grid -->
+          <div id="vehicle-grid" class="vehicle-grid">
+            <!-- Vehicles loaded via JS -->
+            <div class="vehicle-card skeleton" style="height: 300px;"></div>
+            <div class="vehicle-card skeleton" style="height: 300px;"></div>
+            <div class="vehicle-card skeleton" style="height: 300px;"></div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-            <div>
-              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Date</label>
-              <input type="date" id="date" required
-                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Time</label>
-              <input type="time" id="time" required
-                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Passengers</label>
-              <select id="passengers" style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
-                <option value="1">1 Passenger</option>
-                <option value="2">2 Passengers</option>
-                <option value="3">3 Passengers</option>
-                <option value="4">4 Passengers</option>
-                <option value="5+">5+ Passengers</option>
-              </select>
-            </div>
-          </div>
-        </form>
-
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-          <button id="prev-step-2" class="cta-button" style="background: transparent; border: 1px solid var(--text-muted);">
-            <i class="fas fa-arrow-left"></i> Back
-          </button>
-          <button id="next-step-2" class="cta-button">
-            Continue to Confirm <i class="fas fa-arrow-right"></i>
+          <button id="next-step-1" class="cta-button" style="margin-top: 2rem;" disabled>
+            Continue to Details <i class="fas fa-arrow-right"></i>
           </button>
         </div>
-      </div>
 
-      <!-- Step 3: Contact & Confirm -->
-      <div id="step-3" class="step-content" style="display: none;">
-        <h3 style="margin-bottom: 1.5rem;">Contact Details</h3>
+        <!-- Step 2: Trip Details -->
+        <div id="step-2" class="step-content" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Trip Details</h3>
 
-        <form id="contact-form" style="display: grid; gap: 1rem;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div>
-              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Full Name</label>
-              <input type="text" id="name" required
-                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
-            </div>
-            <div>
-              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">WhatsApp Number</label>
-              <input type="tel" id="phone" placeholder="+2547XXXXXXXX" required
-                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
-            </div>
+          <div id="selected-vehicle-preview" style="background: rgba(139, 69, 19, 0.1); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: none;">
+            <strong>Selected:</strong> <span id="selected-vehicle-name">None</span>
           </div>
 
-          <div>
-            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Special Instructions</label>
-            <textarea id="notes" rows="3" placeholder="Flight number, special requests..."
-                      style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text); resize: vertical;"></textarea>
-          </div>
-        </form>
+          <form id="trip-form" style="display: grid; gap: 1rem;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Pickup Location</label>
+                <input type="text" id="pickup" class="form-control" placeholder="Airport or address" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Destination</label>
+                <input type="text" id="destination" class="form-control" placeholder="Hotel or address" required>
+              </div>
+            </div>
 
-        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(100, 255, 218, 0.05); border-radius: var(--radius-sm);">
-          <h4 style="margin-bottom: 1rem;">Booking Summary</h4>
-          <div id="booking-summary" style="display: grid; gap: 0.5rem;">
-            <!-- Filled by JS -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" id="date" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Time</label>
+                <input type="time" id="time" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Passengers</label>
+                <select id="passengers" class="form-control">
+                  <option value="1">1 Passenger</option>
+                  <option value="2">2 Passengers</option>
+                  <option value="3">3 Passengers</option>
+                  <option value="4">4 Passengers</option>
+                  <option value="5+">5+ Passengers</option>
+                </select>
+              </div>
+            </div>
+          </form>
+
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button id="prev-step-2" class="cta-button" style="background: transparent; border: 1px solid var(--text-light);">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button id="next-step-2" class="cta-button">
+              Continue to Confirm <i class="fas fa-arrow-right"></i>
+            </button>
           </div>
         </div>
 
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-          <button id="prev-step-3" class="cta-button" style="background: transparent; border: 1px solid var(--text-muted);">
-            <i class="fas fa-arrow-left"></i> Back
-          </button>
-          <button id="confirm-booking" class="cta-button" style="background: #25D366;">
-            <i class="fab fa-whatsapp"></i> Confirm via WhatsApp
-          </button>
+        <!-- Step 3: Contact & Confirm -->
+        <div id="step-3" class="step-content" style="display: none;">
+          <h3 style="margin-bottom: 1.5rem;">Contact Details</h3>
+
+          <form id="contact-form" style="display: grid; gap: 1rem;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="name" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">WhatsApp Number</label>
+                <input type="tel" id="phone" class="form-control" placeholder="+2547XXXXXXXX" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Special Instructions</label>
+              <textarea id="notes" rows="3" class="form-control" placeholder="Flight number, special requests..."></textarea>
+            </div>
+          </form>
+
+          <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(139, 69, 19, 0.05); border-radius: var(--radius-sm);">
+            <h4 style="margin-bottom: 1rem;">Booking Summary</h4>
+            <div id="booking-summary" style="display: grid; gap: 0.5rem;">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button id="prev-step-3" class="cta-button" style="background: transparent; border: 1px solid var(--text-light);">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button id="confirm-booking" class="cta-button" style="background: #25D366;">
+              <i class="fab fa-whatsapp"></i> Confirm via WhatsApp
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -474,18 +699,18 @@
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
         <div style="text-align: center;">
           <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">✈️</div>
-          <h3>Flight Tracking</h3>
-          <p style="color: var(--text-muted);">Real-time flight monitoring for perfect timing</p>
+          <h3>Global Coverage</h3>
+          <p style="color: var(--text-light);">Airport transfers in over 150 countries worldwide</p>
         </div>
         <div style="text-align: center;">
           <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">👨‍✈️</div>
           <h3>Professional Drivers</h3>
-          <p style="color: var(--text-muted);">Experienced, licensed, and courteous</p>
+          <p style="color: var(--text-light);">Experienced, licensed, and multilingual</p>
         </div>
         <div style="text-align: center;">
           <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">🚗</div>
           <h3>Modern Fleet</h3>
-          <p style="color: var(--text-muted);">Clean, comfortable, and well-maintained vehicles</p>
+          <p style="color: var(--text-light);">Clean, comfortable, and well-maintained vehicles</p>
         </div>
       </div>
     </section>
@@ -495,8 +720,10 @@
   <footer class="footer" id="contact">
     <div class="container">
       <div style="text-align: center;">
-        <a href="/" class="logo" style="justify-content: center; margin-bottom: 1rem;">NairobiTransfers</a>
-        <p style="color: var(--text-muted); margin-bottom: 2rem;">Premium airport transfers in Nairobi</p>
+        <a href="/" class="logo" style="justify-content: center; margin-bottom: 1rem;">
+          <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="Airport Transfers & Destinations" style="height: 40px;">
+        </a>
+        <p style="color: var(--text-light); margin-bottom: 2rem;">Premium airport transfers worldwide</p>
 
         <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
           <a href="https://wa.me/254723229651" target="_blank"
@@ -509,10 +736,19 @@
           </a>
         </div>
 
-        <p style="color: var(--text-muted);">&copy; <span id="current-year"></span> Nairobi Airport Transfers</p>
+        <p style="color: var(--text-light);">&copy; <span id="current-year"></span> Airport Transfers & Destinations</p>
       </div>
     </div>
   </footer>
+
+  <!-- Refresh Button -->
+  <button id="refresh-vehicles" class="refresh-btn" title="Refresh Vehicles">
+    <i class="fas fa-sync-alt"></i>
+    <div class="spinner"></div>
+  </button>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
 
   <!-- Confirmation Modal -->
   <div id="confirmation-modal"
@@ -521,7 +757,7 @@
       <div style="text-align: center;">
         <div style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;">🎉</div>
         <h3 style="margin-bottom: 1rem;">Booking Confirmed!</h3>
-        <p style="color: var(--text-muted); margin-bottom: 2rem;">Your transfer request has been sent via WhatsApp. We'll confirm within 5 minutes.</p>
+        <p style="color: var(--text-light); margin-bottom: 2rem;">Your transfer request has been sent via WhatsApp. We'll confirm within 5 minutes.</p>
         <button id="close-modal" class="cta-button" style="width: 100%;">
           <i class="fas fa-check"></i> Done
         </button>
@@ -529,30 +765,14 @@
     </div>
   </div>
 
-  <!-- Performance-Optimized JavaScript -->
   <script>
-    // Load non-critical CSS asynchronously
-    document.addEventListener('DOMContentLoaded', () => {
-      const nonCriticalCSS = document.getElementById('non-critical-css');
-      if (nonCriticalCSS) {
-        nonCriticalCSS.media = 'all';
-      }
-
-      // Set current year
-      document.getElementById('current-year').textContent = new Date().getFullYear();
-    });
-  </script>
-
-  <script type="module">
-    // Ultra-fast optimized JavaScript (ES6+)
-    'use strict';
-
     // Configuration
     const CONFIG = {
       apiEndpoint: '/api/vehicles/',
       whatsappNumber: '254723229651',
       cacheKey: 'vehicles_cache_v2',
       cacheTTL: 5 * 60 * 1000, // 5 minutes
+      refreshInterval: 30000, // 30 seconds
     };
 
     // State management
@@ -563,6 +783,7 @@
         this.contactDetails = {};
         this.currentStep = 1;
         this.vehicles = [];
+        this.isLoading = false;
       }
 
       update(updates) {
@@ -599,6 +820,7 @@
         this.tripDetails = {};
         this.contactDetails = {};
         this.currentStep = 1;
+        this.vehicles = [];
         localStorage.removeItem('booking_state');
       }
     }
@@ -669,12 +891,12 @@
     }
 
     // Main Application
-    class NairobiTransfersApp {
+    class AirportTransfersApp {
       constructor() {
         this.state = new AppState();
         this.ui = new UIHandler(this);
         this.api = new APIHandler(this);
-        this.router = new Router();
+        this.refreshInterval = null;
 
         this.init();
       }
@@ -694,6 +916,9 @@
 
         // Update UI from state
         this.ui.updateFromState();
+
+        // Start automatic refresh
+        this.startAutoRefresh();
       }
 
       async loadVehicles() {
@@ -719,14 +944,21 @@
 
       async loadVehiclesFromAPI() {
         try {
+          this.state.update({ isLoading: true });
+          this.ui.showLoading();
+
           const data = await FastHTTP.get(CONFIG.apiEndpoint);
           const vehicles = this.processVehicleData(data);
 
-          this.state.update({ vehicles });
+          this.state.update({ vehicles, isLoading: false });
           VehicleCache.set(vehicles);
           this.ui.renderVehicles(vehicles);
+          this.ui.showToast('Vehicles updated successfully', 'success');
         } catch (error) {
-          // Silently fail - we have fallback
+          console.warn('Failed to fetch vehicles from API:', error);
+          this.state.update({ isLoading: false });
+          this.ui.hideLoading();
+          // Keep existing vehicles
         }
       }
 
@@ -760,7 +992,7 @@
       getVehicleImage(type) {
         const images = {
           'SUV': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-          'Sedan': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w-400&h=300&fit=crop',
+          'Sedan': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop',
           'Van': 'https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=400&h=300&fit=crop',
           'Luxury': 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=400&h=300&fit=crop',
         };
@@ -807,6 +1039,11 @@
       }
 
       setupEventListeners() {
+        // Refresh button
+        document.getElementById('refresh-vehicles').addEventListener('click', () => {
+          this.refreshVehicles();
+        });
+
         // Step navigation
         document.getElementById('next-step-1')?.addEventListener('click', () => {
           if (!this.state.selectedVehicle) {
@@ -866,6 +1103,28 @@
         document.getElementById('time').value = timeString;
       }
 
+      refreshVehicles() {
+        const refreshBtn = document.getElementById('refresh-vehicles');
+        refreshBtn.classList.add('loading');
+
+        this.loadVehiclesFromAPI().finally(() => {
+          refreshBtn.classList.remove('loading');
+        });
+      }
+
+      startAutoRefresh() {
+        this.refreshInterval = setInterval(() => {
+          this.loadVehiclesFromAPI();
+        }, CONFIG.refreshInterval);
+      }
+
+      stopAutoRefresh() {
+        if (this.refreshInterval) {
+          clearInterval(this.refreshInterval);
+          this.refreshInterval = null;
+        }
+      }
+
       confirmBooking() {
         // Get contact details
         const name = document.getElementById('name').value;
@@ -920,7 +1179,6 @@
         setTimeout(() => {
           this.state.clear();
           this.ui.goToStep(1);
-          document.getElementById('booking-form')?.reset();
           document.getElementById('trip-form')?.reset();
           document.getElementById('contact-form')?.reset();
         }, 5000);
@@ -965,34 +1223,38 @@
             <img src="${vehicle.image}"
                  alt="${vehicle.name} ${vehicle.model}"
                  class="vehicle-image"
-                 loading="lazy"
-                 style="width: 100%; height: 200px; object-fit: cover;">
-            <div style="position: absolute; top: 1rem; right: 1rem; background: var(--primary); color: var(--bg); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">
+                 loading="lazy">
+            <div style="position: absolute; top: 1rem; right: 1rem; background: var(--primary); color: var(--light); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">
               ${vehicle.capacity} seats
             </div>
           </div>
-          <div style="padding: 1rem;">
-            <h4 style="margin-bottom: 0.5rem;">${vehicle.name} ${vehicle.model}</h4>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="vehicle-info">
+            <h4 class="vehicle-name">${vehicle.name} ${vehicle.model}</h4>
+            <div class="vehicle-details">
               <div>
-                <div style="color: var(--primary); font-weight: 700; font-size: 1.25rem;">KSh ${vehicle.price.toLocaleString()}</div>
-                <div style="color: var(--text-muted); font-size: 0.875rem;">${vehicle.type}</div>
+                <div class="vehicle-capacity">${vehicle.type}</div>
+                <div class="vehicle-price">KSh ${vehicle.price.toLocaleString()}</div>
               </div>
-              <button class="select-vehicle" style="background: var(--primary); color: var(--bg); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer;">
+              <button class="select-vehicle-btn ${isSelected ? 'selected' : ''}">
                 ${isSelected ? '✓ Selected' : 'Select'}
               </button>
+            </div>
+            <div class="vehicle-features">
+              ${vehicle.features.map(feature => `
+                <span class="feature-tag">${feature}</span>
+              `).join('')}
             </div>
           </div>
         `;
 
         // Add click handlers
         card.addEventListener('click', (e) => {
-          if (!e.target.closest('.select-vehicle')) {
+          if (!e.target.closest('.select-vehicle-btn')) {
             this.selectVehicle(vehicle.id);
           }
         });
 
-        card.querySelector('.select-vehicle').addEventListener('click', (e) => {
+        card.querySelector('.select-vehicle-btn').addEventListener('click', (e) => {
           e.stopPropagation();
           this.selectVehicle(vehicle.id);
         });
@@ -1006,18 +1268,20 @@
         // Update UI
         document.querySelectorAll('.vehicle-card').forEach(card => {
           card.classList.remove('selected');
-          const button = card.querySelector('.select-vehicle');
+          const button = card.querySelector('.select-vehicle-btn');
           if (button) {
             button.textContent = 'Select';
+            button.classList.remove('selected');
           }
         });
 
         const selectedCard = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
         if (selectedCard) {
           selectedCard.classList.add('selected');
-          const button = selectedCard.querySelector('.select-vehicle');
+          const button = selectedCard.querySelector('.select-vehicle-btn');
           if (button) {
             button.textContent = '✓ Selected';
+            button.classList.add('selected');
           }
         }
 
@@ -1046,7 +1310,7 @@
 
         // Update step indicators
         document.querySelectorAll('.step').forEach(el => {
-          el.classList.remove('active');
+          el.classList.remove('active', 'completed');
         });
 
         document.querySelector(`[data-step="${step}"]`).classList.add('active');
@@ -1106,48 +1370,24 @@
       }
 
       showToast(message, type = 'info') {
-        // Create toast element
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-          position: fixed;
-          bottom: 2rem;
-          right: 2rem;
-          background: ${type === 'error' ? '#e74c3c' : 'var(--primary)'};
-          color: var(--bg);
-          padding: 1rem 1.5rem;
-          border-radius: var(--radius-sm);
-          font-weight: 600;
-          z-index: 10000;
-          animation: slideIn 0.3s ease;
-        `;
-
+        const toast = document.getElementById('toast');
         toast.textContent = message;
-        document.body.appendChild(toast);
+        toast.style.background = type === 'error' ? '#dc3545' : '#8B4513';
+        toast.classList.add('show');
 
-        // Remove after 3 seconds
         setTimeout(() => {
-          toast.style.animation = 'slideOut 0.3s ease';
-          setTimeout(() => {
-            document.body.removeChild(toast);
-          }, 300);
+          toast.classList.remove('show');
         }, 3000);
+      }
 
-        // Add animation styles
-        if (!document.querySelector('#toast-styles')) {
-          const style = document.createElement('style');
-          style.id = 'toast-styles';
-          style.textContent = `
-            @keyframes slideIn {
-              from { transform: translateX(100%); opacity: 0; }
-              to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-              from { transform: translateX(0); opacity: 1; }
-              to { transform: translateX(100%); opacity: 0; }
-            }
-          `;
-          document.head.appendChild(style);
-        }
+      showLoading() {
+        const refreshBtn = document.getElementById('refresh-vehicles');
+        refreshBtn.classList.add('loading');
+      }
+
+      hideLoading() {
+        const refreshBtn = document.getElementById('refresh-vehicles');
+        refreshBtn.classList.remove('loading');
       }
     }
 
@@ -1158,44 +1398,23 @@
       }
     }
 
-    // Router (for future SPA features)
-    class Router {
-      constructor() {
-        this.routes = {};
-      }
-    }
-
     // Initialize app when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
       // Start app with requestIdleCallback for better performance
       if ('requestIdleCallback' in window) {
         requestIdleCallback(() => {
-          window.app = new NairobiTransfersApp();
+          window.app = new AirportTransfersApp();
         });
       } else {
         // Fallback for older browsers
         setTimeout(() => {
-          window.app = new NairobiTransfersApp();
+          window.app = new AirportTransfersApp();
         }, 100);
       }
     });
 
-    // Service Worker for offline capability
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      });
-    }
-  </script>
-
-  <!-- Optional Service Worker -->
-  <script>
-    // Register service worker if supported
-    if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
-      navigator.serviceWorker.register('/sw-transfers.js').catch(console.error);
-    }
+    // Set current year
+    document.getElementById('current-year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>

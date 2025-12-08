@@ -166,6 +166,10 @@ class BookingInline(admin.TabularInline):
     can_delete = False
 
     def booking_actions(self, obj):
+        # FIX: Check if obj and obj.pk exist before trying to reverse URL
+        if not obj or not obj.pk:
+            return "Save first"
+
         if obj.status == 'PENDING':
             return format_html(
                 '<a class="button" href="{}?action=confirm">Confirm</a> | '
@@ -181,7 +185,6 @@ class BookingInline(admin.TabularInline):
         return "No actions available"
 
     booking_actions.short_description = 'Actions'
-
 
 # =============================================================================
 # MODEL ADMIN CLASSES
@@ -726,6 +729,10 @@ class BookingAdmin(admin.ModelAdmin):
     inlines = [PaymentInline, TripInline]
 
     def booking_actions(self, obj):
+        # FIX: Check if obj exists before trying to use it
+        if not obj or not obj.pk:
+            return "Save first"
+
         if obj.status == 'PENDING':
             return format_html(
                 '<a class="button" href="{}?action=confirm">Confirm</a> | '
@@ -741,7 +748,6 @@ class BookingAdmin(admin.ModelAdmin):
         return "No actions available"
 
     booking_actions.short_description = 'Actions'
-
     # Custom actions
     def confirm_bookings(self, request, queryset):
         count = 0
