@@ -1879,18 +1879,18 @@ def nairobi_airport_transfers(request):
 
 @require_GET
 def vehicles_api(request):
-    """API endpoint to get vehicles with filtering and pagination."""
+    """API endpoint to get vehicles with filtering and pagination - OPTIMIZED VERSION"""
     try:
         # Get filter parameters
         vehicle_type = request.GET.get('type')
         min_capacity = request.GET.get('min_capacity')
         available = request.GET.get('available')
 
-        # Import Vehicle model - add this at the top of your views.py
+        # Import Vehicle model
         from .models import Vehicle
 
-        # Start with all vehicles (ordered for stable pagination)
-        vehicles = Vehicle.objects.all().order_by('id')
+        # Start with all vehicles - OPTIMIZED: prefetch related data
+        vehicles = Vehicle.objects.select_related('image', 'photo').all().order_by('id')
 
         # Apply filters
         if vehicle_type:
@@ -1904,29 +1904,26 @@ def vehicles_api(request):
         if available and available.lower() == 'true':
             vehicles = vehicles.filter(is_active=True)
 
+        # OPTIMIZATION: Count before pagination for better performance
+        total_count = vehicles.count()
+
         # Pagination
         page = request.GET.get('page', 1)
         per_page = int(request.GET.get('per_page', 12))
         paginator = Paginator(vehicles, per_page)
 
         try:
-            vehicles = paginator.page(page)
+            vehicles_page = paginator.page(page)
         except PageNotAnInteger:
-            vehicles = paginator.page(1)
+            vehicles_page = paginator.page(1)
         except EmptyPage:
-            vehicles = paginator.page(paginator.num_pages)
+            vehicles_page = paginator.page(paginator.num_pages)
 
-        # Serialize vehicles
+        # OPTIMIZED: Serialize vehicles with efficient image handling
         vehicles_data = []
-        for vehicle in vehicles:
-            # Handle image URL - check multiple possible attributes
-            image_url = None
-            if hasattr(vehicle, 'image') and vehicle.image:
-                image_url = vehicle.image.url if hasattr(vehicle.image, 'url') else str(vehicle.image)
-            elif hasattr(vehicle, 'photo') and vehicle.photo:
-                image_url = vehicle.photo.url if hasattr(vehicle.photo, 'url') else str(vehicle.photo)
-            elif hasattr(vehicle, 'image_url') and vehicle.image_url:
-                image_url = vehicle.image_url
+        for vehicle in vehicles_page:
+            # Get image URL efficiently - single function call
+            image_url = get_vehicle_image_url(vehicle)
 
             vehicle_data = {
                 'id': vehicle.id,
@@ -1943,18 +1940,16 @@ def vehicles_api(request):
                 'features': getattr(vehicle, 'features', []),
                 'accessibility_features': getattr(vehicle, 'accessibility_features', []),
                 'image_url': image_url,
-                'image': image_url,  # Include both for compatibility
-                'photo': image_url,  # Include both for compatibility
             }
             vehicles_data.append(vehicle_data)
 
         response_data = {
             'vehicles': vehicles_data,
             'pagination': {
-                'page': page,
+                'page': int(page),
                 'per_page': per_page,
                 'total_pages': paginator.num_pages,
-                'total_items': paginator.count,
+                'total_items': total_count,
             }
         }
 
@@ -1964,6 +1959,17 @@ def vehicles_api(request):
         logger.exception(f"Vehicles API error: {e}")
         return create_error_response("Error fetching vehicles", status=500)
 
+
+def get_vehicle_image_url(vehicle):
+    """Helper function to efficiently get vehicle image URL"""
+    # Check image attributes in order of preference, but only once each
+    if hasattr(vehicle, 'image') and vehicle.image:
+        return vehicle.image.url
+    elif hasattr(vehicle, 'photo') and vehicle.photo:
+        return vehicle.photo.url
+    elif hasattr(vehicle, 'image_url') and vehicle.image_url:
+        return vehicle.image_url
+    return None
 
 def nairobi_airport_transfers(request):
     """Render Nairobi airport transfers page."""
@@ -2100,26 +2106,6 @@ Message:
             messages.error(request, "Please correct the errors below.")
 
     return redirect('bookings:contact')
-
-
-def vehicles_api(request):
-    """API endpoint to get vehicles."""
-    vehicles = Vehicle.objects.filter(is_active=True)
-
-    vehicles_data = []
-    for vehicle in vehicles:
-        vehicles_data.append({
-            'id': vehicle.id,
-            'make': vehicle.make,
-            'model': vehicle.model,
-            'year': vehicle.year,
-            'license_plate': vehicle.license_plate,
-            'vehicle_type': vehicle.vehicle_type,
-            'capacity': vehicle.capacity,
-            'image': vehicle.image_url,
-        })
-
-    return JsonResponse({"vehicles": vehicles_data})
 
 
 def health_check(request):
