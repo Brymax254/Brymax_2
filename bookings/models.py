@@ -524,6 +524,7 @@ class Vehicle(TimeStampedModel):
     class Meta:
         verbose_name = "Vehicle"
         verbose_name_plural = "Vehicles"
+        ordering = ['id']  # or ['-created_at'] if you prefer newest first
         indexes = [
             models.Index(fields=['license_plate']),
             models.Index(fields=['vehicle_type']),

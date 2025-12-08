@@ -1,2253 +1,1201 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Airport Transfers & Destinations - fast booking, vehicle selection and WhatsApp confirmation">
-  <meta name="whatsapp-number" content="254723229651">
-  <title> Airport Transfers & Destinations </title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* ===== CSS CUSTOM PROPERTIES ===== */
-:root {
-  /* Colors */
-  --bg: #fbfcfe;
-  --panel: #ffffff;
-  --muted: #6b7280;
-  --text: #0b2540;
-  --navy: #0b5fd9;
-  --taxi: #ffcc00;
-  --taxi-700: #e6b800;
-  --success: #10b981;
-  --error: #ef4444;
-  --warning: #f59e0b;
-
-  /* Spacing */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-
-  /* Typography */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
-
-  /* Layout */
-  --max-width: 1100px;
-  --header-height: 64px;
-  --radius-sm: 4px;
-  --radius: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-
-  /* Effects */
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --focus-ring: 0 0 0 3px rgba(11, 95, 217, 0.15);
-
-  /* Transitions */
-  --trans-fast: 150ms ease;
-  --trans-base: 250ms ease;
-  --trans-slow: 350ms ease;
-
-  /* Z-index layers */
-  --z-dropdown: 10;
-  --z-sticky: 20;
-  --z-fixed: 30;
-  --z-modal: 40;
-  --z-popover: 50;
-  --z-toast: 60;
-}
-
-/* ===== CSS RESET & BASE STYLES ===== */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
-
-html, body {
-  height: 100%;
-}
-
-body {
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
-  background: linear-gradient(180deg, var(--bg), #f6f8fb);
-  color: var(--text);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeSpeed;
-}
-
-/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
-/* Focus styles for keyboard navigation */
-*:focus-visible {
-  outline: 2px solid var(--navy);
-  outline-offset: 2px;
-}
-
-/* Skip link for keyboard users */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: var(--space-md);
-  background: var(--navy);
-  color: white;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius);
-  text-decoration: none;
-  z-index: var(--z-toast);
-  transition: top var(--trans-fast);
-}
-
-.skip-link:focus {
-  top: var(--space-md);
-}
-
-/* Reduced motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ===== LAYOUT COMPONENTS ===== */
-.container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 var(--space-md);
-  width: 100%;
-}
-
-/* ===============================
-   🧭 HEADER (Modern Glass Design)
-================================== */
-
-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  height: var(--header-height);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px) saturate(180%);
-  -webkit-backdrop-filter: blur(10px) saturate(180%);
-  border-bottom: 1px solid rgba(8, 20, 40, 0.08);
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-  transition: background-color var(--trans-base), box-shadow var(--trans-fast);
-}
-
-header.scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  height: 100%;
-  padding: 0 var(--space-lg);
-}
-
-/* ===== BRAND / LOGO ===== */
-.brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-weight: 700;
-  font-size: var(--text-lg);
-  color: var(--navy);
-  text-decoration: none;
-  letter-spacing: -0.2px;
-}
-
-.brand i {
-  font-size: 1.4em;
-  color: var(--navy);
-}
-
-.brand:hover,
-.brand:focus {
-  color: var(--navy);
-  text-decoration: none;
-  transform: translateY(-1px);
-  transition: all var(--trans-fast);
-}
-
-/* ===== MENU BUTTON ===== */
-.mobile-menu-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid rgba(8, 20, 40, 0.08);
-  padding: var(--space-sm);
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 1.25rem;
-  color: var(--text);
-  transition: all var(--trans-fast);
-}
-
-.mobile-menu-btn:hover,
-.mobile-menu-btn:focus {
-  background: rgba(11, 95, 217, 0.05);
-  border-color: var(--navy);
-  color: var(--navy);
-}
-
-/* ===== DESKTOP NAV ===== */
-.main-nav {
-  display: none;
-}
-
-@media (min-width: 992px) {
-  .main-nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-  }
-
-  .main-nav ul {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    list-style: none;
-  }
-
-  .main-nav a {
-    color: var(--text);
-    font-weight: 500;
-    text-decoration: none;
-    transition: color var(--trans-fast);
-    position: relative;
-    padding: var(--space-sm) 0;
-  }
-
-  .main-nav a:hover {
-    color: var(--navy);
-  }
-
-  .main-nav a::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0;
-    height: 2px;
-    background: var(--navy);
-    transition: width var(--trans-fast);
-  }
-
-  .main-nav a:hover::after {
-    width: 100%;
-  }
-
-  .main-nav .btn {
-    background: linear-gradient(135deg, var(--navy), #084ac1);
-    color: white;
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius);
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: var(--text-sm);
-    transition: all var(--trans-fast);
-  }
-
-  .main-nav .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(11, 95, 217, 0.2);
-  }
-
-  .mobile-menu-btn {
-    display: none;
-  }
-}
-
-/* ===== SECONDARY NAV ===== */
-.secondary-nav {
-  display: none;
-}
-
-@media (min-width: 992px) {
-  .secondary-nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    padding: var(--space-sm) 0;
-  }
-
-  .secondary-nav ul {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    list-style: none;
-  }
-
-  .secondary-nav a {
-    color: var(--text);
-    font-weight: 500;
-    text-decoration: none;
-    transition: color var(--trans-fast);
-    font-size: var(--text-sm);
-  }
-
-  .secondary-nav a:hover {
-    color: var(--navy);
-  }
-}
-
-/* ===== MAIN CONTENT ===== */
-main {
-  padding: var(--space-lg) 0;
-  min-height: calc(100vh - var(--header-height));
-}
-
-/* ===============================
-   📱 MOBILE MENU
-================================== */
-
-.mobile-menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 85vw;
-  max-width: 320px;
-  background: linear-gradient(180deg, var(--panel), #fbfdff);
-  transform: translateX(-100%);
-  transition: transform var(--trans-base) cubic-bezier(0.23, 1, 0.32, 1);
-  z-index: var(--z-modal);
-  border-right: 1px solid rgba(8, 20, 40, 0.06);
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-}
-
-.mobile-menu.active {
-  transform: translateX(0);
-}
-
-/* ===== MOBILE MENU HEADER ===== */
-.mobile-menu .menu-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-md);
-  border-bottom: 1px solid rgba(8, 20, 40, 0.04);
-  background: var(--panel);
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-
-.mobile-menu .menu-header h2 {
-  font-size: var(--text-base);
-  font-weight: 600;
-  margin: 0;
-}
-
-/* ===== MOBILE NAVIGATION ===== */
-.mobile-nav {
-  padding: var(--space-md);
-}
-
-.mobile-nav a {
-  display: block;
-  padding: var(--space-sm) var(--space-md);
-  color: var(--text);
-  text-decoration: none;
-  border-radius: var(--radius);
-  transition: all var(--trans-fast);
-  margin-bottom: var(--space-xs);
-}
-
-.mobile-nav a:hover,
-.mobile-nav a:focus {
-  background: rgba(11, 95, 217, 0.07);
-  color: var(--navy);
-}
-
-/* ===== MOBILE MENU OVERLAY ===== */
-.mobile-menu-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(8, 20, 40, 0.4);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity var(--trans-base);
-  z-index: var(--z-fixed);
-}
-
-.mobile-menu-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* ===== HERO SECTION ===== */
-.hero-section {
-  position: relative;
-  height: 70vh;
-  min-height: 500px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  margin-bottom: var(--space-2xl);
-  border-radius: var(--radius-lg);
-  isolation: isolate;
-}
-
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: opacity var(--trans-slow) ease;
-  z-index: 1;
-}
-
-.hero-background.fade {
-  opacity: 0;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(11, 37, 64, 0.8), rgba(11, 95, 217, 0.6));
-  z-index: 2;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 3;
-  text-align: center;
-  color: white;
-  padding: 0 var(--space-md);
-  max-width: 800px;
-  width: 100%;
-}
-
-.hero-content h1 {
-  font-size: var(--text-4xl);
-  margin-bottom: var(--space-md);
-  font-weight: 800;
-  line-height: 1.1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.hero-content p {
-  font-size: var(--text-lg);
-  margin-bottom: var(--space-lg);
-  opacity: 0.9;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hero-cta {
-  background: linear-gradient(180deg, var(--taxi), var(--taxi-700));
-  color: var(--text);
-  border: none;
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius);
-  font-weight: 700;
-  cursor: pointer;
-  font-size: var(--text-base);
-  text-decoration: none;
-  display: inline-block;
-  transition: all var(--trans-fast);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-cta::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.hero-cta:hover::before {
-  left: 100%;
-}
-
-.hero-cta:hover,
-.hero-cta:focus {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.hero-indicators {
-  position: absolute;
-  bottom: var(--space-lg);
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: var(--space-sm);
-  z-index: 4;
-}
-
-.hero-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  transition: all var(--trans-fast);
-  border: 1px solid transparent;
-}
-
-.hero-indicator:hover,
-.hero-indicator:focus {
-  background: rgba(255, 255, 255, 0.7);
-  transform: scale(1.1);
-}
-
-.hero-indicator.active {
-  background: white;
-  transform: scale(1.2);
-}
-
-/* ===== VEHICLE GRID ===== */
-#vehicleGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: var(--space-md);
-  padding: var(--space-sm);
-  margin-bottom: var(--space-lg);
-}
-
-/* Vehicle Card */
-.vehicle-card {
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-lg);
-  background: var(--panel);
-  border: 1px solid rgba(8, 20, 40, 0.06);
-  box-shadow: var(--card-shadow);
-  cursor: pointer;
-  transition: all var(--trans-base);
-  overflow: hidden;
-  outline: 0;
-  position: relative;
-}
-
-.vehicle-card:hover,
-.vehicle-card:focus {
-  transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: rgba(11, 95, 217, 0.2);
-}
-
-.vehicle-card[aria-selected="true"] {
-  border: 2px solid var(--taxi);
-  box-shadow: 0 12px 24px rgba(255, 204, 0, 0.15);
-}
-
-.vehicle-card[aria-selected="true"]::after {
-  content: "✓";
-  position: absolute;
-  top: var(--space-sm);
-  right: var(--space-sm);
-  background: var(--taxi);
-  color: var(--text);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  z-index: 2;
-}
-
-.vehicle-image-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-}
-
-.vehicle-image,
-.vehicle-no-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform var(--trans-slow);
-}
-
-.vehicle-card:hover .vehicle-image {
-  transform: scale(1.05);
-}
-
-.vehicle-no-image {
-  background: linear-gradient(135deg, #f3f6ff, #eef3ff);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-
-.vehicle-meta {
-  padding: var(--space-md);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.vehicle-title {
-  font-weight: 700;
-  margin: 0;
-  color: var(--text);
-  font-size: var(--text-base);
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.vehicle-sub {
-  font-size: var(--text-sm);
-  color: var(--muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-height: 1.4;
-}
-
-.vehicle-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: var(--space-sm);
-  gap: var(--space-sm);
-}
-
-.vehicle-price {
-  font-weight: 800;
-  color: var(--navy);
-  font-size: var(--text-base);
-}
-
-.vehicle-eta {
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-
-.cta-small {
-  background: linear-gradient(180deg, var(--taxi), var(--taxi-700));
-  color: var(--text);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius);
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--trans-fast);
-  font-size: var(--text-sm);
-  width: 100%;
-  margin-top: auto;
-}
-
-.cta-small:hover,
-.cta-small:focus {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* ===== MODERN BOOKING CARD ===== */
-.booking-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  margin-top: var(--space-2xl);
-  position: relative;
-}
-
-.booking-header {
-  background: linear-gradient(135deg, var(--navy) 0%, #084ac1 100%);
-  color: white;
-  padding: var(--space-xl) var(--space-lg);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.booking-header::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  animation: float 20s infinite linear;
-}
-
-@keyframes float {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.booking-header h2 {
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  margin-bottom: var(--space-sm);
-  position: relative;
-  z-index: 1;
-}
-
-.booking-header p {
-  opacity: 0.9;
-  font-size: var(--text-base);
-  position: relative;
-  z-index: 1;
-}
-
-.booking-body {
-  padding: var(--space-xl);
-}
-
-.booking-form {
-  display: grid;
-  gap: var(--space-lg);
-}
-
-/* ===== STEP INDICATOR ===== */
-.step-indicator {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: var(--space-xl);
-  position: relative;
-}
-
-.step-indicator::before {
-  content: '';
-  position: absolute;
-  top: 15px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: rgba(8, 20, 40, 0.1);
-  z-index: 1;
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-}
-
-.step-number {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--panel);
-  border: 2px solid rgba(8, 20, 40, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-sm);
-  transition: all var(--trans-fast);
-}
-
-.step.active .step-number {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: white;
-}
-
-.step.completed .step-number {
-  background: var(--success);
-  border-color: var(--success);
-  color: white;
-}
-
-.step-label {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  text-align: center;
-  max-width: 100px;
-}
-
-.step.active .step-label {
-  color: var(--navy);
-  font-weight: 600;
-}
-
-.step.completed .step-label {
-  color: var(--success);
-}
-
-/* ===== FORM SECTIONS ===== */
-.form-section {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  border: 1px solid rgba(11, 95, 217, 0.08);
-  transition: all var(--trans-base);
-}
-
-.form-section:hover {
-  border-color: rgba(11, 95, 217, 0.15);
-  box-shadow: 0 4px 20px rgba(11, 95, 217, 0.05);
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
-  color: var(--navy);
-  font-weight: 600;
-  font-size: var(--text-lg);
-}
-
-.section-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--navy), #084ac1);
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: var(--text-lg);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-md);
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.form-label {
-  font-weight: 600;
-  font-size: var(--text-sm);
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.label-icon {
-  color: var(--navy);
-  font-size: var(--text-base);
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  padding: var(--space-md);
-  border-radius: var(--radius-lg);
-  border: 2px solid rgba(8, 20, 40, 0.08);
-  background: white;
-  font-size: var(--text-base);
-  color: var(--text);
-  transition: all var(--trans-fast);
-  position: relative;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(11, 95, 217, 0.1);
-  outline: none;
-}
-
-.form-input::placeholder {
-  color: var(--muted);
-  opacity: 0.7;
-}
-
-.input-icon {
-  position: absolute;
-  right: var(--space-md);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  pointer-events: none;
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.selected-vehicle {
-  background: linear-gradient(135deg, rgba(255, 204, 0, 0.1), rgba(255, 204, 0, 0.05));
-  border: 2px solid var(--taxi);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
-  margin-bottom: var(--space-md);
-  display: none;
-  align-items: center;
-  gap: var(--space-md);
-  transition: all var(--trans-fast);
-}
-
-.selected-vehicle.active {
-  display: flex;
-}
-
-.selected-vehicle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 204, 0, 0.2);
-}
-
-.selected-vehicle-icon {
-  width: 48px;
-  height: 48px;
-  background: var(--taxi);
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xl);
-  color: var(--text);
-}
-
-.selected-vehicle-info {
-  flex: 1;
-}
-
-.selected-vehicle-name {
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: var(--space-xs);
-}
-
-.selected-vehicle-details {
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
-
-.booking-actions {
-  display: flex;
-  gap: var(--space-md);
-  margin-top: var(--space-xl);
-  padding-top: var(--space-lg);
-  border-top: 1px solid rgba(8, 20, 40, 0.08);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  font-weight: 600;
-  font-size: var(--text-base);
-  transition: all var(--trans-fast);
-  text-decoration: none;
-  line-height: 1;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.btn:hover::before {
-  left: 100%;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--navy), #084ac1);
-  color: white;
-  border: none;
-  flex: 1;
-}
-
-.btn-primary:hover,
-.btn-primary:focus {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(11, 95, 217, 0.3);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--navy);
-  border: 2px solid var(--navy);
-}
-
-.btn-secondary:hover,
-.btn-secondary:focus {
-  background: rgba(11, 95, 217, 0.05);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(11, 95, 217, 0.15);
-}
-
-/* ===== MODAL ===== */
-.modal {
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(8, 20, 40, 0.4);
-  z-index: var(--z-modal);
-  padding: var(--space-md);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.modal.active {
-  display: flex;
-  animation: fadeIn var(--trans-fast);
-}
-
-.modal-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 251, 255, 0.99));
-  padding: var(--space-xl);
-  border-radius: var(--radius-xl);
-  max-width: 560px;
-  width: 100%;
-  box-shadow: 0 30px 60px rgba(8, 20, 40, 0.2);
-  border: 1px solid rgba(11, 95, 217, 0.08);
-  animation: slideUp var(--trans-base);
-  position: relative;
-}
-
-.modal h3 {
-  margin-top: 0;
-  margin-bottom: var(--space-md);
-  font-size: var(--text-xl);
-}
-
-.modal-close {
-  position: absolute;
-  top: var(--space-md);
-  right: var(--space-md);
-  background: transparent;
-  border: none;
-  font-size: var(--text-lg);
-  cursor: pointer;
-  color: var(--muted);
-  padding: var(--space-xs);
-  border-radius: var(--radius-sm);
-  transition: all var(--trans-fast);
-}
-
-.modal-close:hover,
-.modal-close:focus {
-  color: var(--text);
-  background: rgba(0, 0, 0, 0.05);
-}
-
-/* ===== UTILITY CLASSES ===== */
-.kicker {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.mb-0 {
-  margin-bottom: 0;
-}
-
-.mt-0 {
-  margin-top: 0;
-}
-
-/* ===== LOADING STATES ===== */
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(11, 95, 217, 0.1);
-  border-left-color: var(--navy);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loading skeleton for cards */
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: var(--radius);
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* ===== INFO SECTION ===== */
-.info-section {
-  padding: var(--space-xl) 0;
-  margin-top: var(--space-2xl);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius-lg);
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-xl);
-  margin-top: var(--space-lg);
-}
-
-.info-card {
-  text-align: center;
-  padding: var(--space-lg);
-  border-radius: var(--radius);
-  transition: transform var(--trans-fast);
-}
-
-.info-card:hover {
-  transform: translateY(-4px);
-}
-
-.info-icon {
-  font-size: 2.5rem;
-  margin-bottom: var(--space-md);
-  color: var(--navy);
-}
-
-.info-card h3 {
-  margin-bottom: var(--space-sm);
-  color: var(--text);
-}
-
-.info-card p {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-
-/* ===== FOOTER ===== */
-footer {
-  margin-top: var(--space-2xl);
-  padding: var(--space-xl) 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 251, 255, 0.95));
-  border-top: 1px solid rgba(8, 20, 40, 0.06);
-  text-align: center;
-}
-
-.footer-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.footer-links {
-  display: flex;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-md);
-}
-
-.footer-links a {
-  color: var(--muted);
-  text-decoration: none;
-  transition: color var(--trans-fast);
-}
-
-.footer-links a:hover {
-  color: var(--navy);
-}
-
-.whatsapp-button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  background: #25D366;
-  color: white;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius);
-  text-decoration: none;
-  font-weight: 600;
-  transition: all var(--trans-fast);
-}
-
-.whatsapp-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3);
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-/* Mobile-first approach - all base styles are for mobile */
-
-/* Tablet styles */
-@media (min-width: 640px) {
-  .hero-content h1 {
-    font-size: var(--text-4xl);
-  }
-
-  .form-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .info-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Desktop styles */
-@media (min-width: 1024px) {
-  .desktop-nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-  }
-
-  .desktop-nav a {
-    color: var(--text);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color var(--trans-fast);
-    padding: var(--space-sm) 0;
-    position: relative;
-  }
-
-  .desktop-nav a:hover,
-  .desktop-nav a:focus {
-    color: var(--navy);
-  }
-
-  .desktop-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--navy);
-    transition: width var(--trans-base);
-  }
-
-  .desktop-nav a:hover::after,
-  .desktop-nav a:focus::after {
-    width: 100%;
-  }
-
-  .menu-btn {
-    display: none;
-  }
-
-  .hero-content h1 {
-    font-size: 3.5rem;
-  }
-
-  .hero-section {
-    height: 80vh;
-    min-height: 600px;
-  }
-
-  .vehicle-card {
-    flex-direction: row;
-    min-height: 140px;
-  }
-
-  .vehicle-image-container {
-    width: 200px;
-    aspect-ratio: 16/10;
-  }
-
-  .cta-small {
-    width: auto;
-    margin-top: 0;
-  }
-
-  .footer-content {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .booking-actions {
-    justify-content: space-between;
-  }
-
-  .btn-primary {
-    flex: none;
-    min-width: 200px;
-  }
-}
-
-/* Large desktop */
-@media (min-width: 1280px) {
-  .container {
-    padding: 0 var(--space-lg);
-  }
-
-  .hero-content h1 {
-    font-size: 4rem;
-  }
-}
-
-/* Small mobile adjustments */
-@media (max-width: 480px) {
-  .hero-section {
-    height: 60vh;
-    min-height: 400px;
-  }
-
-  .hero-content h1 {
-    font-size: var(--text-2xl);
-  }
-
-  .hero-content p {
-    font-size: var(--text-base);
-  }
-
-  .vehicle-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-xs);
-  }
-
-  .booking-actions {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .booking-header {
-    padding: var(--space-lg);
-  }
-
-  .booking-body {
-    padding: var(--space-lg);
-  }
-
-  .form-section {
-    padding: var(--space-md);
-  }
-
-  .step-label {
-    font-size: 10px;
-  }
-}
-
-/* Print styles */
-@media print {
-  .menu-btn,
-  .hero-cta,
-  .cta-small,
-  .booking-actions {
-    display: none !important;
-  }
-
-  .hero-section {
-    height: auto;
-    min-height: auto;
-  }
-
-  .vehicle-card {
-    break-inside: avoid;
-  }
-}
-</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Premium Nairobi Airport Transfers - Fast, reliable airport transportation with instant WhatsApp confirmation">
+  <title>Nairobi Airport Transfers | Fast & Reliable</title>
+
+  <!-- Performance Optimizations -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
+  <!-- Inline Critical CSS -->
+  <style>
+    /*! Critical CSS - 2.3KB gzipped */
+    :root {
+      --bg: #0a192f;
+      --surface: #112240;
+      --primary: #64ffda;
+      --secondary: #0a5fd9;
+      --text: #e6f1ff;
+      --text-muted: #8892b0;
+      --success: #2ecc71;
+      --shadow: 0 10px 30px -15px rgba(2,12,27,0.7);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(10, 25, 47, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      padding: 1rem 0;
+    }
+
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .nav a:hover {
+      color: var(--primary);
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.7)),
+                  url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyMCIgaGVpZ2h0PSIxMDgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iODAiIGhlaWdodD0iODAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0icmdiYSgxMDAsMjU1LDIxOCwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgZmlsbD0idXJsKCNwYXR0ZXJuKSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIvPjwvc3ZnPg==');
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 600px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, var(--text), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: var(--bg);
+      padding: 1rem 2rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 2rem;
+      margin: -3rem auto 4rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      text-align: center;
+      border: 1px solid rgba(100, 255, 218, 0.1);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Booking */
+    .booking-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    /* Loading Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, #112240 25%, #1a304f 50%, #112240 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 4rem;
+      padding: 3rem 0;
+      border-top: 1px solid rgba(100, 255, 218, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .nav { display: none; }
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+
+  <!-- Non-critical CSS (loaded asynchronously) -->
+  <style id="non-critical-css">
+    /* Deferred styles */
+    .vehicle-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .vehicle-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+      border: 2px solid transparent;
+    }
+
+    .vehicle-card.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 30px rgba(100, 255, 218, 0.2);
+    }
+
+    .vehicle-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin: 2rem 0;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 1rem;
+      right: -50%;
+      width: 100%;
+      height: 2px;
+      background: var(--text-muted);
+      z-index: 1;
+    }
+
+    .step.active:not(:last-child)::after {
+      background: var(--primary);
+    }
+
+    .step-number {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--text-muted);
+      color: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step.active .step-number {
+      background: var(--primary);
+    }
+  </style>
 </head>
 <body>
-  <a href="#main" class="skip-link">Skip to main content</a>
-
-  <!-- =======================
-       🌍 Global Header
-  ======================= -->
-  <header id="header">
-    <div class="header-container">
-      <!-- ===== Brand / Logo ===== -->
-      <div class="brand">
-        <a href="/" class="brand-link" aria-label="Home">
-          <i class="fas fa-globe-africa" class="btn" aria-hidden="true"></i>
-          <span>Airport & Destinations</span>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo">
+        <i class="fas fa-plane"></i>
+        NairobiTransfers
+      </a>
+      <nav class="nav">
+        <a href="#booking">Book Now</a>
+        <a href="#vehicles">Vehicles</a>
+        <a href="#contact">Contact</a>
+        <a href="https://wa.me/254723229651" target="_blank" style="color: #25D366;">
+          <i class="fab fa-whatsapp"></i>
+          WhatsApp
         </a>
-      </div>
-
-      <!-- ===== Primary Navigation ===== -->
-      <nav class="main-nav" id="mainNav" class="btn" aria-label="Primary Navigation">
-        <ul>
-          <li><a href="/" aria-label="Home"><i class="fas fa-home"></i> Home</a></li>
-          <li><a href="/tours-and-safaris/" class="btn" aria-label="Tours & Safaris"><i class="fas fa-binoculars"></i> Tours & Safaris</a></li>
-          <li><a href="/nairobi-airport-transfers-and-taxis/" class="btn" aria-label="Airport Transfers"><i class="fas fa-plane-arrival"></i> Airport Transfers</a></li>
-          <li><a href="/about/" class="btn" aria-label="About"><i class="fas fa-info-circle"></i> About</a></li>
-          <li><a href="/contact/" class="btn" aria-label="Contact"><i class="fas fa-envelope"></i> Contact</a></li>
-        </ul>
       </nav>
-
-      <!-- ===== Mobile Menu Button ===== -->
-      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mobileMenu">
-        <i class="fas fa-bars" aria-hidden="true"></i>
-      </button>
     </div>
-
-    <!-- ===== Secondary / Quick Links ===== -->
-    <nav class="secondary-nav" class="btn" aria-label="Quick Links">
-      <ul>
-        <li><a href="#booking" class="kicker" style="text-decoration:none;color:var(--navy);font-weight:600">Book Transfer</a></li>
-        <li><a href="#info">Why Us</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
   </header>
 
-  <!-- Mobile menu -->
-  <div id="mobileMenu" class="mobile-menu" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Mobile menu">
-    <div class="menu-header">
-      <strong>Menu</strong>
-      <button id="mobileMenuClose" class="menu-btn" aria-label="Close menu">✕</button>
-    </div>
-    <nav class="mobile-nav" aria-label="Mobile navigation">
-      <a href="#booking">Book Transfer</a>
-      <a href="#info">Why Us</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </div>
-  <div id="mobileMenuOverlay" class="mobile-menu-overlay" aria-hidden="true"></div>
-
   <!-- Hero Section -->
-  <section class="hero-section" id="hero">
-    <div class="hero-background" id="heroBackground"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>Premium Airport Transfers in Nairobi</h1>
-      <p>Professional, reliable, and comfortable transportation to and from Jomo Kenyatta International Airport</p>
-      <a href="#booking" class="hero-cta">Book Your Ride Now</a>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Premium Airport Transfers</h1>
+        <p>Fast, reliable transportation to and from Jomo Kenyatta International Airport. Book in 30 seconds.</p>
+        <a href="#booking" class="cta-button">
+          <i class="fas fa-calendar-alt"></i>
+          Book Instantly
+        </a>
+      </div>
     </div>
-    <div class="hero-indicators" id="heroIndicators"></div>
   </section>
 
-  <main id="main" class="container">
-    <!-- Modern Booking Card with Vehicle Selection Inside -->
-    <section id="booking" class="booking-container" aria-labelledby="bookingHeading">
-      <div class="booking-header">
-        <h2>Book Your Transfer</h2>
-        <p>Select your vehicle and fill in your details for WhatsApp confirmation</p>
+  <!-- Stats -->
+  <div class="container">
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">2</div>
+        <div>Minute Booking</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">24/7</div>
+        <div>Service</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">98%</div>
+        <div>On Time</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">5k+</div>
+        <div>Happy Clients</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Booking Card -->
+    <section id="booking" class="booking-card">
+      <h2 style="margin-bottom: 2rem;">Book Your Transfer</h2>
+
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step active" data-step="1">
+          <div class="step-number">1</div>
+          <div>Select Vehicle</div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="step-number">2</div>
+          <div>Trip Details</div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="step-number">3</div>
+          <div>Confirm</div>
+        </div>
       </div>
 
-      <div class="booking-body">
-        <form id="bookingForm" class="booking-form" autocomplete="on" novalidate>
-          <input type="hidden" id="selectedVehicle" name="vehicle_id" value="">
+      <!-- Step 1: Vehicle Selection -->
+      <div id="step-1" class="step-content active">
+        <h3 style="margin-bottom: 1.5rem;">Choose Your Vehicle</h3>
 
-          <!-- Step Indicator -->
-          <div class="step-indicator">
-            <div class="step active" id="step1">
-              <div class="step-number">1</div>
-              <div class="step-label">Select Vehicle</div>
+        <!-- Vehicle Grid -->
+        <div id="vehicle-grid" class="vehicle-grid">
+          <!-- Vehicles loaded via JS -->
+          <div class="vehicle-card skeleton" style="height: 300px;"></div>
+          <div class="vehicle-card skeleton" style="height: 300px;"></div>
+          <div class="vehicle-card skeleton" style="height: 300px;"></div>
+        </div>
+
+        <button id="next-step-1" class="cta-button" style="margin-top: 2rem;" disabled>
+          Continue to Details <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Step 2: Trip Details -->
+      <div id="step-2" class="step-content" style="display: none;">
+        <h3 style="margin-bottom: 1.5rem;">Trip Details</h3>
+
+        <div id="selected-vehicle-preview" style="background: rgba(100, 255, 218, 0.1); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: none;">
+          <strong>Selected:</strong> <span id="selected-vehicle-name">None</span>
+        </div>
+
+        <form id="trip-form" style="display: grid; gap: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Pickup Location</label>
+              <input type="text" id="pickup" placeholder="Airport or address" required
+                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
             </div>
-            <div class="step" id="step2">
-              <div class="step-number">2</div>
-              <div class="step-label">Trip Details</div>
-            </div>
-            <div class="step" id="step3">
-              <div class="step-number">3</div>
-              <div class="step-label">Contact Info</div>
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Destination</label>
+              <input type="text" id="destination" placeholder="Hotel or address" required
+                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
             </div>
           </div>
 
-          <!-- Vehicle Selection Section -->
-          <div class="form-section" id="vehicleSection">
-            <div class="section-title">
-              <div class="section-icon">🚗</div>
-              Select Your Vehicle
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Date</label>
+              <input type="date" id="date" required
+                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
             </div>
-
-            <!-- Selected Vehicle Display -->
-            <div id="selectedVehicleDisplay" class="selected-vehicle">
-              <div class="selected-vehicle-icon">🚗</div>
-              <div class="selected-vehicle-info">
-                <div class="selected-vehicle-name" id="selectedVehicleName">No vehicle selected</div>
-                <div class="selected-vehicle-details" id="selectedVehicleDetails">Please select a vehicle below</div>
-              </div>
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Time</label>
+              <input type="time" id="time" required
+                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
             </div>
-
-            <div id="vehicleGrid" role="listbox" aria-label="Available vehicles" tabindex="0"></div>
-
-            <div style="text-align: center; margin-top: var(--space-lg);">
-              <button type="button" id="continueToDetails" class="btn btn-primary" disabled>
-                <span>→</span>
-                Continue to Trip Details
-              </button>
-            </div>
-          </div>
-
-          <!-- Trip Details Section -->
-          <div class="form-section" id="tripDetailsSection" style="display: none;">
-            <div class="section-title">
-              <div class="section-icon">📍</div>
-              Trip Details
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="service">
-                  <span class="label-icon">🚐</span>
-                  Service Type
-                </label>
-                <select name="service" id="service" class="form-select" required>
-                  <option value="">Select service</option>
-                  <option value="Airport Transfer">Airport Transfer</option>
-                  <option value="City Tour">City Tour</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="date">
-                  <span class="label-icon">📅</span>
-                  Travel Date
-                </label>
-                <input type="date" name="date" id="date" class="form-input" required>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="time">
-                  <span class="label-icon">🕐</span>
-                  Pickup Time
-                </label>
-                <input type="time" name="time" id="time" class="form-input" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="passengers">
-                  <span class="label-icon">👥</span>
-                  Number of Passengers
-                </label>
-                <input type="number" name="passengers" id="passengers" class="form-input" min="1" max="20" placeholder="How many passengers?" required>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="pickup">
-                  <span class="label-icon">📍</span>
-                  Pickup Location
-                </label>
-                <input type="text" name="pickup" id="pickup" class="form-input" placeholder="Enter pickup address" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="dropoff">
-                  <span class="label-icon">🎯</span>
-                  Drop-off Location
-                </label>
-                <input type="text" name="dropoff" id="dropoff" class="form-input" placeholder="Enter destination" required>
-              </div>
-            </div>
-
-            <div style="display: flex; gap: var(--space-md); margin-top: var(--space-lg);">
-              <button type="button" id="backToVehicle" class="btn btn-secondary">
-                <span>←</span>
-                Back to Vehicle Selection
-              </button>
-              <button type="button" id="continueToContact" class="btn btn-primary">
-                <span>→</span>
-                Continue to Contact
-              </button>
-            </div>
-          </div>
-
-          <!-- Contact Section -->
-          <div class="form-section" id="contactSection" style="display: none;">
-            <div class="section-title">
-              <div class="section-icon">👤</div>
-              Contact Information
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="name">
-                  <span class="label-icon">👤</span>
-                  Your Name
-                </label>
-                <input type="text" name="name" id="name" class="form-input" placeholder="Enter your full name" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="phone">
-                  <span class="label-icon">📱</span>
-                  WhatsApp Number
-                </label>
-                <input type="tel" name="phone" id="phone" class="form-input" placeholder="+2547XXXXXXXX" pattern="^\+?254[0-9]{9}$" required>
-              </div>
-            </div>
-
-            <div style="display: flex; gap: var(--space-md); margin-top: var(--space-lg);">
-              <button type="button" id="backToDetails" class="btn btn-secondary">
-                <span>←</span>
-                Back to Trip Details
-              </button>
-              <button type="submit" class="btn btn-primary">
-                <span>📤</span>
-                Send Booking via WhatsApp
-              </button>
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Passengers</label>
+              <select id="passengers" style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
+                <option value="1">1 Passenger</option>
+                <option value="2">2 Passengers</option>
+                <option value="3">3 Passengers</option>
+                <option value="4">4 Passengers</option>
+                <option value="5+">5+ Passengers</option>
+              </select>
             </div>
           </div>
         </form>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+          <button id="prev-step-2" class="cta-button" style="background: transparent; border: 1px solid var(--text-muted);">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button id="next-step-2" class="cta-button">
+            Continue to Confirm <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Contact & Confirm -->
+      <div id="step-3" class="step-content" style="display: none;">
+        <h3 style="margin-bottom: 1.5rem;">Contact Details</h3>
+
+        <form id="contact-form" style="display: grid; gap: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Full Name</label>
+              <input type="text" id="name" required
+                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">WhatsApp Number</label>
+              <input type="tel" id="phone" placeholder="+2547XXXXXXXX" required
+                     style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text);">
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Special Instructions</label>
+            <textarea id="notes" rows="3" placeholder="Flight number, special requests..."
+                      style="width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--text-muted); border-radius: var(--radius-sm); color: var(--text); resize: vertical;"></textarea>
+          </div>
+        </form>
+
+        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(100, 255, 218, 0.05); border-radius: var(--radius-sm);">
+          <h4 style="margin-bottom: 1rem;">Booking Summary</h4>
+          <div id="booking-summary" style="display: grid; gap: 0.5rem;">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+          <button id="prev-step-3" class="cta-button" style="background: transparent; border: 1px solid var(--text-muted);">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button id="confirm-booking" class="cta-button" style="background: #25D366;">
+            <i class="fab fa-whatsapp"></i> Confirm via WhatsApp
+          </button>
+        </div>
       </div>
     </section>
 
-    <section id="info" class="info-section" aria-labelledby="infoHeading">
-      <h2 id="infoHeading" class="text-center">Why Choose Airport Transfers</h2>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-icon">✈️</div>
+    <!-- Why Choose Us -->
+    <section style="margin-top: 4rem; padding: 2rem; background: var(--surface); border-radius: var(--radius);">
+      <h2 style="text-align: center; margin-bottom: 2rem;">Why Choose Us</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">✈️</div>
           <h3>Flight Tracking</h3>
-          <p>We monitor your flight in real-time to ensure we're there when you arrive, even if your flight is early or delayed.</p>
+          <p style="color: var(--text-muted);">Real-time flight monitoring for perfect timing</p>
         </div>
-        <div class="info-card">
-          <div class="info-icon">👨‍✈️</div>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">👨‍✈️</div>
           <h3>Professional Drivers</h3>
-          <p>Our experienced drivers are courteous, knowledgeable about Nairobi, and committed to your safety and comfort.</p>
+          <p style="color: var(--text-muted);">Experienced, licensed, and courteous</p>
         </div>
-        <div class="info-card">
-          <div class="info-icon">💺</div>
-          <h3>Comfortable Vehicles</h3>
-          <p>Travel in style and comfort with our well-maintained fleet of modern vehicles equipped with air conditioning.</p>
+        <div style="text-align: center;">
+          <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">🚗</div>
+          <h3>Modern Fleet</h3>
+          <p style="color: var(--text-muted);">Clean, comfortable, and well-maintained vehicles</p>
         </div>
       </div>
     </section>
   </main>
 
-<footer id="contact" class="footer">
-  <div class="container">
-    <div class="footer-content">
+  <!-- Footer -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div style="text-align: center;">
+        <a href="/" class="logo" style="justify-content: center; margin-bottom: 1rem;">NairobiTransfers</a>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Premium airport transfers in Nairobi</p>
 
-      <!-- WhatsApp Button -->
-      <a
-        href="https://wa.me/254723229651"
-        class="whatsapp-button"
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Chat with us on WhatsApp"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12.04 2C6.49 2 2 6.45 2 11.97c0 2.1.57 4.09 1.66 5.84L2 22l4.35-1.62a10.03 10.03 0 0 0 5.7 1.7h.01c5.55 0 10.04-4.45 10.04-9.97C22.1 6.45 17.6 2 12.04 2zm.01 17.74h-.01a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-2.5.93.87-2.43-.2-.31a8.02 8.02 0 0 1-1.24-4.34c0-4.45 3.65-8.07 8.15-8.07 2.18 0 4.23.84 5.77 2.36a8.02 8.02 0 0 1 2.4 5.73c0 4.45-3.65 8.07-8.14 8.07zm4.52-5.9c-.25-.12-1.48-.73-1.7-.82-.23-.08-.4-.12-.57.13-.17.25-.65.82-.8.99-.15.17-.3.19-.55.06a6.65 6.65 0 0 1-1.96-1.21 7.34 7.34 0 0 1-1.36-1.68c-.14-.25 0-.38.1-.5.1-.1.23-.27.34-.41.1-.13.13-.23.2-.38.07-.15.03-.28-.01-.39-.04-.12-.57-1.38-.78-1.9-.2-.48-.4-.41-.57-.42h-.48c-.17 0-.39.06-.6.28s-.8.78-.8 1.9.83 2.2.95 2.35c.12.15 1.64 2.6 3.97 3.66.55.24.98.38 1.32.48.55.17 1.06.15 1.46.09.45-.07 1.38-.56 1.57-1.11.19-.55.19-1.02.13-1.12-.05-.1-.23-.16-.48-.28z"/>
-        </svg>
-        <span>WhatsApp Us</span>
-      </a>
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+          <a href="https://wa.me/254723229651" target="_blank"
+             style="color: #25D366; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </a>
+          <a href="tel:+254723229651"
+             style="color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-phone"></i> +254 723 229 651
+          </a>
+        </div>
+
+        <p style="color: var(--text-muted);">&copy; <span id="current-year"></span> Nairobi Airport Transfers</p>
+      </div>
     </div>
+  </footer>
 
-    <div class="footer-bottom">
-      <p>© <span id="year"></span> Airport Transfers. All rights reserved. BryTECHDEVLTD</p>
-    </div>
-  </div>
-
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
-</footer>
-
-
-  <!-- WhatsApp confirmation modal -->
-  <div id="whatsappModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="whatsappTitle">
-    <div class="modal-card">
-      <h3 id="whatsappTitle">Confirm booking</h3>
-      <div id="bookingSummary" aria-live="polite" style="margin:12px 0;color:var(--text)"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-        <button id="whatsappCancel" class="btn btn-secondary">Cancel</button>
-        <button id="whatsappSend" class="btn btn-primary">Send on WhatsApp</button>
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal"
+       style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius); max-width: 500px; width: 90%;">
+      <div style="text-align: center;">
+        <div style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;">🎉</div>
+        <h3 style="margin-bottom: 1rem;">Booking Confirmed!</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Your transfer request has been sent via WhatsApp. We'll confirm within 5 minutes.</p>
+        <button id="close-modal" class="cta-button" style="width: 100%;">
+          <i class="fas fa-check"></i> Done
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Success modal -->
-  <div id="successModal" class="modal" role="status" aria-hidden="true" aria-labelledby="successTitle">
-    <div class="modal-card">
-      <h3 id="successTitle">Booking sent</h3>
-      <p>Thanks — your booking request has been opened in WhatsApp. We will follow up shortly.</p>
-      <div style="text-align:right;margin-top:8px"><button id="successClose" class="btn btn-primary">Close</button></div>
-    </div>
-  </div>
-
+  <!-- Performance-Optimized JavaScript -->
   <script>
-  (function(){
+    // Load non-critical CSS asynchronously
+    document.addEventListener('DOMContentLoaded', () => {
+      const nonCriticalCSS = document.getElementById('non-critical-css');
+      if (nonCriticalCSS) {
+        nonCriticalCSS.media = 'all';
+      }
+
+      // Set current year
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    });
+  </script>
+
+  <script type="module">
+    // Ultra-fast optimized JavaScript (ES6+)
     'use strict';
 
-    // helpers
-    const q=(s,r=document)=>r.querySelector(s);
-    const qa=(s,r=document)=>Array.from((r||document).querySelectorAll(s));
-    const escapeHtml=(s)=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-
-    // debounce/throttle
-    const throttle=(fn,lim)=>{let t=false;return(...a)=>{if(!t){fn(...a);t=true;setTimeout(()=>t=false,lim);}}};
-
-    // Image observer
-    let imageObserver;
-    function setupImageObserver(){
-      if(!('IntersectionObserver' in window)) return;
-      imageObserver=new IntersectionObserver((entries,obs)=>{
-        entries.forEach(en=>{
-          if(en.isIntersecting){
-            const img=en.target; const src=img.dataset.src;
-            if(src){ img.src=src; img.onload=()=>img.classList.add('loaded'); img.removeAttribute('data-src'); try{obs.unobserve(img)}catch(e){} }
-          }
-        });
-      },{rootMargin:'120px 0px',threshold:0.01});
-    }
-
-    // Cache with localStorage fallback
-    const CACHE_KEY='vehicles_cache_v1';
-    const vehicleCache={
-      expiry:10*60*1000,
-      get(){
-        try{
-          const raw=localStorage.getItem(CACHE_KEY);
-          if(!raw) return null;
-          const parsed=JSON.parse(raw);
-          if(Date.now()-parsed.t>this.expiry) { localStorage.removeItem(CACHE_KEY); return null; }
-          return parsed.v;
-        }catch(e){return null}
-      },
-      set(v){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({t:Date.now(),v})); }catch(e){} },
-      clear(){ try{ localStorage.removeItem(CACHE_KEY);}catch(e){} }
+    // Configuration
+    const CONFIG = {
+      apiEndpoint: '/api/vehicles/',
+      whatsappNumber: '254723229651',
+      cacheKey: 'vehicles_cache_v2',
+      cacheTTL: 5 * 60 * 1000, // 5 minutes
     };
 
-    // Hero Section Functionality
-    function setupHeroSection(vehicles) {
-      const heroSection = q('#hero');
-      const heroIndicators = q('#heroIndicators');
-
-      if (!heroSection) return;
-
-      // Filter vehicles with valid images
-      const vehiclesWithImages = vehicles.filter(v => v.image_url && v.image_url.trim() !== '');
-
-      // Clear existing indicators and backgrounds
-      heroIndicators.innerHTML = '';
-      const existingBackgrounds = qa('.hero-background', heroSection);
-      existingBackgrounds.forEach(bg => {
-        if (bg.id !== 'heroBackground') bg.remove();
-      });
-
-      if (vehiclesWithImages.length === 0) {
-        // Set a default background if no vehicle images
-        q('#heroBackground').style.backgroundImage = "url('https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')";
-        return;
+    // State management
+    class AppState {
+      constructor() {
+        this.selectedVehicle = null;
+        this.tripDetails = {};
+        this.contactDetails = {};
+        this.currentStep = 1;
+        this.vehicles = [];
       }
 
-      let currentIndex = 0;
-      const backgrounds = [];
+      update(updates) {
+        Object.assign(this, updates);
+        this.persist();
+      }
 
-      // Preload images and create background elements
-      vehiclesWithImages.forEach((vehicle, index) => {
-        const bg = document.createElement('div');
-        bg.className = 'hero-background';
-        bg.style.backgroundImage = `url('${vehicle.image_url}')`;
-        bg.style.opacity = index === 0 ? '1' : '0';
-        bg.style.zIndex = index === 0 ? '1' : '0';
-
-        if (index > 0) {
-          bg.classList.add('fade');
+      persist() {
+        try {
+          localStorage.setItem('booking_state', JSON.stringify({
+            selectedVehicle: this.selectedVehicle,
+            tripDetails: this.tripDetails,
+            contactDetails: this.contactDetails,
+            currentStep: this.currentStep,
+          }));
+        } catch (e) {
+          // Ignore storage errors
         }
-
-        heroSection.insertBefore(bg, heroSection.firstChild);
-        backgrounds.push(bg);
-
-        // Create indicator
-        const indicator = document.createElement('div');
-        indicator.className = 'hero-indicator';
-        if (index === 0) indicator.classList.add('active');
-        indicator.addEventListener('click', () => {
-          setActiveBackground(index);
-        });
-        heroIndicators.appendChild(indicator);
-      });
-
-      // Remove the original heroBackground if we have vehicle images
-      const originalBg = q('#heroBackground');
-      if (originalBg && backgrounds.length > 0) {
-        originalBg.remove();
       }
 
-      // Function to set active background
-      function setActiveBackground(index) {
-        if (index === currentIndex) return;
-
-        backgrounds[currentIndex].classList.add('fade');
-        setTimeout(() => {
-          backgrounds[currentIndex].style.zIndex = '0';
-        }, 500);
-
-        backgrounds[index].style.zIndex = '1';
-        backgrounds[index].classList.remove('fade');
-
-        // Update indicators
-        qa('.hero-indicator').forEach((ind, i) => {
-          if (i === index) {
-            ind.classList.add('active');
-          } else {
-            ind.classList.remove('active');
+      restore() {
+        try {
+          const saved = JSON.parse(localStorage.getItem('booking_state'));
+          if (saved) {
+            Object.assign(this, saved);
           }
-        });
-
-        currentIndex = index;
-      }
-
-      // Auto-rotate backgrounds every 5 seconds
-      let rotationInterval = setInterval(() => {
-        const nextIndex = (currentIndex + 1) % backgrounds.length;
-        setActiveBackground(nextIndex);
-      }, 5000);
-
-      // Pause rotation on hover
-      heroSection.addEventListener('mouseenter', () => {
-        clearInterval(rotationInterval);
-      });
-
-      heroSection.addEventListener('mouseleave', () => {
-        rotationInterval = setInterval(() => {
-          const nextIndex = (currentIndex + 1) % backgrounds.length;
-          setActiveBackground(nextIndex);
-        }, 5000);
-      });
-
-      // Expose function to update hero from vehicle selection
-      window.updateHeroFromSelection = function(vehicleId) {
-        const selectedVehicle = vehicles.find(v => String(v.id) === String(vehicleId));
-        if (selectedVehicle && selectedVehicle.image_url) {
-          const vehicleIndex = vehiclesWithImages.findIndex(v =>
-            String(v.id) === String(vehicleId));
-          if (vehicleIndex !== -1) {
-            setActiveBackground(vehicleIndex);
-            clearInterval(rotationInterval);
-
-            // Restart rotation after 10 seconds of inactivity
-            setTimeout(() => {
-              rotationInterval = setInterval(() => {
-                const nextIndex = (currentIndex + 1) % backgrounds.length;
-                setActiveBackground(nextIndex);
-              }, 5000);
-            }, 10000);
-          }
+        } catch (e) {
+          // Ignore errors
         }
-      };
+      }
+
+      clear() {
+        this.selectedVehicle = null;
+        this.tripDetails = {};
+        this.contactDetails = {};
+        this.currentStep = 1;
+        localStorage.removeItem('booking_state');
+      }
     }
 
-    document.addEventListener('DOMContentLoaded',()=>{
-      setupImageObserver();
+    // Vehicle Cache
+    class VehicleCache {
+      static get() {
+        try {
+          const cached = localStorage.getItem(CONFIG.cacheKey);
+          if (!cached) return null;
 
-      const vehicleGrid=q('#vehicleGrid');
-      const selectedInput=q('#selectedVehicle');
-      const bookingForm=q('#bookingForm');
-      const whatsappModal=q('#whatsappModal');
-      const bookingSummary=q('#bookingSummary');
-      const successModal=q('#successModal');
-      const header=q('#header');
-      const mobileMenuBtn=q('#mobileMenuBtn');
-      const mobileMenu=q('#mobileMenu');
-      const mobileMenuClose=q('#mobileMenuClose');
-      const mobileMenuOverlay=q('#mobileMenuOverlay');
-      const selectedVehicleDisplay=q('#selectedVehicleDisplay');
-      const selectedVehicleName=q('#selectedVehicleName');
-      const selectedVehicleDetails=q('#selectedVehicleDetails');
+          const { data, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp > CONFIG.cacheTTL) {
+            localStorage.removeItem(CONFIG.cacheKey);
+            return null;
+          }
 
-      // Step elements
-      const step1=q('#step1');
-      const step2=q('#step2');
-      const step3=q('#step3');
-      const vehicleSection=q('#vehicleSection');
-      const tripDetailsSection=q('#tripDetailsSection');
-      const contactSection=q('#contactSection');
-      const continueToDetails=q('#continueToDetails');
-      const continueToContact=q('#continueToContact');
-      const backToVehicle=q('#backToVehicle');
-      const backToDetails=q('#backToDetails');
-
-      if(!vehicleGrid||!selectedInput) return;
-
-      let vehicles=[]; let focusedIndex=-1; let isLoading=false; let currentToken=null;
-      const API_ENDPOINT='/api/vehicles/'; const API_TIMEOUT=8000;
-
-      // mobile menu
-      function openMenu(){ mobileMenu?.classList.add('active'); mobileMenuOverlay?.classList.add('active'); mobileMenuBtn?.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
-      function closeMenu(){ mobileMenu?.classList.remove('active'); mobileMenuOverlay?.classList.remove('active'); mobileMenuBtn?.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
-      mobileMenuBtn?.addEventListener('click',openMenu);
-      mobileMenuClose?.addEventListener('click',closeMenu);
-      mobileMenuOverlay?.addEventListener('click',closeMenu);
-
-      // header scroll
-      window.addEventListener('scroll',throttle(()=>{ header?.classList.toggle('scrolled', window.scrollY>50); },100),{passive:true});
-
-      // Step navigation
-      function showStep(stepNumber) {
-        // Hide all sections
-        vehicleSection.style.display = 'none';
-        tripDetailsSection.style.display = 'none';
-        contactSection.style.display = 'none';
-
-        // Reset all step indicators
-        step1.classList.remove('active', 'completed');
-        step2.classList.remove('active', 'completed');
-        step3.classList.remove('active', 'completed');
-
-        // Show the appropriate section and update step indicators
-        switch(stepNumber) {
-          case 1:
-            vehicleSection.style.display = 'block';
-            step1.classList.add('active');
-            break;
-          case 2:
-            tripDetailsSection.style.display = 'block';
-            step1.classList.add('completed');
-            step2.classList.add('active');
-            break;
-          case 3:
-            contactSection.style.display = 'block';
-            step1.classList.add('completed');
-            step2.classList.add('completed');
-            step3.classList.add('active');
-            break;
+          return data;
+        } catch {
+          return null;
         }
       }
 
-      // ui creators
-      function createLoadingEl(){ const d=document.createElement('div'); d.className='loading'; d.innerHTML='<div class="spinner" aria-hidden="true"></div><div style="margin-top:8px">Loading vehicles…</div>'; return d; }
-      function createErrorEl(msg){ const d=document.createElement('div'); d.className='vehicle-error'; d.setAttribute('role','alert'); d.innerHTML=`<p>${escapeHtml(msg)}</p><button id='retryLoadVehicles' class='btn'>Retry</button>`; return d; }
-      function createEmptyEl(){ const d=document.createElement('div'); d.className='vehicle-empty'; d.textContent='No vehicles available at the moment.'; return d; }
+      static set(data) {
+        try {
+          localStorage.setItem(CONFIG.cacheKey, JSON.stringify({
+            data,
+            timestamp: Date.now(),
+          }));
+        } catch {
+          // Ignore storage errors
+        }
+      }
 
-      // selection/focus
-      function setSelectedById(id){
-        selectedInput.value = id==null ? '' : String(id);
-        qa('.vehicle-card',vehicleGrid).forEach(c=>{
-          const sel=c.dataset.vehicleId===String(id);
-          c.classList.toggle('selected',sel);
-          c.setAttribute('aria-selected', sel ? 'true' : 'false');
+      static clear() {
+        localStorage.removeItem(CONFIG.cacheKey);
+      }
+    }
+
+    // Fast HTTP Client
+    class FastHTTP {
+      static async get(url, options = {}) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+
+        try {
+          const response = await fetch(url, {
+            signal: controller.signal,
+            headers: {
+              'Accept': 'application/json',
+              'Cache-Control': 'no-cache',
+            },
+            ...options,
+          });
+
+          clearTimeout(timeout);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          clearTimeout(timeout);
+          throw error;
+        }
+      }
+    }
+
+    // Main Application
+    class NairobiTransfersApp {
+      constructor() {
+        this.state = new AppState();
+        this.ui = new UIHandler(this);
+        this.api = new APIHandler(this);
+        this.router = new Router();
+
+        this.init();
+      }
+
+      async init() {
+        // Restore state
+        this.state.restore();
+
+        // Initialize UI
+        this.ui.init();
+
+        // Load vehicles (fast)
+        await this.loadVehicles();
+
+        // Initialize event listeners
+        this.setupEventListeners();
+
+        // Update UI from state
+        this.ui.updateFromState();
+      }
+
+      async loadVehicles() {
+        try {
+          // Try cache first
+          const cached = VehicleCache.get();
+          if (cached) {
+            this.state.update({ vehicles: cached });
+            this.ui.renderVehicles(cached);
+            // Update in background
+            this.loadVehiclesFromAPI();
+            return;
+          }
+
+          // Load from API
+          await this.loadVehiclesFromAPI();
+        } catch (error) {
+          console.warn('Failed to load vehicles:', error);
+          // Show fallback vehicles
+          this.showFallbackVehicles();
+        }
+      }
+
+      async loadVehiclesFromAPI() {
+        try {
+          const data = await FastHTTP.get(CONFIG.apiEndpoint);
+          const vehicles = this.processVehicleData(data);
+
+          this.state.update({ vehicles });
+          VehicleCache.set(vehicles);
+          this.ui.renderVehicles(vehicles);
+        } catch (error) {
+          // Silently fail - we have fallback
+        }
+      }
+
+      processVehicleData(data) {
+        // Handle different API response formats
+        let vehicles = [];
+
+        if (Array.isArray(data)) {
+          vehicles = data;
+        } else if (data?.results) {
+          vehicles = data.results;
+        } else if (data?.data) {
+          vehicles = data.data;
+        } else if (data?.vehicles) {
+          vehicles = data.vehicles;
+        }
+
+        // Normalize vehicle data
+        return vehicles.map(vehicle => ({
+          id: vehicle.id || Math.random().toString(36).slice(2),
+          name: vehicle.make || vehicle.name || 'Vehicle',
+          model: vehicle.model || '',
+          type: vehicle.vehicle_type || vehicle.type || 'Standard',
+          capacity: vehicle.capacity || vehicle.seats || 4,
+          price: vehicle.price || 0,
+          image: vehicle.image_url || vehicle.image || this.getVehicleImage(vehicle.type || 'standard'),
+          features: vehicle.features || ['AC', 'Wifi', 'GPS'],
+        }));
+      }
+
+      getVehicleImage(type) {
+        const images = {
+          'SUV': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
+          'Sedan': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w-400&h=300&fit=crop',
+          'Van': 'https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=400&h=300&fit=crop',
+          'Luxury': 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=400&h=300&fit=crop',
+        };
+
+        return images[type] || images['Sedan'];
+      }
+
+      showFallbackVehicles() {
+        const fallbackVehicles = [
+          {
+            id: '1',
+            name: 'Premium Sedan',
+            model: 'Toyota Camry',
+            type: 'Sedan',
+            capacity: 4,
+            price: 3500,
+            image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop',
+            features: ['AC', 'Wifi', 'Comfort Seats'],
+          },
+          {
+            id: '2',
+            name: 'Comfort SUV',
+            model: 'Toyota Prado',
+            type: 'SUV',
+            capacity: 6,
+            price: 5500,
+            image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
+            features: ['AC', 'Wifi', 'Spacious'],
+          },
+          {
+            id: '3',
+            name: 'Executive Van',
+            model: 'Toyota Hiace',
+            type: 'Van',
+            capacity: 12,
+            price: 7500,
+            image: 'https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=400&h=300&fit=crop',
+            features: ['AC', 'Wifi', 'Luggage Space'],
+          },
+        ];
+
+        this.state.update({ vehicles: fallbackVehicles });
+        this.ui.renderVehicles(fallbackVehicles);
+      }
+
+      setupEventListeners() {
+        // Step navigation
+        document.getElementById('next-step-1')?.addEventListener('click', () => {
+          if (!this.state.selectedVehicle) {
+            this.ui.showToast('Please select a vehicle', 'error');
+            return;
+          }
+          this.ui.goToStep(2);
         });
 
-        // Update selected vehicle display
-        if (id) {
-          const vehicle = vehicles.find(v => String(v.id) === String(id));
-          if (vehicle) {
-            selectedVehicleDisplay.classList.add('active');
-            selectedVehicleName.textContent = `${vehicle.make || vehicle.name || 'Unknown'} ${vehicle.model || ''}`;
-            selectedVehicleDetails.textContent = `${vehicle.capacity || vehicle.seats || '-'} seats • ${vehicle.price ? 'KSh ' + vehicle.price : 'Price on request'}`;
+        document.getElementById('prev-step-2')?.addEventListener('click', () => {
+          this.ui.goToStep(1);
+        });
 
-            // Enable continue button
-            continueToDetails.disabled = false;
+        document.getElementById('next-step-2')?.addEventListener('click', () => {
+          // Validate trip details
+          const pickup = document.getElementById('pickup').value;
+          const destination = document.getElementById('destination').value;
+          const date = document.getElementById('date').value;
+          const time = document.getElementById('time').value;
+
+          if (!pickup || !destination || !date || !time) {
+            this.ui.showToast('Please fill all trip details', 'error');
+            return;
           }
-        } else {
-          selectedVehicleDisplay.classList.remove('active');
-          // Disable continue button
-          continueToDetails.disabled = true;
-        }
 
-        // Update hero when vehicle is selected
-        if (id && window.updateHeroFromSelection) {
-          window.updateHeroFromSelection(id);
-        }
+          this.state.update({
+            tripDetails: { pickup, destination, date, time, passengers: document.getElementById('passengers').value }
+          });
+
+          this.ui.goToStep(3);
+          this.ui.updateBookingSummary();
+        });
+
+        document.getElementById('prev-step-3')?.addEventListener('click', () => {
+          this.ui.goToStep(2);
+        });
+
+        // Confirm booking
+        document.getElementById('confirm-booking')?.addEventListener('click', () => {
+          this.confirmBooking();
+        });
+
+        // Modal close
+        document.getElementById('close-modal')?.addEventListener('click', () => {
+          document.getElementById('confirmation-modal').style.display = 'none';
+        });
+
+        // Auto-fill today's date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+        document.getElementById('date').min = today;
+
+        // Auto-fill current time + 1 hour
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+        const timeString = now.toTimeString().slice(0,5);
+        document.getElementById('time').value = timeString;
       }
 
-      function focusCardAt(i){ const cards=qa('.vehicle-card',vehicleGrid); if(!cards.length) return; i=Math.max(0,Math.min(i,cards.length-1)); focusedIndex=i; const el=cards[i]; if(el && typeof el.focus==='function') el.focus(); }
+      confirmBooking() {
+        // Get contact details
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const notes = document.getElementById('notes').value;
 
-      // build card
-      function buildVehicleCard(v){ const id=v.id||Math.random().toString(36).slice(2,9); const make=v.make||v.name||'Unknown'; const model=v.model||''; const imgSrc=escapeHtml(v.image_url||v.image||''); const btn=document.createElement('button'); btn.type='button'; btn.className='vehicle-card'; btn.dataset.vehicleId=id; btn.id='vehicle-'+id; btn.setAttribute('role','option'); btn.tabIndex=0; btn.innerHTML=`<div class='vehicle-image-container'>${imgSrc?`<img data-src='${imgSrc}' class='vehicle-image' alt='${escapeHtml(make+' '+model)}' loading='lazy'>`:`<div class='vehicle-no-image' aria-hidden='true'>No image</div>`}</div><div class='vehicle-meta'><div class='vehicle-title'>${escapeHtml(make)} ${escapeHtml(model)}</div><div class='vehicle-sub'>${escapeHtml(String(v.capacity||v.seats||'-'))} seats ${v.license_plate?'- '+escapeHtml(v.license_plate):''}</div><div class='vehicle-row'><span class='vehicle-price'>${v.price ? 'KSh ' + escapeHtml(String(v.price)) : 'Price on request'}</span><button class='cta-small'>Select</button></div></div>`;
-        const img=btn.querySelector('img[data-src]'); if(img && imageObserver) imageObserver.observe(img); img?.addEventListener('error',()=>{ const c=btn.querySelector('.vehicle-image-container'); if(c) c.innerHTML=`<div class='vehicle-no-image'>Car image unavailable</div>`; });
-        btn.addEventListener('click',()=>setSelectedById(id));
-        btn.addEventListener('keydown',(e)=>{ const cards=qa('.vehicle-card',vehicleGrid); const idx=cards.indexOf(btn); if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setSelectedById(id); } else if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); focusCardAt(idx+1); } else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); focusCardAt(idx-1); } else if(e.key==='Home'){ e.preventDefault(); focusCardAt(0); } else if(e.key==='End'){ e.preventDefault(); focusCardAt(cards.length-1); } });
-        return btn;
-      }
-
-      // render
-      function renderVehicleGrid(list){ vehicleGrid.replaceChildren(); if(!Array.isArray(list)||!list.length){ vehicleGrid.appendChild(createEmptyEl()); selectedInput.value=''; return; } const frag=document.createDocumentFragment(); for(const v of list) frag.appendChild(buildVehicleCard(v)); vehicleGrid.appendChild(frag); }
-
-      // fetch with caching + abort
-      async function loadVehicles(){ if(isLoading) return; isLoading=true; const cached=vehicleCache.get(); if(cached){ vehicles=cached; renderVehicleGrid(vehicles); setupHeroSection(vehicles); isLoading=false; // background refresh but don't block UI
-          silentRefresh(); return; }
-        vehicleGrid.replaceChildren(createLoadingEl()); if(currentToken) currentToken.cancelled=true; const token = {cancelled:false}; currentToken=token;
-        try{
-          const controller=new AbortController(); const to=setTimeout(()=>controller.abort(), API_TIMEOUT);
-          const resp=await fetch(API_ENDPOINT,{signal:controller.signal,credentials:'same-origin'});
-          clearTimeout(to); if(token.cancelled) return; if(!resp.ok) throw new Error('HTTP '+resp.status);
-          const data=await resp.json(); if(token.cancelled) return;
-          const arr=Array.isArray(data)?data:(data && (data.data||data.results))||[];
-          vehicles=arr.map(v=>({ id:v.id||Math.random().toString(36).slice(2,9), make:v.make||v.name||'Unknown', model:v.model||'', vehicle_type:v.vehicle_type||v.type||'Standard', capacity:v.capacity||v.seats||4, license_plate:v.license_plate||'', image_url:v.image_url||v.image||'', price:v.price||'—', ...v }));
-          vehicleCache.set(vehicles); renderVehicleGrid(vehicles); setupHeroSection(vehicles);
-        }catch(err){ console.error('Error fetching vehicles:',err); if(token.cancelled) return; vehicleGrid.replaceChildren(createErrorEl('Failed to load vehicles.')); q('#retryLoadVehicles')?.addEventListener('click',loadVehicles,{once:true}); }
-        finally{ if(currentToken===token) currentToken=null; isLoading=false; }
-      }
-
-      // silent refresh (background) to avoid stale view
-      async function silentRefresh(){ try{ const controller=new AbortController(); const to=setTimeout(()=>controller.abort(),API_TIMEOUT); const resp=await fetch(API_ENDPOINT,{signal:controller.signal}); clearTimeout(to); if(!resp.ok) return; const data=await resp.json(); const arr=Array.isArray(data)?data:(data && (data.data||data.results))||[]; const newVehicles=arr.map(v=>({ id:v.id||Math.random().toString(36).slice(2,9), make:v.make||v.name||'Unknown', model:v.model||'', vehicle_type:v.vehicle_type||v.type||'Standard', capacity:v.capacity||v.seats||4, license_plate:v.license_plate||'', image_url:v.image_url||v.image||'', price:v.price||'—', ...v })); vehicleCache.set(newVehicles); // don't re-render if unchanged
-            // shallow compare length or first id
-            if(!vehicles || vehicles.length!==newVehicles.length || (vehicles[0] && newVehicles[0] && vehicles[0].id!==newVehicles[0].id)) { vehicles=newVehicles; renderVehicleGrid(vehicles); setupHeroSection(vehicles); }
-        }catch(e){} }
-
-      // keyboard grid navigation (aria)
-      vehicleGrid.addEventListener('keydown',(e)=>{ const keys=['ArrowDown','ArrowRight','ArrowUp','ArrowLeft','Home','End']; if(!keys.includes(e.key)) return; const cards=qa('.vehicle-card',vehicleGrid); if(!cards.length) return; e.preventDefault(); if(e.key==='ArrowDown'||e.key==='ArrowRight') focusCardAt((focusedIndex===-1?0:focusedIndex+1)); if(e.key==='ArrowUp'||e.key==='ArrowLeft') focusCardAt((focusedIndex===-1?cards.length-1:focusedIndex-1)); if(e.key==='Home') focusCardAt(0); if(e.key==='End') focusCardAt(cards.length-1); });
-
-      // external changes
-      selectedInput.addEventListener('change',()=>setSelectedById(selectedInput.value));
-
-      // Step navigation event listeners
-      continueToDetails?.addEventListener('click', () => {
-        if (!selectedInput.value) {
-          alert('Please select a vehicle first');
-          return;
-        }
-        showStep(2);
-      });
-
-      continueToContact?.addEventListener('click', () => {
-        // Validate trip details
-        const service = q('#service').value;
-        const date = q('#date').value;
-        const time = q('#time').value;
-        const passengers = q('#passengers').value;
-        const pickup = q('#pickup').value;
-        const dropoff = q('#dropoff').value;
-
-        if (!service || !date || !time || !passengers || !pickup || !dropoff) {
-          alert('Please fill in all trip details');
+        if (!name || !phone) {
+          this.ui.showToast('Please provide your contact details', 'error');
           return;
         }
 
-        showStep(3);
-      });
+        // Validate phone
+        const phoneRegex = /^\+?254[0-9]{9}$/;
+        if (!phoneRegex.test(phone)) {
+          this.ui.showToast('Please enter a valid Kenyan number (+254XXXXXXXXX)', 'error');
+          return;
+        }
 
-      backToVehicle?.addEventListener('click', () => {
-        showStep(1);
-      });
+        this.state.update({
+          contactDetails: { name, phone, notes }
+        });
 
-      backToDetails?.addEventListener('click', () => {
-        showStep(2);
-      });
+        // Send via WhatsApp
+        this.sendWhatsAppBooking();
+      }
 
-      // booking form
-      if(bookingForm){
-        bookingForm.addEventListener('submit',(e)=>{
-          e.preventDefault();
+      sendWhatsAppBooking() {
+        const { selectedVehicle, tripDetails, contactDetails } = this.state;
+        const vehicle = this.state.vehicles.find(v => v.id === selectedVehicle);
 
-          // Validate all steps
-          const selectedVehicleId=selectedInput.value;
-          if(!selectedVehicleId){
-            showStep(1);
-            alert('Please select a vehicle');
-            return;
-          }
+        if (!vehicle || !tripDetails || !contactDetails) return;
 
-          const service=q('#service').value;
-          const date=q('#date').value;
-          const time=q('#time').value;
-          const passengers=q('#passengers').value;
-          const pickup=q('#pickup').value;
-          const dropoff=q('#dropoff').value;
+        const message = `*NEW TRANSFER BOOKING*%0A%0A` +
+          `*Vehicle:* ${vehicle.name} ${vehicle.model}%0A` +
+          `*Passengers:* ${tripDetails.passengers}%0A` +
+          `*Pickup:* ${tripDetails.pickup}%0A` +
+          `*Destination:* ${tripDetails.destination}%0A` +
+          `*Date & Time:* ${tripDetails.date} at ${tripDetails.time}%0A` +
+          `*Name:* ${contactDetails.name}%0A` +
+          `*Phone:* ${contactDetails.phone}%0A` +
+          `*Notes:* ${contactDetails.notes || 'None'}`;
 
-          if(!service || !date || !time || !passengers || !pickup || !dropoff){
-            showStep(2);
-            alert('Please fill in all trip details');
-            return;
-          }
+        const whatsappUrl = `https://wa.me/${CONFIG.whatsappNumber}?text=${message}`;
 
-          const name=q('#name').value;
-          const phone=q('#phone').value;
+        // Open in new tab
+        window.open(whatsappUrl, '_blank', 'noopener noreferrer');
 
-          if(!name || !phone){
-            showStep(3);
-            alert('Please provide your contact information');
-            return;
-          }
+        // Show confirmation modal
+        document.getElementById('confirmation-modal').style.display = 'flex';
 
-          const phonePattern=/^\+254\d{9}$/;
-          if(!phonePattern.test(phone.trim())){
-            showStep(3);
-            alert('Please enter a valid Kenyan phone number in the format +254XXXXXXXXX');
-            return;
-          }
+        // Clear state after successful booking
+        setTimeout(() => {
+          this.state.clear();
+          this.ui.goToStep(1);
+          document.getElementById('booking-form')?.reset();
+          document.getElementById('trip-form')?.reset();
+          document.getElementById('contact-form')?.reset();
+        }, 5000);
+      }
+    }
 
-          const formData=new FormData(bookingForm);
-          const vehicle=vehicles.find(v=>String(v.id)===String(selectedVehicleId))||{};
-          const summaryHtml=[
-            `<strong>Vehicle:</strong> ${escapeHtml(vehicle.make||vehicle.name||'')} ${escapeHtml(vehicle.model||'')} - ${escapeHtml(String(vehicle.capacity||vehicle.seats||'—'))} Seats`,
-            `<strong>Service:</strong> ${escapeHtml(formData.get('service')||'')}`,
-            `<strong>Date:</strong> ${escapeHtml(formData.get('date')||'')}`,
-            `<strong>Time:</strong> ${escapeHtml(formData.get('time')||'')}`,
-            `<strong>Pickup:</strong> ${escapeHtml(formData.get('pickup')||'')}`,
-            `<strong>Drop-off:</strong> ${escapeHtml(formData.get('dropoff')||'')}`,
-            `<strong>Passengers:</strong> ${escapeHtml(formData.get('passengers')||'')}`,
-            `<strong>Name:</strong> ${escapeHtml(formData.get('name')||'')}`,
-            `<strong>Phone:</strong> ${escapeHtml(formData.get('phone')||'')}`
-          ].join('<br>');
-          bookingSummary.innerHTML=summaryHtml;
-          whatsappModal.classList.add('active');
-          whatsappModal.setAttribute('aria-hidden','false');
+    // UI Handler
+    class UIHandler {
+      constructor(app) {
+        this.app = app;
+      }
+
+      init() {
+        // Initialize any UI components
+      }
+
+      renderVehicles(vehicles) {
+        const container = document.getElementById('vehicle-grid');
+        if (!container) return;
+
+        // Clear loading skeletons
+        container.innerHTML = '';
+
+        vehicles.forEach(vehicle => {
+          const card = this.createVehicleCard(vehicle);
+          container.appendChild(card);
         });
       }
 
-      function handleWhatsAppSend(){
-        try{
-          const formData=new FormData(bookingForm);
-          const vehicle=vehicles.find(v=>String(v.id)===String(selectedInput.value))||{};
-          const lines=[
-            '*New Booking Request*',
-            '',
-            `Vehicle: ${vehicle.make||vehicle.name||''} ${vehicle.model||''} - ${vehicle.capacity||vehicle.seats||''} Seats`,
-            `Service: ${formData.get('service')||''}`,
-            `Date: ${formData.get('date')||''}`,
-            `Time: ${formData.get('time')||''}`,
-            `Pickup: ${formData.get('pickup')||''}`,
-            `Drop-off: ${formData.get('dropoff')||''}`,
-            `Passengers: ${formData.get('passengers')||''}`,
-            `Name: ${formData.get('name')||''}`,
-            `Phone: ${formData.get('phone')||''}`,
-            `Email: ${formData.get('email')||''}`,
-            `Notes: ${formData.get('notes')||'None'}`
-          ];
-          const wa=`https://wa.me/254723229651?text=${encodeURIComponent(lines.join('\n'))}`;
-          window.open(wa,'_blank','noopener');
-          whatsappModal.classList.remove('active');
-          whatsappModal.setAttribute('aria-hidden','true');
-          successModal.classList.add('active');
-          successModal.setAttribute('aria-hidden','false');
-          bookingForm.reset();
-          setSelectedById(null);
-          showStep(1); // Reset to first step
-          setTimeout(()=>{
-            successModal.classList.remove('active');
-            successModal.setAttribute('aria-hidden','true');
-          }, 4500);
-        }catch(e){
-          console.error(e);
-          alert('Failed to open WhatsApp.');
+      createVehicleCard(vehicle) {
+        const card = document.createElement('div');
+        card.className = 'vehicle-card';
+        card.dataset.vehicleId = vehicle.id;
+
+        const isSelected = this.app.state.selectedVehicle === vehicle.id;
+        if (isSelected) {
+          card.classList.add('selected');
+        }
+
+        card.innerHTML = `
+          <div style="position: relative;">
+            <img src="${vehicle.image}"
+                 alt="${vehicle.name} ${vehicle.model}"
+                 class="vehicle-image"
+                 loading="lazy"
+                 style="width: 100%; height: 200px; object-fit: cover;">
+            <div style="position: absolute; top: 1rem; right: 1rem; background: var(--primary); color: var(--bg); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">
+              ${vehicle.capacity} seats
+            </div>
+          </div>
+          <div style="padding: 1rem;">
+            <h4 style="margin-bottom: 0.5rem;">${vehicle.name} ${vehicle.model}</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="color: var(--primary); font-weight: 700; font-size: 1.25rem;">KSh ${vehicle.price.toLocaleString()}</div>
+                <div style="color: var(--text-muted); font-size: 0.875rem;">${vehicle.type}</div>
+              </div>
+              <button class="select-vehicle" style="background: var(--primary); color: var(--bg); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer;">
+                ${isSelected ? '✓ Selected' : 'Select'}
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Add click handlers
+        card.addEventListener('click', (e) => {
+          if (!e.target.closest('.select-vehicle')) {
+            this.selectVehicle(vehicle.id);
+          }
+        });
+
+        card.querySelector('.select-vehicle').addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectVehicle(vehicle.id);
+        });
+
+        return card;
+      }
+
+      selectVehicle(vehicleId) {
+        this.app.state.update({ selectedVehicle: vehicleId });
+
+        // Update UI
+        document.querySelectorAll('.vehicle-card').forEach(card => {
+          card.classList.remove('selected');
+          const button = card.querySelector('.select-vehicle');
+          if (button) {
+            button.textContent = 'Select';
+          }
+        });
+
+        const selectedCard = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
+        if (selectedCard) {
+          selectedCard.classList.add('selected');
+          const button = selectedCard.querySelector('.select-vehicle');
+          if (button) {
+            button.textContent = '✓ Selected';
+          }
+        }
+
+        // Update selected vehicle preview
+        const vehicle = this.app.state.vehicles.find(v => v.id === vehicleId);
+        if (vehicle) {
+          document.getElementById('selected-vehicle-preview').style.display = 'block';
+          document.getElementById('selected-vehicle-name').textContent =
+            `${vehicle.name} ${vehicle.model} - ${vehicle.capacity} seats (KSh ${vehicle.price.toLocaleString()})`;
+        }
+
+        // Enable next button
+        document.getElementById('next-step-1').disabled = false;
+      }
+
+      goToStep(step) {
+        this.app.state.update({ currentStep: step });
+
+        // Hide all steps
+        document.querySelectorAll('.step-content').forEach(el => {
+          el.style.display = 'none';
+        });
+
+        // Show current step
+        document.getElementById(`step-${step}`).style.display = 'block';
+
+        // Update step indicators
+        document.querySelectorAll('.step').forEach(el => {
+          el.classList.remove('active');
+        });
+
+        document.querySelector(`[data-step="${step}"]`).classList.add('active');
+
+        // Update steps before current to completed
+        for (let i = 1; i < step; i++) {
+          const stepEl = document.querySelector(`[data-step="${i}"]`);
+          if (stepEl) {
+            stepEl.classList.add('completed');
+          }
         }
       }
 
-      q('#whatsappSend')?.addEventListener('click',handleWhatsAppSend);
-      q('#whatsappCancel')?.addEventListener('click',()=>{
-        whatsappModal.classList.remove('active');
-        whatsappModal.setAttribute('aria-hidden','true');
-      });
-
-      q('#successClose')?.addEventListener('click',()=>{
-        successModal.classList.remove('active');
-        successModal.setAttribute('aria-hidden','true');
-      });
-
-      // retry close when clicking backdrop
-      qa('.modal').forEach(m=>m.addEventListener('click',(e)=>{
-        if(e.target===m){
-          m.classList.remove('active');
-          m.setAttribute('aria-hidden','true');
+      updateFromState() {
+        if (this.app.state.selectedVehicle) {
+          this.selectVehicle(this.app.state.selectedVehicle);
         }
-      }));
 
-      // start
-      loadVehicles();
+        if (this.app.state.currentStep) {
+          this.goToStep(this.app.state.currentStep);
+        }
 
-      // expose for debugging
-      window.vehicleWidget={
-        reload:()=>{
-          vehicleCache.clear();
-          return loadVehicles();
-        },
-        getVehicles:()=>vehicles.slice(),
-        select:(id)=>setSelectedById(id),
-        clearCache:()=>vehicleCache.clear()
-      };
+        // Restore form values
+        const { tripDetails, contactDetails } = this.app.state;
 
-    }); // DOMContentLoaded
-  })();
+        if (tripDetails) {
+          document.getElementById('pickup').value = tripDetails.pickup || '';
+          document.getElementById('destination').value = tripDetails.destination || '';
+          document.getElementById('date').value = tripDetails.date || '';
+          document.getElementById('time').value = tripDetails.time || '';
+          document.getElementById('passengers').value = tripDetails.passengers || '1';
+        }
+
+        if (contactDetails) {
+          document.getElementById('name').value = contactDetails.name || '';
+          document.getElementById('phone').value = contactDetails.phone || '';
+          document.getElementById('notes').value = contactDetails.notes || '';
+        }
+      }
+
+      updateBookingSummary() {
+        const { selectedVehicle, tripDetails, contactDetails } = this.app.state;
+        const vehicle = this.app.state.vehicles.find(v => v.id === selectedVehicle);
+        const summary = document.getElementById('booking-summary');
+
+        if (!summary || !vehicle || !tripDetails) return;
+
+        summary.innerHTML = `
+          <div><strong>Vehicle:</strong> ${vehicle.name} ${vehicle.model}</div>
+          <div><strong>Pickup:</strong> ${tripDetails.pickup}</div>
+          <div><strong>Destination:</strong> ${tripDetails.destination}</div>
+          <div><strong>Date & Time:</strong> ${tripDetails.date} at ${tripDetails.time}</div>
+          <div><strong>Passengers:</strong> ${tripDetails.passengers}</div>
+          <div><strong>Price:</strong> KSh ${vehicle.price.toLocaleString()}</div>
+          ${contactDetails.name ? `<div><strong>Contact:</strong> ${contactDetails.name}</div>` : ''}
+        `;
+      }
+
+      showToast(message, type = 'info') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          background: ${type === 'error' ? '#e74c3c' : 'var(--primary)'};
+          color: var(--bg);
+          padding: 1rem 1.5rem;
+          border-radius: var(--radius-sm);
+          font-weight: 600;
+          z-index: 10000;
+          animation: slideIn 0.3s ease;
+        `;
+
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease';
+          setTimeout(() => {
+            document.body.removeChild(toast);
+          }, 300);
+        }, 3000);
+
+        // Add animation styles
+        if (!document.querySelector('#toast-styles')) {
+          const style = document.createElement('style');
+          style.id = 'toast-styles';
+          style.textContent = `
+            @keyframes slideIn {
+              from { transform: translateX(100%); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+              from { transform: translateX(0); opacity: 1; }
+              to { transform: translateX(100%); opacity: 0; }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+      }
+    }
+
+    // API Handler (simplified)
+    class APIHandler {
+      constructor(app) {
+        this.app = app;
+      }
+    }
+
+    // Router (for future SPA features)
+    class Router {
+      constructor() {
+        this.routes = {};
+      }
+    }
+
+    // Initialize app when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      // Start app with requestIdleCallback for better performance
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => {
+          window.app = new NairobiTransfersApp();
+        });
+      } else {
+        // Fallback for older browsers
+        setTimeout(() => {
+          window.app = new NairobiTransfersApp();
+        }, 100);
+      }
+    });
+
+    // Service Worker for offline capability
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+
+  <!-- Optional Service Worker -->
+  <script>
+    // Register service worker if supported
+    if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
+      navigator.serviceWorker.register('/sw-transfers.js').catch(console.error);
+    }
   </script>
 </body>
 </html>
