@@ -222,6 +222,9 @@ class BookingCustomerAdmin(admin.ModelAdmin):
         return f"{total} KES"
 
     total_spent.short_description = 'Total Spent'
+class TripInline(admin.TabularInline):
+    model = Trip
+    extra = 0
 
 @admin.register(Driver)
 class DriverAdmin(admin.ModelAdmin):
@@ -229,7 +232,7 @@ class DriverAdmin(admin.ModelAdmin):
         'full_name', 'normalized_phone', 'license_number', 'rating',
         'available', 'is_verified', 'license_status_badge', 'driver_actions'
     )
-    list_filter = (DriverStatusFilter, 'gender', 'license_type')
+    list_filter = ( 'gender', 'license_type')  # remove DriverStatusFilter if not defined
     search_fields = (
         'user__username', 'user__first_name', 'user__last_name',
         'normalized_phone', 'license_number'
@@ -274,94 +277,71 @@ class DriverAdmin(admin.ModelAdmin):
             'fields': ('vehicle',)
         }),
         ('Verification', {
-            'fields': ('is_verified', 'driver_actions'),
+            'fields': ('is_verified',),  # driver_actions removed
             'classes': ('collapse',)
         }),
     )
 
     # ===== Custom Display Fields =====
-
     def license_status_badge(self, obj):
-        """Show expiry status with color-coded badge."""
         if not obj.license_expiry:
             return format_html('<span style="color: orange;">Unknown</span>')
-
         days_until_expiry = (obj.license_expiry - timezone.now().date()).days
         if days_until_expiry < 0:
             return format_html('<span style="color: red; font-weight: bold;">Expired</span>')
         elif days_until_expiry < 30:
-            return format_html(
-                '<span style="color: orange; font-weight: bold;">Expiring in {} days</span>',
-                days_until_expiry
-            )
+            return format_html('<span style="color: orange; font-weight: bold;">Expiring in {} days</span>', days_until_expiry)
         return format_html('<span style="color: green;">Valid</span>')
-
     license_status_badge.short_description = 'License Status'
 
     def age(self, obj):
-        """Calculate age from date of birth."""
         if obj.date_of_birth:
             today = timezone.now().date()
-            return (
-                today.year - obj.date_of_birth.year
-                - ((today.month, today.day) < (obj.date_of_birth.month, obj.date_of_birth.day))
-            )
+            return today.year - obj.date_of_birth.year - ((today.month, today.day) < (obj.date_of_birth.month, obj.date_of_birth.day))
         return "N/A"
-
     age.short_description = 'Age'
 
-    # ===== Custom Action Buttons (Verify / Unverify) =====
-
+    # ===== Custom Action Buttons =====
     def driver_actions(self, obj):
-        """Add Verify/Unverify buttons in admin list."""
         url = reverse('admin:driver_action', args=[obj.pk])
         if not obj.is_verified:
             return format_html(
                 '<a class="button" style="background:#28a745;color:white;padding:5px 10px;'
                 'border-radius:6px;text-decoration:none;" href="{}?action=verify" '
-                'onclick="setTimeout(()=>location.reload(),1500)">✅ Verify</a>',
-                url
+                'onclick="setTimeout(()=>location.reload(),1500)">✅ Verify</a>', url
             )
         else:
             return format_html(
                 '<a class="button" style="background:#dc3545;color:white;padding:5px 10px;'
                 'border-radius:6px;text-decoration:none;" href="{}?action=unverify" '
-                'onclick="setTimeout(()=>location.reload(),1500)">🚫 Unverify</a>',
-                url
+                'onclick="setTimeout(()=>location.reload(),1500)">🚫 Unverify</a>', url
             )
-
     driver_actions.short_description = 'Actions'
 
     # ===== Bulk Actions =====
-
     def verify_drivers(self, request, queryset):
         count = queryset.update(is_verified=True)
         self.message_user(request, f"✅ {count} drivers have been verified.", messages.SUCCESS)
-
     verify_drivers.short_description = "Verify selected drivers"
 
     def unverify_drivers(self, request, queryset):
         count = queryset.update(is_verified=False)
         self.message_user(request, f"🚫 {count} drivers have been unverified.", messages.WARNING)
-
     unverify_drivers.short_description = "Unverify selected drivers"
 
     def make_available(self, request, queryset):
         count = queryset.update(available=True)
         self.message_user(request, f"🟢 {count} drivers are now available.", messages.SUCCESS)
-
     make_available.short_description = "Make selected drivers available"
 
     def make_unavailable(self, request, queryset):
         count = queryset.update(available=False)
         self.message_user(request, f"🔴 {count} drivers are now unavailable.", messages.WARNING)
-
     make_unavailable.short_description = "Make selected drivers unavailable"
 
     def send_verification_reminder(self, request, queryset):
         count = queryset.count()
         self.message_user(request, f"📩 Verification reminders sent to {count} drivers.", messages.INFO)
-
     send_verification_reminder.short_description = "Send verification reminder"
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):

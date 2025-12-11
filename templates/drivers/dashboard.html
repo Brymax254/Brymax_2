@@ -6,16 +6,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Dashboard - Safari Adventures Kenya</title>
+    <title>Admin Dashboard - Safari Bookings</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #10b981;
             --secondary-color: #059669;
             --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
             --text-color: #1f2937;
             --light-bg: #f9fafb;
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -30,7 +32,7 @@
         }
 
         .dashboard-container {
-            max-width: 1400px;
+            max-width: 1800px;
             margin: 0 auto;
             padding: 1rem;
         }
@@ -96,7 +98,6 @@
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--primary-color);
             margin: 0.5rem 0;
         }
 
@@ -121,30 +122,7 @@
             color: var(--primary-color);
         }
 
-        .trip-card {
-            background: white;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s ease;
-        }
-
-        .trip-card:hover {
-            transform: translateX(4px);
-        }
-
-        .trip-time {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .trip-destination {
-            font-weight: 500;
-            margin: 0.25rem 0;
-        }
-
-        .trip-status {
+        .status-badge {
             display: inline-block;
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
@@ -153,249 +131,43 @@
             text-transform: uppercase;
         }
 
-        .status-scheduled {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-confirmed { background-color: #d1fae5; color: #065f46; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+        .status-completed { background-color: #dbeafe; color: #1e40af; }
+        .status-processing { background-color: #e0e7ff; color: #3730a3; }
+        .status-success { background-color: #dcfce7; color: #166534; }
+        .status-failed { background-color: #fee2e2; color: #991b1b; }
 
-        .status-in-progress {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-completed {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-cancelled {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .calendar-container {
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
             background: white;
             border-radius: 0.75rem;
+            overflow: hidden;
             box-shadow: var(--card-shadow);
-            padding: 1.5rem;
         }
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .calendar-nav {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .calendar-nav button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .calendar-nav button:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.25rem;
-        }
-
-        .calendar-day-header {
-            text-align: center;
-            font-weight: 600;
-            padding: 0.5rem 0;
-            color: #6b7280;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.25rem;
-            position: relative;
-        }
-
-        .calendar-day-number {
-            font-weight: 500;
-        }
-
-        .calendar-day.today {
-            background-color: #f3f4f6;
-        }
-
-        .calendar-day.has-trips {
-            background-color: #ecfdf5;
-        }
-
-        .calendar-day.has-trips .calendar-day-number {
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .tour-card {
-            background: white;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s ease;
-        }
-
-        .tour-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .tour-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .tour-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        .tour-status {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-approved {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-pending {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .review-card {
-            background: white;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .reviewer-name {
-            font-weight: 600;
-        }
-
-        .review-rating {
-            color: var(--accent-color);
-        }
-
-        .review-comment {
-            color: #4b5563;
-            font-size: 0.875rem;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            height: 300px;
-        }
-
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 1rem;
-        }
-
-        .tab {
+        .data-table th {
+            background-color: #f9fafb;
             padding: 0.75rem 1rem;
-            font-weight: 500;
-            color: #6b7280;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: color 0.2s, border-color 0.2s;
-        }
-
-        .tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .vehicle-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        .status-valid {
-            background-color: #10b981;
-        }
-
-        .status-expiring {
-            background-color: #f59e0b;
-        }
-
-        .status-expired {
-            background-color: #ef4444;
-        }
-
-        .notification-badge {
-            background-color: #ef4444;
-            color: white;
-            border-radius: 9999px;
-            padding: 0.125rem 0.375rem;
-            font-size: 0.75rem;
+            text-align: left;
             font-weight: 600;
-            margin-left: 0.25rem;
+            color: var(--text-color);
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .footer {
-            background-color: white;
-            box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.1), 0 -1px 2px 0 rgba(0, 0, 0, 0.06);
-            padding: 1rem;
-            margin-top: 2rem;
-            border-radius: 0.5rem;
-            text-align: center;
-            color: #6b7280;
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: #f9fafb;
         }
 
         .action-btn {
@@ -407,6 +179,8 @@
             align-items: center;
             gap: 0.5rem;
             transition: all 0.2s;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-primary {
@@ -428,7 +202,7 @@
         }
 
         .btn-danger {
-            background-color: #ef4444;
+            background-color: var(--danger-color);
             color: white;
         }
 
@@ -436,114 +210,75 @@
             background-color: #dc2626;
         }
 
-        .profile-section {
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
         }
 
-        .profile-header {
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #2563eb;
+        }
+
+        .table-actions {
             display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--primary-color);
-        }
-
-        .profile-info h2 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.5rem;
-        }
-
-        .profile-info p {
-            margin: 0.25rem 0;
-            color: #6b7280;
-        }
-
-        .profile-stats {
-            display: flex;
-            gap: 2rem;
-            margin-top: 1rem;
-        }
-
-        .profile-stat {
-            text-align: center;
-        }
-
-        .profile-stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .profile-stat-label {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        .vehicle-card {
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .vehicle-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .vehicle-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        .vehicle-detail {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .vehicle-detail-label {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 0.25rem;
-        }
-
-        .vehicle-detail-value {
-            font-weight: 500;
-        }
-
-        .document-status {
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
-            margin-top: 0.5rem;
+            flex-wrap: wrap;
         }
 
-        .document-status i {
+        .table-action-btn {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-action-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-action-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
             color: var(--primary-color);
         }
 
-        .document-status.expired i {
-            color: #ef4444;
-        }
-
-        .document-status.expiring i {
-            color: var(--accent-color);
+        .chart-container {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            height: 400px;
         }
 
         .modal {
@@ -568,7 +303,7 @@
             border-radius: 0.75rem;
             padding: 2rem;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -617,45 +352,11 @@
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
         .form-actions {
             display: flex;
             gap: 1rem;
             justify-content: flex-end;
-        }
-
-        .notification {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            color: white;
-            font-weight: 500;
-            box-shadow: var(--card-shadow);
-            z-index: 1001;
-            transform: translateX(150%);
-            transition: transform 0.3s ease;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            background-color: var(--primary-color);
-        }
-
-        .notification.error {
-            background-color: #ef4444;
-        }
-
-        .notification.warning {
-            background-color: var(--accent-color);
+            margin-top: 2rem;
         }
 
         .filter-section {
@@ -685,11 +386,12 @@
             font-size: 0.875rem;
         }
 
-        .filter-input {
+        .filter-select {
             width: 100%;
             padding: 0.5rem;
             border: 1px solid #d1d5db;
             border-radius: 0.25rem;
+            background-color: white;
         }
 
         .filter-actions {
@@ -697,186 +399,63 @@
             gap: 0.5rem;
         }
 
-        .filter-btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.25rem;
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
             font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .filter-apply {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .filter-apply:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .filter-reset {
-            background-color: #e5e7eb;
-            color: var(--text-color);
-        }
-
-        .filter-reset:hover {
-            background-color: #d1d5db;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 0.75rem;
-            overflow: hidden;
             box-shadow: var(--card-shadow);
+            z-index: 1001;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
         }
 
-        .data-table th {
-            background-color: #f9fafb;
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-color);
-            border-bottom: 1px solid #e5e7eb;
+        .notification.show {
+            transform: translateX(0);
         }
 
-        .data-table td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .data-table tr:hover {
-            background-color: #f9fafb;
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .table-action-btn {
-            padding: 0.25rem 0.5rem;
-            border: none;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .table-view {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .table-view:hover {
-            background-color: #2563eb;
-        }
-
-        .table-edit {
+        .notification.success {
             background-color: var(--primary-color);
-            color: white;
         }
 
-        .table-edit:hover {
-            background-color: var(--secondary-color);
+        .notification.error {
+            background-color: var(--danger-color);
         }
 
-        .table-delete {
-            background-color: #ef4444;
-            color: white;
+        .notification.warning {
+            background-color: var(--warning-color);
         }
 
-        .table-delete:hover {
-            background-color: #dc2626;
-        }
-
-        .pagination {
+        .tabs {
             display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
 
-        .pagination-btn {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #d1d5db;
-            background-color: white;
-            color: var(--text-color);
-            border-radius: 0.25rem;
+        .tab {
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            color: #6b7280;
             cursor: pointer;
-            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
         }
 
-        .pagination-btn:hover {
-            background-color: #f3f4f6;
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
         }
 
-        .pagination-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
+        .tab-content {
+            display: none;
         }
 
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 640px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stat-value {
-                font-size: 1.5rem;
-            }
-
-            .navbar-menu {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .profile-header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .vehicle-details {
-                grid-template-columns: 1fr;
-            }
-
-            .filter-form {
-                flex-direction: column;
-            }
-
-            .filter-group {
-                width: 100%;
-            }
-
-            .data-table {
-                font-size: 0.875rem;
-            }
-
-            .data-table th,
-            .data-table td {
-                padding: 0.5rem;
-            }
-
-            .table-actions {
-                flex-direction: column;
-            }
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
@@ -885,16 +464,17 @@
         <!-- Navigation Bar -->
         <nav class="navbar">
             <div class="navbar-nav">
-                <a href="{% url 'bookings:home' %}" class="navbar-brand">
-                    <i class="fas fa-road mr-2"></i>Safari Driver
+                <a href="/admin/" class="navbar-brand">
+                    <i class="fas fa-cogs mr-2"></i>Safari Bookings Admin
                 </a>
                 <div class="navbar-menu">
-                    <a href="{% url 'bookings:driver_dashboard' %}" class="navbar-link active">Dashboard</a>
-                    <a href="#trips" class="navbar-link" data-tab="trips">My Trips</a>
-                    <a href="#tours" class="navbar-link" data-tab="tours">My Tours</a>
-                    <a href="#earnings" class="navbar-link" data-tab="earnings">Earnings</a>
-                    <a href="#profile" class="navbar-link" data-tab="profile">Profile</a>
-                    <a href="{% url 'bookings:driver_logout' %}" class="navbar-link">
+                    <a href="/admin/" class="navbar-link active">Dashboard</a>
+                    <a href="/admin/bookings/booking/" class="navbar-link">Bookings</a>
+                    <a href="/admin/bookings/driver/" class="navbar-link">Drivers</a>
+                    <a href="/admin/bookings/vehicle/" class="navbar-link">Vehicles</a>
+                    <a href="/admin/bookings/payment/" class="navbar-link">Payments</a>
+                    <a href="/admin/bookings/tour/" class="navbar-link">Tours</a>
+                    <a href="/admin/logout/" class="navbar-link">
                         <i class="fas fa-sign-out-alt mr-1"></i>Logout
                     </a>
                 </div>
@@ -905,18 +485,56 @@
         <div class="mb-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">Driver Dashboard</h1>
-                    <p class="text-gray-600 mt-1">Welcome back, {{ driver.full_name }}!</p>
+                    <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+                    <p class="text-gray-600 mt-1">Welcome to Safari Bookings Administration</p>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
-                        <p class="text-sm text-gray-500">Today's Date</p>
-                        <p class="font-semibold">{{ today|date:"F d, Y" }}</p>
-                    </div>
-                    <a href="{% url 'bookings:driver_logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                    </a>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Today's Date</p>
+                    <p class="font-semibold">{{ today|date:"F d, Y" }}</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3 class="font-semibold mb-2">Create Booking</h3>
+                <a href="/admin/bookings/booking/add/" class="action-btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>New Booking
+                </a>
+            </div>
+
+            <div class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h3 class="font-semibold mb-2">Add Driver</h3>
+                <a href="/admin/bookings/driver/add/" class="action-btn btn-info">
+                    <i class="fas fa-user-plus mr-2"></i>Add Driver
+                </a>
+            </div>
+
+            <div class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3 class="font-semibold mb-2">Add Vehicle</h3>
+                <a href="/admin/bookings/vehicle/add/" class="action-btn btn-info">
+                    <i class="fas fa-car mr-2"></i>Add Vehicle
+                </a>
+            </div>
+
+            <div class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3 class="font-semibold mb-2">Add Tour</h3>
+                <a href="/admin/bookings/tour/add/" class="action-btn btn-info">
+                    <i class="fas fa-plus mr-2"></i>Add Tour
+                </a>
             </div>
         </div>
 
@@ -925,9 +543,25 @@
             <div class="stat-card">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="stat-label">Total Earnings</p>
-                        <p class="stat-value">KES {{ total_earnings|floatformat:0 }}</p>
-                        <p class="text-sm text-gray-500 mt-1">This month: KES {{ monthly_earnings|floatformat:0 }}</p>
+                        <p class="stat-label">Total Bookings</p>
+                        <p class="stat-value">{{ total_bookings }}</p>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <span class="text-green-600">{{ confirmed_bookings }} Confirmed</span> |
+                            <span class="text-yellow-600">{{ pending_bookings }} Pending</span>
+                        </p>
+                    </div>
+                    <div class="text-blue-500 text-3xl">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="stat-label">Total Revenue</p>
+                        <p class="stat-value">KES {{ total_revenue|floatformat:0 }}</p>
+                        <p class="text-sm text-gray-500 mt-1">{{ pending_revenue|floatformat:0 }} Pending</p>
                     </div>
                     <div class="text-green-500 text-3xl">
                         <i class="fas fa-money-bill-wave"></i>
@@ -938,38 +572,25 @@
             <div class="stat-card">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="stat-label">Total Trips</p>
-                        <p class="stat-value">{{ total_trips }}</p>
-                        <p class="text-sm text-gray-500 mt-1">Completed: {{ completed_trips_count }}</p>
-                    </div>
-                    <div class="text-blue-500 text-3xl">
-                        <i class="fas fa-route"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="stat-label">Average Rating</p>
-                        <p class="stat-value">{{ performance_metrics.avg_rating|floatformat:1 }}</p>
-                        <p class="text-sm text-gray-500 mt-1">{{ total_reviews }} reviews</p>
-                    </div>
-                    <div class="text-yellow-500 text-3xl">
-                        <i class="fas fa-star"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="stat-label">Active Tours</p>
-                        <p class="stat-value">{{ active_tours }}</p>
-                        <p class="text-sm text-gray-500 mt-1">Total: {{ total_tours }}</p>
+                        <p class="stat-label">Active Drivers</p>
+                        <p class="stat-value">{{ available_drivers }} / {{ total_drivers }}</p>
+                        <p class="text-sm text-gray-500 mt-1">{{ verified_drivers }} Verified</p>
                     </div>
                     <div class="text-purple-500 text-3xl">
-                        <i class="fas fa-map-marked-alt"></i>
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="stat-label">Active Vehicles</p>
+                        <p class="stat-value">{{ active_vehicles }} / {{ total_vehicles }}</p>
+                        <p class="text-sm text-gray-500 mt-1">{{ active_vehicles }} Available</p>
+                    </div>
+                    <div class="text-red-500 text-3xl">
+                        <i class="fas fa-car"></i>
                     </div>
                 </div>
             </div>
@@ -978,231 +599,203 @@
         <!-- Tabs Navigation -->
         <div class="tabs">
             <div class="tab active" data-tab="overview">Overview</div>
-            <div class="tab" data-tab="trips">Trips</div>
-            <div class="tab" data-tab="earnings">Earnings</div>
-            <div class="tab" data-tab="schedule">Schedule</div>
-            <div class="tab" data-tab="tours">Tours</div>
-            <div class="tab" data-tab="reviews">Reviews</div>
-            <div class="tab" data-tab="profile">Profile</div>
-            <div class="tab" data-tab="vehicle">Vehicle</div>
+            <div class="tab" data-tab="recent-bookings">Recent Bookings</div>
+            <div class="tab" data-tab="pending-actions">Pending Actions</div>
+            <div class="tab" data-tab="recent-payments">Recent Payments</div>
+            <div class="tab" data-tab="analytics">Analytics</div>
         </div>
 
-        <!-- Tab Content -->
+        <!-- Overview Tab -->
         <div class="tab-content active" id="overview">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Today's Trips -->
+                <!-- Today's Bookings -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="section-title">
                         <i class="fas fa-calendar-day"></i>
-                        Today's Trips
+                        Today's Bookings ({{ today_bookings.count }})
                     </h2>
-                    {% if today_trips %}
-                        {% for trip in today_trips %}
-                        <div class="trip-card">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="trip-time">{{ trip.start_time|time:"H:i" }} - {{ trip.end_time|time:"H:i" }}</p>
-                                    <p class="trip-destination">{{ trip.destination }}</p>
-                                    <p class="text-sm text-gray-500">Earnings: KES {{ trip.earnings|floatformat:0 }}</p>
-                                </div>
-                                <span class="trip-status {{ trip.status|lower }}">{{ trip.status }}</span>
-                            </div>
+                    {% if today_bookings %}
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Reference</th>
+                                        <th>Customer</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in today_bookings %}
+                                    <tr>
+                                        <td class="font-mono text-sm">{{ booking.booking_reference }}</td>
+                                        <td>{{ booking.booking_customer.full_name }}</td>
+                                        <td>{{ booking.travel_time|time:"H:i" }}</td>
+                                        <td><span class="status-badge status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a href="/admin/bookings/booking/{{ booking.id }}/change/" class="table-action-btn btn-info">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                {% if booking.status == 'PENDING' %}
+                                                <a href="{% url 'admin:booking_action' booking.id %}?action=confirm" class="table-action-btn btn-primary">
+                                                    <i class="fas fa-check"></i> Confirm
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        {% endfor %}
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">No trips scheduled for today</p>
+                        <p class="text-gray-500 text-center py-4">No bookings scheduled for today</p>
                     {% endif %}
                 </div>
 
-                <!-- Upcoming Trips -->
+                <!-- Pending Verifications -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="section-title">
-                        <i class="fas fa-calendar-alt"></i>
-                        Upcoming Trips
+                        <i class="fas fa-user-check"></i>
+                        Drivers Needing Verification
                     </h2>
-                    {% if upcoming_trips %}
-                        {% for trip in upcoming_trips %}
-                        <div class="trip-card">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="trip-time">{{ trip.date|date:"M d, Y" }} at {{ trip.start_time|time:"H:i" }}</p>
-                                    <p class="trip-destination">{{ trip.destination }}</p>
-                                    <p class="text-sm text-gray-500">Earnings: KES {{ trip.earnings|floatformat:0 }}</p>
-                                </div>
-                                <span class="trip-status {{ trip.status|lower }}">{{ trip.status }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-gray-500 text-center py-4">No upcoming trips</p>
-                    {% endif %}
-                </div>
-
-                <!-- Vehicle Status -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="section-title">
-                        <i class="fas fa-car"></i>
-                        Vehicle Status
-                    </h2>
-                    {% if vehicle_status %}
-                        <div class="space-y-4">
-                            <div>
-                                <p class="font-semibold">{{ vehicle_status.name }}</p>
-                                <p class="text-sm text-gray-500">License: {{ vehicle_status.plate }}</p>
-                            </div>
-                            <div class="vehicle-status">
-                                <span class="status-indicator {% if vehicle_status.maintenance_due %}status-expiring{% else %}status-valid{% endif %}"></span>
-                                <p class="text-sm">
-                                    {% if vehicle_status.maintenance_due %}
-                                        Maintenance due soon
-                                    {% else %}
-                                        Maintenance up to date
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div class="vehicle-status">
-                                <span class="status-indicator status-valid"></span>
-                                <p class="text-sm">Insurance: Valid</p>
-                            </div>
+                    {% if unverified_drivers %}
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Phone</th>
+                                        <th>License</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for driver in unverified_drivers %}
+                                    <tr>
+                                        <td>{{ driver.full_name }}</td>
+                                        <td>{{ driver.phone_number }}</td>
+                                        <td class="font-mono text-sm">{{ driver.license_number }}</td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a href="{% url 'admin:driver_action' driver.id %}?action=verify" class="table-action-btn btn-primary">
+                                                    <i class="fas fa-check"></i> Verify
+                                                </a>
+                                                <a href="/admin/bookings/driver/{{ driver.id }}/change/" class="table-action-btn btn-info">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">No vehicle assigned</p>
-                    {% endif %}
-                </div>
-
-                <!-- Recent Bookings -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="section-title">
-                        <i class="fas fa-clipboard-list"></i>
-                        Recent Bookings
-                    </h2>
-                    {% if recent_bookings %}
-                        {% for booking in recent_bookings %}
-                        <div class="trip-card">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="trip-destination">{{ booking.tour.title }}</p>
-                                    <p class="text-sm text-gray-500">{{ booking.booking_customer.full_name }}</p>
-                                    <p class="text-sm text-gray-500">{{ booking.travel_date|date:"M d, Y" }}</p>
-                                </div>
-                                <span class="trip-status {{ booking.status|lower }}">{{ booking.status }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-gray-500 text-center py-4">No recent bookings</p>
+                        <p class="text-gray-500 text-center py-4">All drivers are verified</p>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <div class="tab-content" id="trips">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="section-title mb-0">
-                        <i class="fas fa-route"></i>
-                        All Trips
-                    </h2>
-                    <div class="filter-actions">
-                        <button id="filter-toggle" class="filter-btn filter-apply">
-                            <i class="fas fa-filter mr-1"></i>Filter
-                        </button>
+        <!-- Recent Bookings Tab -->
+        <div class="tab-content" id="recent-bookings">
+            <div class="filter-section">
+                <form method="get" class="filter-form">
+                    <div class="filter-group">
+                        <label class="filter-label" for="status-filter">Status</label>
+                        <select id="status-filter" name="status" class="filter-select">
+                            <option value="">All Statuses</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="CONFIRMED">Confirmed</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
                     </div>
-                </div>
+                    <div class="filter-group">
+                        <label class="filter-label" for="date-from">From Date</label>
+                        <input type="date" id="date-from" name="date_from" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label" for="date-to">To Date</label>
+                        <input type="date" id="date-to" name="date_to" class="form-input">
+                    </div>
+                    <div class="filter-actions">
+                        <button type="submit" class="action-btn btn-primary">
+                            <i class="fas fa-filter mr-2"></i>Filter
+                        </button>
+                        <a href="?" class="action-btn btn-secondary">
+                            <i class="fas fa-redo mr-2"></i>Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
 
-                <!-- Filter Section (Hidden by default) -->
-                <div id="filter-section" class="filter-section" style="display: none;">
-                    <form method="get" class="filter-form">
-                        <div class="filter-group">
-                            <label class="filter-label" for="status-filter">Status</label>
-                            <select id="status-filter" name="status" class="filter-input">
-                                <option value="">All Statuses</option>
-                                <option value="SCHEDULED">Scheduled</option>
-                                <option value="IN_PROGRESS">In Progress</option>
-                                <option value="COMPLETED">Completed</option>
-                                <option value="CANCELLED">Cancelled</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label class="filter-label" for="date-from">From Date</label>
-                            <input type="date" id="date-from" name="date_from" class="filter-input" value="{{ request.GET.date_from }}">
-                        </div>
-                        <div class="filter-group">
-                            <label class="filter-label" for="date-to">To Date</label>
-                            <input type="date" id="date-to" name="date_to" class="filter-input" value="{{ request.GET.date_to }}">
-                        </div>
-                        <div class="filter-actions">
-                            <button type="submit" class="filter-btn filter-apply">Apply</button>
-                            <button type="button" id="reset-filter" class="filter-btn filter-reset">Reset</button>
-                        </div>
-                    </form>
-                </div>
-
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Recent Bookings
+                </h2>
                 <div class="overflow-x-auto">
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th>Reference</th>
+                                <th>Customer</th>
+                                <th>Service</th>
                                 <th>Date</th>
-                                <th>Destination</th>
-                                <th>Time</th>
-                                <th>Earnings</th>
+                                <th>Amount</th>
                                 <th>Status</th>
+                                <th>Payment</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for trip in today_trips %}
+                            {% for booking in recent_bookings %}
                             <tr>
-                                <td>{{ trip.date|date:"M d, Y" }}</td>
-                                <td>{{ trip.destination }}</td>
-                                <td>{{ trip.start_time|time:"H:i" }} - {{ trip.end_time|time:"H:i" }}</td>
-                                <td>KES {{ trip.earnings|floatformat:0 }}</td>
-                                <td><span class="trip-status {{ trip.status|lower }}">{{ trip.status }}</span></td>
+                                <td class="font-mono text-sm">{{ booking.booking_reference }}</td>
+                                <td>{{ booking.booking_customer.full_name }}</td>
+                                <td>
+                                    {% if booking.destination %}
+                                        {{ booking.destination.name }}
+                                    {% elif booking.tour %}
+                                        {{ booking.tour.title }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ booking.travel_date|date:"M d, Y" }}</td>
+                                <td class="font-semibold">KES {{ booking.total_price|floatformat:0 }}</td>
+                                <td><span class="status-badge status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
+                                <td>
+                                    {% if booking.is_paid %}
+                                        <span class="status-badge status-success">Paid</span>
+                                    {% else %}
+                                        <span class="status-badge status-pending">Unpaid</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <div class="table-actions">
-                                        <button class="table-action-btn table-view" data-id="{{ trip.id }}">
+                                        <a href="/admin/bookings/booking/{{ booking.id }}/change/" class="table-action-btn btn-info">
                                             <i class="fas fa-eye"></i>
-                                        </button>
-                                        {% if trip.status == 'SCHEDULED' %}
-                                        <button class="table-action-btn table-edit" data-id="{{ trip.id }}">
-                                            <i class="fas fa-play"></i>
-                                        </button>
+                                        </a>
+                                        {% if booking.status == 'PENDING' %}
+                                        <a href="{% url 'admin:booking_action' booking.id %}?action=confirm" class="table-action-btn btn-primary" title="Confirm">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a href="{% url 'admin:booking_action' booking.id %}?action=cancel" class="table-action-btn btn-danger" title="Cancel">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                        {% elif booking.status == 'CONFIRMED' and booking.is_upcoming %}
+                                        <a href="{% url 'admin:booking_action' booking.id %}?action=cancel" class="table-action-btn btn-danger" title="Cancel">
+                                            <i class="fas fa-times"></i>
+                                        </a>
                                         {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% for trip in upcoming_trips %}
-                            <tr>
-                                <td>{{ trip.date|date:"M d, Y" }}</td>
-                                <td>{{ trip.destination }}</td>
-                                <td>{{ trip.start_time|time:"H:i" }} - {{ trip.end_time|time:"H:i" }}</td>
-                                <td>KES {{ trip.earnings|floatformat:0 }}</td>
-                                <td><span class="trip-status {{ trip.status|lower }}">{{ trip.status }}</span></td>
-                                <td>
-                                    <div class="table-actions">
-                                        <button class="table-action-btn table-view" data-id="{{ trip.id }}">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="table-action-btn table-edit" data-id="{{ trip.id }}">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            {% for trip in completed_trips %}
-                            <tr>
-                                <td>{{ trip.date|date:"M d, Y" }}</td>
-                                <td>{{ trip.destination }}</td>
-                                <td>{{ trip.start_time|time:"H:i" }} - {{ trip.end_time|time:"H:i" }}</td>
-                                <td>KES {{ trip.earnings|floatformat:0 }}</td>
-                                <td><span class="trip-status {{ trip.status|lower }}">{{ trip.status }}</span></td>
-                                <td>
-                                    <div class="table-actions">
-                                        <button class="table-action-btn table-view" data-id="{{ trip.id }}">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
+                                        {% if not booking.is_paid %}
+                                        <a href="/admin/bookings/payment/add/?booking={{ booking.id }}" class="table-action-btn btn-warning" title="Add Payment">
+                                            <i class="fas fa-money-bill"></i>
+                                        </a>
+                                        {% endif %}
                                     </div>
                                 </td>
                             </tr>
@@ -1210,87 +803,156 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Pagination -->
-                <div class="pagination">
-                    <button class="pagination-btn" disabled>
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
-                    <button class="pagination-btn">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+                <div class="mt-4 text-center">
+                    <a href="/admin/bookings/booking/" class="action-btn btn-secondary">
+                        <i class="fas fa-list mr-2"></i>View All Bookings
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="tab-content" id="earnings">
+        <!-- Pending Actions Tab -->
+        <div class="tab-content" id="pending-actions">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="chart-container">
-                    <h2 class="section-title">
-                        <i class="fas fa-chart-line"></i>
-                        Monthly Earnings
-                    </h2>
-                    <canvas id="earningsChart"></canvas>
-                </div>
-
+                <!-- Pending Payments -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h2 class="section-title">
-                        <i class="fas fa-money-check-alt"></i>
-                        Earnings Summary
+                        <i class="fas fa-clock"></i>
+                        Pending Payments
                     </h2>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-gray-600">Total Earnings</span>
-                            <span class="font-semibold">KES {{ total_stats.total_earnings|floatformat:0 }}</span>
+                    {% if pending_payments %}
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Booking</th>
+                                        <th>Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in pending_payments %}
+                                    <tr>
+                                        <td class="font-mono text-sm">{{ payment.transaction_id|default:"N/A" }}</td>
+                                        <td>{{ payment.booking.booking_reference }}</td>
+                                        <td class="font-semibold">KES {{ payment.amount|floatformat:0 }}</td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a href="{% url 'admin:payment_action' payment.id %}?action=mark_successful" class="table-action-btn btn-primary">
+                                                    <i class="fas fa-check"></i> Mark Success
+                                                </a>
+                                                <a href="{% url 'admin:payment_action' payment.id %}?action=mark_failed" class="table-action-btn btn-danger">
+                                                    <i class="fas fa-times"></i> Mark Failed
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-gray-600">Total Trips</span>
-                            <span class="font-semibold">{{ total_stats.total_trips }}</span>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No pending payments</p>
+                    {% endif %}
+                </div>
+
+                <!-- Scheduled Trips -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="section-title">
+                        <i class="fas fa-route"></i>
+                        Scheduled Trips
+                    </h2>
+                    {% if scheduled_trips %}
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Destination</th>
+                                        <th>Driver</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for trip in scheduled_trips %}
+                                    <tr>
+                                        <td>{{ trip.date|date:"M d, Y" }}</td>
+                                        <td>{{ trip.destination }}</td>
+                                        <td>{{ trip.driver.full_name }}</td>
+                                        <td><span class="status-badge status-{{ trip.status|lower }}">{{ trip.status }}</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                {% if trip.status == 'SCHEDULED' %}
+                                                <a href="{% url 'admin:trip_action' trip.id %}?action=start" class="table-action-btn btn-primary">
+                                                    <i class="fas fa-play"></i> Start
+                                                </a>
+                                                <a href="{% url 'admin:trip_action' trip.id %}?action=cancel" class="table-action-btn btn-danger">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </a>
+                                                {% elif trip.status == 'IN_PROGRESS' %}
+                                                <a href="{% url 'admin:trip_action' trip.id %}?action=complete" class="table-action-btn btn-success">
+                                                    <i class="fas fa-flag-checkered"></i> Complete
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-gray-600">Average Earnings per Trip</span>
-                            <span class="font-semibold">KES {{ total_stats.avg_earnings|floatformat:0 }}</span>
-                        </div>
-                        <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-gray-600">This Month</span>
-                            <span class="font-semibold">KES {{ monthly_earnings|floatformat:0 }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">This Week</span>
-                            <span class="font-semibold">KES {{ weekly_earnings|floatformat:0 }}</span>
-                        </div>
-                    </div>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No scheduled trips</p>
+                    {% endif %}
                 </div>
             </div>
+        </div>
 
-            <!-- Earnings Table -->
-            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+        <!-- Recent Payments Tab -->
+        <div class="tab-content" id="recent-payments">
+            <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="section-title">
-                    <i class="fas fa-table"></i>
-                    Earnings History
+                    <i class="fas fa-credit-card"></i>
+                    Recent Payments
                 </h2>
                 <div class="overflow-x-auto">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Trip</th>
-                                <th>Destination</th>
-                                <th>Earnings</th>
+                                <th>Transaction ID</th>
+                                <th>Booking</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Provider</th>
                                 <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for trip in completed_trips %}
+                            {% for payment in recent_payments %}
                             <tr>
-                                <td>{{ trip.date|date:"M d, Y" }}</td>
-                                <td>#{{ trip.id }}</td>
-                                <td>{{ trip.destination }}</td>
-                                <td>KES {{ trip.earnings|floatformat:0 }}</td>
-                                <td><span class="trip-status {{ trip.status|lower }}">{{ trip.status }}</span></td>
+                                <td class="font-mono text-sm">{{ payment.transaction_id|default:"N/A" }}</td>
+                                <td>{{ payment.booking.booking_reference }}</td>
+                                <td>{{ payment.booking.booking_customer.full_name }}</td>
+                                <td class="font-semibold">KES {{ payment.amount|floatformat:0 }}</td>
+                                <td>{{ payment.provider }}</td>
+                                <td><span class="status-badge status-{{ payment.status|lower }}">{{ payment.status }}</span></td>
+                                <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="/admin/bookings/payment/{{ payment.id }}/change/" class="table-action-btn btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if payment.status == 'SUCCESS' and not payment.is_refunded %}
+                                        <a href="{% url 'admin:payment_action' payment.id %}?action=initiate_refund" class="table-action-btn btn-warning">
+                                            <i class="fas fa-undo"></i> Refund
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -1299,389 +961,93 @@
             </div>
         </div>
 
-        <div class="tab-content" id="schedule">
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <h2 class="section-title mb-0">
-                        <i class="fas fa-calendar-alt"></i>
-                        {{ month_name }} {{ year }}
-                    </h2>
-                    <div class="calendar-nav">
-                        <a href="?year={{ prev_year }}&month={{ prev_month }}" class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        <a href="?year={{ next_year }}&month={{ next_month }}" class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="calendar-grid">
-                    {% for day in week_days %}
-                    <div class="calendar-day-header">{{ day }}</div>
-                    {% endfor %}
-
-                    {% for week in calendar %}
-                        {% for day in week %}
-                            {% if day == 0 %}
-                                <div class="calendar-day"></div>
-                            {% else %}
-                                <div class="calendar-day {% if day == today.day %}today{% endif %} {% if forloop.parentloop.counter0 == 0 and day < 7 %}text-gray-400{% endif %} {% if forloop.parentloop.counter0 == calendar|length|add:'-1' and day > 20 %}text-gray-400{% endif %}">
-                                    <div class="calendar-day-number">{{ day }}</div>
-                                    {% if forloop.parentloop.counter0 == 0 and day < 7 %}
-                                        <!-- Previous month days -->
-                                    {% elif forloop.parentloop.counter0 == calendar|length|add:'-1' and day > 20 %}
-                                        <!-- Next month days -->
-                                    {% else %}
-                                        <!-- Current month days -->
-                                        {% with current_date=year|stringformat:"04d"|add:"-"|add:month|stringformat:"02d"|add:"-"|add:day|stringformat:"02d" %}
-                                            {% if current_date in trips_by_date %}
-                                                <div class="calendar-day has-trips">
-                                                    <div class="calendar-day-number">{{ day }}</div>
-                                                    <div class="text-xs text-green-600">{{ trips_by_date|get_item:current_date|length }}</div>
-                                                </div>
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="tours">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="section-title mb-0">
-                        <i class="fas fa-map-marked-alt"></i>
-                        My Tours
-                    </h2>
-                    <a href="{% url 'bookings:create_tour' %}" class="action-btn btn-primary">
-                        <i class="fas fa-plus mr-2"></i>Add New Tour
-                    </a>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {% for tour in tours %}
-                    <div class="tour-card">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="tour-title">{{ tour.title }}</h3>
-                            <span class="tour-status {% if tour.is_approved %}status-approved{% else %}status-pending{% endif %}">
-                                {% if tour.is_approved %}Approved{% else %}Pending{% endif %}
-                            </span>
-                        </div>
-                        <div class="tour-meta">
-                            <span><i class="fas fa-clock mr-1"></i>{{ tour.duration_days }} days</span>
-                            <span><i class="fas fa-users mr-1"></i>{{ tour.max_group_size }} max</span>
-                        </div>
-                        <div class="tour-meta">
-                            <span><i class="fas fa-tag mr-1"></i>KES {{ tour.price_per_person|floatformat:0 }}/person</span>
-                        </div>
-                        <div class="flex justify-between items-center mt-3">
-                            <a href="{% url 'bookings:tour_detail' tour.slug %}" class="text-blue-500 hover:text-blue-700 text-sm">
-                                <i class="fas fa-eye mr-1"></i>View
-                            </a>
-                            <div class="space-x-2">
-                                <a href="{% url 'bookings:edit_tour' tour.id %}" class="text-green-500 hover:text-green-700 text-sm">
-                                    <i class="fas fa-edit mr-1"></i>Edit
-                                </a>
-                                <a href="{% url 'bookings:delete_tour' tour.id %}" class="text-red-500 hover:text-red-700 text-sm">
-                                    <i class="fas fa-trash mr-1"></i>Delete
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                {% if tours|length >= 10 %}
-                <div class="text-center mt-4">
-                    <a href="#" class="text-blue-500 hover:text-blue-700">
-                        View All Tours ({{ tour_stats.total }})
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="tab-content" id="reviews">
+        <!-- Analytics Tab -->
+        <div class="tab-content" id="analytics">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="chart-container">
                     <h2 class="section-title">
-                        <i class="fas fa-star"></i>
-                        Recent Reviews
+                        <i class="fas fa-chart-line"></i>
+                        Revenue Trend (Last 6 Months)
                     </h2>
-                    {% if reviews %}
-                        {% for review in reviews %}
-                        <div class="review-card">
-                            <div class="review-header">
-                                <div class="reviewer-name">{{ review.booking.booking_customer.full_name }}</div>
-                                <div class="review-rating">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= review.rating %}
-                                            <i class="fas fa-star"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <p class="review-comment">{{ review.comment }}</p>
-                            <p class="text-xs text-gray-500 mt-2">{{ review.created_at|date:"M d, Y" }}</p>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-gray-500 text-center py-4">No reviews yet</p>
-                    {% endif %}
+                    <canvas id="revenueChart"></canvas>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="chart-container">
                     <h2 class="section-title">
                         <i class="fas fa-chart-pie"></i>
-                        Rating Distribution
+                        Booking Status Distribution
                     </h2>
-                    <div class="space-y-3">
-                        {% for rating in rating_distribution %}
-                        <div class="flex items-center">
-                            <div class="w-12 text-sm">{{ rating.rating }} <i class="fas fa-star text-yellow-500"></i></div>
-                            <div class="flex-1 mx-3 bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: {{ rating.count|div:total_reviews|mul:100 }}%"></div>
-                            </div>
-                            <div class="w-12 text-right text-sm">{{ rating.count }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="mt-6 pt-4 border-t">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">Completion Rate</span>
-                            <span class="font-semibold">{{ performance_metrics.completion_rate|floatformat:1 }}%</span>
-                        </div>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="text-gray-600">Average Response Time</span>
-                            <span class="font-semibold">{{ performance_metrics.response_time }}</span>
-                        </div>
-                    </div>
+                    <canvas id="bookingChart"></canvas>
                 </div>
             </div>
-        </div>
 
-        <div class="tab-content" id="profile">
-            <div class="profile-section">
-                <div class="profile-header">
-                    {% if driver.profile_picture %}
-                    <img src="{{ driver.profile_picture.url }}" alt="{{ driver.full_name }}" class="profile-avatar">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Top Tours
+                    </h2>
+                    {% if top_tours %}
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tour</th>
+                                        <th>Bookings</th>
+                                        <th>Revenue</th>
+                                        <th>Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tour in top_tours %}
+                                    <tr>
+                                        <td>{{ tour.title }}</td>
+                                        <td>{{ tour.booking_count }}</td>
+                                        <td>KES {{ tour.revenue|floatformat:0 }}</td>
+                                        <td>{{ tour.avg_rating|floatformat:1 }}/5.0</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% else %}
-                    <div class="profile-avatar bg-gray-300 flex items-center justify-center">
-                        <i class="fas fa-user text-3xl text-gray-600"></i>
-                    </div>
+                        <p class="text-gray-500 text-center py-4">No tour data available</p>
                     {% endif %}
-                    <div class="profile-info">
-                        <h2>{{ driver.full_name }}</h2>
-                        <p><i class="fas fa-envelope mr-2"></i>{{ driver.user.email }}</p>
-                        <p><i class="fas fa-phone mr-2"></i>{{ driver.phone_number }}</p>
-                        <p><i class="fas fa-id-card mr-2"></i>License: {{ driver.license_number }}</p>
-                        <p><i class="fas fa-car mr-2"></i>{{ driver.vehicle.make }} {{ driver.vehicle.model }}</p>
-                    </div>
                 </div>
 
-                <div class="profile-stats">
-                    <div class="profile-stat">
-                        <div class="profile-stat-value">{{ driver.total_trips }}</div>
-                        <div class="profile-stat-label">Total Trips</div>
-                    </div>
-                    <div class="profile-stat">
-                        <div class="profile-stat-value">{{ driver.rating|floatformat:1 }}</div>
-                        <div class="profile-stat-label">Rating</div>
-                    </div>
-                    <div class="profile-stat">
-                        <div class="profile-stat-value">{{ driver.experience_years }}</div>
-                        <div class="profile-stat-label">Years Experience</div>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <button id="edit-profile-btn" class="action-btn btn-primary">
-                        <i class="fas fa-edit mr-2"></i>Edit Profile
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="vehicle">
-            <div class="vehicle-card">
-                <h2 class="section-title">
-                    <i class="fas fa-car"></i>
-                    Vehicle Details
-                </h2>
-
-                {% if driver.vehicle %}
-                <img src="{{ driver.vehicle.image_url }}" alt="{{ driver.vehicle.full_name }}" class="vehicle-image">
-
-                <div class="vehicle-details">
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">Make</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.make }}</span>
-                    </div>
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">Model</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.model }}</span>
-                    </div>
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">Year</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.year }}</span>
-                    </div>
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">Color</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.color }}</span>
-                    </div>
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">License Plate</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.license_plate }}</span>
-                    </div>
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">Vehicle Type</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.vehicle_type_display }}</span>
-                    </div>
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">Fuel Type</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.fuel_type_display }}</span>
-                    </div>
-                    <div class="vehicle-detail">
-                        <span class="vehicle-detail-label">Capacity</span>
-                        <span class="vehicle-detail-value">{{ driver.vehicle.capacity }} passengers</span>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <h3 class="text-lg font-semibold mb-3">Documents</h3>
-
-                    <div class="space-y-3">
-                        <div class="document-status {% if driver.vehicle.insurance_expiry < today %}expired{% elif driver.vehicle.insurance_expiry < today|add_days:30 %}expiring{% endif %}">
-                            <i class="fas fa-file-contract mr-2"></i>
-                            <span>Insurance</span>
-                            <span class="ml-auto">{{ driver.vehicle.insurance_expiry|date:"M d, Y" }}</span>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="section-title">
+                        <i class="fas fa-user-chart"></i>
+                        Top Drivers
+                    </h2>
+                    {% if top_drivers %}
+                        <div class="overflow-x-auto">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Trips</th>
+                                        <th>Earnings</th>
+                                        <th>Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for driver in top_drivers %}
+                                    <tr>
+                                        <td>{{ driver.full_name }}</td>
+                                        <td>{{ driver.trip_count }}</td>
+                                        <td>KES {{ driver.earnings|floatformat:0 }}</td>
+                                        <td>{{ driver.rating|floatformat:1 }}/5.0</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
-
-                        <div class="document-status {% if driver.vehicle.inspection_expiry < today %}expired{% elif driver.vehicle.inspection_expiry < today|add_days:30 %}expiring{% endif %}">
-                            <i class="fas fa-clipboard-check mr-2"></i>
-                            <span>Inspection</span>
-                            <span class="ml-auto">{{ driver.vehicle.inspection_expiry|date:"M d, Y" }}</span>
-                        </div>
-                    </div>
+                    {% else %}
+                        <p class="text-gray-500 text-center py-4">No driver data available</p>
+                    {% endif %}
                 </div>
-
-                <div class="mt-6">
-                    <button id="edit-vehicle-btn" class="action-btn btn-primary">
-                        <i class="fas fa-edit mr-2"></i>Edit Vehicle
-                    </button>
-                </div>
-                {% else %}
-                <div class="text-center py-8">
-                    <i class="fas fa-car text-6xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 mb-4">No vehicle assigned to your profile</p>
-                    <button id="add-vehicle-btn" class="action-btn btn-primary">
-                        <i class="fas fa-plus mr-2"></i>Add Vehicle
-                    </button>
-                </div>
-                {% endif %}
             </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2023 Safari Driver Dashboard. All rights reserved.</p>
-    </footer>
-
-    <!-- Trip Details Modal -->
-    <div id="trip-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Trip Details</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div id="trip-details">
-                <!-- Trip details will be loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Profile Modal -->
-    <div id="profile-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Edit Profile</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <form id="profile-form">
-                <div class="form-group">
-                    <label class="form-label" for="phone">Phone Number</label>
-                    <input type="text" id="phone" name="phone" class="form-input" value="{{ driver.phone_number }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="bio">Bio</label>
-                    <textarea id="bio" name="bio" class="form-input form-textarea">{{ driver.bio }}</textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="bank-name">Bank Name</label>
-                    <input type="text" id="bank-name" name="bank_name" class="form-input" value="{{ driver.bank_name }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="bank-account">Bank Account</label>
-                    <input type="text" id="bank-account" name="bank_account" class="form-input" value="{{ driver.bank_account }}">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="modal-close action-btn btn-secondary">Cancel</button>
-                    <button type="submit" class="action-btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit Vehicle Modal -->
-    <div id="vehicle-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Edit Vehicle</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <form id="vehicle-form">
-                <div class="form-group">
-                    <label class="form-label" for="vehicle-make">Make</label>
-                    <input type="text" id="vehicle-make" name="make" class="form-input" value="{{ driver.vehicle.make }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="vehicle-model">Model</label>
-                    <input type="text" id="vehicle-model" name="model" class="form-input" value="{{ driver.vehicle.model }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="vehicle-year">Year</label>
-                    <input type="number" id="vehicle-year" name="year" class="form-input" value="{{ driver.vehicle.year }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="vehicle-color">Color</label>
-                    <input type="text" id="vehicle-color" name="color" class="form-input" value="{{ driver.vehicle.color }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="vehicle-plate">License Plate</label>
-                    <input type="text" id="vehicle-plate" name="license_plate" class="form-input" value="{{ driver.vehicle.license_plate }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="insurance-expiry">Insurance Expiry</label>
-                    <input type="date" id="insurance-expiry" name="insurance_expiry" class="form-input" value="{{ driver.vehicle.insurance_expiry|date:'Y-m-d' }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="inspection-expiry">Inspection Expiry</label>
-                    <input type="date" id="inspection-expiry" name="inspection_expiry" class="form-input" value="{{ driver.vehicle.inspection_expiry|date:'Y-m-d' }}">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="modal-close action-btn btn-secondary">Cancel</button>
-                    <button type="submit" class="action-btn btn-primary">Save Changes</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -1689,7 +1055,6 @@
     <div id="notification" class="notification"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Tab functionality
@@ -1708,27 +1073,24 @@
                     tab.classList.add('active');
                     document.getElementById(tabId).classList.add('active');
 
-                    // Initialize chart when earnings tab is clicked
-                    if (tabId === 'earnings') {
-                        initEarningsChart();
+                    // Initialize charts when analytics tab is clicked
+                    if (tabId === 'analytics') {
+                        initCharts();
                     }
                 });
             });
 
-            // Initialize earnings chart
-            function initEarningsChart() {
-                const ctx = document.getElementById('earningsChart').getContext('2d');
-
-                // Data from the backend
-                const monthlyData = {{ monthly_earnings_data|safe }};
-
-                new Chart(ctx, {
+            // Initialize charts
+            function initCharts() {
+                // Revenue Chart
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                new Chart(revenueCtx, {
                     type: 'line',
                     data: {
-                        labels: monthlyData.map(item => item.month),
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                         datasets: [{
-                            label: 'Monthly Earnings (KES)',
-                            data: monthlyData.map(item => item.total_earnings),
+                            label: 'Revenue (KES)',
+                            data: [500000, 750000, 600000, 900000, 850000, 950000],
                             backgroundColor: 'rgba(16, 185, 129, 0.2)',
                             borderColor: 'rgba(16, 185, 129, 1)',
                             borderWidth: 2,
@@ -1749,117 +1111,42 @@
                                 beginAtZero: true,
                                 ticks: {
                                     callback: function(value) {
-                                        return 'KES ' + value.toLocaleString();
+                                        return 'KES ' + (value/1000).toFixed(0) + 'K';
                                     }
                                 }
                             }
                         }
                     }
                 });
+
+                // Booking Status Chart
+                const bookingCtx = document.getElementById('bookingChart').getContext('2d');
+                new Chart(bookingCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Confirmed', 'Pending', 'Completed', 'Cancelled'],
+                        datasets: [{
+                            data: [45, 15, 30, 10],
+                            backgroundColor: [
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(245, 158, 11, 0.8)',
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(239, 68, 68, 0.8)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
             }
-
-            // Modal functionality
-            const modals = document.querySelectorAll('.modal');
-            const modalCloses = document.querySelectorAll('.modal-close');
-
-            modalCloses.forEach(close => {
-                close.addEventListener('click', () => {
-                    modals.forEach(modal => modal.classList.remove('active'));
-                });
-            });
-
-            // Filter toggle
-            const filterToggle = document.getElementById('filter-toggle');
-            const filterSection = document.getElementById('filter-section');
-
-            filterToggle.addEventListener('click', () => {
-                filterSection.style.display = filterSection.style.display === 'none' ? 'block' : 'none';
-            });
-
-            // Reset filter
-            const resetFilter = document.getElementById('reset-filter');
-            resetFilter.addEventListener('click', () => {
-                window.location.href = window.location.pathname;
-            });
-
-            // Edit profile button
-            const editProfileBtn = document.getElementById('edit-profile-btn');
-            const profileModal = document.getElementById('profile-modal');
-
-            editProfileBtn.addEventListener('click', () => {
-                profileModal.classList.add('active');
-            });
-
-            // Profile form submission
-            const profileForm = document.getElementById('profile-form');
-            profileForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                // Show notification
-                showNotification('Profile updated successfully!', 'success');
-
-                // Close modal
-                profileModal.classList.remove('active');
-            });
-
-            // Edit vehicle button
-            const editVehicleBtn = document.getElementById('edit-vehicle-btn');
-            const vehicleModal = document.getElementById('vehicle-modal');
-
-            editVehicleBtn.addEventListener('click', () => {
-                vehicleModal.classList.add('active');
-            });
-
-            // Vehicle form submission
-            const vehicleForm = document.getElementById('vehicle-form');
-            vehicleForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                // Show notification
-                showNotification('Vehicle updated successfully!', 'success');
-
-                // Close modal
-                vehicleModal.classList.remove('active');
-            });
-
-            // Trip view buttons
-            const tripViewBtns = document.querySelectorAll('.table-view');
-            const tripModal = document.getElementById('trip-modal');
-            const tripDetails = document.getElementById('trip-details');
-
-            tripViewBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tripId = btn.getAttribute('data-id');
-
-                    // In a real application, you would fetch trip details from the server
-                    tripDetails.innerHTML = `
-                        <div class="space-y-4">
-                            <div>
-                                <h4 class="font-semibold">Trip #${tripId}</h4>
-                                <p class="text-sm text-gray-500">Status: <span class="trip-status completed">Completed</span></p>
-                            </div>
-                            <div>
-                                <p class="font-medium">Date & Time</p>
-                                <p class="text-sm text-gray-600">December 15, 2023 at 09:00 AM</p>
-                            </div>
-                            <div>
-                                <p class="font-medium">Destination</p>
-                                <p class="text-sm text-gray-600">Nairobi National Park</p>
-                            </div>
-                            <div>
-                                <p class="font-medium">Earnings</p>
-                                <p class="text-sm text-gray-600">KES 5,000</p>
-                            </div>
-                            <div>
-                                <p class="font-medium">Customer</p>
-                                <p class="text-sm text-gray-600">John Doe</p>
-                            </div>
-                        </div>
-                    `;
-
-                    tripModal.classList.add('active');
-                });
-            });
 
             // Notification function
             function showNotification(message, type = 'success') {
@@ -1873,15 +1160,18 @@
                 }, 3000);
             }
 
-            // Initialize date pickers
-            flatpickr("#date-from", {
-                dateFormat: "Y-m-d",
-                maxDate: "today"
-            });
+            // Initialize analytics charts if on analytics tab
+            if (document.querySelector('.tab[data-tab="analytics"].active')) {
+                initCharts();
+            }
 
-            flatpickr("#date-to", {
-                dateFormat: "Y-m-d",
-                maxDate: "today"
+            // Handle action buttons with confirmation
+            document.querySelectorAll('.table-action-btn.btn-danger').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to perform this action?')) {
+                        e.preventDefault();
+                    }
+                });
             });
         });
     </script>
