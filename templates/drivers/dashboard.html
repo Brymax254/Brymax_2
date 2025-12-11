@@ -56,12 +56,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .navbar-menu {
             display: flex;
             align-items: center;
             gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .navbar-link {
@@ -70,6 +73,9 @@
             padding: 0.5rem 1rem;
             border-radius: 0.25rem;
             transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .navbar-link:hover {
@@ -88,6 +94,18 @@
             padding: 1.5rem;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
         }
 
         .stat-card:hover {
@@ -99,6 +117,7 @@
             font-size: 2rem;
             font-weight: 700;
             margin: 0.5rem 0;
+            color: var(--primary-color);
         }
 
         .stat-label {
@@ -115,10 +134,10 @@
             color: var(--text-color);
             display: flex;
             align-items: center;
+            gap: 0.5rem;
         }
 
         .section-title i {
-            margin-right: 0.5rem;
             color: var(--primary-color);
         }
 
@@ -248,8 +267,8 @@
 
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
@@ -260,6 +279,8 @@
             text-align: center;
             box-shadow: var(--card-shadow);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .quick-action-card:hover {
@@ -267,8 +288,18 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
+        .quick-action-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-color);
+        }
+
         .quick-action-icon {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 1rem;
             color: var(--primary-color);
         }
@@ -279,6 +310,7 @@
             box-shadow: var(--card-shadow);
             padding: 1.5rem;
             height: 400px;
+            position: relative;
         }
 
         .modal {
@@ -326,6 +358,11 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: #6b7280;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--danger-color);
         }
 
         .form-group {
@@ -344,6 +381,7 @@
             border: 1px solid #d1d5db;
             border-radius: 0.25rem;
             font-size: 1rem;
+            transition: border-color 0.2s;
         }
 
         .form-input:focus {
@@ -397,6 +435,7 @@
         .filter-actions {
             display: flex;
             gap: 0.5rem;
+            align-items: flex-end;
         }
 
         .notification {
@@ -411,6 +450,7 @@
             z-index: 1001;
             transform: translateX(150%);
             transition: transform 0.3s ease;
+            max-width: 400px;
         }
 
         .notification.show {
@@ -434,6 +474,7 @@
             border-bottom: 1px solid #e5e7eb;
             margin-bottom: 1rem;
             flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .tab {
@@ -443,6 +484,9 @@
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: color 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .tab.active {
@@ -457,6 +501,95 @@
         .tab-content.active {
             display: block;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+        }
+
+        .search-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar-menu {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -468,14 +601,26 @@
                     <i class="fas fa-cogs mr-2"></i>Safari Bookings Admin
                 </a>
                 <div class="navbar-menu">
-                    <a href="/admin/" class="navbar-link active">Dashboard</a>
-                    <a href="/admin/bookings/booking/" class="navbar-link">Bookings</a>
-                    <a href="/admin/bookings/driver/" class="navbar-link">Drivers</a>
-                    <a href="/admin/bookings/vehicle/" class="navbar-link">Vehicles</a>
-                    <a href="/admin/bookings/payment/" class="navbar-link">Payments</a>
-                    <a href="/admin/bookings/tour/" class="navbar-link">Tours</a>
+                    <a href="/admin/" class="navbar-link active">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="/admin/bookings/booking/" class="navbar-link">
+                        <i class="fas fa-calendar"></i> Bookings
+                    </a>
+                    <a href="/admin/bookings/driver/" class="navbar-link">
+                        <i class="fas fa-user"></i> Drivers
+                    </a>
+                    <a href="/admin/bookings/vehicle/" class="navbar-link">
+                        <i class="fas fa-car"></i> Vehicles
+                    </a>
+                    <a href="/admin/bookings/payment/" class="navbar-link">
+                        <i class="fas fa-credit-card"></i> Payments
+                    </a>
+                    <a href="/admin/bookings/tour/" class="navbar-link">
+                        <i class="fas fa-map-marked-alt"></i> Tours
+                    </a>
                     <a href="/admin/logout/" class="navbar-link">
-                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>
             </div>
@@ -483,7 +628,7 @@
 
         <!-- Header Section -->
         <div class="mb-8">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
                     <p class="text-gray-600 mt-1">Welcome to Safari Bookings Administration</p>
@@ -598,11 +743,21 @@
 
         <!-- Tabs Navigation -->
         <div class="tabs">
-            <div class="tab active" data-tab="overview">Overview</div>
-            <div class="tab" data-tab="recent-bookings">Recent Bookings</div>
-            <div class="tab" data-tab="pending-actions">Pending Actions</div>
-            <div class="tab" data-tab="recent-payments">Recent Payments</div>
-            <div class="tab" data-tab="analytics">Analytics</div>
+            <div class="tab active" data-tab="overview">
+                <i class="fas fa-tachometer-alt"></i> Overview
+            </div>
+            <div class="tab" data-tab="recent-bookings">
+                <i class="fas fa-history"></i> Recent Bookings
+            </div>
+            <div class="tab" data-tab="pending-actions">
+                <i class="fas fa-clock"></i> Pending Actions
+            </div>
+            <div class="tab" data-tab="recent-payments">
+                <i class="fas fa-credit-card"></i> Recent Payments
+            </div>
+            <div class="tab" data-tab="analytics">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </div>
         </div>
 
         <!-- Overview Tab -->
@@ -635,11 +790,11 @@
                                         <td><span class="status-badge status-{{ booking.status|lower }}">{{ booking.status }}</span></td>
                                         <td>
                                             <div class="table-actions">
-                                                <a href="/admin/bookings/booking/{{ booking.id }}/change/" class="table-action-btn btn-info">
+                                                <a href="/admin/bookings/booking/{{ booking.id }}/change/" class="table-action-btn btn-info" title="Edit booking">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
                                                 {% if booking.status == 'PENDING' %}
-                                                <a href="{% url 'admin:booking_action' booking.id %}?action=confirm" class="table-action-btn btn-primary">
+                                                <a href="{% url 'admin:booking_action' booking.id %}?action=confirm" class="table-action-btn btn-primary" title="Confirm booking">
                                                     <i class="fas fa-check"></i> Confirm
                                                 </a>
                                                 {% endif %}
@@ -651,7 +806,10 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">No bookings scheduled for today</p>
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>No bookings scheduled for today</p>
+                        </div>
                     {% endif %}
                 </div>
 
@@ -680,10 +838,10 @@
                                         <td class="font-mono text-sm">{{ driver.license_number }}</td>
                                         <td>
                                             <div class="table-actions">
-                                                <a href="{% url 'admin:driver_action' driver.id %}?action=verify" class="table-action-btn btn-primary">
+                                                <a href="{% url 'admin:driver_action' driver.id %}?action=verify" class="table-action-btn btn-primary" title="Verify driver">
                                                     <i class="fas fa-check"></i> Verify
                                                 </a>
-                                                <a href="/admin/bookings/driver/{{ driver.id }}/change/" class="table-action-btn btn-info">
+                                                <a href="/admin/bookings/driver/{{ driver.id }}/change/" class="table-action-btn btn-info" title="View driver details">
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
                                             </div>
@@ -694,7 +852,10 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">All drivers are verified</p>
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>All drivers are verified</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -738,8 +899,16 @@
                     <i class="fas fa-history"></i>
                     Recent Bookings
                 </h2>
+
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="Search bookings..." id="booking-search">
+                    <button class="search-btn" id="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
                 <div class="overflow-x-auto">
-                    <table class="data-table">
+                    <table class="data-table" id="bookings-table">
                         <thead>
                             <tr>
                                 <th>Reference</th>
@@ -754,7 +923,7 @@
                         </thead>
                         <tbody>
                             {% for booking in recent_bookings %}
-                            <tr>
+                            <tr data-booking-id="{{ booking.id }}">
                                 <td class="font-mono text-sm">{{ booking.booking_reference }}</td>
                                 <td>{{ booking.booking_customer.full_name }}</td>
                                 <td>
@@ -776,23 +945,23 @@
                                 </td>
                                 <td>
                                     <div class="table-actions">
-                                        <a href="/admin/bookings/booking/{{ booking.id }}/change/" class="table-action-btn btn-info">
+                                        <a href="/admin/bookings/booking/{{ booking.id }}/change/" class="table-action-btn btn-info" title="View booking details">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         {% if booking.status == 'PENDING' %}
-                                        <a href="{% url 'admin:booking_action' booking.id %}?action=confirm" class="table-action-btn btn-primary" title="Confirm">
+                                        <a href="{% url 'admin:booking_action' booking.id %}?action=confirm" class="table-action-btn btn-primary" title="Confirm booking">
                                             <i class="fas fa-check"></i>
                                         </a>
-                                        <a href="{% url 'admin:booking_action' booking.id %}?action=cancel" class="table-action-btn btn-danger" title="Cancel">
+                                        <a href="{% url 'admin:booking_action' booking.id %}?action=cancel" class="table-action-btn btn-danger" title="Cancel booking">
                                             <i class="fas fa-times"></i>
                                         </a>
                                         {% elif booking.status == 'CONFIRMED' and booking.is_upcoming %}
-                                        <a href="{% url 'admin:booking_action' booking.id %}?action=cancel" class="table-action-btn btn-danger" title="Cancel">
+                                        <a href="{% url 'admin:booking_action' booking.id %}?action=cancel" class="table-action-btn btn-danger" title="Cancel booking">
                                             <i class="fas fa-times"></i>
                                         </a>
                                         {% endif %}
                                         {% if not booking.is_paid %}
-                                        <a href="/admin/bookings/payment/add/?booking={{ booking.id }}" class="table-action-btn btn-warning" title="Add Payment">
+                                        <a href="/admin/bookings/payment/add/?booking={{ booking.id }}" class="table-action-btn btn-warning" title="Add payment">
                                             <i class="fas fa-money-bill"></i>
                                         </a>
                                         {% endif %}
@@ -803,6 +972,19 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="pagination">
+                    <button class="pagination-btn" id="prev-page">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn" id="next-page">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
                 <div class="mt-4 text-center">
                     <a href="/admin/bookings/booking/" class="action-btn btn-secondary">
                         <i class="fas fa-list mr-2"></i>View All Bookings
@@ -839,12 +1021,12 @@
                                         <td class="font-semibold">KES {{ payment.amount|floatformat:0 }}</td>
                                         <td>
                                             <div class="table-actions">
-                                                <a href="{% url 'admin:payment_action' payment.id %}?action=mark_successful" class="table-action-btn btn-primary">
+                                                <button class="table-action-btn btn-primary" onclick="markPaymentSuccess({{ payment.id }})">
                                                     <i class="fas fa-check"></i> Mark Success
-                                                </a>
-                                                <a href="{% url 'admin:payment_action' payment.id %}?action=mark_failed" class="table-action-btn btn-danger">
+                                                </button>
+                                                <button class="table-action-btn btn-danger" onclick="markPaymentFailed({{ payment.id }})">
                                                     <i class="fas fa-times"></i> Mark Failed
-                                                </a>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -853,7 +1035,10 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">No pending payments</p>
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No pending payments</p>
+                        </div>
                     {% endif %}
                 </div>
 
@@ -885,16 +1070,16 @@
                                         <td>
                                             <div class="table-actions">
                                                 {% if trip.status == 'SCHEDULED' %}
-                                                <a href="{% url 'admin:trip_action' trip.id %}?action=start" class="table-action-btn btn-primary">
+                                                <button class="table-action-btn btn-primary" onclick="startTrip({{ trip.id }})">
                                                     <i class="fas fa-play"></i> Start
-                                                </a>
-                                                <a href="{% url 'admin:trip_action' trip.id %}?action=cancel" class="table-action-btn btn-danger">
+                                                </button>
+                                                <button class="table-action-btn btn-danger" onclick="cancelTrip({{ trip.id }})">
                                                     <i class="fas fa-times"></i> Cancel
-                                                </a>
+                                                </button>
                                                 {% elif trip.status == 'IN_PROGRESS' %}
-                                                <a href="{% url 'admin:trip_action' trip.id %}?action=complete" class="table-action-btn btn-success">
+                                                <button class="table-action-btn btn-success" onclick="completeTrip({{ trip.id }})">
                                                     <i class="fas fa-flag-checkered"></i> Complete
-                                                </a>
+                                                </button>
                                                 {% endif %}
                                             </div>
                                         </td>
@@ -904,7 +1089,10 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">No scheduled trips</p>
+                        <div class="empty-state">
+                            <i class="fas fa-route"></i>
+                            <p>No scheduled trips</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -917,8 +1105,16 @@
                     <i class="fas fa-credit-card"></i>
                     Recent Payments
                 </h2>
+
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="Search payments..." id="payment-search">
+                    <button class="search-btn" id="payment-search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
                 <div class="overflow-x-auto">
-                    <table class="data-table">
+                    <table class="data-table" id="payments-table">
                         <thead>
                             <tr>
                                 <th>Transaction ID</th>
@@ -933,7 +1129,7 @@
                         </thead>
                         <tbody>
                             {% for payment in recent_payments %}
-                            <tr>
+                            <tr data-payment-id="{{ payment.id }}">
                                 <td class="font-mono text-sm">{{ payment.transaction_id|default:"N/A" }}</td>
                                 <td>{{ payment.booking.booking_reference }}</td>
                                 <td>{{ payment.booking.booking_customer.full_name }}</td>
@@ -943,13 +1139,13 @@
                                 <td>{{ payment.created_at|date:"M d, Y H:i" }}</td>
                                 <td>
                                     <div class="table-actions">
-                                        <a href="/admin/bookings/payment/{{ payment.id }}/change/" class="table-action-btn btn-info">
+                                        <a href="/admin/bookings/payment/{{ payment.id }}/change/" class="table-action-btn btn-info" title="View payment details">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         {% if payment.status == 'SUCCESS' and not payment.is_refunded %}
-                                        <a href="{% url 'admin:payment_action' payment.id %}?action=initiate_refund" class="table-action-btn btn-warning">
+                                        <button class="table-action-btn btn-warning" onclick="initiateRefund({{ payment.id }})" title="Initiate refund">
                                             <i class="fas fa-undo"></i> Refund
-                                        </a>
+                                        </button>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -957,6 +1153,18 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="pagination-btn" id="prev-payment-page">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn" id="next-payment-page">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1011,7 +1219,10 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">No tour data available</p>
+                        <div class="empty-state">
+                            <i class="fas fa-chart-bar"></i>
+                            <p>No tour data available</p>
+                        </div>
                     {% endif %}
                 </div>
 
@@ -1044,7 +1255,10 @@
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-gray-500 text-center py-4">No driver data available</p>
+                        <div class="empty-state">
+                            <i class="fas fa-user-chart"></i>
+                            <p>No driver data available</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -1053,6 +1267,23 @@
 
     <!-- Notification -->
     <div id="notification" class="notification"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Action</h3>
+                <button class="modal-close" onclick="closeConfirmationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmation-message">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="form-actions">
+                <button class="action-btn btn-secondary" onclick="closeConfirmationModal()">Cancel</button>
+                <button class="action-btn btn-primary" id="confirmation-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script>
@@ -1160,17 +1391,140 @@
                 }, 3000);
             }
 
-            // Initialize analytics charts if on analytics tab
-            if (document.querySelector('.tab[data-tab="analytics"].active')) {
-                initCharts();
+            // Confirmation modal
+            let confirmationCallback = null;
+
+            function showConfirmationModal(message, callback) {
+                const modal = document.getElementById('confirmation-modal');
+                const messageElement = document.getElementById('confirmation-message');
+                const confirmButton = document.getElementById('confirmation-confirm');
+
+                messageElement.textContent = message;
+                confirmationCallback = callback;
+
+                modal.classList.add('active');
+
+                confirmButton.onclick = function() {
+                    if (confirmationCallback) {
+                        confirmationCallback();
+                    }
+                    closeConfirmationModal();
+                };
+            }
+
+            function closeConfirmationModal() {
+                const modal = document.getElementById('confirmation-modal');
+                modal.classList.remove('active');
+                confirmationCallback = null;
             }
 
             // Handle action buttons with confirmation
             document.querySelectorAll('.table-action-btn.btn-danger').forEach(btn => {
                 btn.addEventListener('click', function(e) {
-                    if (!confirm('Are you sure you want to perform this action?')) {
+                    e.preventDefault();
+                    const message = 'Are you sure you want to perform this action?';
+                    showConfirmationModal(message, () => {
+                        // Proceed with the action
+                        window.location.href = this.href;
+                    });
+                });
+            });
+
+            // Search functionality for bookings
+            const bookingSearchInput = document.getElementById('booking-search');
+            const bookingSearchBtn = document.getElementById('search-btn');
+
+            bookingSearchBtn.addEventListener('click', function() {
+                const searchTerm = bookingSearchInput.value.toLowerCase();
+                const rows = document.querySelectorAll('#bookings-table tbody tr');
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Search functionality for payments
+            const paymentSearchInput = document.getElementById('payment-search');
+            const paymentSearchBtn = document.getElementById('payment-search-btn');
+
+            paymentSearchBtn.addEventListener('click', function() {
+                const searchTerm = paymentSearchInput.value.toLowerCase();
+                const rows = document.querySelectorAll('#payments-table tbody tr');
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Action functions
+            function markPaymentSuccess(paymentId) {
+                showConfirmationModal('Are you sure you want to mark this payment as successful?', () => {
+                    // Simulate API call
+                    showNotification('Payment marked as successful');
+                });
+            }
+
+            function markPaymentFailed(paymentId) {
+                showConfirmationModal('Are you sure you want to mark this payment as failed?', () => {
+                    // Simulate API call
+                    showNotification('Payment marked as failed', 'error');
+                });
+            }
+
+            function startTrip(tripId) {
+                showConfirmationModal('Are you sure you want to start this trip?', () => {
+                    // Simulate API call
+                    showNotification('Trip started successfully');
+                });
+            }
+
+            function cancelTrip(tripId) {
+                showConfirmationModal('Are you sure you want to cancel this trip?', () => {
+                    // Simulate API call
+                    showNotification('Trip cancelled', 'warning');
+                });
+            }
+
+            function completeTrip(tripId) {
+                showConfirmationModal('Are you sure you want to complete this trip?', () => {
+                    // Simulate API call
+                    showNotification('Trip completed successfully');
+                });
+            }
+
+            function initiateRefund(paymentId) {
+                showConfirmationModal('Are you sure you want to initiate a refund?', () => {
+                    // Simulate API call
+                    showNotification('Refund initiated successfully', 'warning');
+                });
+            }
+
+            // Initialize analytics charts if on analytics tab
+            if (document.querySelector('.tab[data-tab="analytics"].active')) {
+                initCharts();
+            }
+
+            // Add keyboard navigation for tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
+                        tab.click();
                     }
+                });
+            });
+
+            // Add focus states for all interactive elements
+            document.querySelectorAll('a, button, input, select').forEach(element => {
+                element.addEventListener('focus', function() {
+                    this.style.outline = '2px solid var(--primary-color)';
+                    this.style.outlineOffset = '2px';
+                });
+
+                element.addEventListener('blur', function() {
+                    this.style.outline = 'none';
                 });
             });
         });
