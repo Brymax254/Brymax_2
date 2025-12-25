@@ -1339,39 +1339,65 @@
         }
       }
 
-      processVehicleData(data) {
-        // Handle different API response formats
-        let vehicles = [];
+processVehicleData(data) {
+  // Handle different API response formats
+  let vehicles = [];
 
-        if (Array.isArray(data)) {
-          vehicles = data;
-        } else if (data?.results) {
-          vehicles = data.results;
-        } else if (data?.data) {
-          vehicles = data.data;
-        } else if (data?.vehicles) {
-          vehicles = data.vehicles;
-        }
+  if (Array.isArray(data)) {
+    vehicles = data;
+  } else if (data?.results) {
+    vehicles = data.results;
+  } else if (data?.data) {
+    vehicles = data.data;
+  } else if (data?.vehicles) {
+    vehicles = data.vehicles;
+  }
 
-        // Normalize vehicle data and convert to USD
-        return vehicles.map(vehicle => {
-          const priceKSH = Number(vehicle.price ?? vehicle.fare ?? vehicle.cost ?? 0);
-          const priceUSD = CurrencyConverter.toUSD(priceKSH);
+  // Normalize vehicle data
+  return vehicles.map(vehicle => {
+    // Normalize prices
+    const priceKSH =
+      vehicle.price_ksh !== null && vehicle.price_ksh !== undefined
+        ? Number(vehicle.price_ksh)
+        : null;
 
-          return {
-            id: vehicle.id || Math.random().toString(36).slice(2),
-            name: vehicle.make || vehicle.name || 'Vehicle',
-            model: vehicle.model || '',
-            type: vehicle.vehicle_type || vehicle.type || 'Standard',
-            capacity: vehicle.capacity || vehicle.seats || 4,
-            priceKSH: priceKSH,
-            priceUSD: priceUSD,
-            image: vehicle.image_url || vehicle.image || this.getVehicleImage(vehicle.type || 'standard'),
-            features: vehicle.features || ['AC', 'Wifi', 'GPS'],
-            isFeatured: vehicle.is_featured || false,
-          };
-        });
-      }
+    const priceUSD =
+      vehicle.price_usd !== null && vehicle.price_usd !== undefined
+        ? Number(vehicle.price_usd)
+        : priceKSH !== null
+          ? CurrencyConverter.toUSD(priceKSH)
+          : null;
+
+    return {
+      id: vehicle.id || Math.random().toString(36).slice(2),
+
+      name: vehicle.make || vehicle.name || 'Vehicle',
+      model: vehicle.model || '',
+      type: vehicle.vehicle_type || vehicle.type || 'Standard',
+      capacity: vehicle.capacity || vehicle.seats || 4,
+
+      // Prices
+      priceKSH: priceKSH,
+      priceUSD: priceUSD !== null ? priceUSD.toFixed(2) : null,
+      priceLabel: priceUSD !== null
+        ? `$${priceUSD.toLocaleString()}`
+        : 'Price on request',
+
+      // Media
+      image:
+        vehicle.image_url ||
+        vehicle.image ||
+        this.getVehicleImage(vehicle.vehicle_type || vehicle.type || 'standard'),
+
+      // Extras
+      features: Array.isArray(vehicle.features) && vehicle.features.length
+        ? vehicle.features
+        : ['AC', 'Wifi', 'GPS'],
+
+      isFeatured: Boolean(vehicle.is_featured),
+    };
+  });
+}
 
       getVehicleImage(type) {
         const images = {

@@ -35,8 +35,8 @@ class VehicleSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'make', 'model', 'year', 'color', 'license_plate',
             'vehicle_type', 'fuel_type', 'capacity', 'features',
-            'accessibility_features', 'insurance_expiry',
-            'inspection_expiry', 'is_active', 'carbon_footprint_per_km',
+            'accessibility_features', 'insurance_expiry','price_usd',
+            'price_ksh','inspection_expiry', 'is_active', 'carbon_footprint_per_km',
             'image_url'  # Added missing comma here
         ]
         read_only_fields = ('id', 'updated_at')

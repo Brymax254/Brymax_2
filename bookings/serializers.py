@@ -38,7 +38,8 @@ class VehicleSerializer(serializers.ModelSerializer):
             'id', 'make', 'model', 'year', 'color', 'license_plate',
             'vehicle_type', 'fuel_type', 'capacity', 'features',
             'accessibility_features', 'insurance_expiry',
-            'inspection_expiry', 'is_active',
+            'inspection_expiry','price_usd',
+            'price_ksh', 'is_active',
             'carbon_footprint_per_km',
             'created_at', 'updated_at',
             'image_url'
