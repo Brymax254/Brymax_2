@@ -4,6 +4,8 @@ dj-database-url==2.2.0
 psycopg2-binary==2.9.9
 psycopg-binary==3.2.9
 psycopg==3.2.9
+django-filter==25.2
+
 
 # Django Extensions & Utilities
 django-extensions==4.1
