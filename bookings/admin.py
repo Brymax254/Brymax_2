@@ -358,145 +358,144 @@ class DriverAdmin(admin.ModelAdmin):
         count = queryset.count()
         self.message_user(request, f"📩 Verification reminders sent to {count} drivers.", messages.INFO)
     send_verification_reminder.short_description = "Send verification reminder"
+
+from django.contrib import admin, messages
+from django.utils import timezone
+from django.utils.html import format_html
+from decimal import Decimal
+from django import forms
+from .models import Vehicle, ExchangeRate
+
+# ==========================
+# 📝 Custom ModelForm for Vehicle
+# ==========================
+class VehicleAdminForm(forms.ModelForm):
+    price_usd_input = forms.DecimalField(
+        label="Price (USD)",
+        required=False,
+        decimal_places=2,
+        max_digits=12,
+        help_text="Enter price in USD; KES will be calculated automatically"
+    )
+
+    class Meta:
+        model = Vehicle
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.price_usd:
+            self.fields['price_usd_input'].initial = self.instance.price_usd
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        usd_value = self.cleaned_data.get('price_usd_input')
+        if usd_value:
+            # Use admin-set exchange rate
+            rate = Decimal(ExchangeRate.get_current_rate())
+            instance.price_ksh = Decimal(usd_value) * rate
+        if commit:
+            instance.save()
+        return instance
+
+# ==========================
+# 🚗 Vehicle Admin
+# ==========================
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
+    form = VehicleAdminForm
+
     list_display = (
         'full_name', 'license_plate', 'vehicle_type', 'fuel_type',
-        'capacity', 'is_active', 'documents_status_badge', 'image_preview'
+        'capacity', 'price_usd_display', 'price_ksh', 'is_active',
+        'documents_status_badge', 'image_preview'
     )
     list_filter = ('vehicle_type', 'fuel_type', 'is_active')
     search_fields = ('make', 'model', 'license_plate')
     readonly_fields = (
-        'vehicle_age', 'documents_valid', 'insurance_status', 'inspection_status',
-        'documents_status_badge', 'image_preview'
+        'vehicle_age', 'documents_valid', 'insurance_status',
+        'inspection_status', 'documents_status_badge', 'image_preview', 'price_ksh'
     )
     actions = ['activate_vehicles', 'deactivate_vehicles', 'send_inspection_reminder']
 
     fieldsets = (
-        ('Basic Information', {
-            'fields': (
-                'make', 'model', 'year', 'color',
-                'license_plate', 'vehicle_type', 'fuel_type', 'capacity'
-            )
-        }),
-        ('Images', {
-            'fields': ('image', 'external_image_url', 'image_preview'),  # ✅ replaced image_url with preview
-        }),
-        ('Features', {
-            'fields': ('features', 'accessibility_features')
-        }),
-        ('Documents', {
-            'fields': ('logbook_copy', 'insurance_copy', 'inspection_certificate')
-        }),
-        ('Status', {
-            'fields': ('insurance_expiry', 'inspection_expiry', 'is_active', 'documents_status_badge')
-        }),
-        ('Sustainability', {
-            'fields': ('carbon_footprint_per_km',)
-        }),
-        ('Computed Fields', {
-            'fields': ('vehicle_age', 'documents_valid', 'insurance_status', 'inspection_status'),
-            'classes': ('collapse',)
-        }),
+        ('Basic Information', {'fields': ('make','model','year','color','license_plate','vehicle_type','fuel_type','capacity')}),
+        ('Pricing', {'fields': ('price_usd_input','price_ksh')}),
+        ('Images', {'fields': ('image','external_image_url','image_preview')}),
+        ('Features', {'fields': ('features','accessibility_features')}),
+        ('Documents', {'fields': ('logbook_copy','insurance_copy','inspection_certificate')}),
+        ('Status', {'fields': ('insurance_expiry','inspection_expiry','is_active','documents_status_badge')}),
+        ('Sustainability', {'fields': ('carbon_footprint_per_km',)}),
+        ('Computed Fields', {'fields': ('vehicle_age','documents_valid','insurance_status','inspection_status'),'classes':('collapse',)}),
     )
-
-    inlines = [TripInline]
 
     # ==========================
     # 🖼️ Image Preview
     # ==========================
     def image_preview(self, obj):
-        """
-        Display a small preview of the uploaded image, external URL, or Cloudinary image.
-        """
-        # Local ImageField
         if getattr(obj, 'image', None) and hasattr(obj.image, 'url'):
-            return format_html(
-                '<img src="{}" style="max-height:150px; border-radius:10px; '
-                'box-shadow:0 2px 4px rgba(0,0,0,0.3);" />',
-                obj.image.url
-            )
-
-        # External image URL
+            return format_html('<img src="{}" style="max-height:150px;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.3);" />', obj.image.url)
         elif getattr(obj, 'external_image_url', None):
-            return format_html(
-                '<img src="{}" style="max-height:150px; border-radius:10px; opacity:0.9;" />',
-                obj.external_image_url
-            )
-
-        # CloudinaryField example (replace with your actual Cloudinary field if used)
+            return format_html('<img src="{}" style="max-height:150px;border-radius:10px;opacity:0.9;" />', obj.external_image_url)
         elif getattr(obj, 'logbook_copy', None):
             try:
                 url = obj.logbook_copy.build_url()
-                return format_html(
-                    '<img src="{}" style="max-height:150px; border-radius:10px; opacity:0.9;" />',
-                    url
-                )
+                return format_html('<img src="{}" style="max-height:150px;border-radius:10px;opacity:0.9;" />', url)
             except Exception:
                 pass
-
-        # Fallback if no image available
-        return format_html(
-            '<span style="color: {};">{}</span>',
-            'gray',
-            'No image available'
-        )
-
+        return format_html('<span style="color: gray;">{}</span>', 'No image available')
     image_preview.short_description = "Image Preview"
 
     # ==========================
-    # 📄 Document Badge
+    # 📄 Document Status Badge
     # ==========================
     def documents_status_badge(self, obj):
-        """Show colored badge based on document validity."""
-        if not obj.insurance_expiry or not obj.inspection_expiry:
-            return format_html(
-                '<span style="color: {};">{}</span>',
-                'orange',
-                'Unknown'
-            )
-
         today = timezone.now().date()
-        insurance_valid = obj.insurance_expiry > today
-        inspection_valid = obj.inspection_expiry > today
+        insurance_valid = getattr(obj,'insurance_expiry',None) and obj.insurance_expiry > today
+        inspection_valid = getattr(obj,'inspection_expiry',None) and obj.inspection_expiry > today
 
         if insurance_valid and inspection_valid:
-            return format_html(
-                '<span style="color: {}; font-weight: bold;">{}</span>',
-                'green',
-                'Valid'
-            )
-
+            return format_html('<span style="color:green;font-weight:bold;">{}</span>','Valid')
+        elif insurance_valid or inspection_valid:
+            return format_html('<span style="color:orange;font-weight:bold;">{}</span>','Partial')
         else:
-            return format_html(
-                '<span style="color: {}; font-weight: bold;">{}</span>',
-                'red',
-                'Expired'
-            )
-
+            return format_html('<span style="color:red;font-weight:bold;">{}</span>','Expired')
     documents_status_badge.short_description = 'Documents Status'
+
+    # ==========================
+    # 💵 Price Display
+    # ==========================
+    def price_usd_display(self, obj):
+        return obj.price_usd or "-"
+    price_usd_display.short_description = "Price (USD)"
 
     # ==========================
     # ⚙️ Custom Actions
     # ==========================
     def activate_vehicles(self, request, queryset):
         count = queryset.update(is_active=True)
-        self.message_user(request, f"{count} vehicles have been activated.", messages.SUCCESS)
-
+        self.message_user(request, f"{count} vehicles activated.", messages.SUCCESS)
     activate_vehicles.short_description = "Activate selected vehicles"
 
     def deactivate_vehicles(self, request, queryset):
         count = queryset.update(is_active=False)
-        self.message_user(request, f"{count} vehicles have been deactivated.", messages.WARNING)
-
+        self.message_user(request, f"{count} vehicles deactivated.", messages.WARNING)
     deactivate_vehicles.short_description = "Deactivate selected vehicles"
 
     def send_inspection_reminder(self, request, queryset):
-        # In a real implementation, this would send an email or SMS
         count = queryset.count()
         self.message_user(request, f"Inspection reminders sent for {count} vehicles.", messages.INFO)
-
     send_inspection_reminder.short_description = "Send inspection reminder"
+
+# ==========================
+# 🔄 Admin for Exchange Rate
+# ==========================
+from .models import ExchangeRate
+
+@admin.register(ExchangeRate)
+class ExchangeRateAdmin(admin.ModelAdmin):
+    list_display = ('usd_to_kes', 'updated_at')
+    readonly_fields = ('updated_at',)
 
 
 @admin.register(Destination)

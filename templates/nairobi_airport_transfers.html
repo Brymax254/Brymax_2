@@ -1,10 +1,9 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Premium Airport Transfers & Destinations - Fast, reliable international airport transportation">
-  <title>Airport Transfers & Destinations</title>
+  <meta name="description" content="Premium 24/7 Airport Transfers & Destinations - Fast, reliable international airport transportation available anytime">
+  <title>24/7 Airport Transfers & Destinations</title>
 
   <!-- Performance Optimizations -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -14,24 +13,24 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Inline Critical CSS -->
   <style>
     :root {
-      --primary: #8B4513;
-      --primary-light: #A0522D;
-      --secondary: #DAA520;
-      --accent: #FFD700;
-      --dark: #2C1810;
-      --light: #FFF8E7;
-      --surface: #FFF5E1;
-      --text: #2C1810;
-      --text-light: #8B4513;
-      --shadow: 0 10px 30px -15px rgba(139, 69, 19, 0.2);
-      --shadow-lg: 0 20px 40px -15px rgba(139, 69, 19, 0.3);
-      --radius: 12px;
-      --radius-sm: 8px;
+      --primary: #1a365d;
+      --primary-light: #2a4770;
+      --secondary: #f59e0b;
+      --accent: #fbbf24;
+      --dark: #0f172a;
+      --light: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --shadow: 0 10px 30px -15px rgba(26, 54, 93, 0.2);
+      --shadow-lg: 0 20px 40px -15px rgba(26, 54, 93, 0.3);
+      --radius: 16px;
+      --radius-sm: 10px;
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       --transition-fast: all 0.2s ease;
     }
@@ -41,7 +40,7 @@
     html {
       scroll-behavior: smooth;
       -webkit-font-smoothing: antialiased;
-      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
@@ -63,16 +62,16 @@
       top: 0;
       width: 100%;
       background: var(--surface);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(139, 69, 19, 0.1);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      box-shadow: 0 2px 20px rgba(26, 54, 93, 0.1);
       z-index: 1000;
       padding: 1rem 0;
       transition: var(--transition);
     }
 
     .header.scrolled {
-      box-shadow: 0 4px 30px rgba(139, 69, 19, 0.15);
+      box-shadow: 0 4px 30px rgba(26, 54, 93, 0.15);
     }
 
     .header .container {
@@ -89,19 +88,19 @@
     }
 
     .logo img {
-      height: 40px;
+      height: 45px;
       width: auto;
     }
 
     .logo-text {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--primary);
     }
 
     .nav {
       display: flex;
-      gap: 2rem;
+      gap: 2.5rem;
       align-items: center;
     }
 
@@ -110,32 +109,66 @@
       text-decoration: none;
       font-weight: 500;
       transition: var(--transition-fast);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      position: relative;
     }
 
     .nav a:hover {
       color: var(--primary);
     }
 
-    /* Hero */
+    .nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--secondary);
+      transition: var(--transition);
+    }
+
+    .nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Unified Hero Section with Merged Content */
     .hero {
       min-height: 100vh;
       display: flex;
       align-items: center;
-      background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(139, 69, 19, 0.7)),
-                  url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+      background: linear-gradient(135deg, rgba(26, 54, 93, 0.9), rgba(26, 54, 93, 0.7)),
+                  url('https://connectoairporttaxis.com/wp-content/uploads/2024/04/airportcarsgosport-airport-slide.jpg');
       background-size: cover;
       background-position: center;
       position: relative;
       padding-top: 80px;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(26, 54, 93, 0.6) 0%, rgba(26, 54, 93, 0.9) 100%);
+      z-index: 1;
     }
 
     .hero-content {
-      max-width: 600px;
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
     }
 
     .hero h1 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-size: clamp(2.8rem, 5vw, 4.5rem);
       font-weight: 800;
       line-height: 1.1;
       margin-bottom: 1.5rem;
@@ -144,24 +177,27 @@
     }
 
     .hero p {
-      font-size: 1.25rem;
-      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.95);
       margin-bottom: 2rem;
+      font-weight: 300;
+      max-width: 600px;
     }
 
     .cta-button {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       background: var(--accent);
       color: var(--dark);
-      padding: 1rem 2rem;
+      padding: 1.1rem 2.5rem;
       border-radius: var(--radius);
       text-decoration: none;
       font-weight: 600;
       transition: var(--transition);
       box-shadow: var(--shadow);
       border: 1px solid var(--accent);
+      font-size: 1.1rem;
     }
 
     .cta-button:hover {
@@ -170,11 +206,76 @@
       background: var(--secondary);
     }
 
+    /* Modern Features Content - Merged into Hero */
+    .features-content {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      padding: 3rem;
+      margin-top: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .features-content h2 {
+      font-size: 2.8rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      color: var(--light);
+    }
+
+    .features-content p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.95);
+      max-width: 500px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1.2rem;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+
+    .feature-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+
+    .feature-text h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+      color: var(--light);
+    }
+
+    .feature-text p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
     /* Stats */
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2.5rem;
       margin: -3rem auto 4rem;
       position: relative;
       z-index: 2;
@@ -182,23 +283,34 @@
 
     .stat {
       background: var(--surface);
-      padding: 1.5rem;
+      padding: 2rem;
       border-radius: var(--radius);
       text-align: center;
-      border: 1px solid rgba(139, 69, 19, 0.1);
+      border: 1px solid rgba(26, 54, 93, 0.1);
       transition: var(--transition);
+      box-shadow: var(--shadow);
     }
 
     .stat:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
       box-shadow: var(--shadow-lg);
     }
 
     .stat-number {
-      font-size: 2.5rem;
-      font-weight: 700;
+      font-size: 3rem;
+      font-weight: 800;
       color: var(--primary);
       margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      font-weight: 500;
     }
 
     /* Booking Section */
@@ -212,14 +324,14 @@
       border-radius: var(--radius);
       padding: 3rem;
       box-shadow: var(--shadow-lg);
-      border: 1px solid rgba(139, 69, 19, 0.05);
+      border: 1px solid rgba(26, 54, 93, 0.05);
     }
 
     /* Vehicle Grid */
     .vehicle-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
       margin: 2rem 0;
     }
 
@@ -229,49 +341,110 @@
       overflow: hidden;
       transition: var(--transition);
       border: 2px solid transparent;
-      box-shadow: 0 5px 15px rgba(139, 69, 19, 0.05);
+      box-shadow: 0 5px 15px rgba(26, 54, 93, 0.05);
+      position: relative;
     }
 
     .vehicle-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
       box-shadow: var(--shadow-lg);
     }
 
     .vehicle-card.selected {
       border-color: var(--primary);
-      box-shadow: 0 0 30px rgba(139, 69, 19, 0.2);
+      box-shadow: 0 0 40px rgba(26, 54, 93, 0.25);
+      transform: translateY(-8px) scale(1.02);
+    }
+
+    .vehicle-card.featured {
+      border: 2px solid var(--secondary);
+      box-shadow: 0 0 40px rgba(245, 158, 11, 0.2);
+    }
+
+    .vehicle-image-container {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
     }
 
     .vehicle-image {
       width: 100%;
-      height: 200px;
+      height: 100%;
       object-fit: cover;
+      transition: var(--transition);
+    }
+
+    .vehicle-card:hover .vehicle-image {
+      transform: scale(1.05);
+    }
+
+    .view-image-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(26, 54, 93, 0.8);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      opacity: 0;
+      visibility: hidden;
+      z-index: 3;
+    }
+
+    .vehicle-card:hover .view-image-btn {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .view-image-btn:hover {
+      background: var(--primary);
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    .vehicle-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--secondary);
+      color: var(--dark);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      z-index: 2;
     }
 
     .vehicle-info {
-      padding: 1.5rem;
+      padding: 1.8rem;
     }
 
     .vehicle-name {
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
+      color: var(--primary);
     }
 
     .vehicle-details {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
     }
 
     .vehicle-capacity {
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       color: var(--text-light);
     }
 
     .vehicle-price {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: var(--primary);
     }
@@ -279,17 +452,22 @@
     .vehicle-features {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.75rem;
       margin-bottom: 1.5rem;
     }
 
     .feature-tag {
-      background: rgba(139, 69, 19, 0.1);
+      background: rgba(26, 54, 93, 0.1);
       color: var(--primary);
-      padding: 0.25rem 0.75rem;
+      padding: 0.4rem 1rem;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .feature-tag:hover {
+      background: rgba(26, 54, 93, 0.2);
     }
 
     .select-vehicle-btn {
@@ -297,11 +475,12 @@
       background: var(--primary);
       color: var(--light);
       border: none;
-      padding: 0.75rem;
+      padding: 1rem;
       border-radius: var(--radius-sm);
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
+      font-size: 1rem;
     }
 
     .select-vehicle-btn:hover {
@@ -312,18 +491,105 @@
       background: var(--secondary);
     }
 
+    /* Image Modal */
+    .image-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: 2rem;
+    }
+
+    .image-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 90%;
+      position: relative;
+    }
+
+    .modal-image {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: -2rem;
+      right: -2rem;
+      background: rgba(26, 54, 93, 0.8);
+      color: white;
+      border: none;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 3;
+    }
+
+    .modal-close:hover {
+      background: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .modal-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(26, 54, 93, 0.8);
+      color: white;
+      border: none;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 3;
+      display: none;
+    }
+
+    .modal-nav.prev {
+      left: -4rem;
+    }
+
+    .modal-nav.next {
+      right: -4rem;
+    }
+
+    .image-modal.active .modal-nav {
+      display: flex;
+    }
+
+    .modal-nav:hover {
+      background: var(--primary);
+      transform: translateY(-50%) scale(1.1);
+    }
+
     /* Step Indicator */
     .step-indicator {
       display: flex;
       justify-content: space-between;
-      margin: 2rem 0;
+      margin: 2.5rem 0;
       position: relative;
     }
 
     .step-indicator::before {
       content: '';
       position: absolute;
-      top: 1.5rem;
+      top: 1.8rem;
       left: 0;
       right: 0;
       height: 2px;
@@ -341,7 +607,7 @@
     .step:not(:last-child)::after {
       content: '';
       position: absolute;
-      top: 1.5rem;
+      top: 1.8rem;
       right: -50%;
       width: 100%;
       height: 2px;
@@ -354,18 +620,19 @@
     }
 
     .step-number {
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 3rem;
+      height: 3rem;
       border-radius: 50%;
       background: #e9ecef;
       color: var(--text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 0.5rem;
+      margin: 0 auto 1rem;
       position: relative;
       z-index: 2;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.2rem;
       transition: var(--transition);
     }
 
@@ -381,36 +648,38 @@
 
     /* Form Styles */
     .form-group {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.8rem;
     }
 
     .form-label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.8rem;
       font-weight: 500;
       color: var(--text);
+      font-size: 1rem;
     }
 
     .form-control {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 1rem 1.2rem;
       background: var(--light);
-      border: 1px solid #ced4da;
+      border: 1px solid #e2e8f0;
       border-radius: var(--radius-sm);
       color: var(--text);
       transition: var(--transition);
+      font-size: 1rem;
     }
 
     .form-control:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+      box-shadow: 0 0 0 0.2rem rgba(26, 54, 93, 0.25);
     }
 
     .form-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
 
     /* Loading Skeleton */
@@ -428,12 +697,12 @@
     /* Refresh Button */
     .refresh-btn {
       position: fixed;
-      bottom: 2rem;
-      right: 2rem;
+      bottom: 2.5rem;
+      right: 2.5rem;
       background: var(--primary);
       color: var(--light);
-      width: 3.5rem;
-      height: 3.5rem;
+      width: 4rem;
+      height: 4rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -443,6 +712,7 @@
       transition: var(--transition);
       z-index: 999;
       border: none;
+      font-size: 1.2rem;
     }
 
     .refresh-btn:hover {
@@ -471,18 +741,19 @@
     /* Toast Notification */
     .toast {
       position: fixed;
-      bottom: 2rem;
+      bottom: 2.5rem;
       left: 50%;
       transform: translateX(-50%);
       background: var(--surface);
       color: var(--text);
-      padding: 1rem 2rem;
+      padding: 1.2rem 2.5rem;
       border-radius: var(--radius);
       box-shadow: var(--shadow-lg);
       z-index: 1000;
       opacity: 0;
       transition: var(--transition);
       font-weight: 500;
+      font-size: 1rem;
     }
 
     .toast.show {
@@ -491,9 +762,10 @@
 
     /* Footer */
     .footer {
-      margin-top: 4rem;
-      padding: 3rem 0;
+      margin-top: 6rem;
+      padding: 4rem 0;
       border-top: 1px solid #e9ecef;
+      background: var(--surface);
     }
 
     /* Responsive */
@@ -501,6 +773,31 @@
       .nav { display: none; }
       .stats { grid-template-columns: 1fr 1fr; }
       .form-row { grid-template-columns: 1fr; }
+      .vehicle-grid { grid-template-columns: 1fr; }
+      .hero {
+        padding-top: 120px;
+      }
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero p {
+        font-size: 1.1rem;
+      }
+      .features-content {
+        padding: 2rem;
+      }
+      .features-content h2 {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -524,16 +821,61 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
+  <!-- Unified Hero Section with Merged Content -->
   <section class="hero">
     <div class="container">
       <div class="hero-content">
         <h1>Global Airport Transfers</h1>
-        <p>Professional transportation services worldwide. Book your transfer in seconds.</p>
+        <p>Professional 24/7 transportation services worldwide. Book your transfer in seconds.</p>
         <a href="#booking" class="cta-button">
           <i class="fas fa-calendar-alt"></i>
           Book Instantly
         </a>
+
+        <!-- Merged Features Content -->
+        <div class="features-content">
+          <h2>Always Available, Anytime, Anywhere</h2>
+          <p>Our dedicated 24/7 airport transfer service ensures you have reliable transportation whenever you need it. Whether it's an early morning flight or a late-night arrival, our professional drivers are ready to serve you around the clock.</p>
+
+          <div class="features-grid">
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="fas fa-globe"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Global Coverage</h4>
+                <p>150+ countries worldwide</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Safe & Secure</h4>
+                <p>Licensed professional drivers</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="fas fa-headset"></i>
+              </div>
+              <div class="feature-text">
+                <h4>24/7 Support</h4>
+                <p>Round-the-clock customer service</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Guaranteed Service</h4>
+                <p>Never miss a flight again</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -565,7 +907,7 @@
     <!-- Booking Section -->
     <section class="booking-section" id="booking">
       <div class="booking-card">
-        <h2 style="margin-bottom: 2rem;">Book Your Transfer</h2>
+        <h2 style="margin-bottom: 2.5rem; font-size: 2.2rem; color: var(--primary);">Book Your 24/7 Transfer</h2>
 
         <!-- Step Indicator -->
         <div class="step-indicator">
@@ -585,30 +927,30 @@
 
         <!-- Step 1: Vehicle Selection -->
         <div id="step-1" class="step-content active">
-          <h3 style="margin-bottom: 1.5rem;">Choose Your Vehicle</h3>
+          <h3 style="margin-bottom: 1.8rem; font-size: 1.8rem;">Choose Your Vehicle</h3>
 
           <!-- Vehicle Grid -->
           <div id="vehicle-grid" class="vehicle-grid">
             <!-- Vehicles loaded via JS -->
-            <div class="vehicle-card skeleton" style="height: 300px;"></div>
-            <div class="vehicle-card skeleton" style="height: 300px;"></div>
-            <div class="vehicle-card skeleton" style="height: 300px;"></div>
+            <div class="vehicle-card skeleton" style="height: 350px;"></div>
+            <div class="vehicle-card skeleton" style="height: 350px;"></div>
+            <div class="vehicle-card skeleton" style="height: 350px;"></div>
           </div>
 
-          <button id="next-step-1" class="cta-button" style="margin-top: 2rem;" disabled>
+          <button id="next-step-1" class="cta-button" style="margin-top: 2.5rem;" disabled>
             Continue to Details <i class="fas fa-arrow-right"></i>
           </button>
         </div>
 
         <!-- Step 2: Trip Details -->
         <div id="step-2" class="step-content" style="display: none;">
-          <h3 style="margin-bottom: 1.5rem;">Trip Details</h3>
+          <h3 style="margin-bottom: 1.8rem; font-size: 1.8rem;">Trip Details</h3>
 
-          <div id="selected-vehicle-preview" style="background: rgba(139, 69, 19, 0.1); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; display: none;">
+          <div id="selected-vehicle-preview" style="background: rgba(26, 54, 93, 0.1); padding: 1.5rem; border-radius: var(--radius-sm); margin-bottom: 1.8rem; display: none;">
             <strong>Selected:</strong> <span id="selected-vehicle-name">None</span>
           </div>
 
-          <form id="trip-form" style="display: grid; gap: 1rem;">
+          <form id="trip-form" style="display: grid; gap: 1.5rem;">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Pickup Location</label>
@@ -642,11 +984,11 @@
             </div>
           </form>
 
-          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button id="prev-step-2" class="cta-button" style="background: transparent; border: 1px solid var(--text-light);">
+          <div style="display: flex; gap: 1.5rem; margin-top: 2.5rem;">
+            <button id="prev-step-2" class="cta-button" style="background: transparent; border: 1px solid var(--text-light); font-size: 1rem;">
               <i class="fas fa-arrow-left"></i> Back
             </button>
-            <button id="next-step-2" class="cta-button">
+            <button id="next-step-2" class="cta-button" style="font-size: 1rem;">
               Continue to Confirm <i class="fas fa-arrow-right"></i>
             </button>
           </div>
@@ -654,9 +996,9 @@
 
         <!-- Step 3: Contact & Confirm -->
         <div id="step-3" class="step-content" style="display: none;">
-          <h3 style="margin-bottom: 1.5rem;">Contact Details</h3>
+          <h3 style="margin-bottom: 1.8rem; font-size: 1.8rem;">Contact Details</h3>
 
-          <form id="contact-form" style="display: grid; gap: 1rem;">
+          <form id="contact-form" style="display: grid; gap: 1.5rem;">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Full Name</label>
@@ -670,22 +1012,22 @@
 
             <div class="form-group">
               <label class="form-label">Special Instructions</label>
-              <textarea id="notes" rows="3" class="form-control" placeholder="Flight number, special requests..."></textarea>
+              <textarea id="notes" rows="4" class="form-control" placeholder="Flight number, special requests..."></textarea>
             </div>
           </form>
 
-          <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(139, 69, 19, 0.05); border-radius: var(--radius-sm);">
-            <h4 style="margin-bottom: 1rem;">Booking Summary</h4>
-            <div id="booking-summary" style="display: grid; gap: 0.5rem;">
+          <div style="margin-top: 2.5rem; padding: 2rem; background: rgba(26, 54, 93, 0.05); border-radius: var(--radius-sm);">
+            <h4 style="margin-bottom: 1.5rem; font-size: 1.4rem;">Booking Summary</h4>
+            <div id="booking-summary" style="display: grid; gap: 0.8rem;">
               <!-- Filled by JS -->
             </div>
           </div>
 
-          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button id="prev-step-3" class="cta-button" style="background: transparent; border: 1px solid var(--text-light);">
+          <div style="display: flex; gap: 1.5rem; margin-top: 2.5rem;">
+            <button id="prev-step-3" class="cta-button" style="background: transparent; border: 1px solid var(--text-light); font-size: 1rem;">
               <i class="fas fa-arrow-left"></i> Back
             </button>
-            <button id="confirm-booking" class="cta-button" style="background: #25D366;">
+            <button id="confirm-booking" class="cta-button" style="background: #25D366; font-size: 1rem;">
               <i class="fab fa-whatsapp"></i> Confirm via WhatsApp
             </button>
           </div>
@@ -694,23 +1036,28 @@
     </section>
 
     <!-- Why Choose Us -->
-    <section style="margin-top: 4rem; padding: 2rem; background: var(--surface); border-radius: var(--radius);">
-      <h2 style="text-align: center; margin-bottom: 2rem;">Why Choose Us</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-        <div style="text-align: center;">
-          <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">✈️</div>
-          <h3>Global Coverage</h3>
-          <p style="color: var(--text-light);">Airport transfers in over 150 countries worldwide</p>
+    <section style="margin-top: 5rem; padding: 3rem; background: var(--surface); border-radius: var(--radius);">
+      <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--primary);">Why Choose Our 24/7 Service</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem;">
+        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(26, 54, 93, 0.05), rgba(26, 54, 93, 0.02)); border-radius: var(--radius); transition: var(--transition);">
+          <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;">✈️</div>
+          <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary);">Global Coverage</h3>
+          <p style="color: var(--text-light); font-size: 1.1rem;">Airport transfers in over 150 countries worldwide, available 24/7</p>
         </div>
-        <div style="text-align: center;">
-          <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">👨‍✈️</div>
-          <h3>Professional Drivers</h3>
-          <p style="color: var(--text-light);">Experienced, licensed, and multilingual</p>
+        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(26, 54, 93, 0.05), rgba(26, 54, 93, 0.02)); border-radius: var(--radius); transition: var(--transition);">
+          <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;">👨‍✈️</div>
+          <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary);">Professional Drivers</h3>
+          <p style="color: var(--text-light); font-size: 1.1rem;">Experienced, licensed, and multilingual drivers ready anytime</p>
         </div>
-        <div style="text-align: center;">
-          <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;">🚗</div>
-          <h3>Modern Fleet</h3>
-          <p style="color: var(--text-light);">Clean, comfortable, and well-maintained vehicles</p>
+        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(26, 54, 93, 0.05), rgba(26, 54, 93, 0.02)); border-radius: var(--radius); transition: var(--transition);">
+          <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;">🚗</div>
+          <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary);">Modern Fleet</h3>
+          <p style="color: var(--text-light); font-size: 1.1rem;">Clean, comfortable, and well-maintained vehicles for all your needs</p>
+        </div>
+        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(26, 54, 93, 0.05), rgba(26, 54, 93, 0.02)); border-radius: var(--radius); transition: var(--transition);">
+          <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;">⏰</div>
+          <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary);">24/7 Availability</h3>
+          <p style="color: var(--text-light); font-size: 1.1rem;">Round-the-clock service for early flights and late arrivals</p>
         </div>
       </div>
     </section>
@@ -720,23 +1067,25 @@
   <footer class="footer" id="contact">
     <div class="container">
       <div style="text-align: center;">
-        <a href="/" class="logo" style="justify-content: center; margin-bottom: 1rem;">
-          <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="Airport Transfers & Destinations" style="height: 40px;">
+        <a href="/" class="logo" style="justify-content: center; margin-bottom: 1.5rem;">
+          <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="Airport Transfers & Destinations" style="height: 45px;">
         </a>
-        <p style="color: var(--text-light); margin-bottom: 2rem;">Premium airport transfers worldwide</p>
+        <p style="color: var(--text-light); margin-bottom: 2.5rem; font-size: 1.1rem;">Premium 24/7 airport transfers worldwide</p>
 
-        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap;">
           <a href="https://wa.me/254723229651" target="_blank"
-             style="color: #25D366; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+             style="color: #25D366; text-decoration: none; display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem; background: rgba(37, 211, 102, 0.1); padding: 0.8rem 1.5rem; border-radius: var(--radius-sm); transition: var(--transition);">
             <i class="fab fa-whatsapp"></i> WhatsApp
           </a>
           <a href="tel:+254723229651"
-             style="color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+             style="color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem; background: rgba(26, 54, 93, 0.05); padding: 0.8rem 1.5rem; border-radius: var(--radius-sm); transition: var(--transition);">
             <i class="fas fa-phone"></i> +254 723 229 651
           </a>
         </div>
 
-        <p style="color: var(--text-light);">&copy; <span id="current-year"></span> Airport Transfers & Destinations</p>
+        <div style="border-top: 1px solid #e9ecef; padding-top: 2rem; margin-top: 2rem;">
+          <p style="color: var(--text-light); font-size: 1rem;">&copy; <span id="current-year"></span> Airport Transfers & Destinations. All rights reserved.</p>
+        </div>
       </div>
     </div>
   </footer>
@@ -750,15 +1099,25 @@
   <!-- Toast Notification -->
   <div id="toast" class="toast"></div>
 
+  <!-- Image Modal -->
+  <div id="image-modal" class="image-modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <img id="modal-image" class="modal-image" src="" alt="Vehicle Image">
+      <button class="modal-nav prev">&lt;</button>
+      <button class="modal-nav next">&gt;</button>
+    </div>
+  </div>
+
   <!-- Confirmation Modal -->
   <div id="confirmation-modal"
-       style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 2000;">
-    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius); max-width: 500px; width: 90%;">
+       style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background: var(--surface); padding: 2.5rem; border-radius: var(--radius); max-width: 550px; width: 90%;">
       <div style="text-align: center;">
-        <div style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;">🎉</div>
-        <h3 style="margin-bottom: 1rem;">Booking Confirmed!</h3>
-        <p style="color: var(--text-light); margin-bottom: 2rem;">Your transfer request has been sent via WhatsApp. We'll confirm within 5 minutes.</p>
-        <button id="close-modal" class="cta-button" style="width: 100%;">
+        <div style="font-size: 5rem; color: var(--primary); margin-bottom: 1.5rem;">🎉</div>
+        <h3 style="margin-bottom: 1.2rem; font-size: 1.8rem;">Booking Confirmed!</h3>
+        <p style="color: var(--text-light); margin-bottom: 2rem; font-size: 1.1rem;">Your 24/7 transfer request has been sent via WhatsApp. We'll confirm within 5 minutes.</p>
+        <button id="close-modal" class="cta-button" style="width: 100%; font-size: 1.1rem;">
           <i class="fas fa-check"></i> Done
         </button>
       </div>
@@ -770,9 +1129,12 @@
     const CONFIG = {
       apiEndpoint: '/api/vehicles/',
       whatsappNumber: '254723229651',
-      cacheKey: 'vehicles_cache_v2',
+      cacheKey: 'vehicles_cache_v3',
       cacheTTL: 5 * 60 * 1000, // 5 minutes
       refreshInterval: 30000, // 30 seconds
+      currency: 'USD',
+      exchangeRate: 0.0085, // KSH to USD conversion rate,
+      heroImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbjckO6Df7JuBu7j3kjm63FTSQN2dRPEASqw&s'
     };
 
     // State management
@@ -784,6 +1146,8 @@
         this.currentStep = 1;
         this.vehicles = [];
         this.isLoading = false;
+        this.modalImages = [];
+        this.currentModalIndex = 0;
       }
 
       update(updates) {
@@ -821,6 +1185,8 @@
         this.contactDetails = {};
         this.currentStep = 1;
         this.vehicles = [];
+        this.modalImages = [];
+        this.currentModalIndex = 0;
         localStorage.removeItem('booking_state');
       }
     }
@@ -887,6 +1253,17 @@
           clearTimeout(timeout);
           throw error;
         }
+      }
+    }
+
+    // Currency Converter
+    class CurrencyConverter {
+      static toUSD(amountKSH) {
+        return (amountKSH * CONFIG.exchangeRate).toFixed(2);
+      }
+
+      static formatUSD(amount) {
+        return `$${parseFloat(amount).toLocaleString()}`;
       }
     }
 
@@ -976,17 +1353,24 @@
           vehicles = data.vehicles;
         }
 
-        // Normalize vehicle data
-        return vehicles.map(vehicle => ({
-          id: vehicle.id || Math.random().toString(36).slice(2),
-          name: vehicle.make || vehicle.name || 'Vehicle',
-          model: vehicle.model || '',
-          type: vehicle.vehicle_type || vehicle.type || 'Standard',
-          capacity: vehicle.capacity || vehicle.seats || 4,
-          price: vehicle.price || 0,
-          image: vehicle.image_url || vehicle.image || this.getVehicleImage(vehicle.type || 'standard'),
-          features: vehicle.features || ['AC', 'Wifi', 'GPS'],
-        }));
+        // Normalize vehicle data and convert to USD
+        return vehicles.map(vehicle => {
+          const priceKSH = Number(vehicle.price ?? vehicle.fare ?? vehicle.cost ?? 0);
+          const priceUSD = CurrencyConverter.toUSD(priceKSH);
+
+          return {
+            id: vehicle.id || Math.random().toString(36).slice(2),
+            name: vehicle.make || vehicle.name || 'Vehicle',
+            model: vehicle.model || '',
+            type: vehicle.vehicle_type || vehicle.type || 'Standard',
+            capacity: vehicle.capacity || vehicle.seats || 4,
+            priceKSH: priceKSH,
+            priceUSD: priceUSD,
+            image: vehicle.image_url || vehicle.image || this.getVehicleImage(vehicle.type || 'standard'),
+            features: vehicle.features || ['AC', 'Wifi', 'GPS'],
+            isFeatured: vehicle.is_featured || false,
+          };
+        });
       }
 
       getVehicleImage(type) {
@@ -1008,9 +1392,11 @@
             model: 'Toyota Camry',
             type: 'Sedan',
             capacity: 4,
-            price: 3500,
+            priceKSH: 3500,
+            priceUSD: CurrencyConverter.toUSD(3500),
             image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop',
             features: ['AC', 'Wifi', 'Comfort Seats'],
+            isFeatured: true,
           },
           {
             id: '2',
@@ -1018,7 +1404,8 @@
             model: 'Toyota Prado',
             type: 'SUV',
             capacity: 6,
-            price: 5500,
+            priceKSH: 5500,
+            priceUSD: CurrencyConverter.toUSD(5500),
             image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
             features: ['AC', 'Wifi', 'Spacious'],
           },
@@ -1028,7 +1415,8 @@
             model: 'Toyota Hiace',
             type: 'Van',
             capacity: 12,
-            price: 7500,
+            priceKSH: 7500,
+            priceUSD: CurrencyConverter.toUSD(7500),
             image: 'https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=400&h=300&fit=crop',
             features: ['AC', 'Wifi', 'Luggage Space'],
           },
@@ -1089,6 +1477,21 @@
         // Modal close
         document.getElementById('close-modal')?.addEventListener('click', () => {
           document.getElementById('confirmation-modal').style.display = 'none';
+        });
+
+        // Image modal
+        document.getElementById('image-modal').addEventListener('click', (e) => {
+          if (e.target === e.currentTarget || e.target.classList.contains('modal-close')) {
+            this.ui.closeImageModal();
+          }
+        });
+
+        document.querySelector('.modal-nav.prev')?.addEventListener('click', () => {
+          this.ui.showPreviousImage();
+        });
+
+        document.querySelector('.modal-nav.next')?.addEventListener('click', () => {
+          this.ui.showNextImage();
         });
 
         // Auto-fill today's date
@@ -1157,7 +1560,7 @@
 
         if (!vehicle || !tripDetails || !contactDetails) return;
 
-        const message = `*NEW TRANSFER BOOKING*%0A%0A` +
+        const message = `*NEW 24/7 TRANSFER BOOKING*%0A%0A` +
           `*Vehicle:* ${vehicle.name} ${vehicle.model}%0A` +
           `*Passengers:* ${tripDetails.passengers}%0A` +
           `*Pickup:* ${tripDetails.pickup}%0A` +
@@ -1218,22 +1621,27 @@
           card.classList.add('selected');
         }
 
+        if (vehicle.isFeatured) {
+          card.classList.add('featured');
+        }
+
         card.innerHTML = `
-          <div style="position: relative;">
+          <div class="vehicle-image-container">
             <img src="${vehicle.image}"
                  alt="${vehicle.name} ${vehicle.model}"
                  class="vehicle-image"
                  loading="lazy">
-            <div style="position: absolute; top: 1rem; right: 1rem; background: var(--primary); color: var(--light); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">
-              ${vehicle.capacity} seats
-            </div>
+            ${vehicle.isFeatured ? '<div class="vehicle-badge">Featured</div>' : ''}
+            <button class="view-image-btn">
+              <i class="fas fa-search-plus"></i> View Image
+            </button>
           </div>
           <div class="vehicle-info">
             <h4 class="vehicle-name">${vehicle.name} ${vehicle.model}</h4>
             <div class="vehicle-details">
               <div>
                 <div class="vehicle-capacity">${vehicle.type}</div>
-                <div class="vehicle-price">KSh ${vehicle.price.toLocaleString()}</div>
+                <div class="vehicle-price">${CurrencyConverter.formatUSD(vehicle.priceUSD)}</div>
               </div>
               <button class="select-vehicle-btn ${isSelected ? 'selected' : ''}">
                 ${isSelected ? '✓ Selected' : 'Select'}
@@ -1249,7 +1657,7 @@
 
         // Add click handlers
         card.addEventListener('click', (e) => {
-          if (!e.target.closest('.select-vehicle-btn')) {
+          if (!e.target.closest('.select-vehicle-btn') && !e.target.closest('.view-image-btn')) {
             this.selectVehicle(vehicle.id);
           }
         });
@@ -1257,6 +1665,11 @@
         card.querySelector('.select-vehicle-btn').addEventListener('click', (e) => {
           e.stopPropagation();
           this.selectVehicle(vehicle.id);
+        });
+
+        card.querySelector('.view-image-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.showVehicleImage(vehicle);
         });
 
         return card;
@@ -1290,11 +1703,68 @@
         if (vehicle) {
           document.getElementById('selected-vehicle-preview').style.display = 'block';
           document.getElementById('selected-vehicle-name').textContent =
-            `${vehicle.name} ${vehicle.model} - ${vehicle.capacity} seats (KSh ${vehicle.price.toLocaleString()})`;
+            `${vehicle.name} ${vehicle.model} - ${vehicle.capacity} seats (${CurrencyConverter.formatUSD(vehicle.priceUSD)})`;
         }
 
         // Enable next button
         document.getElementById('next-step-1').disabled = false;
+      }
+
+      showVehicleImage(vehicle) {
+        const modal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+
+        modalImage.src = vehicle.image;
+        modal.classList.add('active');
+
+        // Store current vehicle index for navigation
+        const vehicleIndex = this.app.state.vehicles.findIndex(v => v.id === vehicle.id);
+        this.app.state.update({ currentModalIndex: vehicleIndex });
+
+        // Update navigation buttons visibility
+        const prevBtn = document.querySelector('.modal-nav.prev');
+        const nextBtn = document.querySelector('.modal-nav.next');
+
+        if (prevBtn && nextBtn) {
+          prevBtn.style.display = this.app.state.vehicles.length > 1 ? 'flex' : 'none';
+          nextBtn.style.display = this.app.state.vehicles.length > 1 ? 'flex' : 'none';
+        }
+      }
+
+      showPreviousImage() {
+        const vehicles = this.app.state.vehicles;
+        if (vehicles.length === 0) return;
+
+        let newIndex = this.app.state.currentModalIndex - 1;
+        if (newIndex < 0) {
+          newIndex = vehicles.length - 1;
+        }
+
+        const vehicle = vehicles[newIndex];
+        if (vehicle) {
+          document.getElementById('modal-image').src = vehicle.image;
+          this.app.state.update({ currentModalIndex: newIndex });
+        }
+      }
+
+      showNextImage() {
+        const vehicles = this.app.state.vehicles;
+        if (vehicles.length === 0) return;
+
+        let newIndex = this.app.state.currentModalIndex + 1;
+        if (newIndex >= vehicles.length) {
+          newIndex = 0;
+        }
+
+        const vehicle = vehicles[newIndex];
+        if (vehicle) {
+          document.getElementById('modal-image').src = vehicle.image;
+          this.app.state.update({ currentModalIndex: newIndex });
+        }
+      }
+
+      closeImageModal() {
+        document.getElementById('image-modal').classList.remove('active');
       }
 
       goToStep(step) {
@@ -1364,7 +1834,7 @@
           <div><strong>Destination:</strong> ${tripDetails.destination}</div>
           <div><strong>Date & Time:</strong> ${tripDetails.date} at ${tripDetails.time}</div>
           <div><strong>Passengers:</strong> ${tripDetails.passengers}</div>
-          <div><strong>Price:</strong> KSh ${vehicle.price.toLocaleString()}</div>
+          <div><strong>Price:</strong> ${CurrencyConverter.formatUSD(vehicle.priceUSD)}</div>
           ${contactDetails.name ? `<div><strong>Contact:</strong> ${contactDetails.name}</div>` : ''}
         `;
       }
@@ -1372,7 +1842,8 @@
       showToast(message, type = 'info') {
         const toast = document.getElementById('toast');
         toast.textContent = message;
-        toast.style.background = type === 'error' ? '#dc3545' : '#8B4513';
+        toast.style.background = type === 'error' ? '#dc3545' : 'var(--primary)';
+        toast.style.color = type === 'error' ? 'white' : 'var(--light)';
         toast.classList.add('show');
 
         setTimeout(() => {

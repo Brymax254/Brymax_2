@@ -37,9 +37,9 @@ class VehicleSerializer(serializers.ModelSerializer):
             'vehicle_type', 'fuel_type', 'capacity', 'features',
             'accessibility_features', 'insurance_expiry',
             'inspection_expiry', 'is_active', 'carbon_footprint_per_km',
-            'created_at', 'image_url'
+            'image_url'  # Added missing comma here
         ]
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'updated_at')
 
     def get_image_url(self, obj):
         request = self.context.get('request')

@@ -425,11 +425,6 @@ class Driver(TimeStampedModel):
         """Get upcoming trips for this driver."""
         today = timezone.now().date()
         return self.trips.filter(date__gte=today, status='SCHEDULED')
-
-# =============================================================================
-# VEHICLE MODEL
-# =============================================================================
-
 from decimal import Decimal
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -437,8 +432,39 @@ from django.utils import timezone
 from cloudinary.models import CloudinaryField
 from django.core.validators import validate_image_file_extension
 
-class Vehicle(TimeStampedModel):
-    """Model representing a vehicle used in bookings and transfers."""
+# =============================================================================
+# Exchange Rate Model
+# =============================================================================
+class ExchangeRate(models.Model):
+    """
+    Stores the current USD to KES exchange rate.
+    Only the latest rate is used in Vehicle calculations.
+    """
+    usd_to_kes = models.DecimalField(max_digits=12, decimal_places=4, help_text="Current USD to KES rate")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Exchange Rate"
+        verbose_name_plural = "Exchange Rates"
+
+    def __str__(self):
+        return f"1 USD = {self.usd_to_kes} KES (updated {self.updated_at})"
+
+    @staticmethod
+    def get_current_rate():
+        """Return the latest exchange rate, fallback to 128.95 KES."""
+        rate = ExchangeRate.objects.order_by('-updated_at').first()
+        return rate.usd_to_kes if rate else Decimal('128.95')
+
+# =============================================================================
+# Vehicle Model
+# =============================================================================
+class Vehicle(models.Model):
+    """
+    Represents a vehicle used for bookings and transfers.
+    Includes pricing in KES with admin-controlled USD conversion,
+    images, documents, accessibility features, and sustainability metrics.
+    """
 
     VEHICLE_TYPES = [
         ('SEDAN', 'Sedan'),
@@ -459,7 +485,9 @@ class Vehicle(TimeStampedModel):
         ('CNG', 'Compressed Natural Gas'),
     ]
 
+    # -------------------------
     # Basic Information
+    # -------------------------
     make = models.CharField(max_length=50, help_text="Vehicle make (e.g., Toyota)")
     model = models.CharField(max_length=50, help_text="Vehicle model (e.g., Noah)")
     year = models.PositiveIntegerField(help_text="Year of manufacture")
@@ -469,62 +497,60 @@ class Vehicle(TimeStampedModel):
     fuel_type = models.CharField(max_length=20, choices=FUEL_TYPES)
     capacity = models.PositiveIntegerField(help_text="Passenger capacity")
 
+    # -------------------------
+    # Pricing
+    # -------------------------
+    price_ksh = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True,
+        help_text="Base price in Ksh (converted from USD using admin-set rate)"
+    )
+
+    # -------------------------
     # Images
+    # -------------------------
     image = models.ImageField(
         upload_to='vehicles/%Y/%m/',
-        blank=True,
-        null=True,
+        blank=True, null=True,
         validators=[validate_image_file_extension],
         help_text="Upload main vehicle image (max 100MB)"
     )
     external_image_url = models.URLField(
-        max_length=255,
-        blank=True,
-        null=True,
+        max_length=255, blank=True, null=True,
         help_text="External URL for vehicle image (alternative to upload)"
     )
 
+    # -------------------------
     # Features
-    features = models.JSONField(
-        default=list,
-        blank=True,
-        null=True,
-        help_text="Vehicle features (AC, WiFi, Bluetooth, etc.)"
-    )
-    accessibility_features = models.JSONField(
-        default=list,
-        blank=True,
-        null=True,
-        help_text="Accessibility features (wheelchair access, ramp, etc.)"
-    )
+    # -------------------------
+    features = models.JSONField(default=list, blank=True, null=True, help_text="Vehicle features (AC, WiFi, Bluetooth, etc.)")
+    accessibility_features = models.JSONField(default=list, blank=True, null=True, help_text="Accessibility features (wheelchair access, ramp, etc.)")
 
+    # -------------------------
     # Documents
-    logbook_copy = CloudinaryField(
-        "logbook_copy", blank=True, null=True, help_text="Scanned logbook copy"
-    )
-    insurance_copy = CloudinaryField(
-        "insurance_copy", blank=True, null=True, help_text="Insurance certificate"
-    )
-    inspection_certificate = CloudinaryField(
-        "inspection_certificate", blank=True, null=True, help_text="Inspection certificate"
-    )
+    # -------------------------
+    logbook_copy = CloudinaryField("logbook_copy", blank=True, null=True, help_text="Scanned logbook copy")
+    insurance_copy = CloudinaryField("insurance_copy", blank=True, null=True, help_text="Insurance certificate")
+    inspection_certificate = CloudinaryField("inspection_certificate", blank=True, null=True, help_text="Inspection certificate")
 
+    # -------------------------
     # Dates & Status
+    # -------------------------
     insurance_expiry = models.DateField(null=True, blank=True)
     inspection_expiry = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
+    # -------------------------
+    # Sustainability
+    # -------------------------
     carbon_footprint_per_km = models.DecimalField(
-        max_digits=6,
-        decimal_places=3,
-        default=Decimal('0.120'),
+        max_digits=6, decimal_places=3, default=Decimal('0.120'),
         help_text="CO₂ emissions per km (kg)"
     )
 
     class Meta:
         verbose_name = "Vehicle"
         verbose_name_plural = "Vehicles"
-        ordering = ['id']  # or ['-created_at'] if you prefer newest first
+        ordering = ['id']
         indexes = [
             models.Index(fields=['license_plate']),
             models.Index(fields=['vehicle_type']),
@@ -532,46 +558,39 @@ class Vehicle(TimeStampedModel):
             models.Index(fields=['fuel_type']),
         ]
 
+    # -------------------------
+    # String Representation
+    # -------------------------
     def __str__(self):
         return f"{self.year} {self.make} {self.model} ({self.license_plate})"
 
+    # -------------------------
+    # Validation
+    # -------------------------
     def clean(self):
-        super().clean()
         if self.year < 1980:
             raise ValidationError({"year": "Vehicle year is unrealistically old."})
-
-        # Validate image size (100MB limit)
-        if self.image and self.image.size > 100 * 1024 * 1024:
-            raise ValidationError({
-                "image": "Image file size cannot exceed 100MB."
-            })
-
-        # Active vehicles must have an image or external link
-        if self.is_active and not self.image and not self.external_image_url:
-            raise ValidationError(
-                "Active vehicles must have either an uploaded image or an external image URL."
-            )
-
-        # Validate manufacture year
         if self.year > timezone.now().year:
             raise ValidationError({"year": "Year of manufacture cannot be in the future."})
 
-        # Validate insurance expiry
+        if self.image and self.image.size > 100 * 1024 * 1024:
+            raise ValidationError({"image": "Image file size cannot exceed 100MB."})
+
+        if self.is_active and not self.image and not self.external_image_url:
+            raise ValidationError("Active vehicles must have either an uploaded image or an external image URL.")
+
         if self.insurance_expiry and self.insurance_expiry <= timezone.now().date():
             raise ValidationError({"insurance_expiry": "Insurance expiry must be in the future."})
 
-        # Validate inspection expiry
         if self.inspection_expiry and self.inspection_expiry <= timezone.now().date():
             raise ValidationError({"inspection_expiry": "Inspection expiry must be in the future."})
 
+    # -------------------------
+    # Properties
+    # -------------------------
     @property
     def image_url(self):
-        """Return uploaded or external image URL."""
-        if self.image:
-            return self.image.url
-        elif self.external_image_url:
-            return self.external_image_url
-        return None  # No default placeholder
+        return self.image.url if self.image else self.external_image_url
 
     @property
     def full_name(self):
@@ -594,16 +613,26 @@ class Vehicle(TimeStampedModel):
         return not self.inspection_expiry or self.inspection_expiry > timezone.now().date()
 
     def get_carbon_footprint(self, distance_km):
-        """Return carbon footprint for a given distance in km."""
         return self.carbon_footprint_per_km * distance_km
 
+    # -------------------------
+    # USD Price
+    # -------------------------
+    @property
+    def price_usd(self):
+        rate = ExchangeRate.get_current_rate()
+        if self.price_ksh:
+            return round(Decimal(self.price_ksh) / Decimal(rate), 2)
+        return None
+
+    # -------------------------
+    # Save Override
+    # -------------------------
     def save(self, *args, **kwargs):
-        """Ensure JSON fields are always lists."""
-        if not isinstance(self.features, list):
-            self.features = []
-        if not isinstance(self.accessibility_features, list):
-            self.accessibility_features = []
+        self.features = self.features if isinstance(self.features, list) else []
+        self.accessibility_features = self.accessibility_features if isinstance(self.accessibility_features, list) else []
         super().save(*args, **kwargs)
+
 
 # =============================================================================
 # DESTINATIONS & TOURS MODELS
@@ -2136,3 +2165,38 @@ class Partner(TimeStampedModel):
         if self.logo:
             return self.logo.url
         return self.logo_url or "/static/img/partner-placeholder.png"
+
+
+
+# =============================================================================
+# EXCHANGE RATE
+# =============================================================================
+
+# models.py
+from django.db import models
+from decimal import Decimal
+
+class ExchangeRate(models.Model):
+    """
+    Singleton model to store current USD to KES exchange rate.
+    """
+    usd_to_kes = models.DecimalField(
+        max_digits=12, decimal_places=2, default=16628.10,
+        help_text="Current USD to KES exchange rate"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Exchange Rate"
+        verbose_name_plural = "Exchange Rate"
+
+    def __str__(self):
+        return f"1 USD = {self.usd_to_kes} KES"
+
+    @classmethod
+    def get_current_rate(cls):
+        """Return the current rate, or fallback."""
+        rate_obj = cls.objects.first()
+        if rate_obj:
+            return rate_obj.usd_to_kes
+        return Decimal('16628.10')  # fallback
