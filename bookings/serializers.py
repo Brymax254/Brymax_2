@@ -2,6 +2,7 @@
 # IMPORTS
 # =============================================================================
 from rest_framework import serializers
+from django.conf import settings
 from bookings.models import (
     Driver, BookingCustomer, Vehicle, Destination, TourCategory, Tour,
     Booking, Trip, Payment, PaymentStatus, Review, ContactMessage,
@@ -37,43 +38,50 @@ class VehicleSerializer(serializers.ModelSerializer):
             'id', 'make', 'model', 'year', 'color', 'license_plate',
             'vehicle_type', 'fuel_type', 'capacity', 'features',
             'accessibility_features', 'insurance_expiry',
-            'inspection_expiry', 'is_active', 'carbon_footprint_per_km',
-            'created_at', 'image_url'
+            'inspection_expiry', 'is_active',
+            'carbon_footprint_per_km',
+            'created_at', 'updated_at',
+            'image_url'
         ]
         read_only_fields = ('id', 'created_at', 'updated_at')
 
     def get_image_url(self, obj):
-        """Return absolute URL for vehicle image with fallback."""
+        # Get request from context
         request = self.context.get('request')
 
-        # 1️⃣ Uploaded image (MEDIA)
-        if obj.image:
-            image_url = obj.image.url
-            if request and not image_url.startswith("http"):
-                return request.build_absolute_uri(image_url)
-            return image_url
+        # Check if image exists (assuming 'image' is the ImageField name)
+        if hasattr(obj, 'image') and obj.image:
+            try:
+                # For local images
+                if request:
+                    return request.build_absolute_uri(obj.image.url)
+                return obj.image.url
+            except (AttributeError, ValueError):
+                pass
 
-        # 2️⃣ External URL
-        if obj.external_image_url:
+        # Check for external image URL
+        if hasattr(obj, 'external_image_url') and obj.external_image_url:
             return obj.external_image_url
 
-        # 3️⃣ Cloudinary (if ever used)
+        # Fallback to placeholder
         try:
-            if hasattr(obj, "logbook_copy") and obj.logbook_copy:
-                return obj.logbook_copy.url
-        except Exception:
-            pass
+            # Try to get static URL from settings
+            static_url = getattr(settings, 'STATIC_URL', '/static/')
+            placeholder = static_url + 'images/placeholder-vehicle.png'
+            if request:
+                return request.build_absolute_uri(placeholder)
+            return placeholder
+        except (AttributeError, TypeError):
+            # If all else fails, return a default URL
+            return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop'
 
-        # 4️⃣ Fallback placeholder
-        placeholder = '/static/images/placeholder-vehicle.png'
-        return request.build_absolute_uri(placeholder) if request else placeholder
-
-
+# =============================================================================
+# BOOKING CUSTOMER SERIALIZER
+# =============================================================================
 class BookingCustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookingCustomer
         fields = '__all__'
-
 
 # =============================================================================
 # COMPLEX MODEL SERIALIZERS

@@ -10,7 +10,11 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import requests
 from django.conf import settings
+from rest_framework import viewsets, filters
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from bookings.models import (
     Driver, BookingCustomer, Vehicle, Destination, TourCategory, Tour,
     Booking, Trip, Payment, PaymentStatus, Review, ContactMessage,
@@ -265,23 +269,44 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class VehicleViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows vehicles to be viewed or edited.
-    The image URL will be absolute.
+    Vehicle API:
+    - Public users: can LIST and RETRIEVE active vehicles
+    - Authenticated users: can CREATE, UPDATE, DELETE vehicles
     """
+
     queryset = Vehicle.objects.all()
-    serializer_class = VehicleSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['vehicle_type', 'fuel_type', 'is_active', 'capacity']
+    search_fields = ['make', 'model', 'license_plate']
+    ordering_fields = ['year', 'make', 'model', 'capacity']
+    ordering = ['-year']
+
+    def get_queryset(self):
+        # Public users should only see active vehicles
+        if self.action in ['list', 'retrieve']:
+            return Vehicle.objects.filter(is_active=True)
+        return Vehicle.objects.all()
+
+    def get_permissions(self):
+        # Public read access
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        # Authenticated users for write actions
+        return [IsAuthenticated()]
 
     def get_serializer_class(self):
+        # Use different serializer for write operations
         if self.action in ['create', 'update', 'partial_update']:
             return VehicleCreateSerializer
         return VehicleSerializer
 
     def get_serializer_context(self):
+        """
+        Include request in context to generate absolute URLs for images
+        """
         context = super().get_serializer_context()
-        context.update({"request": self.request})
+        context['request'] = self.request
         return context
-
 
 class BookingCustomerViewSet(viewsets.ModelViewSet):
     """

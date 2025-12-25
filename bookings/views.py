@@ -1320,17 +1320,69 @@ def delete_tour(request, tour_id):
 
 @staff_member_required
 def modern_admin_dashboard(request):
-    """Modern admin dashboard view."""
+    """Modern admin dashboard view with comprehensive statistics."""
+
+    # Get today's date
+    today = timezone.now().date()
+
     # Get statistics
-    total_tours = Tour.objects.count()
-    active_tours = Tour.objects.filter(available=True, is_approved=True).count()
-    pending_tours = Tour.objects.filter(is_approved=False).count()
-    total_payments = Payment.objects.count()
-    successful_payments = Payment.objects.filter(status=PaymentStatus.SUCCESS).count()
     total_bookings = Booking.objects.count()
-    recent_bookings = Booking.objects.select_related('booking_customer', 'destination', 'tour').order_by('-created_at')[
-        :10]
-    recent_payments = Payment.objects.select_related('tour').order_by('-created_at')[:10]
+    confirmed_bookings = Booking.objects.filter(status='CONFIRMED').count()
+    pending_bookings = Booking.objects.filter(status='PENDING').count()
+
+    # Calculate revenue
+    total_revenue = Payment.objects.filter(status=PaymentStatus.SUCCESS).aggregate(
+        total=Sum('amount_paid'))['total'] or 0
+    pending_revenue = Payment.objects.filter(status=PaymentStatus.PENDING).aggregate(
+        total=Sum('amount_paid'))['total'] or 0
+
+    # Driver statistics
+    total_drivers = Driver.objects.count()
+    available_drivers = Driver.objects.filter(is_available=True, is_verified=True).count()
+    verified_drivers = Driver.objects.filter(is_verified=True).count()
+
+    # Vehicle statistics
+    total_vehicles = Vehicle.objects.count()
+    active_vehicles = Vehicle.objects.filter(is_active=True).count()
+
+    # Today's bookings
+    today_bookings = Booking.objects.filter(travel_date=today).select_related(
+        'booking_customer', 'destination', 'tour'
+    ).order_by('travel_time')
+
+    # Unverified drivers
+    unverified_drivers = Driver.objects.filter(is_verified=False)
+
+    # Recent bookings
+    recent_bookings = Booking.objects.select_related(
+        'booking_customer', 'destination', 'tour'
+    ).order_by('-created_at')[:10]
+
+    # Pending payments
+    pending_payments = Payment.objects.filter(status=PaymentStatus.PENDING).select_related(
+        'booking'
+    ).order_by('-created_at')[:10]
+
+    # Scheduled trips for today
+    scheduled_trips = Booking.objects.filter(
+        travel_date=today,
+        status='CONFIRMED'
+    ).select_related('driver', 'destination').order_by('travel_time')
+
+    # Recent payments
+    recent_payments = Payment.objects.select_related(
+        'booking__booking_customer'
+    ).filter(status=PaymentStatus.SUCCESS).order_by('-created_at')[:10]
+
+    # Top tours
+    top_tours = Tour.objects.annotate(
+        booking_count=Count('booking')
+    ).filter(booking_count__gt=0).order_by('-booking_count')[:5]
+
+    # Top drivers
+    top_drivers = Driver.objects.annotate(
+        trip_count=Count('booking')
+    ).filter(trip_count__gt=0).order_by('-trip_count')[:5]
 
     # Get monthly revenue for the past 6 months
     monthly_revenue = []
@@ -1343,7 +1395,7 @@ def modern_admin_dashboard(request):
             status=PaymentStatus.SUCCESS,
             paid_on__gte=month_start,
             paid_on__lte=month_end
-        ).aggregate(total=models.Sum('amount_paid'))['total'] or 0
+        ).aggregate(total=Sum('amount_paid'))['total'] or 0
 
         monthly_revenue.append({
             'month': month_start.strftime('%b %Y'),
@@ -1352,31 +1404,30 @@ def modern_admin_dashboard(request):
 
     monthly_revenue.reverse()  # Show oldest to newest
 
-    # Calculate revenue
-    total_revenue = Payment.objects.filter(status=PaymentStatus.SUCCESS).aggregate(
-        total=models.Sum('amount_paid'))['total'] or 0
-
-    # Get top destinations
-    top_destinations = Destination.objects.annotate(
-        booking_count=models.Count('tour__booking')
-    ).order_by('-booking_count')[:5]
-
     context = {
-        'total_tours': total_tours,
-        'active_tours': active_tours,
-        'pending_tours': pending_tours,
-        'total_payments': total_payments,
-        'successful_payments': successful_payments,
         'total_bookings': total_bookings,
+        'confirmed_bookings': confirmed_bookings,
+        'pending_bookings': pending_bookings,
         'total_revenue': total_revenue,
+        'pending_revenue': pending_revenue,
+        'available_drivers': available_drivers,
+        'total_drivers': total_drivers,
+        'verified_drivers': verified_drivers,
+        'active_vehicles': active_vehicles,
+        'total_vehicles': total_vehicles,
+        'today': today,
+        'today_bookings': today_bookings,
+        'unverified_drivers': unverified_drivers,
         'recent_bookings': recent_bookings,
+        'pending_payments': pending_payments,
+        'scheduled_trips': scheduled_trips,
         'recent_payments': recent_payments,
+        'top_tours': top_tours,
+        'top_drivers': top_drivers,
         'monthly_revenue': monthly_revenue,
-        'top_destinations': top_destinations,
     }
 
     return render(request, 'admin/modern_dashboard.html', context)
-
 
 @staff_member_required
 def payment_admin_list(request):
@@ -1890,7 +1941,8 @@ def vehicles_api(request):
         from .models import Vehicle
 
         # Start with all vehicles - OPTIMIZED: prefetch related data
-        vehicles = Vehicle.objects.select_related('image', 'photo').all().order_by('id')
+        vehicles = Vehicle.objects.all().order_by('id')
+
 
         # Apply filters
         if vehicle_type:
@@ -1961,15 +2013,13 @@ def vehicles_api(request):
 
 
 def get_vehicle_image_url(vehicle):
-    """Helper function to efficiently get vehicle image URL"""
-    # Check image attributes in order of preference, but only once each
-    if hasattr(vehicle, 'image') and vehicle.image:
+    """Helper function to get vehicle image URL safely"""
+    if vehicle.image:
         return vehicle.image.url
-    elif hasattr(vehicle, 'photo') and vehicle.photo:
-        return vehicle.photo.url
-    elif hasattr(vehicle, 'image_url') and vehicle.image_url:
-        return vehicle.image_url
+    elif vehicle.external_image_url:
+        return vehicle.external_image_url
     return None
+
 
 def nairobi_airport_transfers(request):
     """Render Nairobi airport transfers page."""
@@ -1981,14 +2031,6 @@ def nairobi_airport_transfers(request):
         "transfer_prices": transfer_prices,
     }
     return render(request, "nairobi_airport_transfers.html", context)
-
-
-@staff_member_required
-def modern_admin_dashboard(request):
-    """Render modern admin dashboard."""
-    # Add dashboard logic here
-    return render(request, "admin/modern_dashboard.html")
-
 
 @staff_member_required
 def admin_tour_approval(request):

@@ -285,13 +285,28 @@ class DriverAdmin(admin.ModelAdmin):
     # ===== Custom Display Fields =====
     def license_status_badge(self, obj):
         if not obj.license_expiry:
-            return format_html('<span style="color: orange;">Unknown</span>')
+            return format_html(
+                '<span style="color: {};">{}</span>',
+                'orange',
+                'Unknown'
+            )
+
         days_until_expiry = (obj.license_expiry - timezone.now().date()).days
         if days_until_expiry < 0:
-            return format_html('<span style="color: red; font-weight: bold;">Expired</span>')
+            return format_html(
+                '<span style="color: {}; font-weight: bold;">{}</span>',
+                'red',
+                'Expired'
+            )
+
         elif days_until_expiry < 30:
             return format_html('<span style="color: orange; font-weight: bold;">Expiring in {} days</span>', days_until_expiry)
-        return format_html('<span style="color: green;">Valid</span>')
+        return format_html(
+            '<span style="color: {};">{}</span>',
+            'green',
+            'Valid'
+        )
+
     license_status_badge.short_description = 'License Status'
 
     def age(self, obj):
@@ -391,18 +406,41 @@ class VehicleAdmin(admin.ModelAdmin):
     # 🖼️ Image Preview
     # ==========================
     def image_preview(self, obj):
-        """Display a small preview of the uploaded image or external image URL."""
-        if getattr(obj, 'image', None):
+        """
+        Display a small preview of the uploaded image, external URL, or Cloudinary image.
+        """
+        # Local ImageField
+        if getattr(obj, 'image', None) and hasattr(obj.image, 'url'):
             return format_html(
-                '<img src="{}" style="max-height:150px; border-radius:10px; box-shadow:0 2px 4px rgba(0,0,0,0.3);" />',
+                '<img src="{}" style="max-height:150px; border-radius:10px; '
+                'box-shadow:0 2px 4px rgba(0,0,0,0.3);" />',
                 obj.image.url
             )
+
+        # External image URL
         elif getattr(obj, 'external_image_url', None):
             return format_html(
                 '<img src="{}" style="max-height:150px; border-radius:10px; opacity:0.9;" />',
                 obj.external_image_url
             )
-        return format_html('<span style="color:gray;">No image available</span>')
+
+        # CloudinaryField example (replace with your actual Cloudinary field if used)
+        elif getattr(obj, 'logbook_copy', None):
+            try:
+                url = obj.logbook_copy.build_url()
+                return format_html(
+                    '<img src="{}" style="max-height:150px; border-radius:10px; opacity:0.9;" />',
+                    url
+                )
+            except Exception:
+                pass
+
+        # Fallback if no image available
+        return format_html(
+            '<span style="color: {};">{}</span>',
+            'gray',
+            'No image available'
+        )
 
     image_preview.short_description = "Image Preview"
 
@@ -412,16 +450,29 @@ class VehicleAdmin(admin.ModelAdmin):
     def documents_status_badge(self, obj):
         """Show colored badge based on document validity."""
         if not obj.insurance_expiry or not obj.inspection_expiry:
-            return format_html('<span style="color: orange;">Unknown</span>')
+            return format_html(
+                '<span style="color: {};">{}</span>',
+                'orange',
+                'Unknown'
+            )
 
         today = timezone.now().date()
         insurance_valid = obj.insurance_expiry > today
         inspection_valid = obj.inspection_expiry > today
 
         if insurance_valid and inspection_valid:
-            return format_html('<span style="color: green; font-weight: bold;">Valid</span>')
+            return format_html(
+                '<span style="color: {}; font-weight: bold;">{}</span>',
+                'green',
+                'Valid'
+            )
+
         else:
-            return format_html('<span style="color: red; font-weight: bold;">Expired</span>')
+            return format_html(
+                '<span style="color: {}; font-weight: bold;">{}</span>',
+                'red',
+                'Expired'
+            )
 
     documents_status_badge.short_description = 'Documents Status'
 

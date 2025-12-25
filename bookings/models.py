@@ -536,8 +536,9 @@ class Vehicle(TimeStampedModel):
         return f"{self.year} {self.make} {self.model} ({self.license_plate})"
 
     def clean(self):
-        """Custom validation logic."""
         super().clean()
+        if self.year < 1980:
+            raise ValidationError({"year": "Vehicle year is unrealistically old."})
 
         # Validate image size (100MB limit)
         if self.image and self.image.size > 100 * 1024 * 1024:
