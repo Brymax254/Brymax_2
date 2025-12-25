@@ -6,7 +6,7 @@ psycopg-binary==3.2.9
 psycopg==3.2.9
 
 # Django Extensions & Utilities
-django-extensions==3.3.0
+django-extensions==4.1
 django-admin-tools==0.9.3
 django-cors-headers==4.4.0
 djangorestframework==3.15.2
