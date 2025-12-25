@@ -1,5 +1,5 @@
 # Core Django & Database
-Django==5.0.7
+Django>=5.2,<6.0
 dj-database-url==2.2.0
 psycopg2-binary==2.9.9
 psycopg-binary==3.2.9
