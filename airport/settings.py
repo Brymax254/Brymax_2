@@ -97,7 +97,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "airport.wsgi.application"
 
 # ==============================
-# DATABASE CONFIGURATION
+# DATABASE CONFIGURATION (SQLITE ONLY)
 # ==============================
 DATABASES = {
     "default": {
@@ -105,14 +105,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-DATABASE_URL = config("DATABASE_URL", default=None)
-if DATABASE_URL:
-    # Respect sslmode from .env, don’t force ssl_require=True
-    DATABASES["default"] = dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,
-    )
 
 # ==============================
 # LOCALIZATION

@@ -2166,37 +2166,3 @@ class Partner(TimeStampedModel):
             return self.logo.url
         return self.logo_url or "/static/img/partner-placeholder.png"
 
-
-
-# =============================================================================
-# EXCHANGE RATE
-# =============================================================================
-
-# models.py
-from django.db import models
-from decimal import Decimal
-
-class ExchangeRate(models.Model):
-    """
-    Singleton model to store current USD to KES exchange rate.
-    """
-    usd_to_kes = models.DecimalField(
-        max_digits=12, decimal_places=2, default=16628.10,
-        help_text="Current USD to KES exchange rate"
-    )
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Exchange Rate"
-        verbose_name_plural = "Exchange Rate"
-
-    def __str__(self):
-        return f"1 USD = {self.usd_to_kes} KES"
-
-    @classmethod
-    def get_current_rate(cls):
-        """Return the current rate, or fallback."""
-        rate_obj = cls.objects.first()
-        if rate_obj:
-            return rate_obj.usd_to_kes
-        return Decimal('16628.10')  # fallback
