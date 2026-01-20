@@ -22,7 +22,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
 # ==============================
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="dev-insecure-replace-me")
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
-ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS", default="*").split(",")
+
+ALLOWED_HOSTS = [
+    'airportdestinationsandtransfers.co.ke',
+    'www.airportdestinationsandtransfers.co.ke',
+]
 
 # ==============================
 # APPLICATIONS
@@ -97,13 +101,24 @@ TEMPLATES = [
 WSGI_APPLICATION = "airport.wsgi.application"
 
 # ==============================
-# DATABASE CONFIGURATION (SQLITE ONLY)
+# DATABASE CONFIGURATION (PostgreSQL)
 # ==============================
+import os
+import dj_database_url
+
+# Read the DATABASE_URL from environment variables
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+# Ensure DATABASE_URL is set
+if not DATABASE_URL:
+    raise Exception("DATABASE_URL environment variable not set!")
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,  # persistent connections
+        ssl_require=False   # CyberPanel local DB usually doesn't need SSL
+    )
 }
 
 # ==============================
