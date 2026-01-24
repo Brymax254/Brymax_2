@@ -2,8 +2,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Premium 24/7 Airport Transfers & Destinations - Fast, reliable international airport transportation available anytime">
-  <title>24/7 Airport Transfers & Destinations</title>
+  <meta name="description" content="Premium 24/7 AIRPORT AND DESTINATION TRANSFERS - Fast, reliable international airport transportation available anytime">
+  <title>24/7 AIRPORT AND DESTINATION TRANSFERS</title>
 
   <!-- Performance Optimizations -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -16,798 +16,772 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Inline Critical CSS -->
-  <style>
-    :root {
-      --primary: #1a365d;
-      --primary-light: #2a4770;
-      --secondary: #f59e0b;
-      --accent: #fbbf24;
-      --dark: #0f172a;
-      --light: #f8fafc;
-      --surface: #ffffff;
-      --text: #1e293b;
-      --text-light: #64748b;
-      --shadow: 0 10px 30px -15px rgba(26, 54, 93, 0.2);
-      --shadow-lg: 0 20px 40px -15px rgba(26, 54, 93, 0.3);
-      --radius: 16px;
-      --radius-sm: 10px;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-fast: all 0.2s ease;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html {
-      scroll-behavior: smooth;
-      -webkit-font-smoothing: antialiased;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    body {
-      background: var(--light);
-      color: var(--text);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
-    /* Header */
-    .header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: var(--surface);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      box-shadow: 0 2px 20px rgba(26, 54, 93, 0.1);
-      z-index: 1000;
-      padding: 1rem 0;
-      transition: var(--transition);
-    }
-
-    .header.scrolled {
-      box-shadow: 0 4px 30px rgba(26, 54, 93, 0.15);
-    }
-
-    .header .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      text-decoration: none;
-    }
-
-    .logo img {
-      height: 45px;
-      width: auto;
-    }
-
-    .logo-text {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .nav {
-      display: flex;
-      gap: 2.5rem;
-      align-items: center;
-    }
-
-    .nav a {
-      color: var(--text);
-      text-decoration: none;
-      font-weight: 500;
-      transition: var(--transition-fast);
-      font-size: 0.95rem;
-      position: relative;
-    }
-
-    .nav a:hover {
-      color: var(--primary);
-    }
-
-    .nav a::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--secondary);
-      transition: var(--transition);
-    }
-
-    .nav a:hover::after {
-      width: 100%;
-    }
-
-    /* Unified Hero Section with Merged Content */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      background: linear-gradient(135deg, rgba(26, 54, 93, 0.9), rgba(26, 54, 93, 0.7)),
-                  url('https://connectoairporttaxis.com/wp-content/uploads/2024/04/airportcarsgosport-airport-slide.jpg');
-      background-size: cover;
-      background-position: center;
-      position: relative;
-      padding-top: 80px;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at 50% 50%, rgba(26, 54, 93, 0.6) 0%, rgba(26, 54, 93, 0.9) 100%);
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 800px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 3rem;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.8rem, 5vw, 4.5rem);
-      font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 1.5rem;
-      color: var(--light);
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .hero p {
-      font-size: 1.3rem;
-      color: rgba(255, 255, 255, 0.95);
-      margin-bottom: 2rem;
-      font-weight: 300;
-      max-width: 600px;
-    }
-
-    .cta-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--accent);
-      color: var(--dark);
-      padding: 1.1rem 2.5rem;
-      border-radius: var(--radius);
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--accent);
-      font-size: 1.1rem;
-    }
-
-    .cta-button:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg);
-      background: var(--secondary);
-    }
-
-    /* Modern Features Content - Merged into Hero */
-    .features-content {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius);
-      padding: 3rem;
-      margin-top: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .features-content h2 {
-      font-size: 2.8rem;
-      margin-bottom: 1.5rem;
-      line-height: 1.2;
-      color: var(--light);
-    }
-
-    .features-content p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      opacity: 0.9;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.95);
-      max-width: 500px;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      margin-top: 2rem;
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 1.2rem;
-      border-radius: var(--radius-sm);
-      transition: var(--transition);
-    }
-
-    .feature-item:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-3px);
-    }
-
-    .feature-icon {
-      font-size: 1.8rem;
-      color: var(--accent);
-    }
-
-    .feature-text h4 {
-      font-size: 1.1rem;
-      margin-bottom: 0.3rem;
-      color: var(--light);
-    }
-
-    .feature-text p {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    /* Stats */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2.5rem;
-      margin: -3rem auto 4rem;
-      position: relative;
-      z-index: 2;
-    }
-
-    .stat {
-      background: var(--surface);
-      padding: 2rem;
-      border-radius: var(--radius);
-      text-align: center;
-      border: 1px solid rgba(26, 54, 93, 0.1);
-      transition: var(--transition);
-      box-shadow: var(--shadow);
-    }
-
-    .stat:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .stat-number {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat-label {
-      font-size: 1.1rem;
-      color: var(--text-light);
-      font-weight: 500;
-    }
-
-    /* Booking Section */
-    .booking-section {
-      margin-top: 4rem;
-      padding: 4rem 0;
-    }
-
-    .booking-card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 3rem;
-      box-shadow: var(--shadow-lg);
-      border: 1px solid rgba(26, 54, 93, 0.05);
-    }
-
-    /* Vehicle Grid */
-    .vehicle-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-
-    .vehicle-card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: var(--transition);
-      border: 2px solid transparent;
-      box-shadow: 0 5px 15px rgba(26, 54, 93, 0.05);
-      position: relative;
-    }
-
-    .vehicle-card:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .vehicle-card.selected {
-      border-color: var(--primary);
-      box-shadow: 0 0 40px rgba(26, 54, 93, 0.25);
-      transform: translateY(-8px) scale(1.02);
-    }
-
-    .vehicle-card.featured {
-      border: 2px solid var(--secondary);
-      box-shadow: 0 0 40px rgba(245, 158, 11, 0.2);
-    }
-
-    .vehicle-image-container {
-      position: relative;
-      width: 100%;
-      height: 220px;
-      overflow: hidden;
-    }
-
-    .vehicle-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: var(--transition);
-    }
-
-    .vehicle-card:hover .vehicle-image {
-      transform: scale(1.05);
-    }
-
-    .view-image-btn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(26, 54, 93, 0.8);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      opacity: 0;
-      visibility: hidden;
-      z-index: 3;
-    }
-
-    .vehicle-card:hover .view-image-btn {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .view-image-btn:hover {
-      background: var(--primary);
-      transform: translate(-50%, -50%) scale(1.05);
-    }
-
-    .vehicle-badge {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: var(--secondary);
-      color: var(--dark);
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      z-index: 2;
-    }
-
-    .vehicle-info {
-      padding: 1.8rem;
-    }
-
-    .vehicle-name {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--primary);
-    }
-
-    .vehicle-details {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.2rem;
-    }
-
-    .vehicle-capacity {
-      font-size: 0.9rem;
-      color: var(--text-light);
-    }
-
-    .vehicle-price {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .vehicle-features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .feature-tag {
-      background: rgba(26, 54, 93, 0.1);
-      color: var(--primary);
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: var(--transition);
-    }
-
-    .feature-tag:hover {
-      background: rgba(26, 54, 93, 0.2);
-    }
-
-    .select-vehicle-btn {
-      width: 100%;
-      background: var(--primary);
-      color: var(--light);
-      border: none;
-      padding: 1rem;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      font-size: 1rem;
-    }
-
-    .select-vehicle-btn:hover {
-      background: var(--primary-light);
-    }
-
-    .select-vehicle-btn.selected {
-      background: var(--secondary);
-    }
-
-    /* Image Modal */
-    .image-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-      padding: 2rem;
-    }
-
-    .image-modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      max-width: 90%;
-      max-height: 90%;
-      position: relative;
-    }
-
-    .modal-image {
-      width: 100%;
-      height: auto;
-      border-radius: var(--radius);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-close {
-      position: absolute;
-      top: -2rem;
-      right: -2rem;
-      background: rgba(26, 54, 93, 0.8);
-      color: white;
-      border: none;
-      width: 3rem;
-      height: 3rem;
-      border-radius: 50%;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: var(--transition);
-      z-index: 3;
-    }
-
-    .modal-close:hover {
-      background: var(--primary);
-      transform: scale(1.1);
-    }
-
-    .modal-nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(26, 54, 93, 0.8);
-      color: white;
-      border: none;
-      width: 3rem;
-      height: 3rem;
-      border-radius: 50%;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: var(--transition);
-      z-index: 3;
-      display: none;
-    }
-
-    .modal-nav.prev {
-      left: -4rem;
-    }
-
-    .modal-nav.next {
-      right: -4rem;
-    }
-
-    .image-modal.active .modal-nav {
-      display: flex;
-    }
-
-    .modal-nav:hover {
-      background: var(--primary);
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    /* Step Indicator */
-    .step-indicator {
-      display: flex;
-      justify-content: space-between;
-      margin: 2.5rem 0;
-      position: relative;
-    }
-
-    .step-indicator::before {
-      content: '';
-      position: absolute;
-      top: 1.8rem;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: #e9ecef;
-      z-index: 1;
-    }
-
-    .step {
-      flex: 1;
-      text-align: center;
-      position: relative;
-      z-index: 2;
-    }
-
-    .step:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 1.8rem;
-      right: -50%;
-      width: 100%;
-      height: 2px;
-      background: #e9ecef;
-      z-index: 1;
-    }
-
-    .step.active:not(:last-child)::after {
-      background: var(--primary);
-    }
-
-    .step-number {
-      width: 3rem;
-      height: 3rem;
-      border-radius: 50%;
-      background: #e9ecef;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1rem;
-      position: relative;
-      z-index: 2;
-      font-weight: 700;
-      font-size: 1.2rem;
-      transition: var(--transition);
-    }
-
-    .step.active .step-number {
-      background: var(--primary);
-      color: var(--light);
-    }
-
-    .step.completed .step-number {
-      background: var(--secondary);
-      color: var(--dark);
-    }
-
-    /* Form Styles */
-    .form-group {
-      margin-bottom: 1.8rem;
-    }
-
-    .form-label {
-      display: block;
-      margin-bottom: 0.8rem;
-      font-weight: 500;
-      color: var(--text);
-      font-size: 1rem;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 1rem 1.2rem;
-      background: var(--light);
-      border: 1px solid #e2e8f0;
-      border-radius: var(--radius-sm);
-      color: var(--text);
-      transition: var(--transition);
-      font-size: 1rem;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 0.2rem rgba(26, 54, 93, 0.25);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-
-    /* Loading Skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-    }
-
-    @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
-    /* Refresh Button */
-    .refresh-btn {
-      position: fixed;
-      bottom: 2.5rem;
-      right: 2.5rem;
-      background: var(--primary);
-      color: var(--light);
-      width: 4rem;
-      height: 4rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: var(--shadow-lg);
-      transition: var(--transition);
-      z-index: 999;
-      border: none;
-      font-size: 1.2rem;
-    }
-
-    .refresh-btn:hover {
-      transform: scale(1.1);
-      background: var(--primary-light);
-    }
-
-    .refresh-btn.loading .spinner {
-      display: block;
-    }
-
-    .refresh-btn .spinner {
-      display: none;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface);
-      color: var(--text);
-      padding: 1.2rem 2.5rem;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-lg);
-      z-index: 1000;
-      opacity: 0;
-      transition: var(--transition);
-      font-weight: 500;
-      font-size: 1rem;
-    }
-
-    .toast.show {
-      opacity: 1;
-    }
-
-    /* Footer */
-    .footer {
-      margin-top: 6rem;
-      padding: 4rem 0;
-      border-top: 1px solid #e9ecef;
-      background: var(--surface);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .nav { display: none; }
-      .stats { grid-template-columns: 1fr 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-      .vehicle-grid { grid-template-columns: 1fr; }
-      .hero {
-        padding-top: 120px;
-      }
-      .hero h1 {
-        font-size: 2.5rem;
-      }
-      .hero p {
-        font-size: 1.1rem;
-      }
-      .features-content {
-        padding: 2rem;
-      }
-      .features-content h2 {
-        font-size: 2rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .hero h1 {
-        font-size: 2rem;
-      }
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+ <style>
+/* ================================
+   Root Variables
+================================ */
+:root {
+  /* Core palette */
+  --primary: #111827;        /* Modern dark gray (text / headings) */
+  --secondary: #06b6d4;      /* Bright teal (accent / CTAs) */
+  --accent: #3b82f6;         /* Vivid blue (secondary accent / highlights) */
+  --muted: #6b7280;          /* Neutral muted text */
+  --surface: #f8fafc;        /* Light surface / cards */
+  --bg: #ffffff;             /* Page background */
+  --glass: rgba(255,255,255,0.6);
+
+  /* Semantic colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger:  #ef4444;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(90deg, var(--secondary), var(--accent));
+  --gradient-soft: linear-gradient(180deg, rgba(59,130,246,0.08), rgba(6,182,212,0.04));
+
+  /* Text */
+  --text: var(--primary);
+  --text-light: var(--muted);
+  --muted-bg: #eef2f7;
+
+  /* Radii */
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+
+  /* Elevation / shadow */
+  --shadow-sm: 0 4px 12px rgba(17,24,39,0.06);
+  --shadow: 0 10px 30px rgba(17,24,39,0.08);
+  --shadow-lg: 0 20px 50px rgba(17,24,39,0.12);
+
+  /* Motion */
+  --transition: all 0.28s cubic-bezier(.2,.9,.2,1);
+
+  /* Sizing helpers */
+  --container-max: 1200px;
+  --gutter: 1.25rem;
+
+  /* Button defaults */
+  --button-bg: var(--secondary);
+  --button-hover: var(--accent);
+  --button-text: #ffffff;
+  --button-shadow: 0 8px 20px rgba(6,182,212,0.12);
+
+  /* Form / border */
+  --border: 1px solid rgba(17,24,39,0.06);
+  --input-bg: #ffffff;
+}
+
+
+/* Dark Mode Variables */
+body.dark-mode {
+  --primary: #edf2f7;
+  --secondary: #63b3ed;     /* lighter teal for dark backgrounds */
+  --accent: #f6ad55;
+  --surface: #1a202c;
+  --text: #edf2f7;
+  --text-light: #a0aec0;
+  background: #121212;
+  color: var(--text);
+
+  /* Button overrides for dark mode */
+  --button-bg: var(--secondary);
+  --button-hover: var(--accent);
+  --button-text: #fff;
+}
+
+/* ================================
+   Global Reset
+================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #fff;
+  color: var(--text);
+  line-height: 1.7;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.container {
+  width: 95%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+
+/* ================================ Header ================================ */ .header { position: sticky; top: 0; z-index: 1100; width: 100%; background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.60)); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(17,24,39,0.04); box-shadow: var(--shadow-sm); padding: clamp(0.5rem, 2vw, 1rem) 0; transition: background 0.32s var(--transition), box-shadow 0.32s var(--transition), transform 0.28s ease; } /* Compact header when scrolled */ .header.scrolled { background: linear-gradient(180deg, rgba(248,250,252,0.95), rgba(248,250,252,0.9)); box-shadow: var(--shadow); transform: translateY(-1px); } /* Container layout */ .header .container { max-width: var(--container-max); margin: 0 auto; padding: 0 var(--gutter); display: flex; align-items: center; justify-content: space-between; gap: clamp(0.5rem, 2vw, 1.5rem); } /* Logo group */ .logo { display: flex; align-items: center; gap: clamp(0.5rem, 1.5vw, 0.9rem); text-decoration: none; color: var(--text); -webkit-tap-highlight-color: transparent; } .logo img { height: clamp(34px, 4.5vw, 48px); width: auto; display: block; transition: transform 0.28s var(--transition), filter 0.28s var(--transition); border-radius: 8px; box-shadow: var(--shadow-sm); } .logo:hover img { transform: translateY(-3px) scale(1.02); filter: saturate(1.05); } .logo-text { font-weight: 700; color: var(--text); font-size: clamp(0.95rem, 1.6vw, 1.15rem); letter-spacing: 0.4px; line-height: 1; }
+/* Navigation */
+.nav {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav a {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+  transition: var(--transition);
+  padding: 0.5rem 0;
+}
+
+.nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--secondary);
+  transition: width 0.3s ease;
+}
+
+.nav a:hover {
+  color: var(--secondary);
+}
+
+.nav a:hover::after {
+  width: 100%;
+}
+
+/* WhatsApp Button */
+.nav a[target="_blank"] {
+  background: #25D366;
+  color: #fff !important;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+}
+
+.nav a[target="_blank"]:hover {
+  background: #1DA851;
+  color: #fff !important;
+}
+
+/* ================================
+   Global Button Styles
+================================ */
+button,
+.cta-button,
+.dark-mode-toggle,
+.nav a.button {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+button:hover,
+.cta-button:hover,
+.dark-mode-toggle:hover,
+.nav a.button:hover {
+  background: var(--button-hover);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ================================
+   Responsive Navbar
+================================ */
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+    flex-direction: column;
+    background: var(--surface);
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 220px;
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+
+  .nav.active {
+    display: flex;
+  }
+
+  .nav a {
+    padding: 0.8rem 0;
+    width: 100%;
+  }
+
+  .menu-toggle {
+    display: block;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--primary);
+  }
+}
+
+@media (min-width: 769px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
+/* ================================
+   DYNAMIC HERO SECTION
+================================ */
+.hero {
+  min-height: 30vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('your-car-image.jpg') center/cover no-repeat;
+  position: relative;
+  color: #fff;
+  isolation: isolate;
+  background-size: 120%; /* shrink image slightly */
+  background-position: center center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6); /* slightly darker for readability */
+  z-index: 0;
+}
+
+.hero-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 3rem; /* increased spacing between panels */
+  align-items: center;
+  width: 100%;
+  max-width: 1300px;
+  z-index: 1;
+  padding: 2rem 3rem; /* wider horizontal padding */
+}
+
+/* Center Content */
+.hero-content {
+  text-align: center;
+  backdrop-filter: blur(2px);
+  padding: 1rem;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 6vw, 4.5rem); /* expanded heading */
+  margin-bottom: 1rem;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.cta-button {
+  background: var(--secondary);
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition);
+}
+
+.cta-button:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+}
+
+.hero-vehicle-meta {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Side Panels */
+.hero-panel {
+  background: rgba(0,0,0,0.4);
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 200px;
+}
+
+.hero-panel h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--secondary);
+  text-align: center;
+}
+
+.hero-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hero-panel li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.hero-panel .destination {
+  font-weight: 500;
+}
+
+.hero-panel .price {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Responsive Tweaks */
+@media (max-width: 992px) {
+  .hero-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .hero-panel {
+    margin-top: 1rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-panel li {
+    justify-content: center;
+    gap: 1rem;
+  }
+}
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-align: center;
+  color: #fff;
+  padding: 2rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+.stat .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45); /* dark overlay for readability */
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.stat div:last-child {
+  position: relative;
+  z-index: 1;
+  font-size: 1.1rem;
+}
+
+/* Background images per card */
+.stat-countries {
+  background: url('https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=800&auto=format&fit=crop&q=80') center/cover no-repeat;
+}
+
+.stat-service {
+  background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80') center/cover no-repeat;
+}
+
+.stat-ontime {
+  background: url('https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80') center/cover no-repeat;
+}
+
+.stat-clients {
+  background: url('https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=80') center/cover no-repeat;
+}
+
+/* Booking Section */
+.booking-section {
+  margin-top: 4rem;
+}
+
+.booking-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2.5rem;
+  transition: var(--transition);
+}
+
+/* Step Indicator */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-number {
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  color: #fff;
+  border-radius: 50%;
+  width: clamp(36px, 4vw, 48px);
+  height: clamp(36px, 4vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.step.active .step-number {
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+}
+
+
+.step div {
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+
+.step.active div {
+  color: var(--primary);
+  font-weight: 600;
+}
+/* Step Titles */
+.step-title {
+  margin-bottom: 1.8rem;
+  font-size: 1.8rem;
+  color: var(--primary);
+}
+
+.step-subtitle {
+  margin-bottom: 1.5rem;
+  color: var(--text-light);
+}
+
+/* Vehicle Carousel */
+.vehicle-carousel {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.vehicle-track {
+  display: flex;
+  transition: transform 0.5s ease;
+  will-change: transform;
+}
+
+/* Vehicle Card */
+.vehicle-card {
+  flex: 0 0 calc(25% - 1rem); /* 4 per page desktop */
+  margin: 0.5rem;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  text-align: center;
+  transition: var(--transition);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vehicle-card img {
+  width: 100%;
+  max-width: 220px;
+  height: 150px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+/* Skeleton Loader */
+.vehicle-card.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f7fafc 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  height: 350px;
+  border-radius: var(--radius);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Carousel Navigation */
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--secondary);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.carousel-nav:hover {
+  background: var(--accent);
+}
+
+.carousel-nav.prev { left: -20px; }
+.carousel-nav.next { right: -20px; }
+
+/* Responsive */
+@media (max-width: 992px) {
+  .vehicle-card { flex: 0 0 calc(50% - 1rem); } /* 2 per page */
+}
+
+@media (max-width: 600px) {
+  .vehicle-card {
+    flex: 0 0 auto;       /* allow JS to calculate width dynamically */
+    width: 100%;          /* visually still 1 per page */
+    max-width: 100%;      /* prevent overflow */
+  }
+
+  .vehicle-track {
+    scroll-snap-type: x mandatory; /* optional: smooth snap scrolling */
+    overflow-x: auto;
+  }
+
+  .vehicle-card {
+    scroll-snap-align: start;      /* optional: snap to start */
+  }
+}
+
+
+@media (max-width: 600px) {
+  .vehicle-card {
+    flex: 0 0 100%; /* 1 per page on mobile */
+  }
+}
+
+/* Form Controls */
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.9rem;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  border-color: var(--secondary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(49,151,149,0.2);
+}
+
+/* Trip Type Selection */
+.form-group label {
+  cursor: pointer;
+}
+
+.form-group input[type="radio"] {
+  accent-color: var(--secondary);
+}
+
+/* Price Display */
+.price-display {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  margin-top: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.price-display strong {
+  color: var(--primary);
+}
+
+#final-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+/* Booking Summary */
+#booking-summary {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+#booking-summary div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+/* Buttons */
+.cta-button {
+  background: var(--secondary);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+}
+
+.cta-button[disabled] {
+  background: #cbd5e0;
+  cursor: not-allowed;
+}
+
+/* Back Button */
+.cta-button.back {
+  background: transparent;
+  border: 1px solid var(--text-light);
+  color: var(--primary);
+}
+
+.cta-button.back:hover {
+  background: var(--surface);
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+/* Dark Mode Overrides */
+body.dark-mode .booking-card,
+body.dark-mode .vehicle-card,
+body.dark-mode .price-display,
+body.dark-mode #booking-summary {
+  background: #1a202c;
+  color: var(--text);
+  border: 1px solid #2d3748;
+}
+
+body.dark-mode .form-control {
+  background: #2d3748;
+  border: 1px solid #4a5568;
+  color: var(--text);
+}
+
+body.dark-mode .form-control:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(99,179,237,0.3);
+}
+
+/* Footer */
+.footer a {
+  color: var(--primary);
+  text-decoration: none;
+  position: relative;
+  transition: var(--transition);
+}
+
+.footer a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--secondary), var(--accent));
+  transition: width 0.3s ease;
+}
+
+.footer a:hover {
+  color: var(--secondary);
+}
+
+.footer a:hover::after {
+  width: 100%;
+}
+
+
+ </style>
 </head>
+<button class="dark-mode-toggle" id="darkModeToggle">🌙 Dark Mode</button>
 <body>
   <!-- Header -->
   <header class="header">
     <div class="container">
       <a href="/" class="logo">
-        <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="Airport Transfers & Destinations">
-        <span class="logo-text">Airport Transfers & Destinations</span>
+        <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="AIRPORT AND DESTINATION TRANSFERS">
+        <span class="logo-text">AIRPORT AND DESTINATION TRANSFERS</span>
       </a>
       <nav class="nav">
         <a href="#booking">Book Now</a>
@@ -820,87 +794,87 @@
       </nav>
     </div>
   </header>
+<!-- ================================
+     DYNAMIC HERO SECTION
+================================ -->
+<section class="hero" id="dynamic-hero">
+  <!-- Background overlay for readability -->
+  <div class="hero-overlay"></div>
 
-  <!-- Unified Hero Section with Merged Content -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-content">
-        <h1>Global Airport Transfers</h1>
-        <p>Professional 24/7 transportation services worldwide. Book your transfer in seconds.</p>
-        <a href="#booking" class="cta-button">
-          <i class="fas fa-calendar-alt"></i>
-          Book Instantly
-        </a>
+<div class="hero-container container">
 
-        <!-- Merged Features Content -->
-        <div class="features-content">
-          <h2>Always Available, Anytime, Anywhere</h2>
-          <p>Our dedicated 24/7 airport transfer service ensures you have reliable transportation whenever you need it. Whether it's an early morning flight or a late-night arrival, our professional drivers are ready to serve you around the clock.</p>
+    <!-- LEFT PANEL: ONE WAY PRICES -->
+    <div class="hero-panel hero-panel-left">
+      <h3>One Way</h3>
+      <ul id="hero-oneway-prices">
+        <!-- JS will inject destinations -->
+        <!-- Example:
+        <li>
+          <span class="destination">JKIA Airport</span>
+          <span class="price">$45</span>
+        </li>
+        -->
+      </ul>
+    </div>
 
-          <div class="features-grid">
-            <div class="feature-item">
-              <div class="feature-icon">
-                <i class="fas fa-globe"></i>
-              </div>
-              <div class="feature-text">
-                <h4>Global Coverage</h4>
-                <p>150+ countries worldwide</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">
-                <i class="fas fa-shield-alt"></i>
-              </div>
-              <div class="feature-text">
-                <h4>Safe & Secure</h4>
-                <p>Licensed professional drivers</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">
-                <i class="fas fa-headset"></i>
-              </div>
-              <div class="feature-text">
-                <h4>24/7 Support</h4>
-                <p>Round-the-clock customer service</p>
-              </div>
-            </div>
-            <div class="feature-item">
-              <div class="feature-icon">
-                <i class="fas fa-check-circle"></i>
-              </div>
-              <div class="feature-text">
-                <h4>Guaranteed Service</h4>
-                <p>Never miss a flight again</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- CENTER CONTENT -->
+    <div class="hero-content">
+      <h1>AIRPORT & DESTINATION TRANSFERS</h1>
+      <p>
+        Professional 24/7 transportation services.
+        Admin-managed vehicles, destinations, and pricing.
+      </p>
+
+      <a href="#booking" class="cta-button">
+        <i class="fas fa-calendar-alt"></i>
+        Book Instantly
+      </a>
+
+      <div class="hero-vehicle-meta">
+        <span id="hero-vehicle-name">
+          <!-- JS injects vehicle name -->
+        </span>
       </div>
     </div>
-  </section>
+
+    <!-- RIGHT PANEL: RETURN PRICES -->
+    <div class="hero-panel hero-panel-right">
+      <h3>Return</h3>
+      <ul id="hero-return-prices">
+        <!-- JS will inject destinations -->
+      </ul>
+    </div>
+
+  </div>
+</section>
+
 
   <!-- Stats -->
   <div class="container">
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-number">150+</div>
-        <div>Countries</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">24/7</div>
-        <div>Service</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">98%</div>
-        <div>On Time</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">50K+</div>
-        <div>Happy Clients</div>
-      </div>
+  <div class="stats">
+    <div class="stat stat-countries">
+      <div class="overlay"></div>
+      <div class="stat-number">150+</div>
+      <div>Countries</div>
+    </div>
+    <div class="stat stat-service">
+      <div class="overlay"></div>
+      <div class="stat-number">24/7</div>
+      <div>Service</div>
+    </div>
+    <div class="stat stat-ontime">
+      <div class="overlay"></div>
+      <div class="stat-number">98%</div>
+      <div>On Time</div>
+    </div>
+    <div class="stat stat-clients">
+      <div class="overlay"></div>
+      <div class="stat-number">50K+</div>
+      <div>Happy Clients</div>
     </div>
   </div>
+</div>
+
 
   <!-- Main Content -->
   <main class="container">
@@ -917,37 +891,43 @@
           </div>
           <div class="step" data-step="2">
             <div class="step-number">2</div>
-            <div>Trip Details</div>
+            <div>Destination & Trip</div>
           </div>
           <div class="step" data-step="3">
             <div class="step-number">3</div>
             <div>Confirm</div>
           </div>
         </div>
+<!-- Step 1: Vehicle Selection -->
+<div id="step-1" class="step-content active">
+  <h3 class="step-title">Choose Your Vehicle</h3>
+  <p class="step-subtitle">Select a vehicle to see available destinations and prices.</p>
 
-        <!-- Step 1: Vehicle Selection -->
-        <div id="step-1" class="step-content active">
-          <h3 style="margin-bottom: 1.8rem; font-size: 1.8rem;">Choose Your Vehicle</h3>
+  <!-- Vehicle Carousel -->
+  <div class="vehicle-carousel">
+    <button class="carousel-nav prev">&#10094;</button>
+    <div id="vehicle-track" class="vehicle-track">
+      <!-- Vehicles loaded via JS -->
+      <div class="vehicle-card skeleton"></div>
+      <div class="vehicle-card skeleton"></div>
+      <div class="vehicle-card skeleton"></div>
+      <div class="vehicle-card skeleton"></div>
+    </div>
+    <button class="carousel-nav next">&#10095;</button>
+  </div>
 
-          <!-- Vehicle Grid -->
-          <div id="vehicle-grid" class="vehicle-grid">
-            <!-- Vehicles loaded via JS -->
-            <div class="vehicle-card skeleton" style="height: 350px;"></div>
-            <div class="vehicle-card skeleton" style="height: 350px;"></div>
-            <div class="vehicle-card skeleton" style="height: 350px;"></div>
-          </div>
+  <button id="next-step-1" class="cta-button" disabled>
+    Continue to Destination <i class="fas fa-arrow-right"></i>
+  </button>
+</div>
 
-          <button id="next-step-1" class="cta-button" style="margin-top: 2.5rem;" disabled>
-            Continue to Details <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
 
-        <!-- Step 2: Trip Details -->
+        <!-- Step 2: Destination & Trip Details -->
         <div id="step-2" class="step-content" style="display: none;">
           <h3 style="margin-bottom: 1.8rem; font-size: 1.8rem;">Trip Details</h3>
 
           <div id="selected-vehicle-preview" style="background: rgba(26, 54, 93, 0.1); padding: 1.5rem; border-radius: var(--radius-sm); margin-bottom: 1.8rem; display: none;">
-            <strong>Selected:</strong> <span id="selected-vehicle-name">None</span>
+            <strong>Selected Vehicle:</strong> <span id="selected-vehicle-name">None</span>
           </div>
 
           <form id="trip-form" style="display: grid; gap: 1.5rem;">
@@ -958,7 +938,10 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Destination</label>
-                <input type="text" id="destination" class="form-control" placeholder="Hotel or address" required>
+                <select id="destination" class="form-control" required>
+                  <option value="">Select destination</option>
+                  <!-- Will be populated by JavaScript -->
+                </select>
               </div>
             </div>
 
@@ -982,14 +965,52 @@
                 </select>
               </div>
             </div>
+
+            <!-- Trip Type Selection -->
+            <div class="form-group">
+              <label class="form-label">Trip Type</label>
+              <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: rgba(26, 54, 93, 0.05); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);">
+                  <input type="radio" name="tripType" value="one_way" checked style="width: 1.2rem; height: 1.2rem;">
+                  <div>
+                    <div style="font-weight: 600; color: var(--primary);">One Way</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">From pickup to destination</div>
+                  </div>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.5rem; background: rgba(26, 54, 93, 0.05); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);">
+                  <input type="radio" name="tripType" value="return" style="width: 1.2rem; height: 1.2rem;">
+                  <div>
+                    <div style="font-weight: 600; color: var(--primary);">Return Trip</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">Round trip with return to pickup</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Price Display -->
+            <div id="price-display" class="price-display" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div>
+                  <strong style="font-size: 1.1rem;" id="selected-destination-name">Destination</strong>
+                  <div style="font-size: 0.9rem; color: var(--text-light);" id="trip-type-display">One Way</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary);" id="final-price">$0.00</div>
+                  <div style="font-size: 0.9rem; color: var(--text-light);" id="price-in-ksh">KES 0.00</div>
+                </div>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-light);">
+                <i class="fas fa-info-circle"></i> Price varies by destination and trip type
+              </div>
+            </div>
           </form>
 
           <div style="display: flex; gap: 1.5rem; margin-top: 2.5rem;">
             <button id="prev-step-2" class="cta-button" style="background: transparent; border: 1px solid var(--text-light); font-size: 1rem;">
-              <i class="fas fa-arrow-left"></i> Back
+              <i class="fas fa-arrow-left"></i> Back to Vehicles
             </button>
             <button id="next-step-2" class="cta-button" style="font-size: 1rem;">
-              Continue to Confirm <i class="fas fa-arrow-right"></i>
+              Continue to Contact <i class="fas fa-arrow-right"></i>
             </button>
           </div>
         </div>
@@ -1007,6 +1028,7 @@
               <div class="form-group">
                 <label class="form-label">WhatsApp Number</label>
                 <input type="tel" id="phone" class="form-control" placeholder="+2547XXXXXXXX" required>
+                <small style="color: var(--text-light); margin-top: 0.5rem; display: block;">We'll confirm your booking via WhatsApp</small>
               </div>
             </div>
 
@@ -1068,7 +1090,7 @@
     <div class="container">
       <div style="text-align: center;">
         <a href="/" class="logo" style="justify-content: center; margin-bottom: 1.5rem;">
-          <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="Airport Transfers & Destinations" style="height: 45px;">
+          <img src="https://z-cdn-media.chatglm.cn/files/3eaefa2f-0d4c-4975-9331-d75cb51eb634.png?auth_key=1865215725-e69dae3a2e8743b8acf0bd92efa75293-0-3eed7ac04fb71c71866d9278902ba3af" alt="AIRPORT AND DESTINATION TRANSFERS" style="height: 45px;">
         </a>
         <p style="color: var(--text-light); margin-bottom: 2.5rem; font-size: 1.1rem;">Premium 24/7 airport transfers worldwide</p>
 
@@ -1084,7 +1106,7 @@
         </div>
 
         <div style="border-top: 1px solid #e9ecef; padding-top: 2rem; margin-top: 2rem;">
-          <p style="color: var(--text-light); font-size: 1rem;">&copy; <span id="current-year"></span> Airport Transfers & Destinations. All rights reserved.</p>
+          <p style="color: var(--text-light); font-size: 1rem;">&copy; <span id="current-year"></span> AIRPORT AND DESTINATION TRANSFERS. All rights reserved.</p>
         </div>
       </div>
     </div>
@@ -1127,13 +1149,13 @@
   <script>
     // Configuration
     const CONFIG = {
-      apiEndpoint: '/api/vehicles/',
+      apiEndpoint: '/api/vehicle-destination-prices/', // CHANGED: Now fetches destination prices
       whatsappNumber: '254723229651',
-      cacheKey: 'vehicles_cache_v3',
+      cacheKey: 'vehicle_destination_prices_cache_v1',
       cacheTTL: 5 * 60 * 1000, // 5 minutes
       refreshInterval: 30000, // 30 seconds
       currency: 'USD',
-      exchangeRate: 0.0085, // KSH to USD conversion rate,
+      exchangeRate: 128.95, // USD to KSH conversion rate
       heroImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbjckO6Df7JuBu7j3kjm63FTSQN2dRPEASqw&s'
     };
 
@@ -1141,6 +1163,8 @@
     class AppState {
       constructor() {
         this.selectedVehicle = null;
+        this.selectedDestination = null;
+        this.tripType = 'one_way'; // 'one_way' or 'return'
         this.tripDetails = {};
         this.contactDetails = {};
         this.currentStep = 1;
@@ -1159,6 +1183,8 @@
         try {
           localStorage.setItem('booking_state', JSON.stringify({
             selectedVehicle: this.selectedVehicle,
+            selectedDestination: this.selectedDestination,
+            tripType: this.tripType,
             tripDetails: this.tripDetails,
             contactDetails: this.contactDetails,
             currentStep: this.currentStep,
@@ -1181,6 +1207,8 @@
 
       clear() {
         this.selectedVehicle = null;
+        this.selectedDestination = null;
+        this.tripType = 'one_way';
         this.tripDetails = {};
         this.contactDetails = {};
         this.currentStep = 1;
@@ -1258,12 +1286,16 @@
 
     // Currency Converter
     class CurrencyConverter {
-      static toUSD(amountKSH) {
-        return (amountKSH * CONFIG.exchangeRate).toFixed(2);
+      static toKSH(amountUSD) {
+        return (amountUSD * CONFIG.exchangeRate).toFixed(2);
       }
 
       static formatUSD(amount) {
-        return `$${parseFloat(amount).toLocaleString()}`;
+        return `$${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+
+      static formatKSH(amount) {
+        return `KES ${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       }
     }
 
@@ -1285,8 +1317,8 @@
         // Initialize UI
         this.ui.init();
 
-        // Load vehicles (fast)
-        await this.loadVehicles();
+        // Load vehicles with destination prices
+        await this.loadVehicleDestinationPrices();
 
         // Initialize event listeners
         this.setupEventListeners();
@@ -1298,7 +1330,7 @@
         this.startAutoRefresh();
       }
 
-      async loadVehicles() {
+      async loadVehicleDestinationPrices() {
         try {
           // Try cache first
           const cached = VehicleCache.get();
@@ -1306,98 +1338,119 @@
             this.state.update({ vehicles: cached });
             this.ui.renderVehicles(cached);
             // Update in background
-            this.loadVehiclesFromAPI();
+            this.loadVehicleDestinationPricesFromAPI();
             return;
           }
 
           // Load from API
-          await this.loadVehiclesFromAPI();
+          await this.loadVehicleDestinationPricesFromAPI();
         } catch (error) {
-          console.warn('Failed to load vehicles:', error);
+          console.warn('Failed to load vehicle destination prices:', error);
           // Show fallback vehicles
           this.showFallbackVehicles();
         }
       }
 
-      async loadVehiclesFromAPI() {
+      async loadVehicleDestinationPricesFromAPI() {
         try {
           this.state.update({ isLoading: true });
           this.ui.showLoading();
 
           const data = await FastHTTP.get(CONFIG.apiEndpoint);
-          const vehicles = this.processVehicleData(data);
+          const vehicles = this.processVehicleDestinationData(data);
 
           this.state.update({ vehicles, isLoading: false });
           VehicleCache.set(vehicles);
           this.ui.renderVehicles(vehicles);
-          this.ui.showToast('Vehicles updated successfully', 'success');
+          this.ui.initHero(vehicles);
+          this.ui.showToast('Vehicles and prices updated successfully', 'success');
         } catch (error) {
-          console.warn('Failed to fetch vehicles from API:', error);
+          console.warn('Failed to fetch vehicle destination prices from API:', error);
           this.state.update({ isLoading: false });
           this.ui.hideLoading();
           // Keep existing vehicles
         }
       }
 
-processVehicleData(data) {
-  // Handle different API response formats
-  let vehicles = [];
+      processVehicleDestinationData(data) {
+        // Handle different API response formats
+        let priceEntries = [];
 
-  if (Array.isArray(data)) {
-    vehicles = data;
-  } else if (data?.results) {
-    vehicles = data.results;
-  } else if (data?.data) {
-    vehicles = data.data;
-  } else if (data?.vehicles) {
-    vehicles = data.vehicles;
-  }
+        if (Array.isArray(data?.results)) {
+          priceEntries = data.results;
+        } else if (Array.isArray(data)) {
+          priceEntries = data;
+        } else if (data?.data) {
+          priceEntries = data.data;
+        }
 
-  // Normalize vehicle data
-  return vehicles.map(vehicle => {
-    // Normalize prices
-    const priceKSH =
-      vehicle.price_ksh !== null && vehicle.price_ksh !== undefined
-        ? Number(vehicle.price_ksh)
-        : null;
+        // Group by vehicle and create unique vehicle entries with multiple destinations
+        const vehiclesMap = new Map();
 
-    const priceUSD =
-      vehicle.price_usd !== null && vehicle.price_usd !== undefined
-        ? Number(vehicle.price_usd)
-        : priceKSH !== null
-          ? CurrencyConverter.toUSD(priceKSH)
-          : null;
+        priceEntries.forEach(entry => {
+          const vehicleId = entry.vehicle_id || entry.vehicle?.id;
 
-    return {
-      id: vehicle.id || Math.random().toString(36).slice(2),
+          if (!vehiclesMap.has(vehicleId)) {
+            // Create new vehicle entry
+            vehiclesMap.set(vehicleId, {
+              id: vehicleId,
+              name: entry.vehicle_name || entry.vehicle?.make || 'Vehicle',
+              model: entry.vehicle_model || entry.vehicle?.model || '',
+              type: entry.vehicle_type || entry.vehicle?.vehicle_type || 'Standard',
+              capacity: entry.vehicle_capacity || entry.vehicle?.capacity || 4,
+              year: entry.vehicle_year || entry.vehicle?.year || new Date().getFullYear(),
+              images: entry.vehicle_images || [entry.vehicle?.image_url] || [this.getVehicleImage(entry.vehicle_type)],
+              features: entry.vehicle_features || entry.vehicle?.features || ['AC', 'Wifi', 'GPS'],
+              isFeatured: entry.vehicle_is_featured || false,
 
-      name: vehicle.make || vehicle.name || 'Vehicle',
-      model: vehicle.model || '',
-      type: vehicle.vehicle_type || vehicle.type || 'Standard',
-      capacity: vehicle.capacity || vehicle.seats || 4,
+              // Store destinations and prices
+              destinations: [],
 
-      // Prices
-      priceKSH: priceKSH,
-      priceUSD: priceUSD !== null ? priceUSD.toFixed(2) : null,
-      priceLabel: priceUSD !== null
-        ? `$${priceUSD.toLocaleString()}`
-        : 'Price on request',
+              // For display in step 1 (we'll show price range)
+              minPriceUSD: null,
+              maxPriceUSD: null,
+              priceLabel: 'Price varies by destination',
+            });
+          }
 
-      // Media
-      image:
-        vehicle.image_url ||
-        vehicle.image ||
-        this.getVehicleImage(vehicle.vehicle_type || vehicle.type || 'standard'),
+          const vehicle = vehiclesMap.get(vehicleId);
 
-      // Extras
-      features: Array.isArray(vehicle.features) && vehicle.features.length
-        ? vehicle.features
-        : ['AC', 'Wifi', 'GPS'],
+          // Add destination info
+          const destination = {
+            id: entry.destination_id || entry.destination?.id,
+            name: entry.destination_name || entry.destination?.name,
+            type: entry.destination_type || entry.destination?.destination_type,
+            priceOneWayUSD: parseFloat(entry.price_one_way_usd),
+            priceReturnUSD: parseFloat(entry.price_return_usd),
+            priceOneWayKSH: parseFloat(entry.price_one_way_ksh) || parseFloat(entry.price_one_way_usd) * CONFIG.exchangeRate,
+            priceReturnKSH: parseFloat(entry.price_return_ksh) || parseFloat(entry.price_return_usd) * CONFIG.exchangeRate,
+          };
 
-      isFeatured: Boolean(vehicle.is_featured),
-    };
-  });
-}
+          vehicle.destinations.push(destination);
+
+          // Update min/max prices
+          const prices = [destination.priceOneWayUSD, destination.priceReturnUSD];
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+
+          if (vehicle.minPriceUSD === null || minPrice < vehicle.minPriceUSD) {
+            vehicle.minPriceUSD = minPrice;
+          }
+          if (vehicle.maxPriceUSD === null || maxPrice > vehicle.maxPriceUSD) {
+            vehicle.maxPriceUSD = maxPrice;
+          }
+
+          // Update price label
+          if (vehicle.minPriceUSD === vehicle.maxPriceUSD) {
+            vehicle.priceLabel = CurrencyConverter.formatUSD(vehicle.minPriceUSD);
+          } else {
+            vehicle.priceLabel = `${CurrencyConverter.formatUSD(vehicle.minPriceUSD)} - ${CurrencyConverter.formatUSD(vehicle.maxPriceUSD)}`;
+          }
+        });
+
+        // Convert map to array
+        return Array.from(vehiclesMap.values());
+      }
 
       getVehicleImage(type) {
         const images = {
@@ -1405,6 +1458,8 @@ processVehicleData(data) {
           'Sedan': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop',
           'Van': 'https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=400&h=300&fit=crop',
           'Luxury': 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=400&h=300&fit=crop',
+          'MINIBUS': 'https://images.unsplash.com/photo-1593941707882-a5bba53389b4?w=400&h=300&fit=crop',
+          'BUS': 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&h=300&fit=crop',
         };
 
         return images[type] || images['Sedan'];
@@ -1418,11 +1473,32 @@ processVehicleData(data) {
             model: 'Toyota Camry',
             type: 'Sedan',
             capacity: 4,
-            priceKSH: 3500,
-            priceUSD: CurrencyConverter.toUSD(3500),
-            image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop',
+            images: ['https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&h=300&fit=crop'],
             features: ['AC', 'Wifi', 'Comfort Seats'],
             isFeatured: true,
+            destinations: [
+              {
+                id: '1',
+                name: 'Jomo Kenyatta Airport (JKIA)',
+                type: 'AIRPORT',
+                priceOneWayUSD: 45,
+                priceReturnUSD: 80,
+                priceOneWayKSH: 45 * CONFIG.exchangeRate,
+                priceReturnKSH: 80 * CONFIG.exchangeRate,
+              },
+              {
+                id: '2',
+                name: 'Wilson Airport',
+                type: 'AIRPORT',
+                priceOneWayUSD: 35,
+                priceReturnUSD: 65,
+                priceOneWayKSH: 35 * CONFIG.exchangeRate,
+                priceReturnKSH: 65 * CONFIG.exchangeRate,
+              }
+            ],
+            minPriceUSD: 35,
+            maxPriceUSD: 80,
+            priceLabel: '$35 - $80',
           },
           {
             id: '2',
@@ -1430,10 +1506,32 @@ processVehicleData(data) {
             model: 'Toyota Prado',
             type: 'SUV',
             capacity: 6,
-            priceKSH: 5500,
-            priceUSD: CurrencyConverter.toUSD(5500),
-            image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop',
-            features: ['AC', 'Wifi', 'Spacious'],
+            images: ['https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop'],
+            features: ['AC', 'Wifi', 'Spacious', 'Luggage Space'],
+            isFeatured: false,
+            destinations: [
+              {
+                id: '1',
+                name: 'Jomo Kenyatta Airport (JKIA)',
+                type: 'AIRPORT',
+                priceOneWayUSD: 60,
+                priceReturnUSD: 110,
+                priceOneWayKSH: 60 * CONFIG.exchangeRate,
+                priceReturnKSH: 110 * CONFIG.exchangeRate,
+              },
+              {
+                id: '3',
+                name: 'Mombasa Airport',
+                type: 'AIRPORT',
+                priceOneWayUSD: 350,
+                priceReturnUSD: 650,
+                priceOneWayKSH: 350 * CONFIG.exchangeRate,
+                priceReturnKSH: 650 * CONFIG.exchangeRate,
+              }
+            ],
+            minPriceUSD: 60,
+            maxPriceUSD: 650,
+            priceLabel: '$60 - $650',
           },
           {
             id: '3',
@@ -1441,10 +1539,32 @@ processVehicleData(data) {
             model: 'Toyota Hiace',
             type: 'Van',
             capacity: 12,
-            priceKSH: 7500,
-            priceUSD: CurrencyConverter.toUSD(7500),
-            image: 'https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=400&h=300&fit=crop',
-            features: ['AC', 'Wifi', 'Luggage Space'],
+            images: ['https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?w=400&h=300&fit=crop'],
+            features: ['AC', 'Wifi', 'Luggage Space', 'Comfort Seats'],
+            isFeatured: false,
+            destinations: [
+              {
+                id: '1',
+                name: 'Jomo Kenyatta Airport (JKIA)',
+                type: 'AIRPORT',
+                priceOneWayUSD: 80,
+                priceReturnUSD: 150,
+                priceOneWayKSH: 80 * CONFIG.exchangeRate,
+                priceReturnKSH: 150 * CONFIG.exchangeRate,
+              },
+              {
+                id: '4',
+                name: 'Kisumu Airport',
+                type: 'AIRPORT',
+                priceOneWayUSD: 250,
+                priceReturnUSD: 450,
+                priceOneWayKSH: 250 * CONFIG.exchangeRate,
+                priceReturnKSH: 450 * CONFIG.exchangeRate,
+              }
+            ],
+            minPriceUSD: 80,
+            maxPriceUSD: 450,
+            priceLabel: '$80 - $450',
           },
         ];
 
@@ -1455,7 +1575,7 @@ processVehicleData(data) {
       setupEventListeners() {
         // Refresh button
         document.getElementById('refresh-vehicles').addEventListener('click', () => {
-          this.refreshVehicles();
+          this.refreshVehicleDestinationPrices();
         });
 
         // Step navigation
@@ -1483,8 +1603,19 @@ processVehicleData(data) {
             return;
           }
 
+          if (!this.state.selectedDestination) {
+            this.ui.showToast('Please select a destination', 'error');
+            return;
+          }
+
           this.state.update({
-            tripDetails: { pickup, destination, date, time, passengers: document.getElementById('passengers').value }
+            tripDetails: {
+              pickup,
+              destination: this.state.selectedDestination.name,
+              date,
+              time,
+              passengers: document.getElementById('passengers').value
+            }
           });
 
           this.ui.goToStep(3);
@@ -1493,6 +1624,33 @@ processVehicleData(data) {
 
         document.getElementById('prev-step-3')?.addEventListener('click', () => {
           this.ui.goToStep(2);
+        });
+
+        // Trip type change
+        document.querySelectorAll('input[name="tripType"]').forEach(radio => {
+          radio.addEventListener('change', (e) => {
+            this.state.update({ tripType: e.target.value });
+            this.ui.updatePriceDisplay();
+          });
+        });
+
+        // Destination change
+        document.getElementById('destination').addEventListener('change', (e) => {
+          const selectedId = e.target.value;
+          if (!selectedId) {
+            this.state.update({ selectedDestination: null });
+            document.getElementById('price-display').style.display = 'none';
+            return;
+          }
+
+          const vehicle = this.state.vehicles.find(v => v.id === this.state.selectedVehicle);
+          if (!vehicle) return;
+
+          const destination = vehicle.destinations.find(d => d.id == selectedId);
+          if (destination) {
+            this.state.update({ selectedDestination: destination });
+            this.ui.updatePriceDisplay();
+          }
         });
 
         // Confirm booking
@@ -1532,18 +1690,18 @@ processVehicleData(data) {
         document.getElementById('time').value = timeString;
       }
 
-      refreshVehicles() {
+      refreshVehicleDestinationPrices() {
         const refreshBtn = document.getElementById('refresh-vehicles');
         refreshBtn.classList.add('loading');
 
-        this.loadVehiclesFromAPI().finally(() => {
+        this.loadVehicleDestinationPricesFromAPI().finally(() => {
           refreshBtn.classList.remove('loading');
         });
       }
 
       startAutoRefresh() {
         this.refreshInterval = setInterval(() => {
-          this.loadVehiclesFromAPI();
+          this.loadVehicleDestinationPricesFromAPI();
         }, CONFIG.refreshInterval);
       }
 
@@ -1572,6 +1730,11 @@ processVehicleData(data) {
           return;
         }
 
+        if (!this.state.selectedDestination) {
+          this.ui.showToast('Please select a destination', 'error');
+          return;
+        }
+
         this.state.update({
           contactDetails: { name, phone, notes }
         });
@@ -1581,20 +1744,35 @@ processVehicleData(data) {
       }
 
       sendWhatsAppBooking() {
-        const { selectedVehicle, tripDetails, contactDetails } = this.state;
+        const { selectedVehicle, selectedDestination, tripType, tripDetails, contactDetails } = this.state;
         const vehicle = this.state.vehicles.find(v => v.id === selectedVehicle);
 
-        if (!vehicle || !tripDetails || !contactDetails) return;
+        if (!vehicle || !tripDetails || !contactDetails || !selectedDestination) {
+          this.ui.showToast('Please complete all booking details', 'error');
+          return;
+        }
+
+        const priceUSD = tripType === 'one_way'
+          ? selectedDestination.priceOneWayUSD
+          : selectedDestination.priceReturnUSD;
+
+        const priceKSH = tripType === 'one_way'
+          ? selectedDestination.priceOneWayKSH
+          : selectedDestination.priceReturnKSH;
 
         const message = `*NEW 24/7 TRANSFER BOOKING*%0A%0A` +
-          `*Vehicle:* ${vehicle.name} ${vehicle.model}%0A` +
+          `*Vehicle:* ${vehicle.name} ${vehicle.model} (${vehicle.capacity} seats)%0A` +
+          `*Destination:* ${selectedDestination.name} (${selectedDestination.type})%0A` +
+          `*Trip Type:* ${tripType === 'one_way' ? 'One Way' : 'Return Trip'}%0A` +
+          `*Price:* ${CurrencyConverter.formatUSD(priceUSD)} / ${CurrencyConverter.formatKSH(priceKSH)}%0A` +
           `*Passengers:* ${tripDetails.passengers}%0A` +
           `*Pickup:* ${tripDetails.pickup}%0A` +
-          `*Destination:* ${tripDetails.destination}%0A` +
+          `*Drop-off:* ${tripDetails.destination}%0A` +
           `*Date & Time:* ${tripDetails.date} at ${tripDetails.time}%0A` +
           `*Name:* ${contactDetails.name}%0A` +
           `*Phone:* ${contactDetails.phone}%0A` +
-          `*Notes:* ${contactDetails.notes || 'None'}`;
+          `*Notes:* ${contactDetails.notes || 'None'}%0A%0A` +
+          `*Booking Reference:* TRANS-${Date.now().toString().slice(-6)}`;
 
         const whatsappUrl = `https://wa.me/${CONFIG.whatsappNumber}?text=${message}`;
 
@@ -1610,6 +1788,8 @@ processVehicleData(data) {
           this.ui.goToStep(1);
           document.getElementById('trip-form')?.reset();
           document.getElementById('contact-form')?.reset();
+          document.getElementById('destination').innerHTML = '<option value="">Select destination</option>';
+          document.getElementById('price-display').style.display = 'none';
         }, 5000);
       }
     }
@@ -1619,13 +1799,52 @@ processVehicleData(data) {
       constructor(app) {
         this.app = app;
       }
+  initHero(vehicles) {
+    const hero = document.getElementById('dynamic-hero');
+    const oneway = document.getElementById('hero-oneway-prices');
+    const ret = document.getElementById('hero-return-prices');
+    const nameEl = document.getElementById('hero-vehicle-name');
+
+    if (!hero || !oneway || !ret || !nameEl || !vehicles.length) return;
+
+    let index = 0;
+
+    const render = () => {
+      const v = vehicles[index];
+      if (!v || !v.destinations?.length) return;
+
+      hero.style.backgroundImage =
+        `url(${v.images?.[0] || this.app.getVehicleImage(v.type)})`;
+
+      nameEl.textContent = `${v.name} ${v.model}`;
+
+      oneway.innerHTML = '';
+      ret.innerHTML = '';
+
+      v.destinations.slice(0, 5).forEach(d => {
+        oneway.innerHTML += `
+          <li><span>${d.name}</span><span>$${d.priceOneWayUSD}</span></li>
+        `;
+        ret.innerHTML += `
+          <li><span>${d.name}</span><span>$${d.priceReturnUSD}</span></li>
+        `;
+      });
+    };
+
+    render();
+
+    setInterval(() => {
+      index = (index + 1) % vehicles.length;
+      render();
+    }, 20000);
+  }
 
       init() {
         // Initialize any UI components
       }
 
       renderVehicles(vehicles) {
-        const container = document.getElementById('vehicle-grid');
+        const container = document.getElementById('vehicle-track');
         if (!container) return;
 
         // Clear loading skeletons
@@ -1635,6 +1854,7 @@ processVehicleData(data) {
           const card = this.createVehicleCard(vehicle);
           container.appendChild(card);
         });
+        initVehicleCarousel();
       }
 
       createVehicleCard(vehicle) {
@@ -1653,7 +1873,7 @@ processVehicleData(data) {
 
         card.innerHTML = `
           <div class="vehicle-image-container">
-            <img src="${vehicle.image}"
+            <img src="${vehicle.images[0] || this.app.getVehicleImage(vehicle.type)}"
                  alt="${vehicle.name} ${vehicle.model}"
                  class="vehicle-image"
                  loading="lazy">
@@ -1666,17 +1886,22 @@ processVehicleData(data) {
             <h4 class="vehicle-name">${vehicle.name} ${vehicle.model}</h4>
             <div class="vehicle-details">
               <div>
-                <div class="vehicle-capacity">${vehicle.type}</div>
-                <div class="vehicle-price">${CurrencyConverter.formatUSD(vehicle.priceUSD)}</div>
+                <div class="vehicle-capacity">${vehicle.type} • ${vehicle.capacity} seats</div>
+                <div class="vehicle-price">${vehicle.priceLabel}</div>
+                <small style="color: var(--text-light); font-size: 0.85rem;">Price varies by destination</small>
               </div>
               <button class="select-vehicle-btn ${isSelected ? 'selected' : ''}">
                 ${isSelected ? '✓ Selected' : 'Select'}
               </button>
             </div>
             <div class="vehicle-features">
-              ${vehicle.features.map(feature => `
+              ${vehicle.features.slice(0, 3).map(feature => `
                 <span class="feature-tag">${feature}</span>
               `).join('')}
+              ${vehicle.features.length > 3 ? `<span class="feature-tag">+${vehicle.features.length - 3} more</span>` : ''}
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-light);">
+              <i class="fas fa-map-marker-alt"></i> ${vehicle.destinations?.length || 0} destinations available
             </div>
           </div>
         `;
@@ -1729,18 +1954,73 @@ processVehicleData(data) {
         if (vehicle) {
           document.getElementById('selected-vehicle-preview').style.display = 'block';
           document.getElementById('selected-vehicle-name').textContent =
-            `${vehicle.name} ${vehicle.model} - ${vehicle.capacity} seats (${CurrencyConverter.formatUSD(vehicle.priceUSD)})`;
+            `${vehicle.name} ${vehicle.model} - ${vehicle.capacity} seats`;
+
+          // Populate destinations dropdown
+          this.populateDestinations(vehicle);
         }
 
         // Enable next button
         document.getElementById('next-step-1').disabled = false;
       }
 
+      populateDestinations(vehicle) {
+        const destinationSelect = document.getElementById('destination');
+        destinationSelect.innerHTML = '<option value="">Select destination</option>';
+
+        if (!vehicle || !vehicle.destinations || vehicle.destinations.length === 0) {
+          this.app.state.update({ selectedDestination: null });
+          document.getElementById('price-display').style.display = 'none';
+          return;
+        }
+
+        // Sort destinations by name
+        const sortedDestinations = [...vehicle.destinations].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+        sortedDestinations.forEach(dest => {
+          const option = document.createElement('option');
+          option.value = dest.id;
+          option.textContent = `${dest.name} (${dest.type})`;
+          destinationSelect.appendChild(option);
+        });
+
+        // Reset price display
+        this.app.state.update({ selectedDestination: null });
+        document.getElementById('price-display').style.display = 'none';
+      }
+
+      updatePriceDisplay() {
+        const { selectedDestination, tripType } = this.app.state;
+        const priceDisplay = document.getElementById('price-display');
+
+        if (!selectedDestination) {
+          priceDisplay.style.display = 'none';
+          return;
+        }
+
+        const priceUSD = tripType === 'one_way'
+          ? selectedDestination.priceOneWayUSD
+          : selectedDestination.priceReturnUSD;
+
+        const priceKSH = tripType === 'one_way'
+          ? selectedDestination.priceOneWayKSH
+          : selectedDestination.priceReturnKSH;
+
+        document.getElementById('selected-destination-name').textContent = selectedDestination.name;
+        document.getElementById('trip-type-display').textContent = tripType === 'one_way' ? 'One Way Trip' : 'Return Trip';
+        document.getElementById('final-price').textContent = CurrencyConverter.formatUSD(priceUSD);
+        document.getElementById('price-in-ksh').textContent = CurrencyConverter.formatKSH(priceKSH);
+
+        priceDisplay.style.display = 'block';
+      }
+
       showVehicleImage(vehicle) {
         const modal = document.getElementById('image-modal');
         const modalImage = document.getElementById('modal-image');
 
-        modalImage.src = vehicle.image;
+        modalImage.src = vehicle.images[0] || this.app.getVehicleImage(vehicle.type);
         modal.classList.add('active');
 
         // Store current vehicle index for navigation
@@ -1768,7 +2048,7 @@ processVehicleData(data) {
 
         const vehicle = vehicles[newIndex];
         if (vehicle) {
-          document.getElementById('modal-image').src = vehicle.image;
+          document.getElementById('modal-image').src = vehicle.images[0] || this.app.getVehicleImage(vehicle.type);
           this.app.state.update({ currentModalIndex: newIndex });
         }
       }
@@ -1784,7 +2064,7 @@ processVehicleData(data) {
 
         const vehicle = vehicles[newIndex];
         if (vehicle) {
-          document.getElementById('modal-image').src = vehicle.image;
+          document.getElementById('modal-image').src = vehicle.images[0] || this.app.getVehicleImage(vehicle.type);
           this.app.state.update({ currentModalIndex: newIndex });
         }
       }
@@ -1830,11 +2110,10 @@ processVehicleData(data) {
         }
 
         // Restore form values
-        const { tripDetails, contactDetails } = this.app.state;
+        const { tripDetails, contactDetails, tripType } = this.app.state;
 
         if (tripDetails) {
           document.getElementById('pickup').value = tripDetails.pickup || '';
-          document.getElementById('destination').value = tripDetails.destination || '';
           document.getElementById('date').value = tripDetails.date || '';
           document.getElementById('time').value = tripDetails.time || '';
           document.getElementById('passengers').value = tripDetails.passengers || '1';
@@ -1845,22 +2124,37 @@ processVehicleData(data) {
           document.getElementById('phone').value = contactDetails.phone || '';
           document.getElementById('notes').value = contactDetails.notes || '';
         }
+
+        // Restore trip type
+        if (tripType) {
+          document.querySelector(`input[name="tripType"][value="${tripType}"]`).checked = true;
+        }
       }
 
       updateBookingSummary() {
-        const { selectedVehicle, tripDetails, contactDetails } = this.app.state;
+        const { selectedVehicle, selectedDestination, tripType, tripDetails, contactDetails } = this.app.state;
         const vehicle = this.app.state.vehicles.find(v => v.id === selectedVehicle);
         const summary = document.getElementById('booking-summary');
 
-        if (!summary || !vehicle || !tripDetails) return;
+        if (!summary || !vehicle || !tripDetails || !selectedDestination) return;
+
+        const priceUSD = tripType === 'one_way'
+          ? selectedDestination.priceOneWayUSD
+          : selectedDestination.priceReturnUSD;
+
+        const priceKSH = tripType === 'one_way'
+          ? selectedDestination.priceOneWayKSH
+          : selectedDestination.priceReturnKSH;
 
         summary.innerHTML = `
-          <div><strong>Vehicle:</strong> ${vehicle.name} ${vehicle.model}</div>
+          <div><strong>Vehicle:</strong> ${vehicle.name} ${vehicle.model} (${vehicle.capacity} seats)</div>
+          <div><strong>Destination:</strong> ${selectedDestination.name} (${selectedDestination.type})</div>
+          <div><strong>Trip Type:</strong> ${tripType === 'one_way' ? 'One Way' : 'Return Trip'}</div>
           <div><strong>Pickup:</strong> ${tripDetails.pickup}</div>
-          <div><strong>Destination:</strong> ${tripDetails.destination}</div>
+          <div><strong>Drop-off:</strong> ${tripDetails.destination}</div>
           <div><strong>Date & Time:</strong> ${tripDetails.date} at ${tripDetails.time}</div>
           <div><strong>Passengers:</strong> ${tripDetails.passengers}</div>
-          <div><strong>Price:</strong> ${CurrencyConverter.formatUSD(vehicle.priceUSD)}</div>
+          <div><strong>Price:</strong> ${CurrencyConverter.formatUSD(priceUSD)} / ${CurrencyConverter.formatKSH(priceKSH)}</div>
           ${contactDetails.name ? `<div><strong>Contact:</strong> ${contactDetails.name}</div>` : ''}
         `;
       }
@@ -1894,7 +2188,105 @@ processVehicleData(data) {
         this.app = app;
       }
     }
+// ================================
+// VEHICLE CAROUSEL LOGIC
+// ================================
+let currentPage = 0;
+const cardsPerPage = 4;
 
+function initVehicleCarousel() {
+  const track = document.getElementById('vehicle-track');
+  const prevBtn = document.querySelector('.carousel-nav.prev');
+  const nextBtn = document.querySelector('.carousel-nav.next');
+
+  if (!track || !prevBtn || !nextBtn) return;
+
+  function updateCarousel() {
+    const card = track.querySelector('.vehicle-card');
+    if (!card) return;
+
+    const cardWidth = card.offsetWidth + 16;
+    track.style.transform =
+      `translateX(-${currentPage * cardWidth * cardsPerPage}px)`;
+  }
+
+  nextBtn.onclick = () => {
+    const totalCards = track.children.length;
+    const maxPage = Math.ceil(totalCards / cardsPerPage) - 1;
+
+    if (currentPage < maxPage) {
+      currentPage++;
+      updateCarousel();
+    }
+  };
+
+  prevBtn.onclick = () => {
+    if (currentPage > 0) {
+      currentPage--;
+      updateCarousel();
+    }
+  };
+
+  window.addEventListener('resize', updateCarousel);
+  updateCarousel();
+}
+
+
+/* -----------------------------------------
+   RENDER SINGLE VEHICLE
+----------------------------------------- */
+function renderHeroVehicle(index) {
+  const vehicle = heroVehicles[index];
+  if (!vehicle) return;
+
+  /* Background image */
+  heroSection.style.backgroundImage =
+    `url(${vehicle.image_url})`;
+
+  /* Vehicle name */
+  if (vehicleNameEl) {
+    vehicleNameEl.textContent = vehicle.name;
+  }
+
+  /* Clear lists */
+  oneWayList.innerHTML = '';
+  returnList.innerHTML = '';
+
+  /* Populate destinations (limit to 5 for hero UX) */
+  vehicle.destinations.slice(0, 5).forEach(dest => {
+
+    const oneWayItem = document.createElement('li');
+    oneWayItem.innerHTML = `
+      <span class="destination">${dest.name}</span>
+      <span class="price">$${dest.one_way}</span>
+    `;
+
+    const returnItem = document.createElement('li');
+    returnItem.innerHTML = `
+      <span class="destination">${dest.name}</span>
+      <span class="price">$${dest.return}</span>
+    `;
+
+    oneWayList.appendChild(oneWayItem);
+    returnList.appendChild(returnItem);
+  });
+}
+
+/* -----------------------------------------
+   ROTATION LOGIC
+----------------------------------------- */
+function startHeroRotation() {
+  setInterval(() => {
+    currentHeroIndex =
+      (currentHeroIndex + 1) % heroVehicles.length;
+
+    renderHeroVehicle(currentHeroIndex);
+  }, HERO_ROTATION_INTERVAL);
+}
+
+/* -----------------------------------------
+   INIT
+----------------------------------------- */
     // Initialize app when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
       // Start app with requestIdleCallback for better performance
@@ -1909,7 +2301,7 @@ processVehicleData(data) {
         }, 100);
       }
     });
-
+const toggleBtn = document.getElementById('darkModeToggle'); toggleBtn.addEventListener('click', () => { document.body.classList.toggle('dark-mode'); toggleBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode'; });
     // Set current year
     document.getElementById('current-year').textContent = new Date().getFullYear();
   </script>

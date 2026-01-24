@@ -11,6 +11,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
+from .models import Vehicle, Destination, VehicleDestinationPrice
 
 # Third-party
 import requests
@@ -81,43 +82,37 @@ except ImproperlyConfigured as e:
 # =============================================================================
 # AUTHENTICATION VIEWS
 # =============================================================================
-
 @sensitive_post_parameters('password')
 def driver_login(request):
-    """Handle driver login. All users must have a valid driver profile."""
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
 
-            if user is not None:
-                # Check if the user has a driver profile and it's valid
-                if hasattr(user, 'driver_profile'):
-                    driver = user.driver_profile
-                    if driver.is_verified and driver.available:
-                        login(request, user)
-                        return redirect('bookings:driver_dashboard')
-                    else:
-                        if not driver.is_verified:
-                            messages.error(request, "Your driver account is not verified yet.")
-                        elif not driver.available:
-                            messages.error(request, "Your driver account is currently unavailable.")
-                        return redirect('bookings:driver_login')
-                else:
-                    # User doesn't have a driver profile
-                    messages.error(request, "You are not registered as a driver.")
-                    return redirect('bookings:driver_login')
-            else:
-                messages.error(request, "Invalid username or password.")
-        else:
-            messages.error(request, "Invalid username or password.")
+        if form.is_valid():
+            user = form.get_user()
+
+            try:
+                driver = Driver.objects.get(user=user)
+            except Driver.DoesNotExist:
+                messages.error(request, "You are not registered as a driver.")
+                return redirect('bookings:driver_login')
+
+            if not driver.is_verified:
+                messages.error(request, "Your driver account is not verified yet.")
+                return redirect('bookings:driver_login')
+
+            if not driver.available:
+                messages.error(request, "Your driver account is currently unavailable.")
+                return redirect('bookings:driver_login')
+
+            login(request, user)
+            return redirect('bookings:driver_dashboard')
+
+        messages.error(request, "Invalid username or password.")
+
     else:
         form = AuthenticationForm()
 
     return render(request, 'drivers/login.html', {'form': form})
-
 
 def driver_logout(request):
     """Handle driver logout."""
@@ -324,6 +319,16 @@ def about(request):
 # =============================================================================
 # TOUR DETAIL VIEWS
 # =============================================================================
+class DestinationDetailView(DetailView):
+    """Detailed view for a specific destination."""
+    model = Destination
+    template_name = 'destinations/detail.html'
+    context_object_name = 'destination'
+    slug_url_kwarg = 'slug'
+
+    def get_queryset(self):
+        return Destination.objects.filter(is_active=True)
+
 
 class TourDetailView(DetailView):
     """Detailed view for a specific tour."""
@@ -1044,217 +1049,154 @@ def check_payment_status(request, payment_id):
 # =============================================================================
 # DRIVER VIEWS
 # =============================================================================
-
 @driver_required
 def driver_dashboard(request):
-    """Enhanced driver dashboard with ALL sections in one template."""
-    driver = request.user.driver_profile
-    today = timezone.now().date()
-    current_month = today.replace(day=1)
+    """Driver dashboard with full error handling."""
+    try:
+        # ------------------- Driver -------------------
+        try:
+            driver = request.user.driver_profile
+        except Exception as e:
+            logger.error(f"No driver profile for user {request.user.id}: {e}")
+            return render(request, "drivers/dashboard.html", {"error": "Driver profile not found."})
 
-    # ==================== DASHBOARD DATA ====================
-    today_trips = Trip.objects.filter(
-        driver=driver,
-        date=today,
-        status__in=["SCHEDULED", "IN_PROGRESS"]
-    ).order_by("start_time")
+        today = timezone.now().date()
 
-    upcoming_trips = Trip.objects.filter(
-        driver=driver,
-        date__gt=today,
-        status="SCHEDULED"
-    ).order_by("date")[:10]
+        # ------------------- Trips -------------------
+        today_trips = Trip.objects.filter(
+            driver=driver,
+            date=today,
+            status__in=["SCHEDULED", "IN_PROGRESS"]
+        ).order_by("start_time")
 
-    completed_trips = Trip.objects.filter(
-        driver=driver,
-        status="COMPLETED"
-    ).order_by("-date", "-end_time")[:5]
+        upcoming_trips = Trip.objects.filter(
+            driver=driver,
+            date__gt=today,
+            status="SCHEDULED"
+        ).order_by("date")[:10]
 
-    trip_stats = Trip.objects.filter(driver=driver).aggregate(
-        total_earnings=Sum("earnings"),
-        total_trips=Count("id"),
-        completed_trips=Count("id", filter=Q(status="COMPLETED")),
-        cancelled_trips=Count("id", filter=Q(status="CANCELLED")),
-    )
+        completed_trips = Trip.objects.filter(
+            driver=driver,
+            status="COMPLETED"
+        ).order_by("-date", "-end_time")[:5]
 
-    monthly_earnings = Trip.objects.filter(
-        driver=driver,
-        status="COMPLETED",
-        date__year=current_month.year,
-        date__month=current_month.month,
-    ).aggregate(total=Sum("earnings"))["total"] or 0
+        # Aggregate stats
+        trip_stats = Trip.objects.filter(driver=driver).aggregate(
+            total_earnings=Sum("earnings") or 0,
+            total_trips=Count("id") or 0,
+            completed_trips=Count("id", filter=Q(status="COMPLETED")) or 0,
+            cancelled_trips=Count("id", filter=Q(status="CANCELLED")) or 0,
+        )
 
-    week_ago = today - timedelta(days=7)
-    weekly_earnings = Trip.objects.filter(
-        driver=driver,
-        status="COMPLETED",
-        date__gte=week_ago,
-    ).aggregate(total=Sum("earnings"))["total"] or 0
+        # ------------------- Tours -------------------
+        # Get all tours for stats (do NOT slice yet)
+        all_tours = Tour.objects.filter(created_by=request.user) \
+            .select_related("category") \
+            .prefetch_related("destinations") \
+            .order_by("-created_at")
 
-    tour_stats = Tour.objects.filter(created_by=request.user).aggregate(
-        total_tours=Count("id"),
-        approved_tours=Count("id", filter=Q(is_approved=True)),
-        active_tours=Count("id", filter=Q(available=True, is_approved=True)),
-    )
-
-    recent_bookings = Booking.objects.filter(
-        tour__created_by=request.user,
-        payment__status=PaymentStatus.SUCCESS,
-    ).select_related("tour", "payment", "booking_customer").order_by("-created_at")[:5]
-
-    upcoming_bookings = Booking.objects.filter(
-        tour__created_by=request.user,
-        travel_date__gte=today,
-        payment__status=PaymentStatus.SUCCESS,
-    ).select_related("tour", "booking_customer").order_by("travel_date")[:5]
-
-    vehicle_status = None
-    if hasattr(driver, "vehicle") and driver.vehicle:
-        vehicle = driver.vehicle
-        # Use a fallback for missing fields
-        status = getattr(vehicle, "available", None)
-        if status is True:
-            status_text = "Available"
-        elif status is False:
-            status_text = "Unavailable"
-        else:
-            status_text = "Unknown"
-
-        vehicle_status = {
-            "name": f"{vehicle.make} {vehicle.model}",
-            "plate": getattr(vehicle, "license_plate", "N/A"),
-            "status": status_text,
-            "next_maintenance": getattr(vehicle, "next_maintenance_date", None),
-            "maintenance_due": getattr(vehicle, "next_maintenance_date", None)
-                               and vehicle.next_maintenance_date <= today + timedelta(days=7),
+        # Compute tour statistics safely
+        tour_stats = {
+            "total": all_tours.count(),
+            "approved": all_tours.filter(is_approved=True).count(),
+            "pending": all_tours.filter(is_approved=False).count(),
+            "active": all_tours.filter(available=True, is_approved=True).count(),
         }
 
-    # ==================== EARNINGS DATA ====================
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
+        # Slice only for display in the dashboard (e.g., latest 10 tours)
+        tours = all_tours[:10]
 
-    earnings_trips = Trip.objects.filter(driver=driver, status="COMPLETED")
-    if start_date:
-        earnings_trips = earnings_trips.filter(date__gte=start_date)
-    if end_date:
-        earnings_trips = earnings_trips.filter(date__lte=end_date)
+        # ------------------- Bookings -------------------
+        recent_bookings = Booking.objects.filter(
+            tour__created_by=request.user,
+            payment__status=PaymentStatus.SUCCESS
+        ).select_related("tour", "booking_customer").order_by("-created_at")[:5]
 
-    monthly_earnings_data = earnings_trips.annotate(
-        month=TruncMonth("date")
-    ).values("month").annotate(
-        total_earnings=Sum("earnings"),
-        trip_count=Count("id"),
-    ).order_by("month")
+        upcoming_bookings = Booking.objects.filter(
+            tour__created_by=request.user,
+            travel_date__gte=today,
+            payment__status=PaymentStatus.SUCCESS
+        ).select_related("tour", "booking_customer").order_by("travel_date")[:5]
 
-    total_stats = earnings_trips.aggregate(
-        total_earnings=Sum("earnings"),
-        total_trips=Count("id"),
-        avg_earnings=Avg("earnings"),
+        # ------------------- Vehicle -------------------
+        vehicle_status = None
+        if hasattr(driver, "vehicle") and driver.vehicle:
+            vehicle = driver.vehicle
+            status = getattr(vehicle, "is_active", None)
+            status_text = "Unknown"
+            if status is True:
+                status_text = "Available"
+            elif status is False:
+                status_text = "Unavailable"
+
+            vehicle_status = {
+                "name": f"{getattr(vehicle, 'make', 'N/A')} {getattr(vehicle, 'model', 'N/A')}",
+                "plate": getattr(vehicle, "license_plate", "N/A"),
+                "status": status_text,
+                "next_maintenance": getattr(vehicle, "next_maintenance_date", None),
+                "maintenance_due": getattr(vehicle, "next_maintenance_date", None) and vehicle.next_maintenance_date <= today + timedelta(days=7),
+            }
+
+        # ------------------- Reviews -------------------
+        reviews_qs = Review.objects.filter(booking__driver=driver).select_related("booking__booking_customer", "booking")
+        reviews = reviews_qs.order_by("-created_at")[:10]
+
+        # ------------------- Destinations -------------------
+        destinations = Destination.objects.all()
+
+        # ------------------- Context -------------------
+        context = {
+            "driver": driver,
+            "today_trips": today_trips,
+            "upcoming_trips": upcoming_trips,
+            "completed_trips": completed_trips,
+            "recent_bookings": recent_bookings,
+            "upcoming_bookings": upcoming_bookings,
+            "vehicle_status": vehicle_status,
+            "total_earnings": trip_stats.get("total_earnings", 0),
+            "total_trips": trip_stats.get("total_trips", 0),
+            "completed_trips_count": trip_stats.get("completed_trips", 0),
+            "cancelled_trips_count": trip_stats.get("cancelled_trips", 0),
+            "tours": tours,
+            "tour_stats": tour_stats,
+            "reviews": reviews,
+            "destinations": destinations,
+        }
+
+        return render(request, "drivers/dashboard.html", context)
+
+    except Exception as e:
+        logger.exception(f"Driver dashboard failed: {e}")
+        return render(request, "drivers/dashboard.html", {"error": "An unexpected error occurred. Please check the logs."})
+
+
+import os
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from bookings.models import Booking
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+
+@driver_required
+def generate_receipt_pdf(request, booking_id):
+    """Generate a PDF receipt for a booking."""
+    booking = get_object_or_404(
+        Booking.objects.select_related("tour", "booking_customer", "payment"),
+        id=booking_id
     )
 
-    # ==================== SCHEDULE DATA ====================
-    year = int(request.GET.get("year", today.year))
-    month = int(request.GET.get("month", today.month))
+    # Render HTML template
+    html_string = render_to_string("drivers/receipt_pdf.html", {"booking": booking})
 
-    prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
-    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+    # Generate PDF
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf_file = html.write_pdf()
 
-    schedule_trips = Trip.objects.filter(
-        driver=driver, date__year=year, date__month=month
-    ).order_by("date", "start_time")
-
-    trips_by_date = {}
-    for trip in schedule_trips:
-        trips_by_date.setdefault(trip.date.isoformat(), []).append(trip)
-
-    cal = calendar.monthcalendar(year, month)
-    month_name = calendar.month_name[month]
-    week_days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
-    # ==================== TOURS DATA ====================
-    tours = (
-        Tour.objects.filter(created_by=request.user)
-        .select_related("category")  # only FK fields here
-        .prefetch_related("features", "destinations")  # M2M fields here
-        .order_by("-created_at")
-    )
-
-    tours_stats = {
-        "total": tours.count(),
-        "approved": tours.filter(is_approved=True).count(),
-        "pending": tours.filter(is_approved=False).count(),
-        "active": tours.filter(available=True, is_approved=True).count(),
-    }
-
-    # ==================== RATINGS DATA ====================
-    # Base queryset for the driver's reviews
-    reviews_qs = Review.objects.filter(booking__driver=driver).select_related(
-        "booking__booking_customer", "booking"
-    )
-
-    # Aggregate ratings (do this first, without slicing)
-    rating_distribution = (
-        reviews_qs.values("rating")
-        .annotate(count=Count("id"))
-        .order_by("rating")
-    )
-
-    # Get latest 10 reviews
-    reviews = reviews_qs.order_by("-created_at")[:10]
-
-    performance_metrics = {
-        "completion_rate": (trip_stats["completed_trips"] / trip_stats["total_trips"] * 100)
-        if trip_stats["total_trips"] > 0
-        else 0,
-        "avg_rating": getattr(driver, "rating", 0) or 0,
-        "response_time": "15 min",
-    }
-
-    # ==================== CONTEXT ====================
-    context = {
-        "driver": driver,
-        "today_trips": today_trips,
-        "upcoming_trips": upcoming_trips,
-        "completed_trips": completed_trips,
-        "recent_bookings": recent_bookings,
-        "upcoming_bookings": upcoming_bookings,
-        "vehicle_status": vehicle_status,
-        "total_earnings": trip_stats["total_earnings"] or 0,
-        "total_trips": trip_stats["total_trips"],
-        "completed_trips_count": trip_stats["completed_trips"],
-        "cancelled_trips_count": trip_stats["cancelled_trips"],
-        "monthly_earnings": monthly_earnings,
-        "weekly_earnings": weekly_earnings,
-        "total_tours": tour_stats["total_tours"],
-        "approved_tours": tour_stats["approved_tours"],
-        "active_tours": tour_stats["active_tours"],
-        "performance_metrics": performance_metrics,
-        "today": today,
-        "current_month": current_month,
-        "monthly_earnings_data": monthly_earnings_data,
-        "total_stats": total_stats,
-        "start_date": start_date,
-        "end_date": end_date,
-        "calendar": cal,
-        "month_name": month_name,
-        "year": year,
-        "month": month,
-        "prev_year": prev_year,
-        "prev_month": prev_month,
-        "next_year": next_year,
-        "next_month": next_month,
-        "trips_by_date": trips_by_date,
-        "week_days": week_days,
-        "tours": tours[:10],
-        "tour_stats": tours_stats,
-        "reviews": reviews,
-        "rating_distribution": rating_distribution,
-        "total_reviews": reviews.count(),
-        "view_mode": "dashboard",
-    }
-
-    return render(request, "drivers/dashboard.html", context)
-
+    # Return as response
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="receipt_{booking.id}.pdf"'
+    return response
 
 # =============================================================================
 # TOUR MANAGEMENT VIEWS
@@ -2205,3 +2147,70 @@ def booking_action(request, booking_id):
 
     # Redirect back to the booking admin page
     return redirect("admin:bookings_booking_change", booking_id)
+
+
+# =============================================================================
+# NEW PRICES VIEWS
+# =============================================================================
+@api_view(['GET'])
+def vehicle_destination_prices_api(request):
+    """API endpoint to get vehicle destination prices with USD and KSH conversion."""
+    try:
+        # Get all vehicle destination prices with related data
+        prices = VehicleDestinationPrice.objects.select_related(
+            'vehicle', 'destination'
+        ).filter(vehicle__is_active=True)
+
+        # Convert to response format
+        results = []
+        for price in prices:
+            # Get vehicle images
+            vehicle_images = []
+            if price.vehicle.image:
+                vehicle_images.append(request.build_absolute_uri(price.vehicle.image.url))
+            if price.vehicle.external_image_url:
+                vehicle_images.append(price.vehicle.external_image_url)
+
+            # Get features
+            features = price.vehicle.features or []
+            if price.vehicle.accessibility_features:
+                features.extend(price.vehicle.accessibility_features)
+
+            result = {
+                'id': price.id,
+                'vehicle_id': price.vehicle.id,
+                'vehicle_name': f"{price.vehicle.make} {price.vehicle.model}",
+                'vehicle_model': price.vehicle.model,
+                'vehicle_type': price.vehicle.vehicle_type,
+                'vehicle_capacity': price.vehicle.capacity,
+                'vehicle_year': price.vehicle.year,
+                'vehicle_images': vehicle_images,
+                'vehicle_features': list(set(features)),  # Remove duplicates
+                'vehicle_is_featured': getattr(price.vehicle, 'is_featured', False),
+
+                'destination_id': price.destination.id,
+                'destination_name': price.destination.name,
+                'destination_type': price.destination.destination_type,
+
+                # Prices in USD (stored in database)
+                'price_one_way_usd': float(price.price_one_way_usd),
+                'price_return_usd': float(price.price_return_usd),
+
+                # Prices in KSH (calculated)
+                'price_one_way_ksh': float(price.price_one_way_ksh),
+                'price_return_ksh': float(price.price_return_ksh),
+
+                # Display strings
+                'price_one_way_display': price.price_one_way_display,
+                'price_return_display': price.price_return_display,
+
+                'currency': 'USD',
+            }
+            results.append(result)
+
+        return JsonResponse({'results': results, 'count': len(results)})
+
+    except Exception as e:
+        logger.exception(f"Error fetching vehicle destination prices: {e}")
+        return JsonResponse({'error': 'Failed to fetch prices', 'results': [], 'count': 0}, status=500)
+

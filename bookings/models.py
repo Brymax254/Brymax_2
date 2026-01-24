@@ -498,14 +498,6 @@ class Vehicle(models.Model):
     capacity = models.PositiveIntegerField(help_text="Passenger capacity")
 
     # -------------------------
-    # Pricing
-    # -------------------------
-    price_ksh = models.DecimalField(
-        max_digits=12, decimal_places=2, null=True, blank=True,
-        help_text="Base price in Ksh (converted from USD using admin-set rate)"
-    )
-
-    # -------------------------
     # Images
     # -------------------------
     image = models.ImageField(
@@ -748,7 +740,24 @@ class Destination(TimeStampedModel, LocationModel):
 
     def get_absolute_url(self):
         """Get the absolute URL for this destination."""
-        return reverse('destination_detail', kwargs={'slug': self.slug})
+        if not self.slug or not self.pk:
+            # Return admin URL or placeholder for unsaved objects
+            if self.pk:
+                try:
+                    return reverse('admin:bookings_destination_change', args=[self.pk])
+                except:
+                    pass
+            return "#"
+        try:
+            return reverse('destination_detail', kwargs={'slug': self.slug})
+        except:
+            # Fallback if URL doesn't exist
+            if self.pk:
+                try:
+                    return reverse('admin:bookings_destination_change', args=[self.pk])
+                except:
+                    pass
+            return "#"
 
     @property
     def primary_image(self):
@@ -2166,3 +2175,48 @@ class Partner(TimeStampedModel):
             return self.logo.url
         return self.logo_url or "/static/img/partner-placeholder.png"
 
+class VehicleDestinationPrice(models.Model):
+    """
+    Stores destination-specific pricing for vehicles.
+    Prices are entered in USD and automatically converted to KSH.
+    """
+    vehicle = models.ForeignKey('Vehicle', on_delete=models.CASCADE, related_name='destination_prices')
+    destination = models.ForeignKey('Destination', on_delete=models.CASCADE, related_name='vehicle_prices')
+    price_one_way_usd = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        help_text="Price in USD for one-way trip"
+    )
+    price_return_usd = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        help_text="Price in USD for return trip"
+    )
+
+    class Meta:
+        verbose_name = "Destination Price"
+        verbose_name_plural = "Destination Prices"
+        unique_together = ['vehicle', 'destination']
+
+    def __str__(self):
+        return f"{self.vehicle} → {self.destination}"
+
+    @property
+    def price_one_way_ksh(self):
+        """Convert USD to KSH for one-way trip."""
+        rate = ExchangeRate.get_current_rate()
+        return self.price_one_way_usd * rate
+
+    @property
+    def price_return_ksh(self):
+        """Convert USD to KSH for return trip."""
+        rate = ExchangeRate.get_current_rate()
+        return self.price_return_usd * rate
+
+    @property
+    def price_one_way_display(self):
+        """Display price in both USD and KSH."""
+        return f"${self.price_one_way_usd} USD (≈ KES {self.price_one_way_ksh:.2f})"
+
+    @property
+    def price_return_display(self):
+        """Display price in both USD and KSH."""
+        return f"${self.price_return_usd} USD (≈ KES {self.price_return_ksh:.2f})"

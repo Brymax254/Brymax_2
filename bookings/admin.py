@@ -11,11 +11,12 @@ from django.contrib.admin import SimpleListFilter
 from django.core.exceptions import ValidationError
 from decimal import Decimal
 from datetime import timedelta
-import json
+from django import forms
 
 from .models import (
     BookingCustomer, Driver, Vehicle, Destination, TourCategory, Tour,
-    Booking, Trip, Payment, PaymentProvider, PaymentStatus
+    Booking, Trip, Payment, PaymentProvider, PaymentStatus,
+    VehicleDestinationPrice, ExchangeRate
 )
 
 
@@ -141,6 +142,9 @@ class PaymentInline(admin.TabularInline):
     can_delete = False
 
     def payment_actions(self, obj):
+        if not obj or not obj.pk:
+            return "Save first"
+
         if obj.status == 'PENDING':
             return format_html(
                 '<a class="button" href="{}?action=mark_successful">Mark Successful</a> | '
@@ -166,7 +170,6 @@ class BookingInline(admin.TabularInline):
     can_delete = False
 
     def booking_actions(self, obj):
-        # FIX: Check if obj and obj.pk exist before trying to reverse URL
         if not obj or not obj.pk:
             return "Save first"
 
@@ -185,6 +188,60 @@ class BookingInline(admin.TabularInline):
         return "No actions available"
 
     booking_actions.short_description = 'Actions'
+
+
+class VehicleDestinationPriceInline(admin.TabularInline):
+    model = VehicleDestinationPrice
+    extra = 1
+    fields = ('destination', 'price_one_way_usd', 'price_return_usd', 'price_one_way_display', 'price_return_display')
+    readonly_fields = ('price_one_way_display', 'price_return_display')
+    autocomplete_fields = ('destination',)
+    verbose_name = "Destination Price"
+    verbose_name_plural = "Destination Prices (USD with KSH conversion)"
+
+    def price_one_way_display(self, obj):
+        if obj and obj.pk:
+            return obj.price_one_way_display
+        return "-"
+
+    def price_return_display(self, obj):
+        if obj and obj.pk:
+            return obj.price_return_display
+        return "-"
+
+    price_one_way_display.short_description = "One-Way Price"
+    price_return_display.short_description = "Return Price"
+# =============================================================================
+# MODEL FORMS
+# =============================================================================
+
+# FIX: Add the missing BookingAdminForm
+class BookingAdminForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        vehicle = cleaned_data.get('vehicle')
+        destination = cleaned_data.get('destination')
+
+        # Check if we have price info for vehicle-destination combination
+        if vehicle and destination:
+            try:
+                price_obj = VehicleDestinationPrice.objects.filter(
+                    vehicle=vehicle,
+                    destination=destination
+                ).first()
+
+                if not price_obj:
+                    # Don't raise error, just warn
+                    self.add_warning('No price set for this vehicle-destination combination')
+            except Exception:
+                pass  # Silently handle errors in admin
+
+        return cleaned_data
+
 
 # =============================================================================
 # MODEL ADMIN CLASSES
@@ -222,9 +279,7 @@ class BookingCustomerAdmin(admin.ModelAdmin):
         return f"{total} KES"
 
     total_spent.short_description = 'Total Spent'
-class TripInline(admin.TabularInline):
-    model = Trip
-    extra = 0
+
 
 @admin.register(Driver)
 class DriverAdmin(admin.ModelAdmin):
@@ -232,7 +287,7 @@ class DriverAdmin(admin.ModelAdmin):
         'full_name', 'normalized_phone', 'license_number', 'rating',
         'available', 'is_verified', 'license_status_badge', 'driver_actions'
     )
-    list_filter = ( 'gender', 'license_type')  # remove DriverStatusFilter if not defined
+    list_filter = (DriverStatusFilter, 'gender', 'license_type')
     search_fields = (
         'user__username', 'user__first_name', 'user__last_name',
         'normalized_phone', 'license_number'
@@ -277,12 +332,11 @@ class DriverAdmin(admin.ModelAdmin):
             'fields': ('vehicle',)
         }),
         ('Verification', {
-            'fields': ('is_verified',),  # driver_actions removed
+            'fields': ('is_verified',),
             'classes': ('collapse',)
         }),
     )
 
-    # ===== Custom Display Fields =====
     def license_status_badge(self, obj):
         if not obj.license_expiry:
             return format_html(
@@ -298,9 +352,9 @@ class DriverAdmin(admin.ModelAdmin):
                 'red',
                 'Expired'
             )
-
         elif days_until_expiry < 30:
-            return format_html('<span style="color: orange; font-weight: bold;">Expiring in {} days</span>', days_until_expiry)
+            return format_html('<span style="color: orange; font-weight: bold;">Expiring in {} days</span>',
+                               days_until_expiry)
         return format_html(
             '<span style="color: {};">{}</span>',
             'green',
@@ -312,11 +366,12 @@ class DriverAdmin(admin.ModelAdmin):
     def age(self, obj):
         if obj.date_of_birth:
             today = timezone.now().date()
-            return today.year - obj.date_of_birth.year - ((today.month, today.day) < (obj.date_of_birth.month, obj.date_of_birth.day))
+            return today.year - obj.date_of_birth.year - (
+                    (today.month, today.day) < (obj.date_of_birth.month, obj.date_of_birth.day))
         return "N/A"
+
     age.short_description = 'Age'
 
-    # ===== Custom Action Buttons =====
     def driver_actions(self, obj):
         url = reverse('admin:driver_action', args=[obj.pk])
         if not obj.is_verified:
@@ -331,166 +386,134 @@ class DriverAdmin(admin.ModelAdmin):
                 'border-radius:6px;text-decoration:none;" href="{}?action=unverify" '
                 'onclick="setTimeout(()=>location.reload(),1500)">🚫 Unverify</a>', url
             )
+
     driver_actions.short_description = 'Actions'
 
-    # ===== Bulk Actions =====
     def verify_drivers(self, request, queryset):
         count = queryset.update(is_verified=True)
         self.message_user(request, f"✅ {count} drivers have been verified.", messages.SUCCESS)
+
     verify_drivers.short_description = "Verify selected drivers"
 
     def unverify_drivers(self, request, queryset):
         count = queryset.update(is_verified=False)
         self.message_user(request, f"🚫 {count} drivers have been unverified.", messages.WARNING)
+
     unverify_drivers.short_description = "Unverify selected drivers"
 
     def make_available(self, request, queryset):
         count = queryset.update(available=True)
         self.message_user(request, f"🟢 {count} drivers are now available.", messages.SUCCESS)
+
     make_available.short_description = "Make selected drivers available"
 
     def make_unavailable(self, request, queryset):
         count = queryset.update(available=False)
         self.message_user(request, f"🔴 {count} drivers are now unavailable.", messages.WARNING)
+
     make_unavailable.short_description = "Make selected drivers unavailable"
 
     def send_verification_reminder(self, request, queryset):
         count = queryset.count()
         self.message_user(request, f"📩 Verification reminders sent to {count} drivers.", messages.INFO)
+
     send_verification_reminder.short_description = "Send verification reminder"
 
-from django.contrib import admin, messages
-from django.utils import timezone
-from django.utils.html import format_html
-from decimal import Decimal
-from django import forms
-from .models import Vehicle, ExchangeRate
 
-# ==========================
-# 📝 Custom ModelForm for Vehicle
-# ==========================
-class VehicleAdminForm(forms.ModelForm):
-    price_usd_input = forms.DecimalField(
-        label="Price (USD)",
-        required=False,
-        decimal_places=2,
-        max_digits=12,
-        help_text="Enter price in USD; KES will be calculated automatically"
-    )
-
-    class Meta:
-        model = Vehicle
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance and self.instance.price_usd:
-            self.fields['price_usd_input'].initial = self.instance.price_usd
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        usd_value = self.cleaned_data.get('price_usd_input')
-        if usd_value:
-            # Use admin-set exchange rate
-            rate = Decimal(ExchangeRate.get_current_rate())
-            instance.price_ksh = Decimal(usd_value) * rate
-        if commit:
-            instance.save()
-        return instance
-
-# ==========================
-# 🚗 Vehicle Admin
-# ==========================
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    form = VehicleAdminForm
-
     list_display = (
         'full_name', 'license_plate', 'vehicle_type', 'fuel_type',
-        'capacity', 'price_usd_display', 'price_ksh', 'is_active',
-        'documents_status_badge', 'image_preview'
+        'capacity', 'is_active', 'documents_status_badge', 'image_preview'
     )
     list_filter = ('vehicle_type', 'fuel_type', 'is_active')
     search_fields = ('make', 'model', 'license_plate')
     readonly_fields = (
         'vehicle_age', 'documents_valid', 'insurance_status',
-        'inspection_status', 'documents_status_badge', 'image_preview', 'price_ksh'
+        'inspection_status', 'documents_status_badge', 'image_preview',
+        'full_name'
     )
     actions = ['activate_vehicles', 'deactivate_vehicles', 'send_inspection_reminder']
+    inlines = [VehicleDestinationPriceInline]
 
     fieldsets = (
-        ('Basic Information', {'fields': ('make','model','year','color','license_plate','vehicle_type','fuel_type','capacity')}),
-        ('Pricing', {'fields': ('price_usd_input','price_ksh')}),
-        ('Images', {'fields': ('image','external_image_url','image_preview')}),
-        ('Features', {'fields': ('features','accessibility_features')}),
-        ('Documents', {'fields': ('logbook_copy','insurance_copy','inspection_certificate')}),
-        ('Status', {'fields': ('insurance_expiry','inspection_expiry','is_active','documents_status_badge')}),
-        ('Sustainability', {'fields': ('carbon_footprint_per_km',)}),
-        ('Computed Fields', {'fields': ('vehicle_age','documents_valid','insurance_status','inspection_status'),'classes':('collapse',)}),
+        ('Basic Information', {
+            'fields': ('make', 'model', 'year', 'color', 'license_plate',
+                      'vehicle_type', 'fuel_type', 'capacity', 'full_name')
+        }),
+        ('Images', {
+            'fields': ('image', 'external_image_url', 'image_preview')
+        }),
+        ('Features', {
+            'fields': ('features', 'accessibility_features')
+        }),
+        ('Documents', {
+            'fields': ('logbook_copy', 'insurance_copy', 'inspection_certificate')
+        }),
+        ('Status & Dates', {
+            'fields': ('insurance_expiry', 'inspection_expiry', 'is_active', 'documents_status_badge')
+        }),
+        ('Sustainability', {
+            'fields': ('carbon_footprint_per_km',),
+            'classes': ('collapse',)
+        }),
+        ('Computed Fields', {
+            'fields': ('vehicle_age', 'documents_valid', 'insurance_status', 'inspection_status'),
+            'classes': ('collapse',)
+        }),
     )
 
-    # ==========================
-    # 🖼️ Image Preview
-    # ==========================
     def image_preview(self, obj):
-        if getattr(obj, 'image', None) and hasattr(obj.image, 'url'):
-            return format_html('<img src="{}" style="max-height:150px;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.3);" />', obj.image.url)
-        elif getattr(obj, 'external_image_url', None):
-            return format_html('<img src="{}" style="max-height:150px;border-radius:10px;opacity:0.9;" />', obj.external_image_url)
-        elif getattr(obj, 'logbook_copy', None):
-            try:
-                url = obj.logbook_copy.build_url()
-                return format_html('<img src="{}" style="max-height:150px;border-radius:10px;opacity:0.9;" />', url)
-            except Exception:
-                pass
+        """Generate HTML for image preview in admin."""
+        if obj and obj.image and hasattr(obj.image, 'url'):
+            return format_html(
+                '<img src="{}" style="max-height:150px;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,0.3);" />',
+                obj.image.url
+            )
+        elif obj and obj.external_image_url:
+            return format_html(
+                '<img src="{}" style="max-height:150px;border-radius:10px;opacity:0.9;" />',
+                obj.external_image_url
+            )
         return format_html('<span style="color: gray;">{}</span>', 'No image available')
+
     image_preview.short_description = "Image Preview"
 
-    # ==========================
-    # 📄 Document Status Badge
-    # ==========================
     def documents_status_badge(self, obj):
+        """Generate HTML badge for document status."""
+        if not obj:
+            return format_html('<span style="color: gray;">{}</span>', 'N/A')
+
         today = timezone.now().date()
-        insurance_valid = getattr(obj,'insurance_expiry',None) and obj.insurance_expiry > today
-        inspection_valid = getattr(obj,'inspection_expiry',None) and obj.inspection_expiry > today
+        insurance_valid = obj.insurance_expiry and obj.insurance_expiry > today
+        inspection_valid = obj.inspection_expiry and obj.inspection_expiry > today
 
         if insurance_valid and inspection_valid:
-            return format_html('<span style="color:green;font-weight:bold;">{}</span>','Valid')
+            return format_html('<span style="color:green;font-weight:bold;">{}</span>', 'Valid')
         elif insurance_valid or inspection_valid:
-            return format_html('<span style="color:orange;font-weight:bold;">{}</span>','Partial')
+            return format_html('<span style="color:orange;font-weight:bold;">{}</span>', 'Partial')
         else:
-            return format_html('<span style="color:red;font-weight:bold;">{}</span>','Expired')
+            return format_html('<span style="color:red;font-weight:bold;">{}</span>', 'Expired')
+
     documents_status_badge.short_description = 'Documents Status'
 
-    # ==========================
-    # 💵 Price Display
-    # ==========================
-    def price_usd_display(self, obj):
-        return obj.price_usd or "-"
-    price_usd_display.short_description = "Price (USD)"
-
-    # ==========================
-    # ⚙️ Custom Actions
-    # ==========================
     def activate_vehicles(self, request, queryset):
         count = queryset.update(is_active=True)
         self.message_user(request, f"{count} vehicles activated.", messages.SUCCESS)
+
     activate_vehicles.short_description = "Activate selected vehicles"
 
     def deactivate_vehicles(self, request, queryset):
         count = queryset.update(is_active=False)
         self.message_user(request, f"{count} vehicles deactivated.", messages.WARNING)
+
     deactivate_vehicles.short_description = "Deactivate selected vehicles"
 
     def send_inspection_reminder(self, request, queryset):
         count = queryset.count()
         self.message_user(request, f"Inspection reminders sent for {count} vehicles.", messages.INFO)
-    send_inspection_reminder.short_description = "Send inspection reminder"
 
-# ==========================
-# 🔄 Admin for Exchange Rate
-# ==========================
-from .models import ExchangeRate
+    send_inspection_reminder.short_description = "Send inspection reminder"
 
 @admin.register(ExchangeRate)
 class ExchangeRateAdmin(admin.ModelAdmin):
@@ -507,49 +530,60 @@ class DestinationAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('get_absolute_url', 'primary_image', 'image_thumbnail')
     actions = ['activate_destinations', 'deactivate_destinations', 'feature_destinations', 'unfeature_destinations']
+    ordering = ('name',)
 
     fieldsets = (
-        ('Basic Information', {
-            'fields': ('name', 'slug', 'description', 'destination_type')
-        }),
-        ('Pricing', {
-            'fields': ('price_per_person', 'currency')
-        }),
-        ('Status', {
-            'fields': ('is_active', 'is_featured')
-        }),
-        ('Media', {
-            'fields': ('image', 'video', 'image_url', 'gallery_images', 'primary_image', 'image_thumbnail')
-        }),
-        ('Location', {
-            'fields': ('location', 'latitude', 'longitude')
-        }),
-        ('Sustainability', {
-            'fields': ('eco_friendly', 'carbon_footprint_per_visit', 'sustainability_certifications')
-        }),
-        ('Accessibility', {
-            'fields': ('wheelchair_accessible', 'accessibility_features')
-        }),
-        ('Health & Safety', {
-            'fields': ('health_safety_measures', 'covid19_protocols')
-        }),
+        ('Basic Information', {'fields': ('name', 'slug', 'description', 'destination_type')}),
+        ('Pricing', {'fields': ('price_per_person', 'currency')}),
+        ('Status', {'fields': ('is_active', 'is_featured')}),
+        ('Media', {'fields': ('image', 'video', 'image_url', 'gallery_images', 'primary_image', 'image_thumbnail')}),
+        ('Location', {'fields': ('location', 'latitude', 'longitude')}),
+        ('Sustainability', {'fields': ('eco_friendly', 'carbon_footprint_per_visit', 'sustainability_certifications')}),
+        ('Accessibility', {'fields': ('wheelchair_accessible', 'accessibility_features')}),
+        ('Health & Safety', {'fields': ('health_safety_measures', 'covid19_protocols')}),
         ('URL', {
             'fields': ('get_absolute_url',),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
+            'description': 'Admin edit link (public URL requires setup)'
         }),
     )
-    inlines = [BookingInline]
 
     def image_thumbnail(self, obj):
-        if obj.image:
+        if obj is None:
+            return "No image"
+        if getattr(obj, 'image', None):
             return format_html('<img src="{}" width="100" height="100" />', obj.image.url)
-        elif obj.image_url:
+        elif getattr(obj, 'image_url', None):
             return format_html('<img src="{}" width="100" height="100" />', obj.image_url)
         return "No image"
 
     image_thumbnail.short_description = 'Image'
 
-    # Custom actions
+    def primary_image(self, obj):
+        if obj is None:
+            return "-"
+        if getattr(obj, 'image', None):
+            return format_html('<img src="{}" width="150" />', obj.image.url)
+        return "-"
+
+    primary_image.short_description = 'Primary Image'
+
+    def get_absolute_url(self, obj):
+        if obj is None:
+            return "-"
+        if obj.pk:
+            try:
+                # Return admin edit link for admin interface
+                return format_html(
+                    '<a href="{}" target="_blank">Admin Edit Link</a>',
+                    reverse('admin:bookings_destination_change', args=[obj.pk])
+                )
+            except:
+                pass
+        return "-"
+
+    get_absolute_url.short_description = 'URL'
+
     def activate_destinations(self, request, queryset):
         count = queryset.update(is_active=True)
         self.message_user(request, f"{count} destinations have been activated.", messages.SUCCESS)
@@ -589,7 +623,6 @@ class TourCategoryAdmin(admin.ModelAdmin):
 
     tour_count.short_description = 'Number of Tours'
 
-    # Custom actions
     def activate_categories(self, request, queryset):
         count = queryset.update(is_active=True)
         self.message_user(request, f"{count} categories have been activated.", messages.SUCCESS)
@@ -655,7 +688,6 @@ class TourAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    inlines = [BookingInline]
 
     def image_thumbnail(self, obj):
         if obj.image:
@@ -666,7 +698,23 @@ class TourAdmin(admin.ModelAdmin):
 
     image_thumbnail.short_description = 'Image'
 
-    # Custom actions
+    # FIX: Add missing get_absolute_url method
+    def get_absolute_url(self, obj):
+        if obj is None:
+            return "-"
+        if obj.pk:
+            try:
+                # Return admin edit link for admin interface
+                return format_html(
+                    '<a href="{}" target="_blank">Admin Edit Link</a>',
+                    reverse('admin:bookings_tour_change', args=[obj.pk])
+                )
+            except:
+                pass
+        return "-"
+
+    get_absolute_url.short_description = 'URL'
+
     def approve_tours(self, request, queryset):
         count = 0
         for tour in queryset:
@@ -709,6 +757,7 @@ class TourAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
+    form = BookingAdminForm  # FIX: Use the form we defined above
     list_display = ('booking_reference', 'service_name', 'booking_customer', 'travel_date', 'status', 'total_price',
                     'is_paid', 'booking_actions')
     list_filter = (BookingStatusFilter, 'booking_type', 'is_cancelled', 'travel_date')
@@ -716,6 +765,7 @@ class BookingAdmin(admin.ModelAdmin):
     readonly_fields = ('booking_reference', 'total_passengers', 'is_upcoming', 'is_past', 'is_today',
                        'can_be_cancelled', 'service_name', 'booking_actions')
     actions = ['confirm_bookings', 'cancel_bookings', 'mark_as_paid', 'mark_as_unpaid', 'assign_drivers']
+    inlines = [PaymentInline, TripInline]
 
     fieldsets = (
         ('Booking Information', {
@@ -756,10 +806,8 @@ class BookingAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    inlines = [PaymentInline, TripInline]
 
     def booking_actions(self, obj):
-        # FIX: Check if obj exists before trying to use it
         if not obj or not obj.pk:
             return "Save first"
 
@@ -778,7 +826,7 @@ class BookingAdmin(admin.ModelAdmin):
         return "No actions available"
 
     booking_actions.short_description = 'Actions'
-    # Custom actions
+
     def confirm_bookings(self, request, queryset):
         count = 0
         for booking in queryset:
@@ -812,7 +860,6 @@ class BookingAdmin(admin.ModelAdmin):
     mark_as_unpaid.short_description = "Mark selected bookings as unpaid"
 
     def assign_drivers(self, request, queryset):
-        # This would typically redirect to a custom view for driver assignment
         self.message_user(request, "Please use the individual booking pages to assign drivers.", messages.INFO)
 
     assign_drivers.short_description = "Assign drivers to selected bookings"
@@ -861,7 +908,6 @@ class TripAdmin(admin.ModelAdmin):
 
     trip_actions.short_description = 'Actions'
 
-    # Custom actions
     def start_trips(self, request, queryset):
         count = 0
         for trip in queryset:
@@ -918,6 +964,9 @@ class PaymentAdmin(admin.ModelAdmin):
     )
 
     def payment_actions(self, obj):
+        if not obj or not obj.pk:
+            return "Save first"
+
         if obj.status == 'PENDING':
             return format_html(
                 '<a class="button" href="{}?action=mark_successful">Mark Successful</a> | '
@@ -934,7 +983,6 @@ class PaymentAdmin(admin.ModelAdmin):
 
     payment_actions.short_description = 'Actions'
 
-    # Custom actions
     def mark_successful(self, request, queryset):
         count = 0
         for payment in queryset:
@@ -974,12 +1022,10 @@ admin.site.site_header = "Safari Bookings Administration"
 admin.site.site_title = "Safari Bookings Admin"
 admin.site.index_title = "Welcome to Safari Bookings Administration"
 
+
 # =============================================================================
 # CUSTOM ADMIN VIEWS
 # =============================================================================
-
-# These views handle the custom actions from the inline admin forms.
-# They are now registered with the default admin site.
 
 def driver_action_view(request, driver_id):
     driver = Driver.objects.get(pk=driver_id)
@@ -1046,7 +1092,6 @@ def payment_action_view(request, payment_id):
 
 
 def dashboard_view(request):
-    # Calculate statistics
     total_bookings = Booking.objects.count()
     pending_bookings = Booking.objects.filter(status='PENDING').count()
     confirmed_bookings = Booking.objects.filter(status='CONFIRMED').count()
@@ -1062,7 +1107,6 @@ def dashboard_view(request):
     total_vehicles = Vehicle.objects.count()
     active_vehicles = Vehicle.objects.filter(is_active=True).count()
 
-    # Recent activities
     recent_bookings = Booking.objects.order_by('-created_at')[:5]
     recent_payments = Payment.objects.order_by('-created_at')[:5]
 
@@ -1086,16 +1130,11 @@ def dashboard_view(request):
 
 
 # =============================================================================
-# REGISTER CUSTOM ADMIN URLS WITH THE DEFAULT ADMIN SITE
+# CUSTOM URLS REGISTRATION
 # =============================================================================
-
-# This is the fix: We override the get_urls method to inject our custom admin URLs.
-# This makes them available to the default admin site, resolving the NoReverseMatch error.
 
 def get_admin_urls(urls):
     def get_urls():
-        # Define your custom admin URLs here.
-        # The names must match what is used in reverse() calls (e.g., 'admin:booking_action').
         custom_urls = [
             path('driver/<int:driver_id>/action/', admin.site.admin_view(driver_action_view), name='driver_action'),
             path('booking/<int:booking_id>/action/', admin.site.admin_view(booking_action_view), name='booking_action'),
@@ -1103,10 +1142,9 @@ def get_admin_urls(urls):
             path('payment/<int:payment_id>/action/', admin.site.admin_view(payment_action_view), name='payment_action'),
             path('dashboard/', admin.site.admin_view(dashboard_view), name='dashboard'),
         ]
-        # Add your custom URLs to the original admin URLs
         return custom_urls + urls
 
     return get_urls
 
-# Apply the override to the default admin site
+
 admin.site.get_urls = get_admin_urls(admin.site.get_urls())

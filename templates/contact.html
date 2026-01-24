@@ -1,6 +1,130 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<h2>Contact Us</h2>
-<p>For the fastest response, tap "Book via WhatsApp" on any page.</p>
-<p>Phone/WhatsApp: +254 759 234 580</p>
+<style>
+    .contact-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-top: 2rem;
+    }
+
+    .contact-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #2d3748;
+    }
+
+    .contact-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .contact-card {
+        background: #f7fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #4299e1;
+    }
+
+    .contact-method {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        background: #4299e1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .contact-info {
+        flex: 1;
+    }
+
+    .contact-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.25rem;
+    }
+
+    .contact-value {
+        color: #2d3748;
+        font-size: 1.1rem;
+    }
+
+    .whatsapp-btn {
+        background: #25d366;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        margin-top: 1rem;
+    }
+
+    .whatsapp-btn:hover {
+        background: #1da851;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    }
+
+    .whatsapp-btn i {
+        margin-right: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .contact-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="contact-container">
+    <div class="contact-header">
+        <h2>Contact Us</h2>
+        <p class="text-gray-600">Get in touch with us</p>
+    </div>
+
+    <div class="contact-card">
+        <div class="contact-method">
+            <div class="contact-icon">
+                <i class="fas fa-phone"></i>
+            </div>
+            <div class="contact-info">
+                <div class="contact-label">Phone/WhatsApp</div>
+                <div class="contact-value">+254723229651</div>
+            </div>
+        </div>
+
+        <p class="text-gray-600 mt-3">
+            For the fastest response, tap "Book via WhatsApp" on any page or use the button below.
+        </p>
+
+        <button class="whatsapp-btn">
+            <i class="fab fa-whatsapp"></i>
+            Message on WhatsApp
+        </button>
+    </div>
+</div>
+
 {% endblock %}

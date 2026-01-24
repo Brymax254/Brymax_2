@@ -1,7 +1,5 @@
-# /home/brymax/Documents/airport_destinations/bookings/api/views.py
-
 from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes  # Added permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Sum, Count, Q, Avg
@@ -10,11 +8,9 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 import requests
 from django.conf import settings
-from rest_framework import viewsets, filters
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework.permissions import AllowAny, IsAuthenticated
 from bookings.models import (
     Driver, BookingCustomer, Vehicle, Destination, TourCategory, Tour,
     Booking, Trip, Payment, PaymentStatus, Review, ContactMessage,
@@ -26,16 +22,13 @@ from .serializers import (
     PaymentSerializer, ReviewSerializer, VehicleSerializer, DestinationSerializer,
     BookingCustomerSerializer, TourCategorySerializer, ContactMessageSerializer,
     PaymentProviderSerializer, PaymentStatusSerializer,
-    # Create/Update serializers
     BookingCreateSerializer, PaymentCreateSerializer, ReviewCreateSerializer,
     DriverCreateSerializer, TourCreateSerializer, VehicleCreateSerializer
 )
 
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 class DriverViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows drivers to be viewed or edited.
-    """
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -47,40 +40,27 @@ class DriverViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def dashboard_data(self, request, pk=None):
-        """
-        Retrieves detailed dashboard data for a specific driver.
-        """
         driver = self.get_object()
         today = timezone.now().date()
 
-        # Get basic stats
         total_earnings = Trip.objects.filter(driver=driver, status='COMPLETED').aggregate(total=Sum('earnings'))['total'] or 0
         completed_trips = Trip.objects.filter(driver=driver, status='COMPLETED').count()
         active_tours = Tour.objects.filter(created_by=driver, available=True, is_approved=True).count()
 
-        # Get monthly earnings
         monthly_earnings = Trip.objects.filter(
             driver=driver,
             status='COMPLETED',
             date__gte=timezone.now().replace(day=1)
         ).aggregate(total=Sum('earnings'))['total'] or 0
 
-        # Get today's trips
         today_trips = Trip.objects.filter(driver=driver, date=today)
+        upcoming_trips = Trip.objects.filter(driver=driver, date__gt=today).order_by('date')[:10]
 
-        # Get upcoming trips
-        upcoming_trips = Trip.objects.filter(
-            driver=driver,
-            date__gt=today
-        ).order_by('date')[:10]
-
-        # Get recent bookings
         recent_bookings = Booking.objects.filter(
             driver=driver,
             travel_date__gte=timezone.now() - timedelta(days=30)
         ).order_by('-booking_date')[:5]
 
-        # Get vehicle status
         try:
             vehicle = driver.vehicle
             vehicle_status = {
@@ -93,7 +73,6 @@ class DriverViewSet(viewsets.ModelViewSet):
         except Vehicle.DoesNotExist:
             vehicle_status = None
 
-        # Get tour stats
         tours = Tour.objects.filter(created_by=driver)
         tour_stats = {
             'total': tours.count(),
@@ -102,12 +81,10 @@ class DriverViewSet(viewsets.ModelViewSet):
             'active': tours.filter(is_approved=True, available=True).count()
         }
 
-        # Get ratings
         reviews = Review.objects.filter(driver=driver)
         avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
         total_reviews = reviews.count()
 
-        # Rating distribution
         rating_distribution = []
         for i in range(1, 6):
             count = reviews.filter(rating=i).count()
@@ -135,9 +112,6 @@ class DriverViewSet(viewsets.ModelViewSet):
 
 
 class TourViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows tours to be viewed or edited.
-    """
     queryset = Tour.objects.all().select_related('category', 'created_by', 'approved_by')
     serializer_class = TourSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -155,14 +129,10 @@ class TourViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        # Assumes the User model has a OneToOneField to Driver with related_name='driver'
         serializer.save(created_by=self.request.user.driver)
 
     @action(detail=True, methods=['post'])
     def toggle_approval(self, request, pk=None):
-        """
-        Toggles the approval status of a tour.
-        """
         tour = self.get_object()
         tour.is_approved = not tour.is_approved
         if tour.is_approved:
@@ -173,9 +143,6 @@ class TourViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def toggle_availability(self, request, pk=None):
-        """
-        Toggles the availability status of a tour.
-        """
         tour = self.get_object()
         tour.available = not tour.available
         tour.save()
@@ -183,9 +150,6 @@ class TourViewSet(viewsets.ModelViewSet):
 
 
 class TripViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows trips to be viewed or edited.
-    """
     queryset = Trip.objects.all().select_related('driver', 'booking', 'vehicle')
     serializer_class = TripSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -199,9 +163,6 @@ class TripViewSet(viewsets.ModelViewSet):
 
 
 class BookingViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows bookings to be viewed or edited.
-    """
     queryset = Booking.objects.all().select_related('booking_customer', 'destination', 'tour', 'driver', 'vehicle')
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -220,9 +181,6 @@ class BookingViewSet(viewsets.ModelViewSet):
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows payments to be viewed or edited.
-    """
     queryset = Payment.objects.all().select_related('user', 'booking', 'tour')
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -234,9 +192,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def verify(self, request, pk=None):
-        """
-        Verifies a payment transaction with the provider.
-        """
         payment = self.get_object()
         success = payment.verify_paystack_transaction()
         if success:
@@ -247,9 +202,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows reviews to be viewed or edited.
-    """
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -268,12 +220,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class VehicleViewSet(viewsets.ModelViewSet):
-    """
-    Vehicle API:
-    - Public users: can LIST and RETRIEVE active vehicles
-    - Authenticated users: can CREATE, UPDATE, DELETE vehicles
-    """
-
     queryset = Vehicle.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['vehicle_type', 'fuel_type', 'is_active', 'capacity']
@@ -282,73 +228,51 @@ class VehicleViewSet(viewsets.ModelViewSet):
     ordering = ['-year']
 
     def get_queryset(self):
-        # Public users should only see active vehicles
         if self.action in ['list', 'retrieve']:
             return Vehicle.objects.filter(is_active=True)
         return Vehicle.objects.all()
 
     def get_permissions(self):
-        # Public read access
         if self.action in ['list', 'retrieve']:
             return [AllowAny()]
-        # Authenticated users for write actions
         return [IsAuthenticated()]
 
     def get_serializer_class(self):
-        # Use different serializer for write operations
         if self.action in ['create', 'update', 'partial_update']:
             return VehicleCreateSerializer
         return VehicleSerializer
 
     def get_serializer_context(self):
-        """
-        Include request in context to generate absolute URLs for images
-        """
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
 
+
 class BookingCustomerViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows booking customers to be viewed or edited.
-    """
     queryset = BookingCustomer.objects.all()
     serializer_class = BookingCustomerSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
 class DestinationViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows destinations to be viewed or edited.
-    """
     queryset = Destination.objects.all()
     serializer_class = DestinationSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class TourCategoryViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows tour categories to be viewed or edited.
-    """
     queryset = TourCategory.objects.all()
     serializer_class = TourCategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class ContactMessageViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows contact messages to be viewed or edited.
-    """
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
 class DashboardView(APIView):
-    """
-    A single API endpoint to get dashboard data for both drivers and admin users.
-    The response structure changes based on the user's role.
-    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -356,7 +280,6 @@ class DashboardView(APIView):
         today = timezone.now().date()
         current_month = today.replace(day=1)
 
-        # Base user data
         data = {
             'user': {
                 'id': user.id,
@@ -368,16 +291,11 @@ class DashboardView(APIView):
             }
         }
 
-        # Driver-specific data
-        # Assumes the User model has a OneToOneField to Driver with related_name='driver'
         if hasattr(user, 'driver'):
             driver = user.driver
-
-            # Trip stats
             trips = Trip.objects.filter(driver=driver)
             completed_trips = trips.filter(status='COMPLETED')
 
-            # Earnings
             monthly_earnings = completed_trips.filter(
                 date__year=current_month.year,
                 date__month=current_month.month
@@ -386,17 +304,13 @@ class DashboardView(APIView):
             week_ago = today - timedelta(days=7)
             weekly_earnings = completed_trips.filter(date__gte=week_ago).aggregate(total=Sum('earnings'))['total'] or 0
 
-            # Today's and upcoming trips
             today_trips = trips.filter(date=today, status__in=['SCHEDULED', 'IN_PROGRESS']).order_by('start_time')
             upcoming_trips = trips.filter(date__gt=today, status='SCHEDULED').order_by('date')[:10]
 
-            # Recent bookings for this driver's tours
             recent_bookings = Booking.objects.filter(
                 driver=driver
             ).select_related('tour', 'payment', 'booking_customer').order_by('-created_at')[:5]
 
-            # Vehicle status
-            vehicle_status = None
             try:
                 vehicle = driver.vehicle
                 vehicle_status = {
@@ -407,16 +321,14 @@ class DashboardView(APIView):
                     'maintenance_due': vehicle.inspection_expiry and vehicle.inspection_expiry <= today + timedelta(days=7),
                 }
             except Vehicle.DoesNotExist:
-                pass
+                vehicle_status = None
 
-            # Tour stats
             tour_stats = Tour.objects.filter(created_by=driver).aggregate(
                 total_tours=Count('id'),
                 approved_tours=Count('id', filter=Q(is_approved=True)),
                 active_tours=Count('id', filter=Q(available=True, is_approved=True)),
             )
 
-            # Add driver-specific data to the response
             data.update({
                 'driver': DriverSerializer(driver).data,
                 'stats': {
@@ -432,21 +344,17 @@ class DashboardView(APIView):
                 'vehicle_status': vehicle_status,
             })
 
-        # Admin-specific data
         elif user.is_staff:
-            # Overall stats
             total_tours = Tour.objects.count()
             approved_tours = Tour.objects.filter(is_approved=True).count()
             total_bookings = Booking.objects.count()
             total_payments = Payment.objects.count()
             successful_payments = Payment.objects.filter(status='SUCCESS').count()
 
-            # Recent activity
             recent_tours = Tour.objects.select_related('created_by').order_by('-created_at')[:5]
             recent_bookings = Booking.objects.select_related('booking_customer', 'tour').order_by('-created_at')[:5]
             pending_tours = Tour.objects.filter(is_approved=False).order_by('-created_at')
 
-            # Add admin-specific data to the response
             data.update({
                 'admin': {
                     'stats': {
@@ -463,3 +371,57 @@ class DashboardView(APIView):
             })
 
         return Response(data)
+
+
+@api_view(['GET'])
+def analytics_data(request):
+    total_bookings = Booking.objects.count()
+    total_payments = Payment.objects.count()
+    total_tours = Tour.objects.count()
+
+    data = {
+        'total_bookings': total_bookings,
+        'total_payments': total_payments,
+        'total_tours': total_tours,
+    }
+    return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def bookings_list(request):
+    bookings = Booking.objects.all().order_by('-created_at')
+    serializer = BookingSerializer(bookings, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def drivers_list(request):
+    drivers = Driver.objects.all()
+    serializer = DriverSerializer(drivers, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def vehicles_list(request):
+    vehicles = Vehicle.objects.all()
+    serializer = VehicleSerializer(vehicles, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def payments_list(request):
+    payments = Payment.objects.all()
+    serializer = PaymentSerializer(payments, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def tours_list(request):
+    tours = Tour.objects.all()
+    serializer = TourSerializer(tours, many=True)
+    return Response(serializer.data)

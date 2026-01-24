@@ -26,6 +26,8 @@ DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
 ALLOWED_HOSTS = [
     'airportdestinationsandtransfers.co.ke',
     'www.airportdestinationsandtransfers.co.ke',
+    'localhost',
+    '127.0.0.1',
 ]
 
 # ==============================

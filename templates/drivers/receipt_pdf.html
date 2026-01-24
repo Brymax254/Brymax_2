@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Receipt #{{ booking.id }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; margin: 30px; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid #333; }
+        th, td { padding: 8px; text-align: left; }
+        .total { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Booking Receipt</h1>
+
+    <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+    <p><strong>Customer:</strong> {{ booking.booking_customer.name }}</p>
+    <p><strong>Tour:</strong> {{ booking.tour.title }}</p>
+    <p><strong>Travel Date:</strong> {{ booking.travel_date }}</p>
+    <p><strong>Booking Type:</strong> {{ booking.booking_type }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Passengers</th>
+                <th>Adults</th>
+                <th>Children</th>
+                <th>Infants</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total</td>
+                <td>{{ booking.num_adults }}</td>
+                <td>{{ booking.num_children }}</td>
+                <td>{{ booking.num_infants }}</td>
+                <td>{{ booking.payment.amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><strong>Pickup Location:</strong> {{ booking.pickup_location }}</p>
+    <p><strong>Dropoff Location:</strong> {{ booking.dropoff_location }}</p>
+    <p><strong>Special Requests:</strong> {{ booking.special_requests }}</p>
+
+    <hr>
+    <p style="text-align:center;">Thank you for booking with us!</p>
+</body>
+</html>
