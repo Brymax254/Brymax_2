@@ -2293,7 +2293,7 @@
                 if (step3) step3.classList.add('active');
 
                 // Redirect to verification page
-                window.location.href = '{% url "bookings:paystack_callback" %}?reference=' + response.reference;
+                window.location.href = '{% url "bookings:payment_pending" %}';
               },
               onClose: function() {
                 showToast('info', 'Payment Cancelled', 'You have cancelled the payment process.');

@@ -425,3 +425,58 @@ def tours_list(request):
     tours = Tour.objects.all()
     serializer = TourSerializer(tours, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile_api(request):
+    driver = request.user.driver
+    data = {
+        "id": driver.id,
+        "name": driver.full_name,
+        "email": driver.user.email,
+        "phone": driver.normalized_phone,
+        "license": driver.license_number,
+        "isAvailable": driver.available,
+        "rating": driver.rating,
+        "responseTime": "-",  # add logic if tracked
+        "completionRate": (driver.completed_trips / driver.total_trips * 100) if driver.total_trips else 0,
+        "memberSince": driver.user.date_joined.strftime("%Y-%m-%d"),
+    }
+    return Response(data)
+
+from bookings.models import Receipt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def receipts_list(request):
+    receipts = Receipt.objects.all().order_by('-date')
+    data = [
+        {
+            "id": r.id,
+            "bookingReference": r.booking.booking_reference if r.booking else None,
+            "amount": r.amount,
+            "date": r.date.strftime("%Y-%m-%d"),
+        }
+        for r in receipts
+    ]
+    return Response(data)
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from bookings.models import Vehicle
+from .serializers import VehicleSerializer
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def vehicle_destination_prices(request):
+    vehicles = Vehicle.objects.filter(is_active=True)
+    serializer = VehicleSerializer(vehicles, many=True, context={'request': request})
+    return Response(serializer.data)
+
+

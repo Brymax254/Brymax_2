@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="modern-card">
+    <div class="card-header modern-header">
+        <i class="fas fa-car me-2"></i>{{ title }}
+    </div>
+    <div class="card-body modern-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Existing Image Preview -->
+            {% if form.instance.image or form.instance.external_image_url %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">Current Image:</label><br>
+                {% if form.instance.image %}
+                    <img src="{{ form.instance.image.url }}" style="max-height:120px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+                {% elif form.instance.external_image_url %}
+                    <img src="{{ form.instance.external_image_url }}" style="max-height:120px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Documents Status Badge -->
+            {% if form.instance.pk %}
+            <div class="mb-3">
+                <label class="form-label fw-bold">Documents Status:</label><br>
+                {% with today=now "Y-m-d" %}
+                    {% if form.instance.insurance_expiry and form.instance.insurance_expiry > today and form.instance.inspection_expiry and form.instance.inspection_expiry > today %}
+                        <span class="badge bg-success">Valid</span>
+                    {% elif form.instance.insurance_expiry and form.instance.insurance_expiry > today or form.instance.inspection_expiry and form.instance.inspection_expiry > today %}
+                        <span class="badge bg-warning">Partial</span>
+                    {% else %}
+                        <span class="badge bg-danger">Expired</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% endif %}
+
+            <!-- Vehicle Information -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Make</label>
+                    {{ form.make|add_class:"form-control" }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Model</label>
+                    {{ form.model|add_class:"form-control" }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Year</label>
+                    {{ form.year|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Color</label>
+                    {{ form.color|add_class:"form-control" }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">License Plate</label>
+                    {{ form.license_plate|add_class:"form-control" }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Vehicle Type</label>
+                    {{ form.vehicle_type|add_class:"form-select" }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Fuel Type</label>
+                    {{ form.fuel_type|add_class:"form-select" }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Capacity</label>
+                    {{ form.capacity|add_class:"form-control" }}
+                </div>
+                <div class="col-md-4 mb-3 d-flex align-items-center mt-4">
+                    {{ form.is_active }}
+                    <label class="ms-2 mb-0">Active</label>
+                </div>
+            </div>
+
+            <!-- Images -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Image</label>
+                    {{ form.image|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">External Image URL</label>
+                    {{ form.external_image_url|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Features</label>
+                    {{ form.features|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Accessibility Features</label>
+                    {{ form.accessibility_features|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <!-- Documents Upload -->
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Logbook Copy</label>
+                    {{ form.logbook_copy|add_class:"form-control" }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Insurance Copy</label>
+                    {{ form.insurance_copy|add_class:"form-control" }}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Inspection Certificate</label>
+                    {{ form.inspection_certificate|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <!-- Expiry Dates -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Insurance Expiry</label>
+                    {{ form.insurance_expiry|add_class:"form-control" }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Inspection Expiry</label>
+                    {{ form.inspection_expiry|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button type="submit" class="btn btn-primary mt-3">
+                <i class="fas fa-save me-1"></i> Save Vehicle
+            </button>
+        </form>
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const imageInput = document.getElementById("id_image");
+    const imageUrlInput = document.getElementById("id_external_image_url");
+    const preview = document.getElementById("imagePreview");
+
+    // Upload preview
+    if (imageInput) {
+        imageInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // External URL preview
+    if (imageUrlInput) {
+        imageUrlInput.addEventListener("input", function () {
+            if (this.value.trim() !== "") {
+                preview.src = this.value;
+                preview.style.display = "block";
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

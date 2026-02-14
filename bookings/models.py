@@ -2220,3 +2220,13 @@ class VehicleDestinationPrice(models.Model):
     def price_return_display(self):
         """Display price in both USD and KSH."""
         return f"${self.price_return_usd} USD (≈ KES {self.price_return_ksh:.2f})"
+
+from django.db import models
+
+class Receipt(models.Model):
+    booking = models.ForeignKey("Booking", on_delete=models.CASCADE, related_name="receipts")
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Receipt #{self.id} for {self.booking.booking_reference}"

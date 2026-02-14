@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Vehicles</h3>
+    <a href="{% url 'vehicles:add' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Add Vehicle
+    </a>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} modern-alert mb-3">
+        <i class="fas fa-info-circle me-2"></i>{{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<!-- Search & Filters -->
+<div class="row mb-3">
+    <div class="col-md-4">
+        <form method="get" class="d-flex">
+            <input type="text" name="search" class="form-control me-2" placeholder="Search make, model, license" value="{{ search_query }}">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i>Search</button>
+        </form>
+    </div>
+
+    <div class="col-md-8">
+        <form method="get" class="d-flex justify-content-end">
+            <select name="vehicle_type" class="form-select me-2" onchange="this.form.submit()">
+                <option value="all">All Vehicle Types</option>
+                {% for vt in vehicle_types %}
+                    <option value="{{ vt }}" {% if selected_vehicle_type == vt %}selected{% endif %}>{{ vt }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="fuel_type" class="form-select me-2" onchange="this.form.submit()">
+                <option value="all">All Fuel Types</option>
+                {% for ft in fuel_types %}
+                    <option value="{{ ft }}" {% if selected_fuel_type == ft %}selected{% endif %}>{{ ft }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="is_active" class="form-select" onchange="this.form.submit()">
+                <option value="all" {% if selected_is_active == 'all' %}selected{% endif %}>All Status</option>
+                <option value="True" {% if selected_is_active == 'True' %}selected{% endif %}>Active</option>
+                <option value="False" {% if selected_is_active == 'False' %}selected{% endif %}>Inactive</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Vehicles Table -->
+<div class="modern-card">
+    <div class="card-body modern-body p-0">
+        <div class="table-responsive">
+            <table class="table modern-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Full Name</th>
+                        <th>License Plate</th>
+                        <th>Type</th>
+                        <th>Fuel</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                        <th>Documents</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in page_obj %}
+                    <tr>
+                        <!-- Image Preview -->
+                        <td>
+                            {% if vehicle.image %}
+                                <img src="{{ vehicle.image.url }}" style="max-height:50px;border-radius:5px;">
+                            {% elif vehicle.external_image_url %}
+                                <img src="{{ vehicle.external_image_url }}" style="max-height:50px;border-radius:5px;">
+                            {% else %}
+                                <span class="text-muted">No Image</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ vehicle.full_name }}</td>
+                        <td>{{ vehicle.license_plate }}</td>
+                        <td>{{ vehicle.vehicle_type }}</td>
+                        <td>{{ vehicle.fuel_type }}</td>
+                        <td>{{ vehicle.capacity }}</td>
+
+                        <!-- Active/Inactive Status -->
+                        <td>
+                            {% if vehicle.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-warning">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Documents Status -->
+                        <td>
+                            {% with today=now "Y-m-d" %}
+                                {% if vehicle.insurance_expiry and vehicle.insurance_expiry > today and vehicle.inspection_expiry and vehicle.inspection_expiry > today %}
+                                    <span class="badge bg-success">Valid</span>
+                                {% elif vehicle.insurance_expiry and vehicle.insurance_expiry > today or vehicle.inspection_expiry and vehicle.inspection_expiry > today %}
+                                    <span class="badge bg-warning">Partial</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Expired</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td>
+                            <a href="{% url 'vehicles:edit' vehicle.id %}" class="btn btn-sm btn-outline-primary mb-1">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'vehicles:toggle_status' vehicle.id %}" class="btn btn-sm {% if vehicle.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+                                {% if vehicle.is_active %}Deactivate{% else %}Activate{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-car fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No vehicles available</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Vehicle pagination">
+    <ul class="pagination justify-content-center mt-3">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&vehicle_type={{ selected_vehicle_type }}&fuel_type={{ selected_fuel_type }}&is_active={{ selected_is_active }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}&search={{ search_query }}&vehicle_type={{ selected_vehicle_type }}&fuel_type={{ selected_fuel_type }}&is_active={{ selected_is_active }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&vehicle_type={{ selected_vehicle_type }}&fuel_type={{ selected_fuel_type }}&is_active={{ selected_is_active }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

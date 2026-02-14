@@ -145,7 +145,7 @@ def home(request):
         "recent_destinations": recent_destinations,
         "testimonials": testimonials,
     }
-    return render(request, "home.html", context)
+    return render(request, "nairobi_airport_transfers.html", context)
 
 
 def book_online(request):
@@ -373,142 +373,41 @@ class TourDetailView(DetailView):
 # =============================================================================
 # PAYMENT PROCESSING VIEWS
 # =============================================================================
-
 @require_http_methods(["GET", "POST"])
 def tour_payment(request, tour_id):
-    """Handle checkout form and Paystack payment for a specific tour."""
-    tour = get_object_or_404(Tour, id=tour_id, is_approved=True, available=True)
-    session_manager = PaymentSessionManager(request.session)
-    paystack_service = PaystackService()
+    print("✅ TOUR PAYMENT VIEW HIT:", tour_id)
+    try:
+        tour = get_object_or_404(Tour, id=tour_id, is_approved=True, available=True)
+        print("✅ Tour fetched:", tour)
 
-    if request.method == "POST":
-        form = GuestCheckoutForm(request.POST)
+        # Initialize session manager
+        try:
+            session_manager = PaymentSessionManager(request.session)
+            payment = session_manager.get_pending_payment()
+            print("✅ Payment from session:", payment)
+        except Exception as e:
+            print("❌ Session manager error:", e)
+            payment = None
 
-        if form.is_valid():
-            form_data = form.cleaned_data
+        # Fetch other tours
+        other_tours = Tour.objects.filter(is_approved=True, available=True).exclude(id=tour_id).order_by('-id')[:6]
+        print("✅ Other tours:", list(other_tours))
 
-            # Additional validation
-            validation_errors = validate_payment_data(form_data, tour)
-            if validation_errors:
-                return create_error_response("Validation failed", validation_errors)
-
-            # Calculate total amount
-            total_amount = tour.price_per_person * (
-                    form_data.get("adults", 1) + form_data.get("children", 0)
-            )
-
-            try:
-                with transaction.atomic():
-                    # Check for existing pending payment
-                    existing_payment = Payment.objects.filter(
-                        tour=tour,
-                        guest_email=form_data["email"],
-                        status=PaymentStatus.PENDING
-                    ).first()
-
-                    if existing_payment:
-                        payment = existing_payment
-                        session_manager.set_pending_payment(payment)
-
-                        log_payment_event(
-                            "existing_pending_payment",
-                            str(payment.pk),
-                            email=form_data["email"],
-                            phone=form_data["phone"],
-                            tour_id=tour_id
-                        )
-
-                        return create_success_response({
-                            'payment_id': str(payment.pk),
-                            'message': 'Existing payment found'
-                        })
-
-                    # Create new payment
-                    payment = create_payment_record(tour, form_data, total_amount)
-
-                    # Initialize Paystack transaction
-                    response_data, reference = paystack_service.initialize_transaction(
-                        payment, settings.PAYSTACK['CALLBACK_URL']
-                    )
-
-                    if response_data.get('status'):
-                        # Save reference to payment
-                        payment.reference = reference
-                        payment.save()
-
-                        # Update session
-                        session_manager.set_pending_payment(payment)
-
-                        log_payment_event(
-                            "paystack_initialized",
-                            str(payment.pk),
-                            email=form_data["email"],
-                            phone=form_data["phone"],
-                            reference=reference
-                        )
-
-                        return create_success_response({
-                            'authorization_url': response_data['data']['authorization_url'],
-                            'reference': reference,
-                            'payment_id': str(payment.pk)
-                        })
-                    else:
-                        # Delete payment if initialization failed
-                        payment.delete()
-                        error_msg = response_data.get('message', 'Payment initialization failed')
-
-                        log_payment_event(
-                            "paystack_init_failed",
-                            str(payment.pk),
-                            error=error_msg
-                        )
-
-                        return create_error_response(error_msg)
-
-            except Exception as e:
-                logger.exception(f"Payment processing error: {e}")
-                log_payment_event(
-                    "payment_processing_error",
-                    "unknown",
-                    error=str(e),
-                    tour_id=tour_id
-                )
-                return create_error_response('Payment processing error. Please try again.')
-
-        else:
-            log_payment_event(
-                "form_validation_failed",
-                "unknown",
-                errors=form.errors.as_json(),
-                tour_id=tour_id
-            )
-            return create_error_response(
-                'Please correct the errors below.',
-                {'errors': form.errors}
-            )
-
-    # GET request - render form
-    form = GuestCheckoutForm()
-    payment = session_manager.get_pending_payment()
-
-    if payment and payment.tour_id != tour_id:
-        # Clear session if payment is for different tour
-        session_manager.clear_payment_session()
-        payment = None
-
-    return render(
-        request,
-        "payments/tour_payment.html",
-        {
+        return render(request, "payments/tour_payment.html", {
             "tour": tour,
-            "form": form,
+            "form": None,
             "payment": payment,
-            "public_key": settings.PAYSTACK['PUBLIC_KEY'],
-            "is_guest_payment": session_manager.has_pending_payment(),
+            "public_key": settings.PAYSTACK.get('PUBLIC_KEY', ''),
+            "is_guest_payment": bool(payment),
             "today": timezone.now().date(),
-        },
-    )
+            "other_tours": other_tours,
+        })
 
+    except Exception as e:
+        import traceback
+        print("❌ VIEW EXCEPTION:", e)
+        traceback.print_exc()
+        return HttpResponse("View error occurred. Check server logs.", status=500)
 
 @require_POST
 def guest_checkout(request, tour_id):
@@ -1047,128 +946,161 @@ def check_payment_status(request, payment_id):
 
 
 # =============================================================================
-# DRIVER VIEWS
+# DRIVER / ADMIN DASHBOARD VIEW
 # =============================================================================
-@driver_required
-def driver_dashboard(request):
-    """Driver dashboard with full error handling."""
-    try:
-        # ------------------- Driver -------------------
-        try:
-            driver = request.user.driver_profile
-        except Exception as e:
-            logger.error(f"No driver profile for user {request.user.id}: {e}")
-            return render(request, "drivers/dashboard.html", {"error": "Driver profile not found."})
 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, Count, Q
+from django.utils import timezone
+from datetime import timedelta
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+@login_required(login_url="/driver/login/")
+def driver_dashboard(request):
+    """
+    Unified dashboard:
+    - Driver only
+    - Admin only
+    - Driver + Admin
+    """
+    try:
+        user = request.user
         today = timezone.now().date()
 
-        # ------------------- Trips -------------------
-        today_trips = Trip.objects.filter(
-            driver=driver,
-            date=today,
-            status__in=["SCHEDULED", "IN_PROGRESS"]
-        ).order_by("start_time")
+        is_driver = hasattr(user, "driver_profile")
+        is_admin = user.is_staff or user.is_superuser
 
-        upcoming_trips = Trip.objects.filter(
-            driver=driver,
-            date__gt=today,
-            status="SCHEDULED"
-        ).order_by("date")[:10]
+        # ---------------- ROLE RESOLUTION ----------------
+        if is_driver and is_admin:
+            role = "driver-admin"
+        elif is_driver:
+            role = "driver"
+        elif is_admin:
+            role = "admin"
+        else:
+            return render(
+                request,
+                "drivers/dashboard.html",
+                {"error": "You do not have permission to access this dashboard."}
+            )
 
-        completed_trips = Trip.objects.filter(
-            driver=driver,
-            status="COMPLETED"
-        ).order_by("-date", "-end_time")[:5]
-
-        # Aggregate stats
-        trip_stats = Trip.objects.filter(driver=driver).aggregate(
-            total_earnings=Sum("earnings") or 0,
-            total_trips=Count("id") or 0,
-            completed_trips=Count("id", filter=Q(status="COMPLETED")) or 0,
-            cancelled_trips=Count("id", filter=Q(status="CANCELLED")) or 0,
-        )
-
-        # ------------------- Tours -------------------
-        # Get all tours for stats (do NOT slice yet)
-        all_tours = Tour.objects.filter(created_by=request.user) \
-            .select_related("category") \
-            .prefetch_related("destinations") \
-            .order_by("-created_at")
-
-        # Compute tour statistics safely
-        tour_stats = {
-            "total": all_tours.count(),
-            "approved": all_tours.filter(is_approved=True).count(),
-            "pending": all_tours.filter(is_approved=False).count(),
-            "active": all_tours.filter(available=True, is_approved=True).count(),
-        }
-
-        # Slice only for display in the dashboard (e.g., latest 10 tours)
-        tours = all_tours[:10]
-
-        # ------------------- Bookings -------------------
-        recent_bookings = Booking.objects.filter(
-            tour__created_by=request.user,
-            payment__status=PaymentStatus.SUCCESS
-        ).select_related("tour", "booking_customer").order_by("-created_at")[:5]
-
-        upcoming_bookings = Booking.objects.filter(
-            tour__created_by=request.user,
-            travel_date__gte=today,
-            payment__status=PaymentStatus.SUCCESS
-        ).select_related("tour", "booking_customer").order_by("travel_date")[:5]
-
-        # ------------------- Vehicle -------------------
-        vehicle_status = None
-        if hasattr(driver, "vehicle") and driver.vehicle:
-            vehicle = driver.vehicle
-            status = getattr(vehicle, "is_active", None)
-            status_text = "Unknown"
-            if status is True:
-                status_text = "Available"
-            elif status is False:
-                status_text = "Unavailable"
-
-            vehicle_status = {
-                "name": f"{getattr(vehicle, 'make', 'N/A')} {getattr(vehicle, 'model', 'N/A')}",
-                "plate": getattr(vehicle, "license_plate", "N/A"),
-                "status": status_text,
-                "next_maintenance": getattr(vehicle, "next_maintenance_date", None),
-                "maintenance_due": getattr(vehicle, "next_maintenance_date", None) and vehicle.next_maintenance_date <= today + timedelta(days=7),
-            }
-
-        # ------------------- Reviews -------------------
-        reviews_qs = Review.objects.filter(booking__driver=driver).select_related("booking__booking_customer", "booking")
-        reviews = reviews_qs.order_by("-created_at")[:10]
-
-        # ------------------- Destinations -------------------
-        destinations = Destination.objects.all()
-
-        # ------------------- Context -------------------
         context = {
-            "driver": driver,
-            "today_trips": today_trips,
-            "upcoming_trips": upcoming_trips,
-            "completed_trips": completed_trips,
-            "recent_bookings": recent_bookings,
-            "upcoming_bookings": upcoming_bookings,
-            "vehicle_status": vehicle_status,
-            "total_earnings": trip_stats.get("total_earnings", 0),
-            "total_trips": trip_stats.get("total_trips", 0),
-            "completed_trips_count": trip_stats.get("completed_trips", 0),
-            "cancelled_trips_count": trip_stats.get("cancelled_trips", 0),
-            "tours": tours,
-            "tour_stats": tour_stats,
-            "reviews": reviews,
-            "destinations": destinations,
+            "user": user,
+            "role": role,
         }
+
+        # ==========================================================
+        # DRIVER DATA (Driver OR Driver-Admin)
+        # ==========================================================
+        if is_driver:
+            driver = user.driver_profile
+
+            today_trips = Trip.objects.filter(
+                driver=driver,
+                date=today,
+                status__in=["SCHEDULED", "IN_PROGRESS"]
+            ).order_by("start_time")
+
+            upcoming_trips = Trip.objects.filter(
+                driver=driver,
+                date__gt=today,
+                status="SCHEDULED"
+            ).order_by("date")[:10]
+
+            completed_trips = Trip.objects.filter(
+                driver=driver,
+                status="COMPLETED"
+            ).order_by("-date", "-end_time")[:5]
+
+            trip_stats = Trip.objects.filter(driver=driver).aggregate(
+                total_earnings=Sum("earnings"),
+                total_trips=Count("id"),
+                completed_trips=Count("id", filter=Q(status="COMPLETED")),
+                cancelled_trips=Count("id", filter=Q(status="CANCELLED")),
+            )
+
+            # ---------------- Vehicle ----------------
+            vehicle_status = None
+            if getattr(driver, "vehicle", None):
+                vehicle = driver.vehicle
+                last_maintenance = getattr(vehicle, "last_maintenance_date", None)
+                interval_days = getattr(vehicle, "maintenance_interval_days", 0)
+
+                if last_maintenance and interval_days:
+                    next_maintenance = last_maintenance + timedelta(days=interval_days)
+                    maintenance_due = next_maintenance <= today + timedelta(days=7)
+                else:
+                    next_maintenance = None
+                    maintenance_due = False
+
+                vehicle_status = {
+                    "name": f"{vehicle.make or 'N/A'} {vehicle.model or 'N/A'}",
+                    "plate": vehicle.license_plate or "N/A",
+                    "status": "Available" if vehicle.is_active else "Unavailable",
+                    "next_maintenance": next_maintenance,
+                    "maintenance_due": maintenance_due,
+                }
+
+            context.update({
+                "driver": driver,
+                "today_trips": today_trips,
+                "upcoming_trips": upcoming_trips,
+                "completed_trips": completed_trips,
+                "completed_trips_count": trip_stats["completed_trips"] or 0,
+                "cancelled_trips_count": trip_stats["cancelled_trips"] or 0,
+                "total_earnings": trip_stats["total_earnings"] or 0,
+                "vehicle_status": vehicle_status,
+            })
+
+        # ==========================================================
+        # ADMIN DATA (Admin OR Driver-Admin)
+        # ==========================================================
+        if is_admin:
+            trip_stats = Trip.objects.aggregate(
+                total_earnings=Sum("earnings"),
+                total_trips=Count("id"),
+                completed_trips=Count("id", filter=Q(status="COMPLETED")),
+                cancelled_trips=Count("id", filter=Q(status="CANCELLED")),
+            )
+
+            tour_stats = Tour.objects.aggregate(
+                total=Count("id"),
+                approved=Count("id", filter=Q(is_approved=True)),
+                pending=Count("id", filter=Q(is_approved=False)),
+                active=Count("id", filter=Q(is_approved=True, available=True)),
+            )
+
+            context.update({
+                "trip_stats": trip_stats,
+                "tour_stats": tour_stats,
+                "total_drivers": Driver.objects.count(),
+                "total_vehicles": Vehicle.objects.count(),
+                "total_bookings": Booking.objects.count(),
+                "recent_trips": Trip.objects.select_related(
+                    "driver", "booking"
+                ).order_by("-created_at")[:10],
+                "recent_bookings": Booking.objects.select_related(
+                    "booking_customer", "tour"
+                ).order_by("-created_at")[:10],
+            })
+
+        # ==========================================================
+        # SHARED DATA
+        # ==========================================================
+        context["destinations"] = Destination.objects.all()
 
         return render(request, "drivers/dashboard.html", context)
 
     except Exception as e:
-        logger.exception(f"Driver dashboard failed: {e}")
-        return render(request, "drivers/dashboard.html", {"error": "An unexpected error occurred. Please check the logs."})
-
+        logger.exception(f"Dashboard error: {e}")
+        return render(
+            request,
+            "drivers/dashboard.html",
+            {"error": "An unexpected error occurred. Please contact support."}
+        )
 
 import os
 from django.http import HttpResponse
@@ -2213,4 +2145,5 @@ def vehicle_destination_prices_api(request):
     except Exception as e:
         logger.exception(f"Error fetching vehicle destination prices: {e}")
         return JsonResponse({'error': 'Failed to fetch prices', 'results': [], 'count': 0}, status=500)
+
 

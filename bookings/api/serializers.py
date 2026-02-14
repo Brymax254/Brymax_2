@@ -29,17 +29,18 @@ from bookings.models import Vehicle
 
 class VehicleSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    price_usd = serializers.ReadOnlyField()  # comes from @property on the model
 
     class Meta:
         model = Vehicle
         fields = [
             'id', 'make', 'model', 'year', 'color', 'license_plate',
             'vehicle_type', 'fuel_type', 'capacity', 'features',
-            'accessibility_features', 'insurance_expiry','price_usd',
-            'price_ksh','inspection_expiry', 'is_active', 'carbon_footprint_per_km',
-            'image_url'  # Added missing comma here
+            'accessibility_features', 'insurance_expiry', 'inspection_expiry',
+            'is_active', 'carbon_footprint_per_km',
+            'image_url', 'price_usd'
         ]
-        read_only_fields = ('id', 'updated_at')
+        read_only_fields = ('id',)
 
     def get_image_url(self, obj):
         request = self.context.get('request')

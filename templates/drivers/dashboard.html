@@ -2,1375 +2,611 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Driver Dashboard | Safari Bookings</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
+    <title>Dashboard - Transport Management System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
-        .sidebar { height: 100vh; background: #1f2937; color: white; padding: 1rem; position: fixed; width: 16.666667%; }
-        .sidebar a { color: white; text-decoration: none; display: block; padding: 0.5rem 0; }
-        .sidebar a:hover { background: #374151; border-radius: 5px; }
-        .card { margin-bottom: 1rem; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-action { margin-right: 0.3rem; }
-        table th, table td { vertical-align: middle; }
-        .modal-dialog { max-width: 700px; }
-        .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500; }
-        .status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-        .status-confirmed { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-cancelled { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .status-completed { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-        .status-scheduled { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
-        .status-in-progress { background-color: #d6d8db; color: #383d41; border: 1px solid #c6c8ca; }
-        .status-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-failed { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .main-content { margin-left: 16.666667%; }
-        .form-section { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .form-section h5 { border-bottom: 2px solid #dee2e6; padding-bottom: 0.5rem; margin-bottom: 1rem; }
-        .table-responsive { background: white; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .action-buttons { display: flex; gap: 0.3rem; }
-        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --light-bg: #f8f9fa;
+            --sidebar-width: 260px;
+            --topbar-height: 70px;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        /* Top Navigation Bar */
+        .top-navbar {
+            height: var(--topbar-height);
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1030;
+            padding: 0 1.5rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            position: fixed;
+            top: var(--topbar-height);
+            left: 0;
+            bottom: 0;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            z-index: 1020;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .sidebar-menu .nav-item {
+            margin: 0.3rem 0;
+        }
+
+        .sidebar-menu .nav-link {
+            color: #555;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-menu .nav-link:hover,
+        .sidebar-menu .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.08);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .sidebar-menu .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--topbar-height);
+            padding: 2rem;
+            min-height: calc(100vh - var(--topbar-height));
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -var(--sidebar-width);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content.active {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+        }
+
+        .modern-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        .card-header.modern-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 1.2rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body.modern-body {
+            padding: 1.5rem;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Tables */
+        .modern-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .modern-table thead {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .modern-table th {
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .modern-table td {
+            padding: 1rem 1.5rem;
+            border-color: #f1f1f1;
+        }
+
+        .modern-table tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.04);
+        }
+
+        /* Badges */
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        /* Toggle button for mobile */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        /* Error Alert */
+        .modern-alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Earnings Display */
+        .earnings-display {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .secondary-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-2 sidebar">
-            <h4 class="mb-3"><i class="fas fa-car me-2"></i>Driver Panel</h4>
-            <hr>
-            <a href="#dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            <a href="#bookings"><i class="fas fa-calendar-check me-2"></i>Bookings</a>
-            <a href="#trips"><i class="fas fa-route me-2"></i>Trips</a>
-            <a href="#payments"><i class="fas fa-credit-card me-2"></i>Payments</a>
-            <a href="#vehicles"><i class="fas fa-car-side me-2"></i>Vehicles</a>
-            <a href="#profile"><i class="fas fa-user me-2"></i>Profile</a>
-            <hr>
-            <div class="mt-3">
-                <button id="refreshBtn" class="btn btn-outline-light w-100 mb-2">
-                    <i class="fas fa-sync-alt me-1"></i> Refresh
-                </button>
-                <button id="logoutBtn" class="btn btn-danger w-100">
-                    <i class="fas fa-sign-out-alt me-1"></i> Logout
-                </button>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg top-navbar">
+        <div class="container-fluid">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shuttle-van me-2"></i>TransitPro
+            </a>
+
+            <div class="d-flex align-items-center ms-auto">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        {% if user.get_full_name %}
+                            {{ user.get_full_name|slice:"0:1" }}
+                        {% else %}
+                            {{ user.username|slice:"0:1" }}
+                        {% endif %}
+                    </div>
+                    <div class="user-info d-none d-md-block">
+                        <div class="fw-bold">
+                            {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+                        </div>
+                        <small class="text-muted">
+                            {% if role == "driver" %}Driver
+                            {% elif role == "admin" %}Administrator
+                            {% elif role == "driver-admin" %}Driver Admin
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h6 class="text-uppercase text-muted mb-0">Navigation</h6>
+        </div>
+
+        <nav class="sidebar-menu">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+
+                {% if role == "driver" or role == "driver-admin" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-route"></i> My Trips
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-car"></i> Vehicle
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-money-bill-wave"></i> Earnings
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if role == "admin" or role == "driver-admin" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-calendar-check"></i> Bookings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-users"></i> Drivers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="nav-item mt-4">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Error Display -->
+        {% if error %}
+        <div class="alert alert-danger modern-alert mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Welcome Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-2">Welcome back,
+                    <span class="text-primary">
+                        {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+                    </span>
+                </h1>
+                <p class="text-muted">
+                    <i class="fas fa-calendar-day me-2"></i>{% now "F j, Y" %}
+                </p>
+            </div>
+            <div class="d-none d-md-block">
+                <span class="badge bg-primary px-3 py-2">
+                    <i class="fas fa-user-tag me-2"></i>
+                    {% if role == "driver" %}Driver
+                    {% elif role == "admin" %}Administrator
+                    {% elif role == "driver-admin" %}Driver & Admin
+                    {% endif %}
+                </span>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="col-md-10 main-content p-4">
-            <h2 class="mb-2">Welcome, <span id="driverName" class="text-primary">Driver</span></h2>
-            <p class="text-muted mb-4"><i class="fas fa-id-card me-1"></i> Driver ID: <span id="driverId">Loading...</span></p>
-
-            <!-- Dashboard Stats -->
-            <div id="dashboard" class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card text-white bg-primary">
-                        <div class="card-body">
-                            <h5><i class="fas fa-calendar me-2"></i>Total Bookings</h5>
-                            <h3 id="totalBookings">0</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-success">
-                        <div class="card-body">
-                            <h5><i class="fas fa-check-circle me-2"></i>Completed Trips</h5>
-                            <h3 id="completedTrips">0</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-warning">
-                        <div class="card-body">
-                            <h5><i class="fas fa-clock me-2"></i>Pending Bookings</h5>
-                            <h3 id="pendingBookings">0</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-info">
-                        <div class="card-body">
-                            <h5><i class="fas fa-money-bill-wave me-2"></i>Total Earnings</h5>
-                            <h3 id="totalEarnings">KES 0</h3>
-                        </div>
-                    </div>
+        <!-- DRIVER STATISTICS -->
+        {% if role == "driver" or role == "driver-admin" %}
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+                    <i class="fas fa-car"></i>
+                    <div class="stat-value">{{ today_trips|length }}</div>
+                    <div class="stat-label">Today's Trips</div>
                 </div>
             </div>
 
-            <!-- Bookings Section -->
-            <div id="bookings" class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4><i class="fas fa-calendar-check me-2"></i>My Bookings</h4>
-                    <button class="btn btn-primary" onclick="openBookingForm()">
-                        <i class="fas fa-plus me-1"></i> Add Booking
-                    </button>
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Today</small>
-                                <h6 class="mb-0" id="todayBookings">0 bookings</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">This Week</small>
-                                <h6 class="mb-0" id="weekBookings">0 bookings</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Revenue</small>
-                                <h6 class="mb-0" id="bookingRevenue">KES 0</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Avg. Price</small>
-                                <h6 class="mb-0" id="avgBookingPrice">KES 0</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Reference</th>
-                                <th>Customer</th>
-                                <th>Travel Date</th>
-                                <th>Status</th>
-                                <th>Total Price</th>
-                                <th>Paid</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bookingList"></tbody>
-                    </table>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4cc9f0, #3a86ff);">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div class="stat-value">{{ upcoming_trips|length }}</div>
+                    <div class="stat-label">Upcoming Trips</div>
                 </div>
             </div>
 
-            <!-- Trips Section -->
-            <div id="trips" class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4><i class="fas fa-route me-2"></i>My Trips</h4>
-                    <button class="btn btn-primary" onclick="openTripForm()">
-                        <i class="fas fa-plus me-1"></i> Add Trip
-                    </button>
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Today</small>
-                                <h6 class="mb-0" id="todayTrips">0 trips</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Monthly Earnings</small>
-                                <h6 class="mb-0" id="monthEarnings">KES 0</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Avg. Earnings</small>
-                                <h6 class="mb-0" id="avgTripEarnings">KES 0</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Distance</small>
-                                <h6 class="mb-0" id="totalDistance">0 km</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Trip ID</th>
-                                <th>Booking Ref</th>
-                                <th>Destination</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Earnings</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tripList"></tbody>
-                    </table>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #7209b7, #560bad);">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="stat-value">{{ completed_trips_count }}</div>
+                    <div class="stat-label">Completed Trips</div>
                 </div>
             </div>
 
-            <!-- Payments Section -->
-            <div id="payments" class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4><i class="fas fa-credit-card me-2"></i>Payments</h4>
-                    <button class="btn btn-primary" onclick="openPaymentForm()">
-                        <i class="fas fa-plus me-1"></i> Add Payment
-                    </button>
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Total Received</small>
-                                <h6 class="mb-0" id="totalReceived">KES 0</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Pending</small>
-                                <h6 class="mb-0" id="pendingPayments">0 payments</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Success Rate</small>
-                                <h6 class="mb-0" id="paymentSuccessRate">0%</h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Avg. Amount</small>
-                                <h6 class="mb-0" id="avgPayment">KES 0</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Booking Ref</th>
-                                <th>Amount</th>
-                                <th>Provider</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentList"></tbody>
-                    </table>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #f72585, #b5179e);">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <div class="stat-value">KES {{ total_earnings|floatformat:2 }}</div>
+                    <div class="stat-label">Total Earnings</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Vehicles Section -->
-            <div id="vehicles" class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4><i class="fas fa-car-side me-2"></i>My Vehicles</h4>
-                    <button class="btn btn-primary" onclick="openVehicleForm()">
-                        <i class="fas fa-plus me-1"></i> Add Vehicle
-                    </button>
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Active Vehicles</small>
-                                <h6 class="mb-0" id="activeVehicles">0</h6>
+        <!-- Vehicle Status -->
+        {% if vehicle_status %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="modern-card mb-4">
+                    <div class="card-header modern-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-car-side me-2"></i>Vehicle Status</span>
+                        <span class="status-badge {% if vehicle_status.status == 'Active' %}bg-success{% else %}bg-warning{% endif %}">
+                            {{ vehicle_status.status }}
+                        </span>
+                    </div>
+                    <div class="card-body modern-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <small class="secondary-text">Vehicle Name</small>
+                                    <div class="fw-bold">{{ vehicle_status.name }}</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Total Capacity</small>
-                                <h6 class="mb-0" id="totalCapacity">0 seats</h6>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <small class="secondary-text">License Plate</small>
+                                    <div class="fw-bold">{{ vehicle_status.plate }}</div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body py-2">
-                                <small class="text-muted">Fuel Efficiency</small>
-                                <h6 class="mb-0" id="avgFuelEfficiency">0 km/l</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Vehicle</th>
-                                <th>License Plate</th>
-                                <th>Type</th>
-                                <th>Capacity</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="vehicleList"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Profile Section -->
-            <div id="profile" class="mb-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4><i class="fas fa-user me-2"></i>My Profile</h4>
-                    <div>
-                        <button class="btn btn-outline-primary me-2" onclick="openProfileForm()">
-                            <i class="fas fa-edit me-1"></i> Edit Profile
-                        </button>
-                        <button class="btn btn-outline-success" onclick="toggleAvailability()">
-                            <i class="fas fa-toggle-on me-1"></i> Toggle Availability
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row" id="profileCard"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h6 class="card-title"><i class="fas fa-chart-line me-2"></i>Performance</h6>
-                                <div class="mb-2">
-                                    <small class="text-muted">Rating</small>
-                                    <div class="d-flex align-items-center">
-                                        <div class="text-warning">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star-half-alt"></i>
-                                        </div>
-                                        <span class="ms-2" id="driverRating">4.5/5</span>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <small class="secondary-text">Next Maintenance</small>
+                                    <div class="fw-bold {% if vehicle_status.maintenance_due %}text-danger{% endif %}">
+                                        {{ vehicle_status.next_maintenance }}
+                                        {% if vehicle_status.maintenance_due %}
+                                        <i class="fas fa-exclamation-triangle ms-2 text-danger"></i>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                <div class="mb-2">
-                                    <small class="text-muted">Response Time</small>
-                                    <h6 class="mb-0" id="responseTime">15 min</h6>
-                                </div>
-                                <div class="mb-2">
-                                    <small class="text-muted">Completion Rate</small>
-                                    <h6 class="mb-0" id="completionRate">98%</h6>
-                                </div>
-                                <div>
-                                    <small class="text-muted">Member Since</small>
-                                    <h6 class="mb-0" id="memberSince">2023</h6>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-    </div>
-</div>
+        {% endif %}
 
-<!-- Modal for Forms -->
-<div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" id="formContent"></div>
-    </div>
-</div>
-
-<!-- Success Toast -->
-<div class="toast-container position-fixed top-0 end-0 p-3">
-    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-success text-white">
-            <strong class="me-auto"><i class="fas fa-check-circle me-2"></i>Success</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body" id="successMessage">Operation completed successfully!</div>
-    </div>
-</div>
-
-<!-- Error Toast -->
-<div class="toast-container position-fixed top-0 end-0 p-3">
-    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-danger text-white">
-            <strong class="me-auto"><i class="fas fa-exclamation-circle me-2"></i>Error</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body" id="errorMessage">An error occurred!</div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const apiHeaders = {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie('csrftoken')
-    };
-    let currentDriverId = null;
-    let allDestinations = [];
-    let allCustomers = [];
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    function showToast(type, message) {
-        if (type === 'success') {
-            document.getElementById('successMessage').textContent = message;
-            const toast = new bootstrap.Toast(document.getElementById('successToast'));
-            toast.show();
-        } else {
-            document.getElementById('errorMessage').textContent = message;
-            const toast = new bootstrap.Toast(document.getElementById('errorToast'));
-            toast.show();
-        }
-    }
-
-    function getStatusBadge(status) {
-        const statusMap = {
-            'PENDING': 'status-pending',
-            'CONFIRMED': 'status-confirmed',
-            'CANCELLED': 'status-cancelled',
-            'COMPLETED': 'status-completed',
-            'SCHEDULED': 'status-scheduled',
-            'IN_PROGRESS': 'status-in-progress',
-            'SUCCESS': 'status-success',
-            'FAILED': 'status-failed',
-            'PROCESSING': 'status-pending',
-            'REFUNDED': 'status-cancelled'
-        };
-        const className = statusMap[status] || 'status-pending';
-        return `<span class="status-badge ${className}">${status}</span>`;
-    }
-
-    async function loadDashboard() {
-        try {
-            // Load profile
-            const profileRes = await fetch('/api/driver/profile/', {
-                headers: apiHeaders,
-                credentials: 'include'
-            });
-            const profile = await profileRes.json();
-            currentDriverId = profile.id;
-
-            document.getElementById('driverName').textContent = profile.full_name ||
-                `${profile.user?.first_name || ''} ${profile.user?.last_name || ''}`.trim() ||
-                profile.user?.username || 'Driver';
-            document.getElementById('driverId').textContent = `DRV-${profile.id.toString().padStart(4, '0')}`;
-
-            // Load destinations and customers for dropdowns
-            const destRes = await fetch('/api/destinations/', { headers: apiHeaders });
-            allDestinations = await destRes.json();
-
-            const custRes = await fetch('/api/customers/', { headers: apiHeaders });
-            allCustomers = await custRes.json();
-
-            // Update profile card
-            document.getElementById('profileCard').innerHTML = `
-                <div class="col-md-6">
-                    <p><strong><i class="fas fa-user me-2"></i>Name:</strong> ${profile.full_name || 'N/A'}</p>
-                    <p><strong><i class="fas fa-phone me-2"></i>Phone:</strong> ${profile.phone_number || 'N/A'}</p>
-                    <p><strong><i class="fas fa-id-card me-2"></i>License:</strong> ${profile.license_number || 'N/A'}</p>
-                    <p><strong><i class="fas fa-car me-2"></i>Vehicle:</strong> ${profile.vehicle?.make || 'Not assigned'}</p>
-                    <p><strong><i class="fas fa-map-marker-alt me-2"></i>Location:</strong> ${profile.location || 'N/A'}</p>
+        <!-- Today's Trips Table -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="modern-card">
+                    <div class="card-header modern-header">
+                        <i class="fas fa-list me-2"></i>Today's Trips
+                    </div>
+                    <div class="card-body modern-body p-0">
+                        <div class="table-responsive">
+                            <table class="table modern-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Tour</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Status</th>
+                                        <th>Customer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for trip in today_trips %}
+                                    <tr>
+                                        <td class="fw-bold">{{ trip.tour.title }}</td>
+                                        <td>{{ trip.start_time }}</td>
+                                        <td>{{ trip.end_time }}</td>
+                                        <td>
+                                            <span class="status-badge
+                                                {% if trip.status == 'Completed' %}bg-success
+                                                {% elif trip.status == 'In Progress' %}bg-info
+                                                {% else %}bg-warning{% endif %}">
+                                                {{ trip.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ trip.booking.booking_customer.get_full_name }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <i class="fas fa-calendar-times fa-2x text-muted mb-3"></i>
+                                            <p class="text-muted">No trips scheduled for today</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <p><strong><i class="fas fa-star me-2"></i>Rating:</strong> ${profile.rating || '0.0'}/5.0</p>
-                    <p><strong><i class="fas fa-briefcase me-2"></i>Experience:</strong> ${profile.experience_years || 0} years</p>
-                    <p><strong><i class="fas fa-toggle-${profile.available ? 'on' : 'off'} me-2"></i>Status:</strong> ${profile.available ? 'Available' : 'Unavailable'}</p>
-                    <p><strong><i class="fas fa-shield-alt me-2"></i>Verified:</strong> ${profile.is_verified ? 'Yes' : 'No'}</p>
-                    <p><strong><i class="fas fa-calendar-alt me-2"></i>License Expiry:</strong> ${profile.license_expiry || 'N/A'}</p>
-                </div>
-            `;
-
-            // Load bookings
-            const bookingsRes = await fetch('/api/driver/bookings/', { headers: apiHeaders });
-            const bookings = await bookingsRes.json();
-            const bookingList = document.getElementById('bookingList');
-            bookingList.innerHTML = '';
-
-            let todayBookings = 0;
-            let weekBookings = 0;
-            let totalRevenue = 0;
-            const today = new Date().toISOString().split('T')[0];
-            const weekAgo = new Date();
-            weekAgo.setDate(weekAgo.getDate() - 7);
-
-            bookings.forEach(b => {
-                const bookingDate = new Date(b.created_at);
-                if (b.created_at?.startsWith(today)) todayBookings++;
-                if (bookingDate > weekAgo) weekBookings++;
-                totalRevenue += parseFloat(b.total_price || 0);
-
-                bookingList.innerHTML += `
-                    <tr>
-                        <td><strong>${b.booking_reference}</strong></td>
-                        <td>${b.booking_customer?.full_name || b.customer_name || 'N/A'}</td>
-                        <td>${b.travel_date}</td>
-                        <td>${getStatusBadge(b.status)}</td>
-                        <td><strong>KES ${parseFloat(b.total_price || 0).toFixed(2)}</strong></td>
-                        <td>${b.is_paid ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>'}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-outline-primary" onclick="openBookingForm(${JSON.stringify(b).replace(/"/g, '&quot;')})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteBooking('${b.booking_reference}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                ${b.status === 'PENDING' ? `
-                                    <button class="btn btn-sm btn-success" onclick="updateBookingStatus('${b.booking_reference}', 'CONFIRMED')">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                ` : ''}
-                                ${b.status === 'CONFIRMED' ? `
-                                    <button class="btn btn-sm btn-warning" onclick="updateBookingStatus('${b.booking_reference}', 'CANCELLED')">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('totalBookings').textContent = bookings.length;
-            document.getElementById('pendingBookings').textContent = bookings.filter(b => b.status === 'PENDING').length;
-            document.getElementById('todayBookings').textContent = `${todayBookings} bookings`;
-            document.getElementById('weekBookings').textContent = `${weekBookings} bookings`;
-            document.getElementById('bookingRevenue').textContent = `KES ${totalRevenue.toFixed(2)}`;
-            document.getElementById('avgBookingPrice').textContent = `KES ${(totalRevenue / (bookings.length || 1)).toFixed(2)}`;
-
-            // Load trips
-            const tripsRes = await fetch('/api/driver/trips/', { headers: apiHeaders });
-            const trips = await tripsRes.json();
-            const tripList = document.getElementById('tripList');
-            let completedCount = 0;
-            let totalEarnings = 0;
-            let totalDistance = 0;
-            let todayTrips = 0;
-
-            tripList.innerHTML = '';
-            trips.forEach(t => {
-                if (t.status === 'COMPLETED') completedCount++;
-                totalEarnings += parseFloat(t.earnings || 0);
-                totalDistance += parseFloat(t.distance || 0);
-                if (t.date === today) todayTrips++;
-
-                tripList.innerHTML += `
-                    <tr>
-                        <td>T${t.id.toString().padStart(4, '0')}</td>
-                        <td>${t.booking?.booking_reference || 'N/A'}</td>
-                        <td>${t.destination || 'N/A'}</td>
-                        <td>${t.date}</td>
-                        <td>${getStatusBadge(t.status)}</td>
-                        <td><strong>KES ${parseFloat(t.earnings || 0).toFixed(2)}</strong></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-outline-primary" onclick="openTripForm(${JSON.stringify(t).replace(/"/g, '&quot;')})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTrip(${t.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                ${t.status === 'SCHEDULED' ? `
-                                    <button class="btn btn-sm btn-success" onclick="updateTripStatus(${t.id}, 'IN_PROGRESS')">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                ` : ''}
-                                ${t.status === 'IN_PROGRESS' ? `
-                                    <button class="btn btn-sm btn-primary" onclick="updateTripStatus(${t.id}, 'COMPLETED')">
-                                        <i class="fas fa-flag-checkered"></i>
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('completedTrips').textContent = completedCount;
-            document.getElementById('totalEarnings').textContent = `KES ${totalEarnings.toFixed(2)}`;
-            document.getElementById('todayTrips').textContent = `${todayTrips} trips`;
-            document.getElementById('monthEarnings').textContent = `KES ${totalEarnings.toFixed(2)}`;
-            document.getElementById('avgTripEarnings').textContent = `KES ${(totalEarnings / (trips.length || 1)).toFixed(2)}`;
-            document.getElementById('totalDistance').textContent = `${totalDistance.toFixed(1)} km`;
-
-            // Load payments
-            const paymentsRes = await fetch('/api/driver/payments/', { headers: apiHeaders });
-            const payments = await paymentsRes.json();
-            const paymentList = document.getElementById('paymentList');
-            let totalReceived = 0;
-            let pendingPayments = 0;
-            let successfulPayments = 0;
-
-            paymentList.innerHTML = '';
-            payments.forEach(p => {
-                totalReceived += parseFloat(p.amount || 0);
-                if (p.status === 'PENDING') pendingPayments++;
-                if (p.status === 'SUCCESS') successfulPayments++;
-
-                paymentList.innerHTML += `
-                    <tr>
-                        <td>P${p.id.toString().padStart(4, '0')}</td>
-                        <td>${p.booking?.booking_reference || 'N/A'}</td>
-                        <td><strong>${p.currency || 'KES'} ${parseFloat(p.amount || 0).toFixed(2)}</strong></td>
-                        <td>${p.provider || 'N/A'}</td>
-                        <td>${getStatusBadge(p.status)}</td>
-                        <td>${new Date(p.created_at).toLocaleDateString()}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-outline-primary" onclick="openPaymentForm(${JSON.stringify(p).replace(/"/g, '&quot;')})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deletePayment(${p.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                ${p.status === 'PENDING' ? `
-                                    <button class="btn btn-sm btn-success" onclick="updatePaymentStatus(${p.id}, 'SUCCESS')">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('totalReceived').textContent = `KES ${totalReceived.toFixed(2)}`;
-            document.getElementById('pendingPayments').textContent = `${pendingPayments} payments`;
-            document.getElementById('paymentSuccessRate').textContent = `${payments.length ? Math.round((successfulPayments / payments.length) * 100) : 0}%`;
-            document.getElementById('avgPayment').textContent = `KES ${(totalReceived / (payments.length || 1)).toFixed(2)}`;
-
-            // Load vehicles
-            const vehiclesRes = await fetch('/api/driver/vehicles/', { headers: apiHeaders });
-            const vehicles = await vehiclesRes.json();
-            const vehicleList = document.getElementById('vehicleList');
-            let activeVehicles = 0;
-            let totalCapacity = 0;
-            let totalFuelEfficiency = 0;
-
-            vehicleList.innerHTML = '';
-            vehicles.forEach(v => {
-                if (v.is_active) activeVehicles++;
-                totalCapacity += parseInt(v.capacity || 0);
-                totalFuelEfficiency += parseFloat(v.fuel_efficiency || 0);
-
-                vehicleList.innerHTML += `
-                    <tr>
-                        <td>${v.make} ${v.model} ${v.year}</td>
-                        <td><strong>${v.license_plate}</strong></td>
-                        <td>${v.vehicle_type}</td>
-                        <td>${v.capacity} seats</td>
-                        <td>${v.is_active ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-outline-primary" onclick="openVehicleForm(${JSON.stringify(v).replace(/"/g, '&quot;')})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteVehicle(${v.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('activeVehicles').textContent = activeVehicles;
-            document.getElementById('totalCapacity').textContent = `${totalCapacity} seats`;
-            document.getElementById('avgFuelEfficiency').textContent = `${(totalFuelEfficiency / (vehicles.length || 1)).toFixed(1)} km/l`;
-
-        } catch (err) {
-            console.error('Dashboard loading error:', err);
-            if (err.status === 401) {
-                window.location.href = '/driver/login/';
-            }
-        }
-    }
-
-    // Generic Modal Function
-    function openModal(title, bodyHTML) {
-        document.getElementById('formContent').innerHTML = `
-            <div class="modal-header">
-                <h5 class="modal-title">${title}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">${bodyHTML}</div>
-        `;
-        new bootstrap.Modal(document.getElementById('formModal')).show();
-    }
+        </div>
+        {% endif %}
 
-    // Booking Form
-    function openBookingForm(data={}) {
-        const isEdit = data.booking_reference;
-        const customerOptions = allCustomers.map(c =>
-            `<option value="${c.id}" ${data.booking_customer?.id === c.id ? 'selected' : ''}>${c.full_name} (${c.email})</option>`
-        ).join('');
+        <!-- ADMIN STATISTICS -->
+        {% if role == "admin" or role == "driver-admin" %}
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+                    <i class="fas fa-bookmark"></i>
+                    <div class="stat-value">{{ total_bookings }}</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+            </div>
 
-        const destinationOptions = allDestinations.map(d =>
-            `<option value="${d.id}" ${data.destination?.id === d.id ? 'selected' : ''}>${d.name} - KES ${d.price_per_person}</option>`
-        ).join('');
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4cc9f0, #3a86ff);">
+                    <i class="fas fa-check-double"></i>
+                    <div class="stat-value">{{ trip_stats.completed_trips|default:0 }}</div>
+                    <div class="stat-label">Confirmed Bookings</div>
+                </div>
+            </div>
 
-        openModal(isEdit ? 'Edit Booking' : 'Add New Booking', `
-            <form id="bookingForm">
-                <div class="mb-3">
-                    <label class="form-label">Customer</label>
-                    <select name="booking_customer" class="form-select" required>
-                        <option value="">Select Customer</option>
-                        ${customerOptions}
-                    </select>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #7209b7, #560bad);">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="stat-value">KES {{ trip_stats.total_earnings|default:0|floatformat:2 }}</div>
+                    <div class="stat-label">Total Revenue</div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Destination</label>
-                    <select name="destination" class="form-select" required>
-                        <option value="">Select Destination</option>
-                        ${destinationOptions}
-                    </select>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Travel Date</label>
-                        <input type="date" name="travel_date" value="${data.travel_date || ''}" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Travel Time</label>
-                        <input type="time" name="travel_time" value="${data.travel_time || '09:00'}" class="form-control" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Adults</label>
-                        <input type="number" name="num_adults" value="${data.num_adults || 1}" min="1" class="form-control" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Children</label>
-                        <input type="number" name="num_children" value="${data.num_children || 0}" min="0" class="form-control">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Infants</label>
-                        <input type="number" name="num_infants" value="${data.num_infants || 0}" min="0" class="form-control">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Total Price (KES)</label>
-                    <input type="number" name="total_price" value="${data.total_price || ''}" step="0.01" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="PENDING" ${data.status==='PENDING'?'selected':''}>Pending</option>
-                        <option value="CONFIRMED" ${data.status==='CONFIRMED'?'selected':''}>Confirmed</option>
-                        <option value="CANCELLED" ${data.status==='CANCELLED'?'selected':''}>Cancelled</option>
-                        <option value="COMPLETED" ${data.status==='COMPLETED'?'selected':''}>Completed</option>
-                    </select>
-                </div>
-                <div class="mb-3 form-check">
-                    <input type="checkbox" name="is_paid" class="form-check-input" ${data.is_paid?'checked':''}>
-                    <label class="form-check-label">Payment Received</label>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Special Requests</label>
-                    <textarea name="special_requests" class="form-control" rows="2">${data.special_requests || ''}</textarea>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">${isEdit ? 'Update' : 'Create'} Booking</button>
-            </form>
-        `);
+            </div>
 
-        document.getElementById('bookingForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            data.driver = currentDriverId;
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #f72585, #b5179e);">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-value">{{ total_drivers }}</div>
+                    <div class="stat-label">Available Drivers</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
-            const method = isEdit ? 'PUT' : 'POST';
-            const url = isEdit ? `/api/bookings/${data.booking_reference}/` : '/api/bookings/';
+    <!-- =================== JS =================== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
 
-            try {
-                const response = await fetch(url, {
-                    method,
-                    headers: apiHeaders,
-                    body: JSON.stringify(data),
-                    credentials: 'include'
-                });
+            sidebar.classList.toggle('active');
+            mainContent.classList.toggle('active');
+        });
 
-                if (response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('formModal')).hide();
-                    showToast('success', `Booking ${isEdit ? 'updated' : 'created'} successfully!`);
-                    loadDashboard();
-                } else {
-                    showToast('error', 'Failed to save booking');
-                }
-            } catch (err) {
-                console.error('Error saving booking:', err);
-                showToast('error', 'Error saving booking');
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const mainContent = document.getElementById('mainContent');
+
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(event.target) &&
+                !toggleBtn.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+
+                sidebar.classList.remove('active');
+                mainContent.classList.remove('active');
             }
         });
-    }
 
-    // Trip Form
-    function openTripForm(data={}) {
-        const isEdit = data.id;
-
-        openModal(isEdit ? 'Edit Trip' : 'Add New Trip', `
-            <form id="tripForm">
-                <div class="mb-3">
-                    <label class="form-label">Booking Reference</label>
-                    <input type="text" name="booking" value="${data.booking?.booking_reference || ''}" class="form-control" placeholder="Enter booking reference" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Destination</label>
-                    <input type="text" name="destination" value="${data.destination || ''}" class="form-control" required>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Date</label>
-                        <input type="date" name="date" value="${data.date || ''}" class="form-control" required>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">Start Time</label>
-                        <input type="time" name="start_time" value="${data.start_time || '08:00'}" class="form-control" required>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">End Time</label>
-                        <input type="time" name="end_time" value="${data.end_time || '17:00'}" class="form-control" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Earnings (KES)</label>
-                        <input type="number" name="earnings" value="${data.earnings || ''}" step="0.01" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Distance (km)</label>
-                        <input type="number" name="distance" value="${data.distance || ''}" step="0.1" class="form-control">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="SCHEDULED" ${data.status==='SCHEDULED'?'selected':''}>Scheduled</option>
-                        <option value="IN_PROGRESS" ${data.status==='IN_PROGRESS'?'selected':''}>In Progress</option>
-                        <option value="COMPLETED" ${data.status==='COMPLETED'?'selected':''}>Completed</option>
-                        <option value="CANCELLED" ${data.status==='CANCELLED'?'selected':''}>Cancelled</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Fuel Consumed (L)</label>
-                    <input type="number" name="fuel_consumed" value="${data.fuel_consumed || ''}" step="0.1" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Notes</label>
-                    <textarea name="notes" class="form-control" rows="2">${data.notes || ''}</textarea>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">${isEdit ? 'Update' : 'Create'} Trip</button>
-            </form>
-        `);
-
-        document.getElementById('tripForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            data.driver = currentDriverId;
-
-            const method = isEdit ? 'PUT' : 'POST';
-            const url = isEdit ? `/api/trips/${data.id}/` : '/api/trips/';
-
-            try {
-                const response = await fetch(url, {
-                    method,
-                    headers: apiHeaders,
-                    body: JSON.stringify(data),
-                    credentials: 'include'
+        // Add active class to clicked sidebar links
+        document.querySelectorAll('.sidebar-menu .nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-menu .nav-link').forEach(l => {
+                    l.classList.remove('active');
                 });
-
-                if (response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('formModal')).hide();
-                    showToast('success', `Trip ${isEdit ? 'updated' : 'created'} successfully!`);
-                    loadDashboard();
-                } else {
-                    showToast('error', 'Failed to save trip');
-                }
-            } catch (err) {
-                console.error('Error saving trip:', err);
-                showToast('error', 'Error saving trip');
-            }
-        });
-    }
-
-    // Payment Form
-    function openPaymentForm(data={}) {
-        const isEdit = data.id;
-
-        openModal(isEdit ? 'Edit Payment' : 'Add New Payment', `
-            <form id="paymentForm">
-                <div class="mb-3">
-                    <label class="form-label">Booking Reference</label>
-                    <input type="text" name="booking" value="${data.booking?.booking_reference || ''}" class="form-control" placeholder="Enter booking reference" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Amount (KES)</label>
-                    <input type="number" name="amount" value="${data.amount || ''}" step="0.01" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Provider</label>
-                    <select name="provider" class="form-select">
-                        <option value="MPESA" ${data.provider==='MPESA'?'selected':''}>M-Pesa</option>
-                        <option value="STRIPE" ${data.provider==='STRIPE'?'selected':''}>Stripe</option>
-                        <option value="PAYPAL" ${data.provider==='PAYPAL'?'selected':''}>PayPal</option>
-                        <option value="CASH" ${data.provider==='CASH'?'selected':''}>Cash</option>
-                        <option value="BANK_TRANSFER" ${data.provider==='BANK_TRANSFER'?'selected':''}>Bank Transfer</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="PENDING" ${data.status==='PENDING'?'selected':''}>Pending</option>
-                        <option value="PROCESSING" ${data.status==='PROCESSING'?'selected':''}>Processing</option>
-                        <option value="SUCCESS" ${data.status==='SUCCESS'?'selected':''}>Success</option>
-                        <option value="FAILED" ${data.status==='FAILED'?'selected':''}>Failed</option>
-                        <option value="REFUNDED" ${data.status==='REFUNDED'?'selected':''}>Refunded</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Transaction ID</label>
-                    <input type="text" name="transaction_id" value="${data.transaction_id || ''}" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">${isEdit ? 'Update' : 'Create'} Payment</button>
-            </form>
-        `);
-
-        document.getElementById('paymentForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-
-            const method = isEdit ? 'PUT' : 'POST';
-            const url = isEdit ? `/api/payments/${data.id}/` : '/api/payments/';
-
-            try {
-                const response = await fetch(url, {
-                    method,
-                    headers: apiHeaders,
-                    body: JSON.stringify(data),
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('formModal')).hide();
-                    showToast('success', `Payment ${isEdit ? 'updated' : 'created'} successfully!`);
-                    loadDashboard();
-                } else {
-                    showToast('error', 'Failed to save payment');
-                }
-            } catch (err) {
-                console.error('Error saving payment:', err);
-                showToast('error', 'Error saving payment');
-            }
-        });
-    }
-
-    // Vehicle Form
-    function openVehicleForm(data={}) {
-        const isEdit = data.id;
-
-        openModal(isEdit ? 'Edit Vehicle' : 'Add New Vehicle', `
-            <form id="vehicleForm">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Make</label>
-                        <input type="text" name="make" value="${data.make || ''}" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Model</label>
-                        <input type="text" name="model" value="${data.model || ''}" class="form-control" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Year</label>
-                        <input type="number" name="year" value="${data.year || new Date().getFullYear()}" class="form-control" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">License Plate</label>
-                        <input type="text" name="license_plate" value="${data.license_plate || ''}" class="form-control" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Color</label>
-                        <input type="text" name="color" value="${data.color || ''}" class="form-control">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Vehicle Type</label>
-                        <select name="vehicle_type" class="form-select">
-                            <option value="SEDAN" ${data.vehicle_type==='SEDAN'?'selected':''}>Sedan</option>
-                            <option value="SUV" ${data.vehicle_type==='SUV'?'selected':''}>SUV</option>
-                            <option value="VAN" ${data.vehicle_type==='VAN'?'selected':''}>Van</option>
-                            <option value="MINIBUS" ${data.vehicle_type==='MINIBUS'?'selected':''}>Minibus</option>
-                            <option value="BUS" ${data.vehicle_type==='BUS'?'selected':''}>Bus</option>
-                            <option value="LUXURY" ${data.vehicle_type==='LUXURY'?'selected':''}>Luxury</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Capacity</label>
-                        <input type="number" name="capacity" value="${data.capacity || 4}" min="1" class="form-control" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Fuel Type</label>
-                    <select name="fuel_type" class="form-select">
-                        <option value="PETROL" ${data.fuel_type==='PETROL'?'selected':''}>Petrol</option>
-                        <option value="DIESEL" ${data.fuel_type==='DIESEL'?'selected':''}>Diesel</option>
-                        <option value="ELECTRIC" ${data.fuel_type==='ELECTRIC'?'selected':''}>Electric</option>
-                        <option value="HYBRID" ${data.fuel_type==='HYBRID'?'selected':''}>Hybrid</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Features</label>
-                    <textarea name="features" class="form-control" rows="2" placeholder="AC, GPS, WiFi, etc.">${data.features || ''}</textarea>
-                </div>
-                <div class="mb-3 form-check">
-                    <input type="checkbox" name="is_active" class="form-check-input" ${data.is_active!==false?'checked':''}>
-                    <label class="form-check-label">Active</label>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">${isEdit ? 'Update' : 'Register'} Vehicle</button>
-            </form>
-        `);
-
-        document.getElementById('vehicleForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            data.driver = currentDriverId;
-
-            const method = isEdit ? 'PUT' : 'POST';
-            const url = isEdit ? `/api/vehicles/${data.id}/` : '/api/vehicles/';
-
-            try {
-                const response = await fetch(url, {
-                    method,
-                    headers: apiHeaders,
-                    body: JSON.stringify(data),
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('formModal')).hide();
-                    showToast('success', `Vehicle ${isEdit ? 'updated' : 'registered'} successfully!`);
-                    loadDashboard();
-                } else {
-                    showToast('error', 'Failed to save vehicle');
-                }
-            } catch (err) {
-                console.error('Error saving vehicle:', err);
-                showToast('error', 'Error saving vehicle');
-            }
-        });
-    }
-
-    // Profile Form
-    function openProfileForm() {
-        fetch('/api/driver/profile/', {
-            headers: apiHeaders,
-            credentials: 'include'
-        })
-        .then(res => res.json())
-        .then(profile => {
-            openModal('Edit Profile', `
-                <form id="profileForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Phone Number</label>
-                            <input type="text" name="phone_number" value="${profile.phone_number || ''}" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">License Number</label>
-                            <input type="text" name="license_number" value="${profile.license_number || ''}" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">License Type</label>
-                            <input type="text" name="license_type" value="${profile.license_type || ''}" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">License Expiry</label>
-                            <input type="date" name="license_expiry" value="${profile.license_expiry || ''}" class="form-control">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Bio</label>
-                        <textarea name="bio" class="form-control" rows="3">${profile.bio || ''}</textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Experience (years)</label>
-                        <input type="number" name="experience_years" value="${profile.experience_years || 0}" min="0" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Location</label>
-                        <input type="text" name="location" value="${profile.location || ''}" class="form-control">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Save Profile</button>
-                </form>
-            `);
-
-            document.getElementById('profileForm').addEventListener('submit', async e => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const data = Object.fromEntries(formData);
-
-                try {
-                    const response = await fetch('/api/driver/profile/', {
-                        method: 'PATCH',
-                        headers: apiHeaders,
-                        body: JSON.stringify(data),
-                        credentials: 'include'
-                    });
-
-                    if (response.ok) {
-                        bootstrap.Modal.getInstance(document.getElementById('formModal')).hide();
-                        showToast('success', 'Profile updated successfully!');
-                        loadDashboard();
-                    } else {
-                        showToast('error', 'Failed to update profile');
-                    }
-                } catch (err) {
-                    console.error('Error updating profile:', err);
-                    showToast('error', 'Error updating profile');
-                }
+                this.classList.add('active');
             });
         });
-    }
-
-    // Delete Functions
-    async function deleteBooking(bookingRef) {
-        if (confirm(`Are you sure you want to delete booking ${bookingRef}?`)) {
-            try {
-                const response = await fetch(`/api/bookings/${bookingRef}/`, {
-                    method: 'DELETE',
-                    headers: apiHeaders,
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    showToast('success', 'Booking deleted successfully!');
-                    loadDashboard();
-                }
-            } catch (err) {
-                showToast('error', 'Failed to delete booking');
-            }
-        }
-    }
-
-    async function deleteTrip(tripId) {
-        if (confirm(`Are you sure you want to delete trip ${tripId}?`)) {
-            try {
-                const response = await fetch(`/api/trips/${tripId}/`, {
-                    method: 'DELETE',
-                    headers: apiHeaders,
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    showToast('success', 'Trip deleted successfully!');
-                    loadDashboard();
-                }
-            } catch (err) {
-                showToast('error', 'Failed to delete trip');
-            }
-        }
-    }
-
-    async function deletePayment(paymentId) {
-        if (confirm(`Are you sure you want to delete payment ${paymentId}?`)) {
-            try {
-                const response = await fetch(`/api/payments/${paymentId}/`, {
-                    method: 'DELETE',
-                    headers: apiHeaders,
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    showToast('success', 'Payment deleted successfully!');
-                    loadDashboard();
-                }
-            } catch (err) {
-                showToast('error', 'Failed to delete payment');
-            }
-        }
-    }
-
-    async function deleteVehicle(vehicleId) {
-        if (confirm(`Are you sure you want to delete this vehicle?`)) {
-            try {
-                const response = await fetch(`/api/vehicles/${vehicleId}/`, {
-                    method: 'DELETE',
-                    headers: apiHeaders,
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    showToast('success', 'Vehicle deleted successfully!');
-                    loadDashboard();
-                }
-            } catch (err) {
-                showToast('error', 'Failed to delete vehicle');
-            }
-        }
-    }
-
-    // Status Update Functions
-    async function updateBookingStatus(bookingRef, status) {
-        try {
-            const response = await fetch(`/api/bookings/${bookingRef}/status/`, {
-                method: 'PATCH',
-                headers: apiHeaders,
-                body: JSON.stringify({ status }),
-                credentials: 'include'
-            });
-            if (response.ok) {
-                showToast('success', `Booking ${status.toLowerCase()} successfully!`);
-                loadDashboard();
-            }
-        } catch (err) {
-            showToast('error', 'Failed to update booking status');
-        }
-    }
-
-    async function updateTripStatus(tripId, status) {
-        try {
-            const response = await fetch(`/api/trips/${tripId}/status/`, {
-                method: 'PATCH',
-                headers: apiHeaders,
-                body: JSON.stringify({ status }),
-                credentials: 'include'
-            });
-            if (response.ok) {
-                showToast('success', `Trip ${status.toLowerCase()} successfully!`);
-                loadDashboard();
-            }
-        } catch (err) {
-            showToast('error', 'Failed to update trip status');
-        }
-    }
-
-    async function updatePaymentStatus(paymentId, status) {
-        try {
-            const response = await fetch(`/api/payments/${paymentId}/status/`, {
-                method: 'PATCH',
-                headers: apiHeaders,
-                body: JSON.stringify({ status }),
-                credentials: 'include'
-            });
-            if (response.ok) {
-                showToast('success', `Payment ${status.toLowerCase()}!`);
-                loadDashboard();
-            }
-        } catch (err) {
-            showToast('error', 'Failed to update payment status');
-        }
-    }
-
-    async function toggleAvailability() {
-        try {
-            const profileRes = await fetch('/api/driver/profile/', {
-                headers: apiHeaders,
-                credentials: 'include'
-            });
-            const profile = await profileRes.json();
-
-            const response = await fetch('/api/driver/profile/', {
-                method: 'PATCH',
-                headers: apiHeaders,
-                body: JSON.stringify({ available: !profile.available }),
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                showToast('success', `Availability ${!profile.available ? 'enabled' : 'disabled'}!`);
-                loadDashboard();
-            }
-        } catch (err) {
-            showToast('error', 'Failed to toggle availability');
-        }
-    }
-
-    // Event Listeners
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-        try {
-            await fetch('/api/logout/', {
-                method: 'POST',
-                headers: apiHeaders,
-                credentials: 'include'
-            });
-            window.location.href = '/driver/login/';
-        } catch (err) {
-            showToast('error', 'Logout failed');
-        }
-    });
-
-    document.getElementById('refreshBtn').addEventListener('click', () => {
-        loadDashboard();
-        showToast('success', 'Dashboard refreshed!');
-    });
-
-    // Smooth scrolling for sidebar links
-    document.querySelectorAll('.sidebar a').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-
-    // Auto-refresh every 60 seconds
-    setInterval(loadDashboard, 60000);
-
-    // Initialize
-    loadDashboard();
-</script>
+    </script>
 </body>
 </html>

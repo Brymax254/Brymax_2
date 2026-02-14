@@ -2063,14 +2063,13 @@
 
     // Book tour function
     function bookTour(tourId) {
-        showToast('Redirecting to safari booking page...', 'info');
+    showToast('Redirecting to safari booking page...', 'info');
 
-        // Redirect to booking page
-        setTimeout(() => {
-            window.location.href = `/payments/tour/${tourId}/`;
-        }, 1000);
-    }
-
+    // Redirect to booking page - UPDATED URL
+    setTimeout(() => {
+        window.location.href = `/payments/tour/${tourId}/`;  // This should work with your URL pattern
+    }, 1000);
+}
     // Category pills
     document.querySelectorAll('.category-pill').forEach(pill => {
         pill.addEventListener('click', function() {
