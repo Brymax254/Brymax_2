@@ -1,0 +1,105 @@
+/* ==============================
+   Airport Dashboard Admin Theme
+   ============================== */
+
+/* ---------- Header ---------- */
+.navbar-inverse {
+    background-color: #1E293B; /* Dark blue-gray */
+    border-bottom: 3px solid #FBBF24; /* Yellow accent line */
+}
+.navbar-inverse .navbar-brand {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 20px;
+    color: #FFFFFF;
+}
+.navbar-inverse .navbar-nav > li > a {
+    color: #FFFFFF; /* Top menu links */
+}
+.navbar-inverse .navbar-nav > li > a:hover {
+    color: #FBBF24; /* Yellow hover */
+}
+
+/* ---------- Sidebar ---------- */
+#header, .sidebar {
+    background-color: #111827; /* Dark sidebar */
+}
+.sidebar li a {
+    color: #D1D5DB; /* Light gray text */
+}
+.sidebar li a:hover, .sidebar li.active > a {
+    background-color: #FBBF24; /* Yellow hover */
+    color: #111827 !important; /* Dark text on hover */
+    font-weight: bold;
+}
+
+/* ---------- Buttons & Forms ---------- */
+a.button, .btn, input[type="submit"], .btn-primary {
+    background-color: #EF4444; /* Red accent */
+    color: #FFFFFF;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+}
+a.button:hover, .btn:hover, input[type="submit"]:hover, .btn-primary:hover {
+    background-color: #F87171; /* lighter red on hover */
+    color: #FFFFFF;
+}
+
+/* ---------- Tables ---------- */
+.table th {
+    background-color: #1F2937; /* Dark header */
+    color: #FFFFFF;
+}
+.table td {
+    background-color: #1E293B; /* Slightly lighter dark rows */
+    color: #E5E7EB; /* Off-white text */
+}
+.table tr:hover td {
+    background-color: #111827; /* Row hover */
+}
+
+/* ---------- Form Inputs ---------- */
+input, select, textarea {
+    border-radius: 5px;
+    border: 1px solid #374151; /* Gray border */
+    background-color: #1F2937; /* Dark input background */
+    color: #E5E7EB; /* Light text */
+}
+input:focus, select:focus, textarea:focus {
+    border-color: #FBBF24; /* Yellow focus */
+    box-shadow: 0 0 5px #FBBF24;
+    outline: none;
+}
+
+/* ---------- Links ---------- */
+a {
+    color: #EF4444;
+}
+a:hover {
+    color: #FBBF24;
+}
+
+/* ---------- Notifications / Messages ---------- */
+div.success, div.info, div.warning, div.error {
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: bold;
+}
+div.success { background-color: #10B981; color: #FFFFFF; } /* Green */
+div.info { background-color: #3B82F6; color: #FFFFFF; } /* Blue */
+div.warning { background-color: #FBBF24; color: #111827; } /* Yellow */
+div.error { background-color: #EF4444; color: #FFFFFF; } /* Red */
+
+/* ---------- Cards / Panels ---------- */
+.module {
+    background-color: #1E293B; /* Dark card background */
+    border: 1px solid #374151; /* Card border */
+    border-radius: 8px;
+    padding: 15px;
+}
+.module h2, .module h3 {
+    color: #FBBF24; /* Yellow headings */
+}
+
+/* ---------- Misc ---------- */
+hr { border-color: #374151; }

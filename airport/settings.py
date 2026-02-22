@@ -34,37 +34,47 @@ ALLOWED_HOSTS = [
 # APPLICATIONS
 # ==============================
 INSTALLED_APPS = [
-    # Django default apps
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.humanize",
-    "django_extensions",
-    "django_filters",
+    'colorfield',  # MUST be first for admin_interface
+    'admin_interface',  # admin_interface must come before admin
+    'grappelli',  # Grappelli optional but should be before admin
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django_extensions',
+    'django_filters',
 
-    # Project apps
-    "bookings",
-    "payments",
-    "rest_framework",
-
-    # Third-party apps
-
-    #"admin_tools",
-    #"admin_tools.dashboard",
-    #"admin_tools.theming",
-    #"admin_tools.menu",
-    "plotly",
+    # Your project apps
+    'bookings',
+    'payments',
+    'rest_framework',
+    'plotly',
 ]
 
+# Admin Interface Customization
+ADMIN_INTERFACE_COLORS = {
+    "header_bg": "#1F2937",      # Dark gray header
+    "menu_bg": "#111827",        # Slightly darker sidebar
+    "accent": "#EF4444",         # Red accent for buttons/highlights
+    "topmenu_text": "#FFFFFF",   # White text on top menu
+    "menu_text": "#D1D5DB",      # Light gray sidebar text
+    "menu_hover": "#FBBF24",     # Yellow hover on sidebar
+}
+# Custom Admin Interface CSS
+ADMIN_INTERFACE_CUSTOM_CSS = "admin_interface/css/custom.css"
 # ==============================
 # MIDDLEWARE
 # ==============================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+
+    # 👇 Add this (after SessionMiddleware and before CommonMiddleware)
+    "django.middleware.locale.LocaleMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -115,12 +125,18 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 if not DATABASE_URL:
     raise Exception("DATABASE_URL environment variable not set!")
 
+#DATABASES = {
+    #"default": dj_database_url.parse(
+     #   DATABASE_URL,
+      #  conn_max_age=600,  # persistent connections
+       # ssl_require=False   # CyberPanel local DB usually doesn't need SSL
+    #)
+#}
 DATABASES = {
-    "default": dj_database_url.parse(
-        DATABASE_URL,
-        conn_max_age=600,  # persistent connections
-        ssl_require=False   # CyberPanel local DB usually doesn't need SSL
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # ==============================
