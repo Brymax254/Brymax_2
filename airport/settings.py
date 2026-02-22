@@ -23,40 +23,49 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="dev-insecure-replace-me")
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = [
-    'airportdestinationsandtransfers.co.ke',
-    'www.airportdestinationsandtransfers.co.ke',
-    'localhost',
-    '127.0.0.1',
-]
+ALLOWED_HOSTS = ['www.airportdestinationsandtransfers.co.ke',"127.0.0.1",
+    "localhost", 'airportdestinationsandtransfers.co.ke']
+
+# ==============================
+# PROXY / SSL CONFIG (LITESPEED)
+# ==============================
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+SECURE_SSL_REDIRECT = False  # LiteSpeed handles SSL
 
 # ==============================
 # APPLICATIONS
 # ==============================
 INSTALLED_APPS = [
+    # Grappelli for admin styling
+    'grappelli',
+
     # Django default apps
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.humanize",
-    "django_extensions",
-    "django_filters",
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django_extensions',
+    'django_filters',
 
     # Project apps
-    "bookings",
-    "payments",
-    "rest_framework",
+    'bookings',
+    'payments',
+    'rest_framework',
+    'colorfield',
+    'admin_interface',
 
     # Third-party apps
-
-    #"admin_tools",
-    #"admin_tools.dashboard",
-    #"admin_tools.theming",
-    #"admin_tools.menu",
-    "plotly",
+    # 'admin_tools',
+    # 'admin_tools.dashboard',
+    # 'admin_tools.theming',
+    # 'admin_tools.menu',
+    'plotly',
 ]
 
 # ==============================

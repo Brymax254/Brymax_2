@@ -14,7 +14,7 @@ cloudinary==1.41.0
 cryptography==46.0.3
 deprecation==2.1.0
 dj-database-url==2.2.0
-Django==6.0
+Django==5.2.11
 django-admin-tools==0.9.3
 django-cloudinary-storage==0.3.0
 django-cors-headers==4.4.0
